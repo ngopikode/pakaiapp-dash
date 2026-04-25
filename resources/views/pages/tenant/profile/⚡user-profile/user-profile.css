@@ -1,0 +1,11 @@
+.btn-brand {
+    background-color: var(--bs-primary);
+    color: white;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-brand:hover {
+    background-color: #0b5ed7; /* Warna primary Bootstrap yang agak gelap saat dihover */
+    color: white;
+    transform: translateY(-1px);
+}

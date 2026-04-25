@@ -11,7 +11,7 @@ new class extends Component {
         session()->invalidate();
         session()->regenerateToken();
 
-        $this->redirect('/', true);
+        $this->redirectRoute('dashboard');
     }
 };
 ?>
@@ -89,7 +89,7 @@ new class extends Component {
                     </li>
 
                     <li>
-                        <a class="dropdown-item py-2" href="{{ route('home') }}" wire:navigate><i
+                        <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate><i
                                 class="bi bi-person me-2"></i>
                             Edit Profil
                         </a>

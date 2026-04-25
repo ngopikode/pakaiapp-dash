@@ -1,0 +1,104 @@
+/* Import Font dari Google (Inter untuk teks biasa, Courier Prime untuk angka/item) */
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    background-color: #f3f4f6;
+    font-family: 'Inter', sans-serif; /* Font dasar yang lebih modern */
+}
+
+.receipt-container {
+    max-width: 420px; /* Sedikit dirampingkan agar proporsinya seperti struk asli */
+    margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08); /* Bayangan lebih halus dan elegan */
+    border-radius: 8px 8px 0 0; /* Sudut bawah dibuat siku karena ada efek gerigi */
+    position: relative;
+    padding-bottom: 20px;
+}
+
+/* Efek gerigi bawah (Zig-zag) yang lebih tajam dan modern */
+.receipt-container::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-size: 20px 20px;
+    background-image: linear-gradient(135deg, #fff 25%, transparent 25%),
+    linear-gradient(225deg, #fff 25%, transparent 25%);
+    background-position: 0 0;
+}
+
+.dashed-border {
+    border-top: 1.5px dashed #d1d5db;
+}
+
+/* Font khusus untuk item dan angka agar seperti struk kasir asli */
+.receipt-monospace {
+    font-family: 'Courier Prime', monospace;
+}
+
+/* Efek Stempel Status */
+.status-stamp {
+    position: absolute;
+    top: 180px;
+    right: 30px;
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: 4px solid;
+    border-radius: 8px;
+    padding: 5px 15px;
+    transform: rotate(-15deg);
+    opacity: 0.15; /* Transparan agar tidak menutupi teks */
+    pointer-events: none;
+}
+
+.stamp-paid {
+    color: #16a34a;
+    border-color: #16a34a;
+}
+
+.stamp-unpaid {
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+/* Barcode tiruan (Pemanis visual) */
+.fake-barcode {
+    font-family: 'Courier Prime', monospace;
+    font-size: 2.5rem;
+    letter-spacing: -2px;
+    color: #374151;
+    overflow: hidden;
+    height: 40px;
+}
+
+/* Penyesuaian saat cetak kertas */
+@media print {
+    body {
+        background-color: white;
+    }
+
+    .receipt-container {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: 100%;
+    }
+
+    .receipt-container::after {
+        display: none;
+    }
+
+    /* Hilangkan gerigi saat dicetak */
+    .no-print {
+        display: none !important;
+    }
+
+    .status-stamp {
+        opacity: 0.3;
+    }
+
+    /* Pertegas stempel saat dicetak */
+}

@@ -22,16 +22,17 @@ new class extends Component {
             [
                 'title' => 'Menu Utama',
                 'items' => [
-                    ['route' => 'home', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard'],
+                    ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard'],
                     ['route' => 'home', 'icon' => 'bi bi-journal-richtext', 'label' => 'Menu Restoran'],
                     ['route' => 'home', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan Masuk'],
+                    ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir'],
                 ]
             ],
             [
                 'title' => 'Pengaturan',
                 'items' => [
                     ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Resto'],
-                    ['route' => 'home', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun'],
+                    ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun'],
                 ]
             ]
         ];
