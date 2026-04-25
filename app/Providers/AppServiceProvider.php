@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Features\SupportFileUploads\FilePreviewController;
@@ -28,6 +29,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        if (!app()->runningInConsole()) {
+
+            $request = request();
+
+            URL::useOrigin($request->getSchemeAndHttpHost());
+
+            if ($request->isSecure()) {
+                URL::forceScheme('https');
+            }
+        }
 
         Livewire::setUpdateRoute(function ($handle, $path) {
             return Route::post($path, $handle)
