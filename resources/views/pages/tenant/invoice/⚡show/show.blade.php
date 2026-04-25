@@ -133,7 +133,14 @@
 
         <div class="text-center mt-4 pt-3 dashed-border">
             <div class="text-center mb-3">
-                <svg id="barcode"></svg>
+                <svg x-init="JsBarcode($el, '{{ $order->invoice_code }}', {
+        format: 'CODE128',
+        lineColor: '#111827',
+        width: 1.5,
+        height: 40,
+        displayValue: false,
+        margin: 0
+    })"></svg>
             </div>
             <p class="fw-bold text-dark mb-1">Terima Kasih!</p>
             <p class="text-muted" style="font-size: 0.8rem;">Struk ini adalah bukti pembayaran yang sah.<br>Harap
@@ -145,24 +152,3 @@
 @assets
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 @endassets
-
-@script
-<script>
-    // Pastikan DOM sudah dimuat semua sebelum menjalankan script
-    document.addEventListener('DOMContentLoaded', function () {
-
-        // Ambil nomor pesanan dari variabel Laravel
-        const invoiceCode = "{{ $order->invoice_code }}";
-
-        // Menerapkan JsBarcode ke elemen <svg id="barcode">
-        JsBarcode('#barcode', invoiceCode, {
-            format: 'CODE128',    // Format barcode standar yang paling sering dipakai
-            lineColor: '#111827', // Warna garis barcode (gelap)
-            width: 1.5,           // Ketebalan garis
-            height: 40,           // Tinggi barcode
-            displayValue: false,  // Ubah ke 'true' jika kamu ingin angka/teksnya muncul di bawah barcode
-            margin: 0
-        });
-    });
-</script>
-@endscript
