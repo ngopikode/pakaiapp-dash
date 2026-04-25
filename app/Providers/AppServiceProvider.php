@@ -32,11 +32,7 @@ class AppServiceProvider extends ServiceProvider
 
         if (!app()->runningInConsole()) {
 
-            $request = request();
-
-            URL::useOrigin($request->getSchemeAndHttpHost());
-
-            if ($request->isSecure()) {
+            if (app()->environment('production')) {
                 URL::forceScheme('https');
             }
         }
