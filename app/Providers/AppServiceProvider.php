@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Features\SupportFileUploads\FilePreviewController;
 use Livewire\Livewire;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,14 +34,14 @@ class AppServiceProvider extends ServiceProvider
                 ->middleware([
                     'web',
                     'universal',
-                    InitializeTenancyByDomainOrSubdomain::class,
+                    InitializeTenancyByDomain::class,
                 ]);
         });
 
         FilePreviewController::$middleware = [
             'web',
             'universal',
-            InitializeTenancyByDomainOrSubdomain::class,
+            InitializeTenancyByDomain::class,
         ];
     }
 

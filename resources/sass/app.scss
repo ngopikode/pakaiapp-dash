@@ -2,39 +2,48 @@
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-/* --- 1. Override Variabel Bootstrap --- */
+/* --- 1. Override Variabel Bootstrap (Premium Earthy Palette) --- */
 :root {
-    --brand-espresso: #4A2E1B;
-    --brand-caramel: #C7823B;
-    --brand-mocha: #8C5A35;
-    --brand-latte: #F5F0EB;
+    /* Brand Colors */
+    --brand-espresso: #321E14;
+    --brand-caramel: #B67332;
+    --brand-mocha: #846A58;
+    --brand-latte: #F9F7F5; /* Background yang lebih bersih */
 
-    --font-sans: 'Inter', sans-serif;
+    /* Typography */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-serif: 'Plus Jakarta Sans', sans-serif;
 
+    /* Bootstrap Core Overrides */
     --bs-primary: var(--brand-espresso);
-    --bs-primary-rgb: 74, 46, 27;
+    --bs-primary-rgb: 50, 30, 20;
     --bs-secondary: var(--brand-mocha);
-    --bs-secondary-rgb: 140, 90, 53;
+    --bs-secondary-rgb: 132, 106, 88;
     --bs-link-color: var(--brand-caramel);
     --bs-link-hover-color: var(--brand-espresso);
 
+    /* Body & Surface */
     --bs-body-bg: var(--brand-latte);
-    --bs-body-color: #2C1A0E;
-    --bs-border-color: #E6DCD1;
+    --bs-body-color: #211B17; /* Teks utama jauh lebih gelap & tajam */
+    --bs-secondary-color: #7A6F68; /* Teks muted/sekunder */
+    --bs-border-color: #E9E2DB;
     --bs-body-font-family: var(--font-sans);
     --bs-card-bg: #FFFFFF;
 }
 
 [data-bs-theme="dark"] {
-    --bs-primary: var(--brand-caramel);
-    --bs-primary-rgb: 199, 130, 59;
-    --bs-body-bg: #16110D;
-    --bs-body-color: #F0E8DD;
-    --bs-secondary-bg: #221A14;
-    --bs-tertiary-bg: #2B2119;
-    --bs-border-color: #3D3126;
-    --bs-card-bg: #2B2119;
+    /* Dark Mode: Deep Espresso Coffee vibe */
+    --bs-primary: #D4A373; /* Caramel lebih terang untuk kontras */
+    --bs-primary-rgb: 212, 163, 115;
+
+    --bs-body-bg: #120F0D; /* Hitam pekat dengan sedikit warm tone */
+    --bs-body-color: #EBE3D5; /* Teks putih gading (nyaman di mata) */
+    --bs-secondary-color: #A89B91;
+
+    --bs-secondary-bg: #1C1815;
+    --bs-tertiary-bg: #25211E;
+    --bs-border-color: #2F2924;
+    --bs-card-bg: #1C1815;
 }
 
 /* --- 2. Base Styles --- */
@@ -42,6 +51,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: var(--bs-body-color);
 }
 
 #wrapper {
@@ -62,7 +72,7 @@ body {
 #sidebar-wrapper {
     min-width: 280px;
     max-width: 280px;
-    background-color: var(--bs-secondary-bg, #FFFFFF);
+    background-color: var(--bs-card-bg);
     border-right: 1px solid var(--bs-border-color);
     transition: margin 0.3s ease-in-out, background-color 0.3s ease;
     display: flex;
@@ -74,47 +84,48 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 }
 
 .list-group-item-action {
-    color: #806A58;
+    color: var(--bs-secondary-color);
     background-color: transparent;
     border: none;
     font-weight: 500;
     padding: 0.85rem 1.5rem;
     border-left: 4px solid transparent;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-[data-bs-theme="dark"] .list-group-item-action {
-    color: #A89584;
-}
-
 .list-group-item-action:hover {
-    background-color: rgba(199, 130, 59, 0.08);
+    background-color: rgba(182, 115, 50, 0.05); /* Soft Caramel tint */
     color: var(--brand-caramel);
 }
 
 .list-group-item-action.active {
-    color: var(--bs-primary);
-    background: linear-gradient(90deg, rgba(199, 130, 59, 0.1) 0%, transparent 100%);
-    border-left-color: var(--bs-primary);
+    color: var(--brand-espresso);
+    background: linear-gradient(90deg, rgba(182, 115, 50, 0.08) 0%, transparent 100%);
+    border-left-color: var(--brand-caramel);
     font-weight: 600;
+}
+
+[data-bs-theme="dark"] .list-group-item-action.active {
+    color: var(--bs-primary);
 }
 
 /* --- 4. Navbar --- */
 .navbar-dashboard {
-    background: rgba(245, 240, 235, 0.9);
+    background: rgba(var(--bs-body-bg-rgb), 0.8);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--bs-border-color);
     transition: background-color 0.3s ease;
 }
 
-[data-bs-theme="dark"] .navbar-dashboard {
-    background: rgba(22, 17, 13, 0.9);
+.navbar-dashboard h5 {
+    color: var(--brand-espresso) !important;
+    font-weight: 700;
 }
 
-.navbar-dashboard h5, .navbar-dashboard .text-dark {
+[data-bs-theme="dark"] .navbar-dashboard h5 {
     color: var(--bs-body-color) !important;
 }
 
@@ -122,81 +133,55 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 .form-control, .form-select {
     border-radius: 0.75rem;
     border-color: var(--bs-border-color);
-    background-color: var(--bs-body-bg);
+    background-color: var(--bs-card-bg);
     padding: 0.75rem 1rem;
     color: var(--bs-body-color);
 }
 
-.form-control:focus, .form-select:focus, .form-check-input:focus {
+.form-control:focus, .form-select:focus {
     border-color: var(--brand-caramel);
-    box-shadow: 0 0 0 3px rgba(199, 130, 59, 0.2);
+    box-shadow: 0 0 0 3px rgba(182, 115, 50, 0.15);
 }
 
-[data-bs-theme="dark"] .form-floating > label {
-    color: #A89584;
-}
-
-/* --- 6. Buttons & Utilities --- */
-.btn-brand, .btn-primary {
-    --bs-btn-bg: var(--bs-primary);
-    --bs-btn-border-color: var(--bs-primary);
-    --bs-btn-hover-bg: var(--brand-caramel);
-    --bs-btn-hover-border-color: var(--brand-caramel);
-    color: white;
+/* --- 6. Buttons --- */
+.btn-primary {
+    --bs-btn-bg: var(--brand-espresso);
+    --bs-btn-border-color: var(--brand-espresso);
+    --bs-btn-hover-bg: #1A100B;
+    --bs-btn-hover-border-color: #1A100B;
+    color: #FFFFFF;
     font-weight: 600;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(74, 46, 27, 0.2);
     border-radius: 0.75rem;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 4px 12px rgba(50, 30, 20, 0.15);
+    transition: all 0.2s ease;
 }
 
-.btn-brand:hover, .btn-primary:hover {
+.btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(199, 130, 59, 0.3);
+    box-shadow: 0 6px 16px rgba(50, 30, 20, 0.25);
 }
 
-[data-bs-theme="dark"] .btn-brand, [data-bs-theme="dark"] .btn-primary {
-    color: #16110D;
+[data-bs-theme="dark"] .btn-primary {
+    --bs-btn-bg: var(--brand-caramel);
+    --bs-btn-border-color: var(--brand-caramel);
+    color: #120F0D;
 }
 
-.text-brand {
-    color: var(--brand-caramel) !important;
-}
-
-.font-serif {
-    font-family: var(--font-serif);
+/* --- 7. Cards & Utility --- */
+.card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 24px rgba(50, 30, 20, 0.04);
+    background: var(--bs-card-bg);
 }
 
 .text-muted {
-    color: #806A58 !important;
+    color: var(--bs-secondary-color) !important;
 }
 
-[data-bs-theme="dark"] .text-muted {
-    color: #A89584 !important;
-}
-
-/* --- 7. Cards & Dropdowns --- */
-.card-auth, .card {
-    border: 1px solid var(--bs-border-color);
-    border-radius: 1.25rem;
-    box-shadow: 0 8px 24px rgba(74, 46, 27, 0.04);
-    background: var(--bs-card-bg);
-    backdrop-filter: blur(12px);
-}
-
-.dropdown-menu {
-    background-color: var(--bs-card-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 25px -3px rgba(74, 46, 27, 0.1);
-}
-
-.dropdown-item {
-    color: var(--bs-body-color);
-}
-
-.dropdown-item:hover {
-    background-color: rgba(199, 130, 59, 0.08);
-    color: var(--brand-caramel);
+.font-serif {
+    font-family: var(--font-serif), serif;
 }
 
 /* --- 8. NProgress --- */
@@ -205,43 +190,15 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     height: 3px !important;
 }
 
-#nprogress .peg {
-    box-shadow: 0 0 10px var(--brand-caramel), 0 0 5px var(--brand-caramel) !important;
-}
-
-#nprogress .spinner-icon {
-    border-top-color: var(--brand-caramel) !important;
-    border-left-color: var(--brand-caramel) !important;
-}
-
-/* --- 9. Dark Mode Fixes (Offcanvas & Overrides) --- */
-[data-bs-theme="dark"] .text-dark {
-    color: var(--bs-body-color) !important;
-}
-
-[data-bs-theme="dark"] .bg-light {
-    background-color: var(--bs-secondary-bg) !important;
-    color: var(--bs-body-color) !important;
-}
-
-[data-bs-theme="dark"] .bg-white {
-    background-color: var(--bs-card-bg) !important;
-    color: var(--bs-body-color) !important;
-}
-
-[data-bs-theme="dark"] .offcanvas {
-    background-color: var(--bs-secondary-bg);
-    color: var(--bs-body-color);
-}
-
+/* --- 9. Dark Mode Fixes --- */
 [data-bs-theme="dark"] .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%) sepia(50%) hue-rotate(330deg);
+    filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* --- 10. SweetAlert --- */
-div:where(.swal2-container) div:where(.swal2-toast) {
-    background-color: var(--bs-card-bg) !important;
+/* --- 10. SweetAlert Customization --- */
+div:where(.swal2-container) div:where(.swal2-popup) {
+    background: var(--bs-card-bg) !important;
     color: var(--bs-body-color) !important;
+    border-radius: 1.5rem !important;
     border: 1px solid var(--bs-border-color) !important;
-    box-shadow: 0 10px 30px rgba(74, 46, 27, 0.1) !important;
 }

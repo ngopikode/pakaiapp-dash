@@ -57,7 +57,7 @@ new class extends Component {
             </div>
 
             @foreach($section['items'] as $item)
-                <x-sidebar-item
+                <x-layouts.sidebar-item
                     :route="$item['route']"
                     :icon="$item['icon']"
                     :label="$item['label']"
