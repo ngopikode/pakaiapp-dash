@@ -5,7 +5,7 @@ use App\Models\StoreSetting;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::guest')]
+new #[Layout('layouts::print')]
 class extends Component {
 
     public Order $order;

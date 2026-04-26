@@ -1,8 +1,13 @@
 <div class="py-4 py-md-5 px-3">
-    <div class="mx-auto mb-4 d-flex justify-content-between align-items-center no-print" style="max-width: 420px;">
+    <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
+         style="max-width: 450px;">
         <button onclick="window.print()"
-                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-4 py-2">
-            <i class="bi bi-printer"></i> Cetak Invoice
+                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2">
+            <i class="bi bi-printer"></i> Cetak
+        </button>
+        <button onclick="downloadReceipt()"
+                class="btn btn-primary rounded-3 shadow-sm px-3 py-2 d-flex align-items-center gap-2">
+            <i class="bi bi-download"></i> Download
         </button>
         <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank"
            class="btn btn-success rounded-3 shadow-sm px-3 py-2 d-flex align-items-center gap-2">
@@ -10,7 +15,7 @@
         </a>
     </div>
 
-    <div class="receipt-container p-4 p-md-5 mt-2">
+    <div id="receipt-content" class="receipt-container p-4 p-md-5 mt-2">
 
         @if($order->status == 'paid' || $order->status == 'completed')
             <div class="status-stamp stamp-paid">LUNAS</div>
@@ -82,12 +87,9 @@
                                 <div class="text-muted" style="font-size: 0.8rem;">- {{ $item->variant_name }}</div>
                             @endif
                         </div>
-                        <div class="text-center" style="width: 15%;">
-                            {{ $item->quantity }}
-                        </div>
-                        <div class="text-end fw-bold" style="width: 35%;">
-                            {{ number_format($item->subtotal, 0, ',', '.') }}
-                        </div>
+                        <div class="text-center" style="width: 15%;">{{ $item->quantity }}</div>
+                        <div class="text-end fw-bold"
+                             style="width: 35%;">{{ number_format($item->subtotal, 0, ',', '.') }}</div>
                     </div>
                     @if($item->note)
                         <div class="text-muted mt-1" style="font-size: 0.75rem; font-style: italic;">
@@ -134,13 +136,13 @@
         <div class="text-center mt-4 pt-3 dashed-border">
             <div class="text-center mb-3">
                 <svg x-init="JsBarcode($el, '{{ $order->invoice_code }}', {
-        format: 'CODE128',
-        lineColor: '#111827',
-        width: 1.5,
-        height: 40,
-        displayValue: false,
-        margin: 0
-    })"></svg>
+                    format: 'CODE128',
+                    lineColor: '#111827',
+                    width: 1.5,
+                    height: 40,
+                    displayValue: false,
+                    margin: 0
+                })"></svg>
             </div>
             <p class="fw-bold text-dark mb-1">Terima Kasih!</p>
             <p class="text-muted" style="font-size: 0.8rem;">Struk ini adalah bukti pembayaran yang sah.<br>Harap
@@ -151,4 +153,35 @@
 
 @assets
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    function downloadReceipt() {
+        const receipt = document.getElementById('receipt-content');
+
+        // Simpan state CSS awal
+        const originalBoxShadow = receipt.style.boxShadow;
+        const originalBorderRadius = receipt.style.borderRadius;
+
+        // Hapus styling tertentu sementara agar gambar rapi (opsional)
+        receipt.style.boxShadow = 'none';
+        receipt.style.borderRadius = '0px';
+
+        html2canvas(receipt, {
+            scale: 2, // Resolusi tinggi agar tidak pecah
+            backgroundColor: '#ffffff',
+            useCORS: true // Penting jika ada gambar logo dari domain luar
+        }).then(canvas => {
+            // Kembalikan state CSS semula
+            receipt.style.boxShadow = originalBoxShadow;
+            receipt.style.borderRadius = originalBorderRadius;
+
+            // Proses Download
+            let link = document.createElement('a');
+            link.download = 'Invoice-{{ $order->invoice_code }}.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+</script>
 @endassets
