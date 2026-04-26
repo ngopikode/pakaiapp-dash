@@ -22,15 +22,19 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-])->prefix('dashboard')->group(function () {
+])->group(function () {
 
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
 
     Route::middleware('auth')->group(function () {
-        Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
-        Route::livewire('order', 'pages::tenant.order.index')->name('order');
+
         Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
-        Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
+
+        Route::prefix('dashboard')->group(function () {
+            Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
+            Route::livewire('order', 'pages::tenant.order.index')->name('order');
+            Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
+        });
     });
 
     require __DIR__ . '/auth.php';
