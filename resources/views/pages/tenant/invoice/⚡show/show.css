@@ -1,11 +1,3 @@
-/* Import Font dari Google */
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
-
-body {
-    background-color: #f3f4f6;
-    font-family: 'Inter', sans-serif;
-}
-
 .receipt-container {
     max-width: 420px;
     margin: 0 auto;
@@ -60,61 +52,4 @@ body {
 .stamp-unpaid {
     color: #dc2626;
     border-color: #dc2626;
-}
-
-@media print {
-    @page {
-        /* Set margin 0 agar tidak ada header/footer tanggal atau URL dari browser */
-        margin: 0 !important;
-        size: A5 portrait;
-    }
-
-    html, body {
-        background-color: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        /* Biarkan tinggi menyesuaikan konten, jangan biarkan browser memaksakan tinggi A4 */
-        height: auto !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .no-print {
-        display: none !important;
-    }
-
-    .receipt-container {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        width: 100% !important; /* Gunakan lebar kertas printer sepenuhnya */
-        max-width: 80mm !important; /* Maksimal lebar untuk thermal 80mm */
-        margin: 0 !important;
-        padding: 0 !important; /* Kurangi padding bawah agar tidak nyundul halaman baru */
-
-        /* Mencegah browser memotong halaman di tengah-tengah struk */
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        page-break-after: avoid !important;
-        page-break-before: avoid !important;
-    }
-
-    /* Hilangkan gerigi bawah saat print karena ini memakan tinggi (height) */
-    .receipt-container::after {
-        display: none !important;
-    }
-
-    .status-stamp {
-        opacity: 0.3 !important;
-    }
-
-    .bg-light {
-        background-color: transparent !important;
-        border: 1px solid #d1d5db !important;
-    }
-
-    /* Hilangkan margin/padding ekstra di elemen paling bawah */
-    .receipt-container > div:last-child {
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
-    }
 }

@@ -16,20 +16,11 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <style>
-        /* TAMPILAN DI LAYAR (PREVIEW) */
         body {
             background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
         }
 
-        .print-container {
-            max-width: 420px;
-            margin: 2rem auto;
-            background: white;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        /* PENGATURAN KHUSUS PRINTER THERMAL */
         @media print {
             @page {
                 margin: 0; /* Wajib: Menghilangkan margin/header/footer bawaan browser */
