@@ -150,7 +150,7 @@
 
                                                             @if($product->has_variants)
                                                                 <span
-                                                                    class="position-absolute bottom-0 start-0 m-2 badge bg-primary opacity-75"
+                                                                    class="position-absolute bottom-0 start-0 m-2 badge opacity-75"
                                                                     style="font-size: 0.65rem;">
                                                                     {{ $product->variants->count() }} Varian
                                                                 </span>
