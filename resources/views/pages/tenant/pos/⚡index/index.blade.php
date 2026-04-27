@@ -1,4 +1,4 @@
-<div class="row g-4 pos-container"
+<div class="row g-4 pos-container h-100"
      x-data="posSystem()"
      @add-product.window="handleProductClick($event.detail.product)"
      x-cloak>
@@ -8,178 +8,289 @@
     </div>
 
     <div class="col-lg-5 col-xl-4 h-100">
-        <div class="card border-0 shadow-sm rounded-4 cart-sidebar">
-            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bolder mb-0">Pesanan</h5>
-                <button @click="clearCart" class="btn btn-sm btn-outline-danger rounded-pill" x-show="cart.length > 0">
-                    Reset
+        <div class="card h-100 d-flex flex-column overflow-hidden shadow-sm" style="border-radius: 1.25rem;">
+
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-body-tertiary">
+                <h4 class="fw-bold font-serif text-primary mb-0">Pesanan</h4>
+                <button @click="clearCart" class="btn btn-sm btn-outline-danger"
+                        style="border-radius: 0.5rem; font-weight: 600;" x-show="cart.length > 0">
+                    <i class="bi bi-trash3 me-1"></i> Kosongkan
                 </button>
             </div>
 
-            <div class="card-body p-0 cart-items bg-light bg-opacity-50">
+            <div class="card-body p-3 overflow-y-auto flex-grow-1 bg-body">
                 <template x-if="cart.length === 0">
-                    <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted p-4">
-                        <i class="bi bi-cart-x fs-1 mb-2 opacity-50"></i>
-                        <p class="small mb-0">Keranjang kosong</p>
+                    <div
+                        class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50">
+                        <i class="bi bi-bag-x" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                        <p class="fw-bold font-serif mb-0">Belum ada pesanan</p>
+                        <small>Klik menu di sebelah kiri</small>
                     </div>
                 </template>
 
-                <div class="list-group list-group-flush">
+                <div class="d-flex flex-column gap-2">
                     <template x-for="(item, index) in cart" :key="index">
-                        <div class="list-group-item p-3 bg-white mb-1 border-0 shadow-sm">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark text-truncate" x-text="item.name"></h6>
+                        <div class="card bg-body-tertiary p-3 border-0" style="border-radius: 1rem;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="pe-3">
+                                    <h6 class="fw-bold mb-1 text-dark" x-text="item.name"></h6>
                                     <template x-if="item.variant_name">
-                                        <span
-                                            class="badge bg-secondary bg-opacity-10 text-secondary border rounded-pill small mt-1"
-                                            x-text="item.variant_name"></span>
+                                        <span class="badge bg-secondary opacity-75 rounded-pill mb-1"
+                                              x-text="item.variant_name"></span>
                                     </template>
                                 </div>
-                                <button @click="removeFromCart(index)"
-                                        class="btn btn-sm text-danger p-0 border-0 shadow-none">
-                                    <i class="bi bi-x-circle-fill fs-6"></i>
-                                </button>
+                                <button @click="removeFromCart(index)" class="btn btn-sm text-danger p-1"><i
+                                        class="bi bi-x-lg"></i></button>
                             </div>
-
-                            <div class="mb-2 mt-2">
-                                <input type="text" class="form-control form-control-sm border-0 bg-light"
-                                       x-model="item.note" placeholder="Catatan...">
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mt-1">
-                                <div class="d-flex align-items-center bg-light rounded-pill border">
-                                    <button @click="decreaseQty(index)"
-                                            class="btn btn-sm px-2 text-dark border-0 shadow-none"><i
-                                            class="bi bi-dash"></i></button>
-                                    <span class="fw-bold px-2 text-sm" x-text="item.quantity"></span>
+                            <div class="d-flex justify-content-between align-items-end mt-2">
+                                <div class="d-flex align-items-center bg-body rounded-pill border"
+                                     style="padding: 0.15rem;">
+                                    <button @click="decreaseQty(index)" class="btn btn-sm btn-light rounded-circle p-1"
+                                            style="width: 28px; height: 28px;"><i class="bi bi-dash"></i></button>
+                                    <span class="fw-bold px-3" x-text="item.quantity"></span>
                                     <button @click="increaseQty(index)"
-                                            class="btn btn-sm px-2 text-dark border-0 shadow-none"
-                                            :disabled="item.quantity >= item.stock"><i class="bi bi-plus"></i></button>
+                                            class="btn btn-sm btn-primary rounded-circle p-1"
+                                            style="width: 28px; height: 28px;" :disabled="item.quantity >= item.stock">
+                                        <i class="bi bi-plus"></i></button>
                                 </div>
-                                <span class="fw-bolder text-primary small"
+                                <span class="fw-bold" style="color: var(--brand-caramel);"
                                       x-text="'Rp ' + formatRupiah(item.subtotal)"></span>
+                            </div>
+                            <div class="mt-3">
+                                <input type="text" class="form-control form-control-sm bg-body" x-model="item.note"
+                                       placeholder="Catatan (opsional)..."
+                                       style="border-radius: 0.5rem; border-style: dashed;">
                             </div>
                         </div>
                     </template>
                 </div>
             </div>
 
-            <div class="card-footer bg-white border-top p-3 pt-3">
+            <div class="p-4 border-top bg-body-tertiary">
                 <div class="row g-2 mb-2">
-                    <div class="col-6">
-                        <input type="text" class="form-control form-control-sm bg-light border-0" x-model="customerName"
-                               placeholder="Nama Pemesan">
-                    </div>
-                    <div class="col-6">
-                        <input type="text" class="form-control form-control-sm bg-light border-0"
-                               x-model="customerPhone" placeholder="No WA (0812...)">
-                    </div>
-                </div>
-
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
-                        <select class="form-select form-select-sm bg-light border-0" x-model="orderType">
-                            <option value="retail">Retail / Takeaway</option>
-                            <option value="dinein">Dine In (Makan Sini)</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <input type="text" class="form-control form-control-sm bg-light border-0" x-model="tableNumber"
-                               placeholder="No Meja" x-bind:disabled="orderType !== 'dinein'">
-                    </div>
+                    <div class="col-6"><input type="text" class="form-control bg-body border-0 shadow-sm"
+                                              x-model="customerName" placeholder="Nama Pelanggan"
+                                              style="border-radius: 0.75rem;"></div>
+                    <div class="col-6"><input type="text" class="form-control bg-body border-0 shadow-sm"
+                                              x-model="customerPhone" placeholder="No WA (0812...)"
+                                              style="border-radius: 0.75rem;"></div>
                 </div>
 
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <select class="form-select form-select-sm bg-light border-0" x-model="paymentMethod">
-                            <option value="cash">Tunai / Cash</option>
-                            <option value="qris">QRIS</option>
-                            <option value="transfer">Transfer Bank</option>
+                        <select class="form-select bg-body border-0 shadow-sm fw-bold text-dark" x-model="orderType"
+                                style="border-radius: 0.75rem;">
+                            <option value="retail">Retail (Baju/Barang)</option>
+                            <option value="dinein">Dine In (Makan Sini)</option>
+                            <option value="takeaway">Takeaway (Bungkus)</option>
+                            <option value="online">Order Online</option>
                         </select>
                     </div>
                     <div class="col-6">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light border-0"><i class="bi bi-tag"></i></span>
-                            <input type="number" class="form-control bg-light border-0" x-model.number="discount"
-                                   placeholder="Diskon">
+                        <input type="text" class="form-control bg-body border-0 shadow-sm" x-model="tableNumber"
+                               placeholder="No Meja" x-bind:disabled="orderType !== 'dinein'"
+                               :class="orderType !== 'dinein' ? 'opacity-50' : ''" style="border-radius: 0.75rem;">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="input-group shadow-sm" style="border-radius: 0.75rem;">
+                        <span class="input-group-text bg-body border-0 text-muted fw-bold"
+                              style="border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem;">
+                            <i class="bi bi-tag-fill me-1"></i> Diskon (Rp)
+                        </span>
+                        <input type="number" class="form-control bg-body border-0 fw-bold" x-model.number="discount"
+                               placeholder="0"
+                               style="border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem;">
+                    </div>
+                </div>
+
+                <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
+
+                <button @click="openPaymentModal"
+                        class="btn btn-primary btn-lg w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center"
+                        :disabled="cart.length === 0 || stockError !== ''"
+                        style="padding: 1rem; font-size: 1.1rem; border-radius: 1rem;">
+                    <span>Lanjut Bayar</span>
+                    <span x-text="'Rp ' + formatRupiah(grandTotal)"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
+                <div class="modal-header border-bottom bg-body-tertiary px-4 py-3"
+                     style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem;">
+                    <h4 class="fw-bold font-serif text-primary mb-0">Pembayaran</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4 bg-body">
+                    <div class="row g-4">
+                        <div class="col-md-5 border-end pe-md-4">
+                            <h6 class="fw-bold text-muted mb-3">Total Tagihan</h6>
+                            <h2 class="fw-bolder mb-1" style="color: var(--brand-caramel);"
+                                x-text="'Rp ' + formatRupiah(grandTotal)"></h2>
+                            <template x-if="discount > 0">
+                                <p class="text-danger small fw-bold mb-4"
+                                   x-text="'Termasuk Diskon: -Rp ' + formatRupiah(discount)"></p>
+                            </template>
+                            <template x-if="!discount">
+                                <div class="mb-4"></div>
+                            </template>
+
+                            <h6 class="fw-bold text-muted mb-3">Metode Pembayaran</h6>
+                            <div class="d-flex flex-column gap-2">
+                                <label class="btn btn-outline-primary fw-bold text-start p-3 rounded-4"
+                                       :class="paymentMethod === 'cash' ? 'active' : ''">
+                                    <input type="radio" x-model="paymentMethod" value="cash" class="d-none"> <i
+                                        class="bi bi-cash-stack me-2"></i> Tunai (Cash)
+                                </label>
+                                <label class="btn btn-outline-primary fw-bold text-start p-3 rounded-4"
+                                       :class="paymentMethod === 'qris' ? 'active' : ''">
+                                    <input type="radio" x-model="paymentMethod" value="qris" class="d-none"> <i
+                                        class="bi bi-qr-code-scan me-2"></i> QRIS
+                                </label>
+                                <label class="btn btn-outline-primary fw-bold text-start p-3 rounded-4"
+                                       :class="paymentMethod === 'transfer' ? 'active' : ''">
+                                    <input type="radio" x-model="paymentMethod" value="transfer" class="d-none"> <i
+                                        class="bi bi-bank me-2"></i> Transfer Bank
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7">
+                            <template x-if="paymentMethod !== 'cash'">
+                                <div
+                                    class="d-flex flex-column justify-content-center align-items-center h-100 text-center">
+                                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                                    <h5 class="fw-bold mt-3">Pembayaran Non-Tunai</h5>
+                                    <p class="text-muted small">Pastikan saldo pelanggan sudah masuk sebelum klik
+                                        Proses.</p>
+                                </div>
+                            </template>
+
+                            <template x-if="paymentMethod === 'cash'">
+                                <div>
+                                    <div
+                                        class="p-3 border border-primary bg-body mb-3 d-flex justify-content-between align-items-center shadow-sm"
+                                        style="border-radius: 1rem;">
+                                        <span class="fw-bold text-primary">Diterima:</span>
+                                        <h4 class="fw-bolder text-primary mb-0"
+                                            x-text="amountPaid ? 'Rp ' + formatRupiah(amountPaid) : 'Rp 0'"></h4>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4">
+                                            <button type="button" @click="amountPaid = grandTotal"
+                                                    class="btn btn-outline-primary w-100 fw-bold"
+                                                    style="border-radius: 0.75rem;">Pas
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" @click="amountPaid = 50000"
+                                                    class="btn btn-outline-secondary w-100 fw-bold bg-body"
+                                                    style="border-radius: 0.75rem;">50k
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" @click="amountPaid = 100000"
+                                                    class="btn btn-outline-secondary w-100 fw-bold bg-body"
+                                                    style="border-radius: 0.75rem;">100k
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mb-3">
+                                        <template x-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="n">
+                                            <div class="col-4">
+                                                <button type="button" @click="appendNumber(n)"
+                                                        class="btn btn-light border w-100 fs-4 fw-bold py-2 text-dark bg-body shadow-sm"
+                                                        style="border-radius: 0.75rem;" x-text="n"></button>
+                                            </div>
+                                        </template>
+                                        <div class="col-4">
+                                            <button type="button" @click="appendNumber('000')"
+                                                    class="btn btn-light border w-100 fs-4 fw-bold py-2 text-dark bg-body shadow-sm"
+                                                    style="border-radius: 0.75rem;">000
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" @click="appendNumber('0')"
+                                                    class="btn btn-light border w-100 fs-4 fw-bold py-2 text-dark bg-body shadow-sm"
+                                                    style="border-radius: 0.75rem;">0
+                                            </button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="button" @click="deleteNumber()"
+                                                    class="btn btn-light border w-100 fs-4 fw-bold py-2 text-danger bg-body shadow-sm d-flex justify-content-center align-items-center"
+                                                    style="border-radius: 0.75rem; height: 100%;"><i
+                                                    class="bi bi-backspace-fill"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <template x-if="amountPaid && getChange >= 0">
+                                        <div
+                                            class="d-flex justify-content-between p-3 bg-success bg-opacity-10 rounded-4 border border-success border-opacity-25 shadow-sm">
+                                            <span class="text-success fw-bold">Kembalian:</span>
+                                            <h5 class="fw-bolder text-success mb-0"
+                                                x-text="'Rp ' + formatRupiah(getChange)"></h5>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small">Subtotal</span>
-                    <span class="fw-bold text-dark small" x-text="'Rp ' + formatRupiah(subTotal)"></span>
+                <div class="modal-footer bg-body-tertiary border-top p-3"
+                     style="border-bottom-left-radius: 1.25rem; border-bottom-right-radius: 1.25rem;">
+                    <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal"
+                            style="border-radius: 1rem; padding: 0.75rem 1.5rem;">Batal
+                    </button>
+                    <button @click="submitOrder"
+                            class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2"
+                            :disabled="isSubmitting || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))"
+                            style="border-radius: 1rem; padding: 0.75rem 2rem;">
+                        <i class="bi bi-check2-circle" x-show="!isSubmitting"></i>
+                        <span class="spinner-border spinner-border-sm" x-show="isSubmitting"></span>
+                        <span x-text="isSubmitting ? 'Memproses...' : 'Proses Transaksi'"></span>
+                    </button>
                 </div>
-
-                <template x-if="discount > 0">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="text-danger small">Diskon</span>
-                        <span class="fw-bold text-danger small" x-text="'- Rp ' + formatRupiah(discount)"></span>
-                    </div>
-                </template>
-
-                <div class="d-flex justify-content-between align-items-center mb-2 mt-2 pt-2 border-top">
-                    <span class="text-dark fw-bold">TOTAL</span>
-                    <h4 class="fw-bolder text-primary mb-0" x-text="'Rp ' + formatRupiah(grandTotal)"></h4>
-                </div>
-
-                <template x-if="paymentMethod === 'cash'">
-                    <div class="input-group input-group-sm mb-2">
-                        <span class="input-group-text bg-white fw-bold border-primary text-primary">Bayar</span>
-                        <input type="number" class="form-control border-primary" x-model.number="amountPaid"
-                               placeholder="Ketik nominal bayar...">
-                    </div>
-                </template>
-
-                <template x-if="paymentMethod === 'cash' && amountPaid && getChange >= 0">
-                    <div
-                        class="d-flex justify-content-between align-items-center mb-2 p-2 bg-success bg-opacity-10 rounded">
-                        <span class="text-success small fw-bold">Kembalian</span>
-                        <h6 class="fw-bold text-success mb-0" x-text="'Rp ' + formatRupiah(getChange)"></h6>
-                    </div>
-                </template>
-
-                <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
-
-                <button @click="submitOrder"
-                        class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow-sm d-flex justify-content-center align-items-center gap-2"
-                        :disabled="cart.length === 0 || isSubmitting || stockError !== ''">
-                    <i class="bi bi-check2-circle" x-show="!isSubmitting"></i>
-                    <span class="spinner-border spinner-border-sm" x-show="isSubmitting"></span>
-                    <span x-text="isSubmitting ? 'Memproses...' : 'Selesaikan Pembayaran'"></span>
-                </button>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header border-0 bg-light p-4 pb-3">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
+                <div class="modal-header border-bottom pb-3 pt-4 px-4 bg-body-tertiary"
+                     style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem;">
                     <div>
-                        <h5 class="fw-bolder mb-1">Pilih Varian</h5>
+                        <h4 class="fw-bold font-serif text-primary mb-1">Pilih Varian</h4>
                         <p class="text-muted small mb-0" x-text="selectedProduct ? selectedProduct.name : ''"></p>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4 pt-2">
-                    <div class="list-group">
+                <div class="modal-body p-4 bg-body"
+                     style="border-bottom-left-radius: 1.25rem; border-bottom-right-radius: 1.25rem;">
+                    <div class="d-flex flex-column gap-2">
                         <template x-if="selectedProduct">
                             <template x-for="variant in selectedProduct.variants" :key="variant.id">
                                 <button type="button"
-                                        class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center rounded-3 mb-2 border shadow-sm"
-                                        :class="{'opacity-50 bg-light': variant.stock <= 0}"
+                                        class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all"
+                                        :class="{'opacity-50 bg-body-tertiary': variant.stock <= 0, 'border-primary shadow-sm': variant.stock > 0}"
                                         :disabled="variant.stock <= 0"
-                                        @click="if(variant.stock > 0) addVariantToCart(variant)">
+                                        @click="if(variant.stock > 0) addVariantToCart(variant)"
+                                        style="border-radius: 1rem;">
                                     <div>
-                                        <span class="fw-bold text-dark d-block" x-text="variant.name"></span>
-                                        <span class="small"
-                                              :class="variant.stock > 0 ? 'text-muted' : 'text-danger fw-bold'"
-                                              x-text="'Stok: ' + variant.stock"></span>
+                                        <h6 class="fw-bold text-dark mb-1" x-text="variant.name"></h6>
+                                        <span class="small badge rounded-pill"
+                                              :class="variant.stock > 0 ? 'bg-body-tertiary text-muted border' : 'bg-danger text-white'"
+                                              x-text="variant.stock > 0 ? 'Tersedia: ' + variant.stock : 'Stok Habis'"></span>
                                     </div>
-                                    <span class="fw-bolder text-primary"
-                                          x-text="'Rp ' + formatRupiah(variant.price)"></span>
+                                    <h5 class="fw-bold mb-0" style="color: var(--brand-caramel);"
+                                        x-text="'Rp ' + formatRupiah(variant.price)"></h5>
                                 </button>
                             </template>
                         </template>
@@ -191,34 +302,37 @@
 
     <div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
-                <div class="d-flex justify-content-center mb-3">
+            <div class="modal-content border-0 shadow-lg text-center p-4" style="border-radius: 1.25rem;">
+                <div class="d-flex justify-content-center mb-4 mt-2">
                     <div
-                        class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 70px; height: 70px;">
-                        <i class="bi bi-check-lg" style="font-size: 2.5rem;"></i>
+                        class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 80px; height: 80px;">
+                        <i class="bi bi-check2-circle" style="font-size: 3.5rem;"></i>
                     </div>
                 </div>
-                <h4 class="fw-bold text-dark mb-1">Transaksi Berhasil!</h4>
-                <p class="text-muted small mb-3">Invoice: <span class="fw-bold text-dark"
-                                                                x-text="lastOrder.invoice_code"></span></p>
+                <h4 class="fw-bold font-serif text-primary mb-2">Berhasil!</h4>
+                <p class="text-muted small mb-4">No: <span class="fw-bold text-dark"
+                                                           x-text="lastOrder.invoice_code"></span></p>
 
-                <div class="d-flex flex-column gap-2">
-                    <template x-if="lastOrder.customer_phone">
-                        <a :href="generateWaLink()" target="_blank"
-                           class="btn btn-success fw-bold rounded-pill w-100 d-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-whatsapp"></i> Kirim Struk ke WA
-                        </a>
-                    </template>
+                <div class="d-flex flex-column gap-2 mb-2">
+                    <div class="mb-3 text-start">
+                        <label class="small fw-bold text-muted mb-1">Kirim Struk (Opsional)</label>
+                        <input type="text" class="form-control bg-body-tertiary shadow-sm"
+                               x-model="lastOrder.customer_phone" placeholder="Ketik No WA Pelanggan..."
+                               style="border-radius: 0.75rem;">
+                    </div>
 
-                    <template x-if="!lastOrder.customer_phone">
-                        <div class="alert alert-light border small text-muted mb-2">
-                            Isi No HP pelanggan jika ingin mengirim struk via WA.
-                        </div>
+                    <template x-if="lastOrder.customer_phone && lastOrder.customer_phone.length >= 9">
+                        <button type="button" @click="sendWa"
+                                class="btn btn-success fw-bold p-3 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                                style="border-radius: 1rem;">
+                            <i class="bi bi-whatsapp fs-5"></i> Kirim Struk ke WA
+                        </button>
                     </template>
 
                     <button type="button" @click="closeSuccessModal"
-                            class="btn btn-light border fw-bold rounded-pill w-100">Buat Pesanan Baru
+                            class="btn btn-outline-secondary fw-bold p-3 mt-1 shadow-sm" style="border-radius: 1rem;">
+                        Tutup & Pesanan Baru
                     </button>
                 </div>
             </div>
@@ -233,12 +347,13 @@
         cart: [],
         selectedProduct: null,
         variantModalInstance: null,
+        paymentModalInstance: null,
         successModalInstance: null,
 
         customerName: '',
         customerPhone: '',
         tableNumber: '',
-        orderType: 'retail',
+        orderType: 'retail', // Default dibalikin ke retail
         paymentMethod: 'cash',
         discount: '',
         amountPaid: '',
@@ -249,6 +364,7 @@
 
         init() {
             this.variantModalInstance = new bootstrap.Modal(document.getElementById('variantModal'));
+            this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.$watch('cart', () => {
                 this.validateStock();
@@ -265,39 +381,45 @@
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.grandTotal);
         },
 
-        handleProductClick(product) {
-            if (product.stock <= 0) {
-                showIslandToast('Stok barang ini sudah habis!', 'warning');
+        // UX: Buka modal pembayaran untuk membersihkan sidebar dari numpad
+        openPaymentModal() {
+            this.validateStock();
+            if (this.cart.length === 0 || this.stockError !== '') {
+                showIslandToast(this.stockError || 'Keranjang masih kosong!', 'warning');
                 return;
             }
+            this.amountPaid = ''; // Reset bayaran saat modal dibuka
+            this.paymentMethod = 'cash';
+            this.paymentModalInstance.show();
+        },
 
-            // Logika Baru: Jika punya varian (lebih dari 1), buka modal
+        handleProductClick(product) {
+            if (product.stock <= 0) {
+                showIslandToast('Stok habis!', 'warning');
+                return;
+            }
             if (product.has_variants && product.variants.length > 1) {
                 this.selectedProduct = product;
                 this.variantModalInstance.show();
             } else {
-                // Jika tidak punya varian, otomatis ambil varian "Default" (index 0)
                 this.addToCart(product, product.variants[0]);
             }
         },
 
         addToCart(product, variant) {
-            // Kita SELALU menggunakan variant.id sekarang
             let existing = this.cart.find(item => item.variant_id === variant.id);
-
             if (existing) {
                 if (existing.quantity < variant.stock) {
                     existing.quantity++;
                     existing.subtotal = existing.quantity * variant.price;
                 } else {
-                    showIslandToast(`Mentok! Stok item ini sisa ${variant.stock}.`, 'warning');
+                    showIslandToast(`Mentok! Stok sisa ${variant.stock}.`, 'warning');
                 }
             } else {
                 this.cart.push({
                     id: product.id,
                     variant_id: variant.id,
                     name: product.name,
-                    // Sembunyikan kata "Default" di struk kasir jika tidak has_variants
                     variant_name: product.has_variants ? variant.name : null,
                     price: variant.price,
                     quantity: 1,
@@ -338,7 +460,6 @@
         removeFromCart(index) {
             this.cart.splice(index, 1);
         },
-
         clearCart() {
             this.cart = [];
         },
@@ -347,39 +468,54 @@
             this.stockError = '';
             for (let item of this.cart) {
                 if (item.quantity > item.stock) {
-                    this.stockError = `Perhatian: Item ${item.name} melebihi batas stok (${item.stock}).`;
+                    this.stockError = `Batas stok ${item.name} dilewati!`;
                     break;
                 }
             }
         },
 
-        // Format No HP (Ubah awalan 0 jadi 62 buat WA)
+        formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        },
+
+        appendNumber(num) {
+            let current = String(this.amountPaid || '');
+            if (current.length < 12) {
+                this.amountPaid = parseInt(current + num);
+            }
+        },
+        deleteNumber() {
+            let current = String(this.amountPaid || '');
+            if (current.length > 1) {
+                this.amountPaid = parseInt(current.slice(0, -1));
+            } else {
+                this.amountPaid = '';
+            }
+        },
+
         formatPhoneForWA(phone) {
-            let cleaned = ('' + phone).replace(/\D/g, ''); // Hapus semua selain angka
-            if (cleaned.startsWith('0')) {
-                return '62' + cleaned.substring(1);
-            }
-            if (!cleaned.startsWith('62')) {
-                return '62' + cleaned;
-            }
+            let cleaned = ('' + phone).replace(/\D/g, '');
+            if (cleaned.startsWith('0')) return '62' + cleaned.substring(1);
+            if (!cleaned.startsWith('62')) return '62' + cleaned;
             return cleaned;
         },
 
-        generateWaLink() {
-            if (!this.lastOrder.customer_phone) return '#';
+        // Trigger buka WA sekaligus update DB
+        sendWa() {
+            if (this.lastOrder.customer_phone) {
+                // Background update ke Livewire tanpa menunggu selesai
+                $wire.updateCustomerPhone(this.lastOrder.invoice_code, this.lastOrder.customer_phone);
 
-            let phone = this.formatPhoneForWA(this.lastOrder.customer_phone);
-            // Link ini mengarah ke halaman public tracker milik tenant/toko
-            let invoiceUrl = `${window.location.origin}/invoice/${this.lastOrder.invoice_code}`;
+                let phone = this.formatPhoneForWA(this.lastOrder.customer_phone);
+                let invoiceUrl = `${window.location.origin}/invoice/${this.lastOrder.invoice_code}`;
+                let message = `Halo Kak *${this.lastOrder.customer_name}*,\n\nTerima kasih telah berbelanja di *${this.lastOrder.store_name}*.\nBerikut adalah struk pesanan kakak:\n${invoiceUrl}\n\nTotal Belanja: Rp ${this.formatRupiah(this.lastOrder.total_price)}`;
 
-            let message = `Halo Kak *${this.lastOrder.customer_name}*,\n\nTerima kasih telah berbelanja di *${this.lastOrder.store_name}*.\nBerikut adalah link struk/invoice pesanan kakak:\n${invoiceUrl}\n\nTotal Belanja: Rp ${this.formatRupiah(this.lastOrder.total_price)}\n\nDitunggu pesanan selanjutnya ya kak!`;
-
-            return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+            }
         },
 
         closeSuccessModal() {
             this.successModalInstance.hide();
-            // Reset Form Kasir
             this.clearCart();
             this.customerName = '';
             this.customerPhone = '';
@@ -392,11 +528,13 @@
         },
 
         async submitOrder() {
-            if (this.cart.length === 0 || this.stockError !== '') return;
+            if (this.paymentMethod === 'cash' && (this.amountPaid < this.grandTotal || !this.amountPaid)) {
+                showIslandToast('Uang tidak cukup!', 'warning');
+                return;
+            }
             this.isSubmitting = true;
 
             try {
-                // Data cart sudah memuat variant_id untuk semua item
                 const result = await $wire.processCheckout(
                     this.cart, this.customerName, this.customerPhone, this.tableNumber,
                     this.orderType, this.paymentMethod, this.discount || 0, this.amountPaid
@@ -404,22 +542,22 @@
 
                 if (result && result.success) {
                     this.lastOrder = result;
-                    Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
-                    this.successModalInstance.show();
+                    this.paymentModalInstance.hide(); // Tutup modal bayar
+                    Livewire.dispatchTo('tenant.pos.product-list', '$refresh'); // Refresh stok
+
+                    // Beri jeda animasi sebelum buka modal sukses
+                    setTimeout(() => {
+                        this.successModalInstance.show();
+                    }, 300);
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
                     Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
                 }
             } catch (error) {
-                showIslandToast('Terjadi kesalahan sistem saat memproses transaksi.', 'danger');
-                console.error(error);
+                showIslandToast('Kesalahan sistem memproses transaksi.', 'danger');
             }
 
             this.isSubmitting = false;
-        },
-
-        formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID').format(number);
         }
     }));
 </script>

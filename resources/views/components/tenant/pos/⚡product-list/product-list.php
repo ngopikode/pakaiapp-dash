@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Models\Category;
 use App\Models\Product;
 use Livewire\Component;
@@ -27,8 +26,7 @@ new class extends Component {
 
     public function with(): array
     {
-        // Optimasi Query: Eager load variants dengan kolom yang dibutuhkan saja
-        $query = Product::with('variants:id,product_id,name,base_cost,price,stock')
+        $query = Product::with('variants:id,product_id,name,cost,price,stock')
             ->where('is_active', true)
             ->when($this->search, fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
             ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
@@ -52,7 +50,7 @@ new class extends Component {
                     return [
                         'id' => $v->id,
                         'name' => $v->name,
-                        'cost' => (float)$v->cost, // Dibutuhkan backend nanti
+                        'cost' => (float)$v->cost,
                         'price' => (float)$v->price,
                         'stock' => (int)$v->stock,
                     ];

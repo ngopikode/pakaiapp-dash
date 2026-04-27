@@ -28,14 +28,18 @@ window.hideLoader = function () {
 
 function initDesktopSidebarToggle() {
     const sidebarToggle = document.getElementById('sidebarToggle');
+
+    const sidebarStatus = localStorage.getItem('sb|sidebar-toggle');
+    if (sidebarStatus === 'true') {
+        document.body.classList.add('sb-sidenav-toggled');
+    }
+
     if (sidebarToggle) {
         sidebarToggle.onclick = function (e) {
             e.preventDefault();
-            document.body.classList.toggle('sb-sidenav-toggled');
-            localStorage.setItem(
-                'sb|sidebar-toggle',
-                document.body.classList.contains('sb-sidenav-toggled').toString()
-            );
+
+            const isToggled = document.body.classList.toggle('sb-sidenav-toggled');
+            localStorage.setItem('sb|sidebar-toggle', isToggled);
         };
     }
 }
