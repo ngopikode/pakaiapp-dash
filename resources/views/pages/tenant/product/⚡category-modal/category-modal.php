@@ -15,7 +15,6 @@ new class extends Component {
     #[On('openModal')]
     public function handleOpenModal($type, $mode, $id = null)
     {
-        // Pastikan modal ini hanya merespon untuk 'category'
         if ($type !== 'category') return;
 
         $this->resetValidation();
@@ -32,7 +31,6 @@ new class extends Component {
             }
         }
 
-        // Buka modal Bootstrap via Alpine.js
         $this->dispatch('show-category-modal');
         $this->dispatch('show-bootstrap-modal');
     }
