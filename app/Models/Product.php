@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     // Relasi ke tabel variants
     public function variants(): HasMany

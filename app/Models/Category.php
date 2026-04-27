@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    protected $guarded = ['id']; // Biar gampang mass-assignment
+    protected $guarded = []; // Biar gampang mass-assignment
 
     public function products(): HasMany
     {

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductVariant extends Model
 {
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function product(): BelongsTo
     {
