@@ -19,24 +19,35 @@ new class extends Component {
 
     public function getMenuSectionsProperty(): array
     {
-        return [
+        $user = Auth::user();
+        $sections = [
             [
                 'title' => 'Menu Utama',
                 'items' => [
-                    ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard'],
-                    ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Produk'],
-                    ['route' => 'dashboard', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan'],
-                    ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir'],
+                    ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard', 'roles' => ['manager']],
+                    ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Produk', 'roles' => ['manager']],
+                    ['route' => 'dashboard', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
                 ]
             ],
             [
                 'title' => 'Pengaturan',
                 'items' => [
-                    ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko'],
-                    ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun'],
+                    ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
+                    ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
                 ]
             ]
         ];
+
+        // Filter Menu berdasarkan Role
+        return collect($sections)->map(function ($section) use ($user) {
+            $section['items'] = collect($section['items'])->filter(function ($item) use ($user) {
+                // Jika user manager, bisa lihat semua. Jika cashier, hanya yang ada di list roles-nya.
+                return in_array($user->role, $item['roles']);
+            })->toArray();
+
+            return $section;
+        })->filter(fn($section) => count($section['items']) > 0)->toArray();
     }
 };
 ?>
