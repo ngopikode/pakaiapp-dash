@@ -38,7 +38,7 @@ new class extends Component {
                 'id' => $p->id,
                 'name' => $p->name,
                 'category_id' => $p->category_id,
-                'image_url' => $p->image ? asset('storage/' . $p->image) : null,
+                'image_url' => $p->image ? Storage::url($p->image) : null,
                 'has_variants' => (bool)$p->has_variants,
 
                 // Ambil harga terendah & total stok untuk tampilan grid

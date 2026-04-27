@@ -131,8 +131,8 @@ new class extends Component {
 
         DB::beginTransaction();
         try {
-            // Logika gambar: Pakai gambar lama jika tidak ada upload baru
             $imagePath = $this->product?->image;
+
             if ($this->image) {
                 $imagePath = $this->image->store('products', 'public');
             }
@@ -171,9 +171,8 @@ new class extends Component {
                     }
                 }
             } else {
-                // Hidden Variant Logic
                 $defaultVariant = $product->variants()->updateOrCreate(
-                    ['name' => 'Default'], // Patokannya dari namanya
+                    ['name' => 'Default'],
                     [
                         'cost' => $this->baseCost ?: 0,
                         'price' => $this->basePrice ?: 0,
@@ -184,9 +183,7 @@ new class extends Component {
                 $variantIdsToKeep[] = $defaultVariant->id;
             }
 
-            // Hapus varian yang dihapus oleh user dari form
             $product->variants()->whereNotIn('id', $variantIdsToKeep)->delete();
-
 
             // --- MANAJEMEN EKSTRA ---
             $extraIdsToKeep = [];
@@ -207,7 +204,6 @@ new class extends Component {
                     }
                 }
             }
-            // Hapus ekstra yang dihapus oleh user, atau hapus semua ekstra jika kategori berubah jadi Retail
             $product->extras()->whereNotIn('id', $extraIdsToKeep)->delete();
 
             DB::commit();
@@ -215,9 +211,9 @@ new class extends Component {
             session()->flash('success', 'Produk berhasil disimpan.');
             $this->redirectRoute('product', navigate: true);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', $e->getMessage());
+            session()->flash('error', 'SYSTEM ERROR: ' . $e->getMessage());
         }
     }
 };

@@ -139,8 +139,10 @@
                                                         <div
                                                             class="ratio ratio-1x1 bg-body-secondary position-relative border-bottom">
                                                             @if($product->image)
-                                                                <img src="{{ asset('storage/' . $product->image) }}"
-                                                                     class="object-fit-cover w-100 h-100" alt="">
+                                                                <img
+                                                                    src="{{ Storage::url($product->image) }}"
+                                                                    alt="{{ $product->name }}"
+                                                                    class="object-fit-cover w-100 h-100">
                                                             @else
                                                                 <div
                                                                     class="d-flex align-items-center justify-content-center text-muted opacity-25 h-100 w-100">
@@ -206,7 +208,7 @@
                                                     wire:key="prod-list-{{ $product->id }}">
 
                                                     @if($product->image)
-                                                        <img src="{{ asset('storage/' . $product->image) }}"
+                                                        <img src="{{ Storage::url($product->image) }}"
                                                              class="object-fit-cover me-3"
                                                              style="border-radius: 0.75rem; width: 60px; height: 60px;"
                                                              alt="">

@@ -25,7 +25,7 @@
 
         <div class="text-center mb-4">
             @if($store && $store->logo)
-                <img src="{{ asset('storage/' . $store->logo) }}" alt="Logo" class="mb-3"
+                <img src="{{ Storage::url($store->logo) }}" alt="Logo" class="mb-3"
                      style="max-height: 55px; object-fit: contain;">
             @else
                 <div

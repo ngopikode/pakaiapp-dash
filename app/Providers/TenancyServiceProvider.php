@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Http\Middleware\FileUrlMiddleware;
+use App\Jobs\CreateFrameworkDirectoriesForTenant;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +37,7 @@ class TenancyServiceProvider extends ServiceProvider
 
                     // Your own jobs to prepare the tenant.
                     // Provision API keys, create S3 buckets, anything you want!
-
+                    CreateFrameworkDirectoriesForTenant::class,
                 ])->send(function (Events\TenantCreated $event) {
                     return $event->tenant;
                 })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
@@ -114,6 +116,7 @@ class TenancyServiceProvider extends ServiceProvider
                     'web',
                     'universal',
                     InitializeTenancyByDomain::class,
+                    FileUrlMiddleware::class,
                 ]);
         });
 

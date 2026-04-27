@@ -93,7 +93,7 @@
                                             </div>
                                         @endif
                                     @elseif($product && $product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}"
+                                        <img src="{{ Storage::url($product->image) }}"
                                              class="object-fit-cover w-100 h-100" alt="">
                                     @else
                                         <div
