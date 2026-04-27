@@ -511,6 +511,7 @@
                 let message = `Halo Kak *${this.lastOrder.customer_name}*,\n\nTerima kasih telah berbelanja di *${this.lastOrder.store_name}*.\nBerikut adalah struk pesanan kakak:\n${invoiceUrl}\n\nTotal Belanja: Rp ${this.formatRupiah(this.lastOrder.total_price)}`;
 
                 window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+                this.closeSuccessModal();
             }
         },
 
