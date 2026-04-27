@@ -2,17 +2,17 @@
 
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end mb-4 gap-3">
         <div>
-            <h2 class="fw-bolder text-dark mb-1" style="letter-spacing: -0.5px;">Pesanan Masuk</h2>
-            <p class="text-secondary mb-0 fw-medium">Kelola antrean dan pantau performa pesanan hari ini.</p>
+            <h2 class="fw-bolder text-dark mb-1" style="letter-spacing: -0.5px;">Daftar Pesanan</h2>
+            <p class="text-secondary mb-0 fw-medium">Kelola transaksi Retail dan F&B hari ini.</p>
         </div>
 
         <div class="position-relative" style="min-width: 300px;">
             <i class="bi bi-search position-absolute text-muted fs-5"
                style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
             <input type="text"
-                   class="form-control form-control-lg rounded-pill bg-light border border-light shadow-sm ps-5 text-sm fw-medium transition-all"
+                   class="form-control form-control-lg rounded-pill bg-white border border-light shadow-sm ps-5 text-sm fw-medium transition-all"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari nama atau #ID...">
+                   placeholder="Cari Invoice, Nama, atau Meja...">
         </div>
     </div>
 
@@ -20,9 +20,9 @@
         @php
             $filters = [
                 ['id' => 'all', 'count' => $allCount, 'label' => 'Semua Pesanan', 'icon' => 'bi-inbox-fill', 'color' => 'dark'],
-                ['id' => 'pending', 'count' => $pendingCount, 'label' => 'Menunggu Proses', 'icon' => 'bi-clock-fill', 'color' => 'warning'],
-                ['id' => 'confirmed', 'count' => $confirmedCount, 'label' => 'Sedang Diproses', 'icon' => 'bi-arrow-repeat', 'color' => 'info'],
-                ['id' => 'completed', 'count' => $completedCount, 'label' => 'Pesanan Selesai', 'icon' => 'bi-check-circle-fill', 'color' => 'success']
+                ['id' => 'pending', 'count' => $pendingCount, 'label' => 'Belum Lunas', 'icon' => 'bi-hourglass-split', 'color' => 'warning'],
+                ['id' => 'paid', 'count' => $paidCount, 'label' => 'Lunas', 'icon' => 'bi-check-circle-fill', 'color' => 'success'],
+                ['id' => 'cancelled', 'count' => $cancelledCount, 'label' => 'Dibatalkan', 'icon' => 'bi-x-octagon-fill', 'color' => 'danger']
             ];
         @endphp
 
@@ -30,7 +30,7 @@
             <div class="col">
                 <div @click="activeFilter = '{{ $filter['id'] }}'"
                      :class="activeFilter === '{{ $filter['id'] }}' ? 'border-{{ $filter['color'] }} border-2 shadow' : 'border-light shadow-sm hover-shadow'"
-                     class="card rounded-4 border bg-light transition-all h-100" style="cursor: pointer;">
+                     class="card rounded-4 border bg-white transition-all h-100" style="cursor: pointer;">
                     <div class="card-body p-3 p-xl-4">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div
@@ -85,19 +85,12 @@
                         <h5 class="fw-bold text-dark mb-2">Data Tidak Ditemukan</h5>
                         <p class="text-secondary mb-0">Belum ada pesanan yang sesuai dengan pencarian atau filter saat
                             ini.</p>
-                        @if($search || $statusFilter !== 'all')
-                            <button wire:click="$set('search', ''); $set('statusFilter', 'all');"
-                                    class="btn btn-dark rounded-pill mt-4 px-4 fw-medium shadow-sm">
-                                Tampilkan Semua
-                            </button>
-                        @endif
                     </div>
                 </div>
             @else
-
                 <div class="d-flex flex-column gap-3">
                     @foreach($orders as $order)
-                        <div class="card border border-light shadow-sm rounded-4 bg-light transition-all hover-shadow"
+                        <div class="card border border-light shadow-sm rounded-4 bg-white transition-all hover-shadow"
                              wire:key="order-{{ $order->id }}">
                             <div
                                 class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 gap-md-4">
@@ -105,9 +98,9 @@
                                 <div
                                     class="w-100 w-md-auto d-flex d-md-block justify-content-between align-items-center"
                                     style="min-width: 130px;">
-                                    <div class="fw-bolder text-dark fs-5">#{{ $order->order_code }}</div>
+                                    <div class="fw-bolder text-primary fs-5">#{{ $order->invoice_code }}</div>
                                     <div class="small text-muted fw-medium mt-1"><i
-                                            class="bi bi-clock me-1"></i>{{ $order->created_at->diffForHumans() }}</div>
+                                            class="bi bi-clock me-1"></i>{{ $order->created_at->format('H:i') }}</div>
                                 </div>
 
                                 <div class="d-flex align-items-center gap-3 flex-grow-1 w-100">
@@ -117,66 +110,54 @@
                                         {{ strtoupper(substr($order->customer_name, 0, 1)) }}
                                     </div>
                                     <div class="overflow-hidden">
-                                        <h6 class="fw-bold text-dark mb-1 text-truncate">{{ $order->customer_name }}</h6>
+                                        <h6 class="fw-bold text-dark mb-1 text-truncate">
+                                            {{ $order->customer_name }}
+                                            @if($order->table_number)
+                                                <span class="badge bg-dark ms-2">Meja {{ $order->table_number }}</span>
+                                            @endif
+                                        </h6>
                                         <div class="d-flex align-items-center gap-2 small">
-                                            <span class="text-secondary fw-medium">{{ $order->order_type }}</span>
+                                            <span class="text-secondary fw-medium text-capitalize"><i
+                                                    class="bi bi-bag-check me-1"></i>{{ $order->order_type }}</span>
                                             <span class="text-light">•</span>
-                                            <span class="text-secondary fw-medium">{{ $order->items_count }} item</span>
+                                            <span
+                                                class="text-secondary fw-medium text-uppercase">{{ $order->payment_method }}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="w-100 w-md-auto border-top border-md-0 pt-3 pt-md-0 mt-2 mt-md-0"
-                                     style="min-width: 140px;">
+                                <div class="w-100 w-md-auto pt-3 pt-md-0 mt-2 mt-md-0" style="min-width: 140px;">
                                     @if($order->status == 'pending')
                                         <span
-                                            class="badge bg-warning bg-opacity-10 text-warning-emphasis rounded-pill px-3 py-2 fw-bold border border-warning border-opacity-25 w-100 text-center text-md-start">Menunggu Proses</span>
-                                    @elseif($order->status == 'confirmed')
+                                            class="badge bg-warning bg-opacity-10 text-warning-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Belum Lunas</span>
+                                    @elseif($order->status == 'paid')
                                         <span
-                                            class="badge bg-info bg-opacity-10 text-info-emphasis rounded-pill px-3 py-2 fw-bold border border-info border-opacity-25 w-100 text-center text-md-start">Diproses</span>
-                                    @elseif($order->status == 'completed')
-                                        <span
-                                            class="badge bg-success bg-opacity-10 text-success-emphasis rounded-pill px-3 py-2 fw-bold border border-success border-opacity-25 w-100 text-center text-md-start">Selesai</span>
+                                            class="badge bg-success bg-opacity-10 text-success-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start"><i
+                                                class="bi bi-check-circle me-1"></i> Lunas</span>
                                     @elseif($order->status == 'cancelled')
                                         <span
-                                            class="badge bg-danger bg-opacity-10 text-danger-emphasis rounded-pill px-3 py-2 fw-bold border border-danger border-opacity-25 w-100 text-center text-md-start">Dibatalkan</span>
+                                            class="badge bg-danger bg-opacity-10 text-danger-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Dibatalkan</span>
                                     @endif
                                 </div>
 
                                 <div
                                     class="w-100 w-md-auto text-md-end d-flex d-md-block justify-content-between align-items-center"
                                     style="min-width: 130px;">
-                                    <div class="text-muted small fw-bold text-uppercase d-md-none"
-                                         style="letter-spacing: 1px;">Total
-                                    </div>
                                     <div class="fw-bolder text-dark fs-5">
                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}</div>
                                 </div>
 
                                 <div class="w-100 w-md-auto d-flex justify-content-end gap-2 mt-1 mt-md-0">
                                     <button wire:click="$dispatch('openModal', { orderId: {{ $order->id }} })"
-                                            class="btn btn-light rounded-3 shadow-sm border fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-1 transition-all hover-dark">
-                                        <i class="bi bi-eye"></i> <span class="d-md-none d-xl-inline">Detail</span>
+                                            class="btn btn-light rounded-3 shadow-sm border fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
+                                        <i class="bi bi-receipt"></i> Detail
                                     </button>
 
                                     @if($order->status == 'pending')
-                                        <button wire:click="updateStatus({{ $order->id }}, 'confirmed')"
+                                        <button wire:click="updateStatus({{ $order->id }}, 'paid')"
                                                 wire:loading.attr="disabled"
-                                                class="btn btn-dark rounded-3 shadow-sm fw-bold px-4 py-2 flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-2 transition-all">
-                                            <span wire:loading.remove
-                                                  wire:target="updateStatus({{ $order->id }}, 'confirmed')">Proses</span>
-                                            <span wire:loading wire:target="updateStatus({{ $order->id }}, 'confirmed')"
-                                                  class="spinner-border spinner-border-sm" role="status"></span>
-                                        </button>
-                                    @elseif($order->status == 'confirmed')
-                                        <button wire:click="updateStatus({{ $order->id }}, 'completed')"
-                                                wire:loading.attr="disabled"
-                                                class="btn btn-success text-white rounded-3 shadow-sm fw-bold px-4 py-2 flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-2 transition-all">
-                                            <span wire:loading.remove
-                                                  wire:target="updateStatus({{ $order->id }}, 'completed')"><i
-                                                    class="bi bi-check2"></i> Selesai</span>
-                                            <span wire:loading wire:target="updateStatus({{ $order->id }}, 'completed')"
-                                                  class="spinner-border spinner-border-sm" role="status"></span>
+                                                class="btn btn-dark rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
+                                            Bayar
                                         </button>
                                     @endif
                                 </div>
@@ -192,17 +173,7 @@
                         <div class="spinner-border text-dark spinner-border-sm me-2" role="status"></div>
                         <span class="fw-bold text-muted small">Memuat lebih banyak pesanan...</span>
                     </div>
-                @else
-                    <div class="text-center py-5 mt-2">
-                        <div
-                            class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-2"
-                            style="width: 40px; height: 40px;">
-                            <i class="bi bi-check2-all text-success"></i>
-                        </div>
-                        <p class="text-muted small fw-medium mb-0">Semua pesanan telah ditampilkan.</p>
-                    </div>
                 @endif
-
             @endif
         </div>
     </div>

@@ -26,7 +26,7 @@ new class extends Component {
                 'items' => [
                     ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard', 'roles' => ['manager']],
                     ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Produk', 'roles' => ['manager']],
-                    ['route' => 'dashboard', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'order', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
                     ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
                 ]
             ],

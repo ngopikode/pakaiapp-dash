@@ -34,7 +34,7 @@ Route::middleware([
 
         Route::prefix('dashboard')->group(function () {
             Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
-            Route::livewire('order', 'pages::tenant.order.index')->name('order');
+            Route::view('order', 'pages.tenant.order.index')->name('order');
             Route::view('product', 'pages.tenant.product.product')->name('product');
             Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
             Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');

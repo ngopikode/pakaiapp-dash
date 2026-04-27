@@ -11,6 +11,12 @@ new class extends Component {
     public string $statusFilter = 'all';
     public int $perPage = 10;
 
+    #[On('order-updated')]
+    public function refreshList(): void
+    {
+        $this->resetPage();
+    }
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -32,9 +38,8 @@ new class extends Component {
     {
         $order = Order::find($id);
         if ($order) {
-            $order->status = $status;
-            $order->save();
-            $this->dispatch('notify', message: 'Status berhasil diperbarui!');
+            $order->update(['status' => $status]);
+            $this->dispatch('notify', message: 'Status pesanan berhasil diperbarui!');
         }
     }
 
@@ -43,8 +48,8 @@ new class extends Component {
         $query = Order::query()
             ->when($this->search, function ($q) {
                 $q->where('customer_name', 'like', '%' . $this->search . '%')
-                    ->orWhere('id', 'like', '%' . $this->search . '%')
-                    ->orWhere('order_code', 'like', '%' . $this->search . '%');
+                    ->orWhere('invoice_code', 'like', '%' . $this->search . '%')
+                    ->orWhere('table_number', 'like', '%' . $this->search . '%');
             })
             ->when($this->statusFilter !== 'all', function ($q) {
                 $q->where('status', $this->statusFilter);
@@ -52,10 +57,12 @@ new class extends Component {
 
         return [
             'orders' => $query->latest()->paginate($this->perPage),
+
+            // Hitung badge notifikasi
             'allCount' => Order::count(),
             'pendingCount' => Order::where('status', 'pending')->count(),
-            'confirmedCount' => Order::where('status', 'confirmed')->count(),
-            'completedCount' => Order::where('status', 'completed')->count(),
+            'paidCount' => Order::where('status', 'paid')->count(),
+            'cancelledCount' => Order::where('status', 'cancelled')->count(),
         ];
     }
 };
