@@ -128,14 +128,29 @@
                     <div x-show="tab === 'pricing'" x-transition.opacity x-cloak>
                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
                             <h5 class="fw-bold mb-0 font-serif text-primary">Harga & Varian</h5>
-                            <div class="form-check form-switch bg-body-tertiary border px-3 py-1 rounded-pill">
-                                <input class="form-check-input cursor-pointer mt-1" type="checkbox" role="switch"
-                                       id="variantSwitch" wire:model.live="hasVariants">
-                                <label class="form-check-label small fw-bold ms-2" for="variantSwitch">Punya
-                                    Varian</label>
-                            </div>
                         </div>
 
+                        <div class="rounded-4 border mb-4" style="border-color: #e9ecef !important;">
+                            <div class="d-flex align-items-center justify-content-between py-3 px-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-brand-light text-brand p-2 rounded-3">
+                                        <i class="bi bi-diagram-2"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold small">Gunakan Varian</h6>
+                                        <p class="text-muted mb-0" style="font-size: 0.75rem;">Aktifkan untuk ukuran,
+                                            warna, atau rasa.</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input cursor-pointer shadow-none" type="checkbox"
+                                           role="switch"
+                                           id="variantSwitch" wire:model.live="hasVariants"
+                                           style="transform: scale(1.4);">
+                                </div>
+                            </div>
+                        </div>
                         @if(!$hasVariants)
                             <div class="row g-3 bg-body-tertiary p-3 border" style="border-radius: 1rem;">
                                 <div class="col-md-6">
