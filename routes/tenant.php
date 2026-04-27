@@ -34,7 +34,8 @@ Route::middleware([
             Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
             Route::livewire('order', 'pages::tenant.order.index')->name('order');
             Route::view('product', 'pages.tenant.product.product')->name('product');
-            Route::livewire('product/create', 'pages::tenant.product.create')->name('product.create');
+            Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
+            Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');
             Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
         });
     });

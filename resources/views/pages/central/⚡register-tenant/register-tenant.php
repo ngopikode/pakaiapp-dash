@@ -8,24 +8,16 @@ use Livewire\Component;
 
 new #[Layout('layouts::central', ['title' => 'Posts Dashboard'])]
 class extends Component {
-    // Data User
+
     public ?string $userName;
-
     public ?string $userEmail;
-
     public ?string $password;
-
-    // Data Toko
     public ?string $storeName;
-
-    public ?string $tenantId; // Untuk subdomain
-
-    // Keamanan Cepat
+    public ?string $tenantId;
     public ?string $pin;
 
     public function createTenant(): void
     {
-        // 1. Validasi Input Dasar
         $this->validate([
             'userName' => 'required|string|max:255',
             'userEmail' => 'required|email',
@@ -38,21 +30,18 @@ class extends Component {
             'tenantId.alpha_dash' => 'Subdomain cuma boleh huruf, angka, strip, atau underscore.',
         ]);
 
-        // 2. Cek PIN Hardcode
         if ($this->pin !== '260501') { // Ganti PIN rahasia lu di sini
             $this->addError('pin', 'PIN Pendaftaran salah! Hubungi Admin.');
 
             return;
         }
 
-        // 3. Buat Tenant di Database Central
         $tenant = Tenant::create(['id' => $this->tenantId]);
 
-        // 4. Buat Domain (Otomatis nyambung ke config sentral lu, misal .pakaiapp.dep)
+
         $domainUrl = $this->tenantId . '.' . config('tenancy.central_domains')[2];
         $tenant->domains()->create(['domain' => $domainUrl]);
 
-        // 5. Nyebrang ke Database Tenant (Toko yang baru dibuat) buat ngisi User & Setting
         $tenant->run(function () {
             // Insert User Manager
             User::create([
@@ -67,7 +56,6 @@ class extends Component {
                 'name' => $this->storeName,
                 'navbar_brand_text' => $this->storeName,
                 'hero_headline' => 'Selamat datang di ' . $this->storeName,
-                // Kolom lain otomatis ngikutin default value dari migrasi lu
             ]);
         });
 

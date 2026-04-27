@@ -1,43 +1,40 @@
 <?php
 
-namespace App\Livewire\Tenant\Product;
-
 use App\Models\Category;
 use App\Models\Product;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
-    public $activeCategoryId = null;
+    public ?int $activeCategoryId = null;
 
-    // Buka/Tutup Accordion Kategori
-    public function loadProducts($categoryId)
+    public function loadProducts($categoryId): void
     {
         if ($this->activeCategoryId == $categoryId) {
-            $this->activeCategoryId = null; // Tutup jika diklik lagi
+            $this->activeCategoryId = null;
         } else {
-            $this->activeCategoryId = $categoryId; // Buka dan load
+            $this->activeCategoryId = $categoryId;
         }
     }
 
-    // Ubah status Aktif/Nonaktif (Dulu is_available, sekarang is_active)
-    public function toggleAvailability($productId)
+    public function toggleAvailability($productId): void
     {
         $product = Product::findOrFail($productId);
         $product->update(['is_active' => !$product->is_active]);
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => 'Status ' . $product->name . ' berhasil diubah ☕'
+            'message' => 'Status ' . $product->name . ' berhasil diubah.'
         ]);
     }
 
-    public function deleteProduct($productId)
+    public function deleteProduct($productId): void
     {
         Product::findOrFail($productId)->delete();
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Produk berhasil dihapus.']);
     }
 
-    public function deleteCategory($categoryId)
+    public function deleteCategory($categoryId): void
     {
         $category = Category::withCount('products')->findOrFail($categoryId);
 
@@ -51,20 +48,22 @@ new class extends Component {
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Kategori dihapus.']);
     }
 
+    // Refresh saat ada kategori baru dari modal
+    #[On('category-saved')]
+    public function refreshTable(): void
+    {
+    }
+
     public function with(): array
     {
-        // 1. Load kategori beserta jumlah produknya
-        // Catatan: Jika ada logic multi-tenant (auth user), tambahkan ->where('tenant_id', ...)
         $categories = Category::withCount('products')
-            ->orderBy('order_column', 'asc')
+            ->orderBy('order_column')
             ->get();
 
-        // 2. Load produk HANYA untuk kategori yang sedang diklik (Eager Load Variants!)
         $loadedProducts = [];
         if ($this->activeCategoryId) {
-            $loadedProducts = Product::with('variants') // <-- KUNCI OPTIMASI SERVER MINI
-            ->where('category_id', $this->activeCategoryId)
-                // ->orderBy('order_column', 'asc') // Aktifkan jika nanti ada fitur urut produk
+            $loadedProducts = Product::with('variants')
+                ->where('category_id', $this->activeCategoryId)
                 ->get();
         }
 

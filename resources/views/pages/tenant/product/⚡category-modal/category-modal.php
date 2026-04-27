@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Livewire\Tenant\Product;
-
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;

@@ -31,28 +31,48 @@
                             @error('name') <span class="invalid-feedback ps-3">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-4" x-data="{ type: @entangle('type') }">
                             <label class="form-label small text-muted fw-bold">Tipe Kategori (Menentukan Form
                                 Input)</label>
+
                             <div class="d-flex gap-3">
                                 <label
-                                    class="flex-grow-1 border rounded-4 p-3 cursor-pointer position-relative text-center {{ $type === 'retail' ? 'border-brand bg-brand-light' : 'bg-light' }}">
-                                    <input type="radio" wire:model="type" value="retail"
+                                    @click="type = 'retail'"
+                                    :class="type === 'retail' ? 'border-brand bg-brand-light' : 'bg-light'"
+                                    class="flex-grow-1 border rounded-4 p-3 cursor-pointer position-relative text-center">
+
+                                    <input type="radio" value="retail" x-model="type"
                                            class="position-absolute opacity-0">
-                                    <i class="bi bi-bag fs-4 d-block mb-1 {{ $type === 'retail' ? 'text-brand' : 'text-muted' }}"></i>
-                                    <span class="small fw-bold {{ $type === 'retail' ? 'text-brand' : 'text-muted' }}">Retail (Baju, Barang)</span>
+
+                                    <i class="bi bi-bag fs-4 d-block mb-1"
+                                       :class="type === 'retail' ? 'text-brand' : 'text-muted'"></i>
+
+                                    <small class="small fw-bold"
+                                           :class="type === 'retail' ? 'text-brand' : 'text-muted'">
+                                        Retail (Baju, Barang)
+                                    </small>
                                 </label>
 
                                 <label
-                                    class="flex-grow-1 border rounded-4 p-3 cursor-pointer position-relative text-center {{ $type === 'fnb' ? 'border-brand bg-brand-light' : 'bg-light' }}">
-                                    <input type="radio" wire:model="type" value="fnb"
-                                           class="position-absolute opacity-0">
-                                    <i class="bi bi-cup-hot fs-4 d-block mb-1 {{ $type === 'fnb' ? 'text-brand' : 'text-muted' }}"></i>
-                                    <span class="small fw-bold {{ $type === 'fnb' ? 'text-brand' : 'text-muted' }}">F&B (Makanan/Minuman)</span>
+                                    @click="type = 'fnb'"
+                                    :class="type === 'fnb' ? 'border-brand bg-brand-light' : 'bg-light'"
+                                    class="flex-grow-1 border rounded-4 p-3 cursor-pointer position-relative text-center">
+
+                                    <input type="radio" value="fnb" x-model="type" class="position-absolute opacity-0">
+
+                                    <i class="bi bi-cup-hot fs-4 d-block mb-1"
+                                       :class="type === 'fnb' ? 'text-brand' : 'text-muted'"></i>
+
+                                    <small class="small fw-bold"
+                                           :class="type === 'fnb' ? 'text-brand' : 'text-muted'">
+                                        F&B (Makanan/Minuman)
+                                    </small>
                                 </label>
                             </div>
-                            @error('type') <span
-                                class="text-danger small ps-3 mt-1 d-block">{{ $message }}</span> @enderror
+
+                            @error('type')
+                            <span class="text-danger small ps-3 mt-1 d-block">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 pt-3 border-top">

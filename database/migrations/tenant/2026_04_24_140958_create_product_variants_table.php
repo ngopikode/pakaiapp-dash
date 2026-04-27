@@ -17,9 +17,8 @@ return new class extends Migration {
             $table->string('name'); // Contoh: M - Hitam
 
             // Finansial & Stok Varian
-            $table->decimal('base_cost', 12, 2)->default(0); // Ganti dari base_hpp
-            $table->decimal('base_price', 12, 2)->default(0);
-            $table->decimal('price', 12)->default(0);
+            $table->decimal('cost', 12, 2)->default(0);  // Modal/HPP Varian Ini
+            $table->decimal('price', 12, 2)->default(0); // Harga Jual Varian Ini
             $table->integer('stock')->default(0);
             $table->integer('min_stock')->default(0);
 

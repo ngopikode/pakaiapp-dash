@@ -2,7 +2,6 @@
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StoreSetting;
 use Illuminate\Support\Facades\Auth;
@@ -10,38 +9,34 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
-new  class extends Component {
+new class extends Component {
 
     public function processCheckout($cart, $customerName, $customerPhone, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid)
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
-        // BUNGKUS PAKAI DB TRANSACTION
         return DB::transaction(function () use ($cart, $customerName, $customerPhone, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid) {
 
-            // 1. VALIDASI STOK REAL-TIME (SEBELUM BIKIN ORDER)
-            foreach ($cart as $item) {
-                if (!empty($item['variant_id'])) {
-                    // lockForUpdate() mencegah race condition kalau ada 2 kasir checkout barang yang sama bersamaan
-                    $variant = ProductVariant::lockForUpdate()->find($item['variant_id']);
-                    if (!$variant || $variant->stock < $item['quantity']) {
-                        return [
-                            'success' => false,
-                            'error' => "Gagal! Stok varian '{$item['name']} - {$item['variant_name']}' tidak cukup. Sisa stok asli: " . ($variant ? $variant->stock : 0)
-                        ];
-                    }
-                } else {
-                    $product = Product::lockForUpdate()->find($item['id']);
-                    if (!$product || $product->stock < $item['quantity']) {
-                        return [
-                            'success' => false,
-                            'error' => "Gagal! Stok produk '{$item['name']}' tidak cukup. Sisa stok asli: " . ($product ? $product->stock : 0)
-                        ];
-                    }
+            // Array sementara untuk menyimpan objek varian dari DB agar tidak query dua kali
+            $dbVariants = [];
+
+            // VALIDASI STOK (Hanya ke tabel ProductVariant)
+            foreach ($cart as $index => $item) {
+                // Semua item DARI FRONTEND PASTI punya variant_id sekarang
+                $variant = ProductVariant::lockForUpdate()->find($item['variant_id']);
+
+                if (!$variant || $variant->stock < $item['quantity']) {
+                    return [
+                        'success' => false,
+                        'error' => "Gagal! Stok '{$item['name']}' tidak cukup. Sisa stok asli: " . ($variant ? $variant->stock : 0)
+                    ];
                 }
+
+                // Simpan untuk dipanggil saat insert agar menghemat query
+                $dbVariants[$index] = $variant;
             }
 
-            // 2. KALAU STOK AMAN, LANJUT HITUNG & SIMPAN
+            // 2. KALKULASI & SIMPAN ORDER UTAMA
             $subtotal = collect($cart)->sum('subtotal');
             $discountAmount = (float)$discount;
             $totalPrice = max(0, $subtotal - $discountAmount);
@@ -63,30 +58,35 @@ new  class extends Component {
                 'amount_paid' => $paid,
                 'change_amount' => $change,
                 'status' => 'paid',
+                // 'tenant_id' => Auth::user()->restaurant_id, // Sesuaikan dengan tenancy-mu
                 'user_id' => Auth::id(),
             ]);
 
-            foreach ($cart as $item) {
+            // 3. SIMPAN DETAIL ITEM & POTONG STOK
+            foreach ($cart as $index => $item) {
+                $variant = $dbVariants[$index];
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['id'],
-                    'variant_id' => $item['variant_id'] ?? null,
+                    'product_variant_id' => $variant->id,
                     'product_name' => $item['name'],
                     'variant_name' => $item['variant_name'] ?? null,
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
+
+                    // SNAPSHOT HPP (Sangat penting untuk fitur Laba Rugi!)
+                    'snapshot_cost' => $variant->cost,
+                    'snapshot_price' => $variant->price,
+
                     'subtotal' => $item['subtotal'],
                     'note' => $item['note'] ?? null,
                 ]);
 
-                // Pengurangan stok (sekarang aman 100% karena udah divalidasi di atas)
-                if (!empty($item['variant_id'])) {
-                    ProductVariant::where('id', $item['variant_id'])->decrement('stock', $item['quantity']);
-                } else {
-                    Product::where('id', $item['id'])->decrement('stock', $item['quantity']);
-                }
+                // Kurangi stok (hanya perlu mengurangi dari tabel varian)
+                $variant->decrement('stock', $item['quantity']);
             }
 
+            // 4. BERHASIL! Kembalikan data untuk Struk WA
             $storeName = StoreSetting::first()->name ?? 'Toko Kami';
 
             return [

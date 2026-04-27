@@ -265,44 +265,44 @@
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.grandTotal);
         },
 
-        // Event listener dari komponen child
         handleProductClick(product) {
-            if (!product.has_variants && product.stock <= 0) {
+            if (product.stock <= 0) {
                 showIslandToast('Stok barang ini sudah habis!', 'warning');
                 return;
             }
-            if (product.has_variants && product.variants.length > 0) {
+
+            // Logika Baru: Jika punya varian (lebih dari 1), buka modal
+            if (product.has_variants && product.variants.length > 1) {
                 this.selectedProduct = product;
                 this.variantModalInstance.show();
             } else {
-                this.addToCart(product, null);
+                // Jika tidak punya varian, otomatis ambil varian "Default" (index 0)
+                this.addToCart(product, product.variants[0]);
             }
         },
 
-        addToCart(product, variant = null) {
-            let variantId = variant ? variant.id : null;
-            let price = variant ? variant.price : product.price;
-            let maxStock = variant ? variant.stock : product.stock;
-
-            let existing = this.cart.find(item => item.id === product.id && item.variant_id === variantId);
+        addToCart(product, variant) {
+            // Kita SELALU menggunakan variant.id sekarang
+            let existing = this.cart.find(item => item.variant_id === variant.id);
 
             if (existing) {
-                if (existing.quantity < maxStock) {
+                if (existing.quantity < variant.stock) {
                     existing.quantity++;
-                    existing.subtotal = existing.quantity * price;
+                    existing.subtotal = existing.quantity * variant.price;
                 } else {
-                    showIslandToast(`Gagal! Sisa stok untuk item ini cuma ${maxStock}.`, 'warning');
+                    showIslandToast(`Mentok! Stok item ini sisa ${variant.stock}.`, 'warning');
                 }
             } else {
                 this.cart.push({
                     id: product.id,
-                    variant_id: variantId,
+                    variant_id: variant.id,
                     name: product.name,
-                    variant_name: variant ? variant.name : null,
-                    price: price,
+                    // Sembunyikan kata "Default" di struk kasir jika tidak has_variants
+                    variant_name: product.has_variants ? variant.name : null,
+                    price: variant.price,
                     quantity: 1,
-                    subtotal: price,
-                    stock: maxStock, // Bawa info stok ke item keranjang
+                    subtotal: variant.price,
+                    stock: variant.stock,
                     note: ''
                 });
             }
@@ -396,6 +396,7 @@
             this.isSubmitting = true;
 
             try {
+                // Data cart sudah memuat variant_id untuk semua item
                 const result = await $wire.processCheckout(
                     this.cart, this.customerName, this.customerPhone, this.tableNumber,
                     this.orderType, this.paymentMethod, this.discount || 0, this.amountPaid
@@ -407,12 +408,10 @@
                     this.successModalInstance.show();
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
-
-                    // Refresh katalog biar layar kasir update stok terbarunya
                     Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
                 }
             } catch (error) {
-                alert('Terjadi kesalahan sistem saat memproses transaksi.');
+                showIslandToast('Terjadi kesalahan sistem saat memproses transaksi.', 'danger');
                 console.error(error);
             }
 

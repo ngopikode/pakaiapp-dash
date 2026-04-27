@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Models\Category;
 use App\Models\Product;
 use Livewire\Component;
@@ -7,26 +8,27 @@ use Livewire\Component;
 new class extends Component {
     public string $search = '';
     public string $categoryFilter = 'all';
-    public int $limit = 12; // Awal load 12 produk
+    public int $limit = 12;
 
     public function updatedSearch(): void
     {
-        $this->limit = 12; // Reset limit kalau lagi ngetik
+        $this->limit = 12;
     }
 
     public function updatedCategoryFilter(): void
     {
-        $this->limit = 12; // Reset limit kalau pindah kategori
+        $this->limit = 12;
     }
 
     public function loadMore(): void
     {
-        $this->limit += 8; // Nambah 8 produk tiap kali di-scroll ke bawah
+        $this->limit += 8;
     }
 
     public function with(): array
     {
-        $query = Product::with('variants')
+        // Optimasi Query: Eager load variants dengan kolom yang dibutuhkan saja
+        $query = Product::with('variants:id,product_id,name,base_cost,price,stock')
             ->where('is_active', true)
             ->when($this->search, fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
             ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
@@ -38,14 +40,19 @@ new class extends Component {
                 'id' => $p->id,
                 'name' => $p->name,
                 'category_id' => $p->category_id,
-                'price' => (float)$p->base_price,
-                'stock' => (int)$p->stock,
                 'image_url' => $p->image ? asset('storage/' . $p->image) : null,
                 'has_variants' => (bool)$p->has_variants,
+
+                // Ambil harga terendah & total stok untuk tampilan grid
+                'price' => (float)$p->variants->min('price'),
+                'stock' => (int)$p->variants->sum('stock'),
+
+                // Kirim semua varian ke Frontend (Alpine)
                 'variants' => $p->variants->map(function ($v) {
                     return [
                         'id' => $v->id,
                         'name' => $v->name,
+                        'cost' => (float)$v->cost, // Dibutuhkan backend nanti
                         'price' => (float)$v->price,
                         'stock' => (int)$v->stock,
                     ];
@@ -56,7 +63,7 @@ new class extends Component {
         return [
             'categories' => Category::orderBy('order_column')->get(),
             'products' => $products,
-            'hasMore' => $this->limit < $totalCount // Flag buat nampilin spinner di bawah
+            'hasMore' => $this->limit < $totalCount
         ];
     }
 };
