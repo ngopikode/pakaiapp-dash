@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['manager', 'kasir'])->default('kasir'); // Biar bisa bedain hak akses di toko
+            $table->enum('role', ['manager', 'cashier'])->default('cashier'); // Biar bisa bedain hak akses di toko
             $table->rememberToken();
             $table->timestamps();
         });
