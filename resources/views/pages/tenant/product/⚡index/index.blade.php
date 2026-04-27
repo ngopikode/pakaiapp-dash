@@ -230,7 +230,7 @@
                                                     </div>
 
                                                     <div class="d-flex gap-2 me-2">
-                                                        <a href="{{ route('product.create', $product->id) }}"
+                                                        <a href="{{ route('product.edit', $product->id) }}"
                                                            wire:navigate class="btn btn-sm btn-outline-secondary"
                                                            style="border-radius: 0.5rem;">
                                                             <i class="bi bi-pencil"></i>
