@@ -1,0 +1,32 @@
+.text-brand {
+    color: #d97706;
+}
+
+.border-brand {
+    border-color: #d97706 !important;
+}
+
+.bg-brand-light {
+    background-color: #fef3c7;
+}
+
+/* Warna oren pudar, sesuaikan dengan thememu */
+.btn-brand {
+    background-color: #d97706;
+    color: white;
+    border: none;
+}
+
+.btn-brand:hover {
+    background-color: #b45309;
+    color: white;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Transisi halus saat memilih tipe */
+label {
+    transition: all 0.2s ease-in-out;
+}

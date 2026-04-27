@@ -1,0 +1,58 @@
+[x-cloak] {
+    display: none !important;
+}
+
+/* Mengatur warna utama brand (Bisa dihapus kalau sudah ada di app.css utama) */
+.text-brand {
+    color: #d97706;
+}
+
+/* Sesuaikan warna EzMenu */
+.bg-brand {
+    background-color: #d97706;
+}
+
+.btn-brand {
+    background-color: #d97706;
+    color: white;
+    border: none;
+}
+
+.btn-brand:hover {
+    background-color: #b45309;
+    color: white;
+}
+
+.btn-outline-brand {
+    color: #d97706;
+    border-color: #d97706;
+}
+
+.btn-outline-brand:hover {
+    background-color: #d97706;
+    color: white;
+}
+
+.border-brand {
+    border-color: #d97706 !important;
+}
+
+/* Styling custom untuk cursor dan table border */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.font-serif {
+    font-family: Georgia, serif;
+}
+
+/* Sesuaikan font bawaanmu */
+
+.table-borderless tbody tr:last-child {
+    border-bottom: none !important;
+}
+
+/* Transisi halus saat ganti tab Alpine */
+.row {
+    transition: all 0.3s ease;
+}

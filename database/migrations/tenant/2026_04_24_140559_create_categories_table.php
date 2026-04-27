@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
+            $table->string('type', 50)->default('retail'); // 'retail' atau 'fnb'
             $table->integer('order_column')->default(0);
             $table->timestamps();
         });

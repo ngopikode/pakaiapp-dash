@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StoreSetting;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -23,15 +24,15 @@ new class extends Component {
                 'title' => 'Menu Utama',
                 'items' => [
                     ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard'],
-                    ['route' => 'home', 'icon' => 'bi bi-journal-richtext', 'label' => 'Menu Restoran'],
-                    ['route' => 'home', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan Masuk'],
+                    ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Produk'],
+                    ['route' => 'dashboard', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan'],
                     ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir'],
                 ]
             ],
             [
                 'title' => 'Pengaturan',
                 'items' => [
-                    ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Resto'],
+                    ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko'],
                     ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun'],
                 ]
             ]
@@ -45,7 +46,7 @@ new class extends Component {
     <div class="sidebar-heading text-center py-4">
         <div class="d-flex flex-column align-items-center">
             <span class="font-script text-brand"
-                  style="font-size: 2.2rem; line-height: 1;">{{ config('app.name') }}</span>
+                  style="font-size: 2.2rem; line-height: 1;">{{ StoreSetting::value('name') }}</span>
             <small class="text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 2px;">
                 DASHBOARD</small>
         </div>

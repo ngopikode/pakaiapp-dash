@@ -5,13 +5,9 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use Livewire\Features\SupportFileUploads\FilePreviewController;
-use Livewire\Livewire;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,21 +32,6 @@ class AppServiceProvider extends ServiceProvider
                 URL::forceScheme('https');
             }
         }
-
-        Livewire::setUpdateRoute(function ($handle, $path) {
-            return Route::post($path, $handle)
-                ->middleware([
-                    'web',
-                    'universal',
-                    InitializeTenancyByDomain::class,
-                ]);
-        });
-
-        FilePreviewController::$middleware = [
-            'web',
-            'universal',
-            InitializeTenancyByDomain::class,
-        ];
     }
 
     /**
