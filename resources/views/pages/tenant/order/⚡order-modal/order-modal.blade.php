@@ -4,7 +4,7 @@
             <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem; overflow: hidden;">
 
                 @if($selectedOrder)
-                    <div class="modal-header bg-light bg-opacity-75 border-bottom-0 px-4 pt-4 pb-3">
+                    <div class="modal-header bg-opacity-75 border-bottom-0 px-4 pt-4 pb-3">
                         <div class="w-100 d-flex justify-content-between align-items-start">
                             <div>
                                 <h4 class="fw-bolder text-primary mb-1">INV #{{ $selectedOrder->invoice_code }}</h4>
@@ -13,7 +13,7 @@
                                     <i class="bi bi-calendar-event me-1"></i> {{ $selectedOrder->created_at->format('d M Y, H:i') }}
                                 </div>
                             </div>
-                            <button type="button" class="btn-close shadow-none bg-white rounded-circle p-2 border"
+                            <button type="button" class="btn-close shadow-none rounded-circle p-2 border"
                                     data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                     </div>
@@ -21,27 +21,27 @@
                     <div class="modal-body p-0">
                         <div class="row g-0 h-100">
 
-                            <div class="col-lg-4 p-4 border-end border-light bg-white">
+                            <div class="col-lg-4 p-4 border-end border-light">
                                 <div class="mb-4">
                                     <span class="text-uppercase small fw-bold text-muted" style="letter-spacing: 1px;">Status Pembayaran</span>
                                     <div class="mt-2">
                                         @if($selectedOrder->status == 'pending')
                                             <div
-                                                class="alert alert-warning border-0 bg-warning bg-opacity-10 text-dark d-flex align-items-center mb-0">
+                                                class="alert alert-warning border-0 bg-warning bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-hourglass-split fs-4 text-warning me-3"></i>
                                                 <div><strong class="d-block">Belum Lunas</strong><small>Pesanan belum
                                                         dibayar.</small></div>
                                             </div>
                                         @elseif($selectedOrder->status == 'paid')
                                             <div
-                                                class="alert alert-success border-0 bg-success bg-opacity-10 text-dark d-flex align-items-center mb-0">
+                                                class="alert alert-success border-0 bg-success bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-check-circle-fill fs-4 text-success me-3"></i>
                                                 <div><strong class="d-block">Lunas</strong><small>Pembayaran telah
                                                         diterima.</small></div>
                                             </div>
                                         @elseif($selectedOrder->status == 'cancelled')
                                             <div
-                                                class="alert alert-danger border-0 bg-danger bg-opacity-10 text-dark d-flex align-items-center mb-0">
+                                                class="alert alert-danger border-0 bg-danger bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-x-octagon-fill fs-4 text-danger me-3"></i>
                                                 <div><strong class="d-block">Dibatalkan</strong><small>Pesanan ini
                                                         dibatalkan.</small></div>
@@ -52,16 +52,16 @@
 
                                 <div class="mb-4">
                                     <span class="text-uppercase small fw-bold text-muted" style="letter-spacing: 1px;">Informasi Pelanggan</span>
-                                    <div class="bg-light p-3 rounded-3 mt-2">
+                                    <div class="p-3 rounded-3 mt-2">
                                         <div class="mb-2">
                                             <small class="text-muted d-block">Nama Pelanggan</small>
-                                            <span class="fw-bold text-dark">{{ $selectedOrder->customer_name }}</span>
+                                            <span class="fw-bold">{{ $selectedOrder->customer_name }}</span>
                                         </div>
                                         @if($selectedOrder->customer_phone)
                                             <div class="mb-2">
                                                 <small class="text-muted d-block">No. Telepon</small>
                                                 <span
-                                                    class="fw-bold text-dark">{{ $selectedOrder->customer_phone }}</span>
+                                                    class="fw-bold">{{ $selectedOrder->customer_phone }}</span>
                                             </div>
                                         @endif
                                         @if($selectedOrder->table_number)
@@ -76,7 +76,7 @@
 
                                 <div>
                                     <span class="text-uppercase small fw-bold text-muted" style="letter-spacing: 1px;">Rincian Pembayaran</span>
-                                    <div class="bg-light p-3 rounded-3 mt-2">
+                                    <div class="p-3 rounded-3 mt-2">
                                         <div class="d-flex justify-content-between mb-2 small">
                                             <span class="text-muted">Metode</span>
                                             <span
@@ -109,43 +109,48 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-8 d-flex flex-column bg-light bg-opacity-25">
+                            <div class="col-lg-8 d-flex flex-column bg-opacity-25" x-data="{ tab: 'items' }">
 
                                 <div class="px-4 pt-4 pb-0">
-                                    <ul class="nav nav-pills bg-white p-1 rounded-pill shadow-sm d-inline-flex border"
+                                    <ul class="nav nav-pills p-1 rounded-pill shadow-sm d-inline-flex border"
                                         role="tablist" style="font-size: 0.9rem;">
                                         <li class="nav-item" role="presentation">
                                             <button
-                                                class="nav-link active bg-primary rounded-pill fw-bold px-4 py-2"
-                                                data-bs-toggle="pill" data-bs-target="#tab-items" type="button"
-                                                role="tab">
+                                                @click="tab = 'items'"
+                                                :class="tab === 'items' ? 'bg-primary' :  hover-shadow'"
+                                                class="nav-link rounded-pill fw-bold px-4 py-2 transition-all border-0"
+                                                type="button">
                                                 <i class="bi bi-list-ul me-1"></i> Daftar Pesanan
                                             </button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-pill bg-light fw-bold px-4 py-2"
-                                                    data-bs-toggle="pill" data-bs-target="#tab-invoice" type="button"
-                                                    role="tab">
+                                            <button
+                                                @click="tab = 'invoice'"
+                                                :class="tab === 'invoice' ? 'bg-primary' :  hover-shadow'"
+                                                class="nav-link rounded-pill fw-bold px-4 py-2 transition-all border-0"
+                                                type="button">
                                                 <i class="bi bi-receipt me-1"></i> Preview Invoice
                                             </button>
                                         </li>
                                     </ul>
                                 </div>
 
-                                <div class="p-4 flex-grow-1 tab-content">
+                                <div class="p-4 flex-grow-1 position-relative">
 
-                                    <div class="tab-pane fade show active h-100" id="tab-items" role="tabpanel">
-                                        <div class="d-flex flex-column gap-3">
+                                    <div x-show="tab === 'items'" class="h-100"
+                                         style="display: none;">
+                                        <div class="d-flex flex-column gap-3 h-100 overflow-y-auto"
+                                             style="max-height: 500px;">
                                             @foreach($selectedOrder->items as $item)
                                                 <div
-                                                    class="d-flex justify-content-between align-items-start bg-white p-3 border rounded-3 shadow-sm">
+                                                    class="d-flex justify-content-between align-items-start p-3 border rounded-3 shadow-sm">
                                                     <div class="d-flex align-items-start gap-3">
                                                         <div
-                                                            class="badge bg-dark text-white border p-2 rounded-2 fs-6 mt-1">
+                                                            class="badge bg-dark border p-2 rounded-2 fs-6 mt-1">
                                                             {{ $item->quantity }}x
                                                         </div>
                                                         <div>
-                                                            <h6 class="fw-bold text-dark mb-0">{{ $item->product_name }}</h6>
+                                                            <h6 class="fw-bold mb-0">{{ $item->product_name }}</h6>
                                                             @if($item->variant_name)
                                                                 <small class="text-muted d-block mt-1"><i
                                                                         class="bi bi-tag"></i>
@@ -162,7 +167,7 @@
                                                                 Rp {{ number_format($item->price, 0, ',', '.') }}</div>
                                                         </div>
                                                     </div>
-                                                    <div class="fw-bolder text-dark fs-6 text-end">
+                                                    <div class="fw-bolder fs-6 text-end">
                                                         Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                                     </div>
                                                 </div>
@@ -170,11 +175,12 @@
                                         </div>
                                     </div>
 
-                                    <div class="tab-pane fade h-100" id="tab-invoice" role="tabpanel">
+                                    <div x-show="tab === 'invoice'" class="h-100"
+                                         style="display: none;" wire:ignore>
                                         <div
-                                            class="w-100 h-100 bg-white rounded-3 shadow-sm border overflow-hidden d-flex flex-column">
+                                            class="w-100 h-100 rounded-3 shadow-sm border overflow-hidden d-flex flex-column">
                                             <div
-                                                class="bg-light border-bottom px-3 py-2 d-flex justify-content-between align-items-center">
+                                                class="border-bottom px-3 py-2 d-flex justify-content-between align-items-center">
                                                 <span class="small fw-bold text-muted"><i
                                                         class="bi bi-printer me-1"></i> Mode Cetak</span>
                                                 <a href="{{ url('/invoice/' . $selectedOrder->invoice_code) }}"
@@ -192,7 +198,7 @@
 
                                 </div>
 
-                                <div class="p-4 bg-white border-top mt-auto rounded-bottom-end">
+                                <div class="p-4 border-top mt-auto rounded-bottom-end">
                                     <div class="d-flex justify-content-between align-items-end mb-4">
                                         <span class="text-muted fw-bold">Total Akhir</span>
                                         <h2 class="fw-bolder text-primary mb-0">
@@ -229,7 +235,7 @@
 
                 @else
                     <div class="modal-body py-5 d-flex flex-column justify-content-center align-items-center">
-                        <div class="spinner-border text-dark mb-3" role="status"
+                        <div class="spinner-border mb-3" role="status"
                              style="width: 3rem; height: 3rem;"></div>
                         <h6 class="text-muted fw-bold">Memuat data pesanan...</h6>
                     </div>

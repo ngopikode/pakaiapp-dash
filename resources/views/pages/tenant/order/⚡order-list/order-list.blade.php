@@ -10,7 +10,7 @@
             <i class="bi bi-search position-absolute text-muted fs-5"
                style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
             <input type="text"
-                   class="form-control form-control-lg rounded-pill bg-white border border-light shadow-sm ps-5 text-sm fw-medium transition-all"
+                   class="form-control form-control-lg rounded-pill border border-light shadow-sm ps-5 text-sm fw-medium transition-all"
                    wire:model.live.debounce.300ms="search"
                    placeholder="Cari Invoice, Nama, atau Meja...">
         </div>
@@ -30,7 +30,7 @@
             <div class="col">
                 <div @click="activeFilter = '{{ $filter['id'] }}'"
                      :class="activeFilter === '{{ $filter['id'] }}' ? 'border-{{ $filter['color'] }} border-2 shadow' : 'border-light shadow-sm hover-shadow'"
-                     class="card rounded-4 border bg-white transition-all h-100" style="cursor: pointer;">
+                     class="card rounded-4 border transition-all h-100" style="cursor: pointer;">
                     <div class="card-body p-3 p-xl-4">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div
@@ -49,11 +49,11 @@
     <div class="position-relative" wire:poll.15s>
 
         <div wire:loading wire:target="statusFilter, search"
-             class="w-100 position-absolute top-0 start-0 z-2 bg-light bg-opacity-75 rounded-4"
+             class="w-100 position-absolute top-0 start-0 z-2 bg-opacity-75 rounded-4"
              style="min-height: 400px; backdrop-filter: blur(3px);">
             <div class="d-flex flex-column gap-3 py-4 px-2 px-md-3">
                 @for($i = 0; $i < 4; $i++)
-                    <div class="card border-0 shadow-sm rounded-4 bg-white">
+                    <div class="card border-0 shadow-sm rounded-4">
                         <div
                             class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 placeholder-glow">
                             <span class="placeholder col-2 rounded d-none d-md-block"></span>
@@ -75,10 +75,10 @@
 
             @if($orders->isEmpty())
                 <div
-                    class="card border border-light border-2 border-dashed shadow-none rounded-4 text-center py-5 my-3 bg-white">
+                    class="card border border-light border-2 border-dashed shadow-none rounded-4 text-center py-5 my-3">
                     <div class="card-body py-5">
                         <div
-                            class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3"
+                            class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
                             style="width: 80px; height: 80px;">
                             <i class="bi bi-search fs-2 text-muted"></i>
                         </div>
@@ -90,7 +90,7 @@
             @else
                 <div class="d-flex flex-column gap-3">
                     @foreach($orders as $order)
-                        <div class="card border border-light shadow-sm rounded-4 bg-white transition-all hover-shadow"
+                        <div class="card border border-light shadow-sm rounded-4 transition-all hover-shadow"
                              wire:key="order-{{ $order->id }}">
                             <div
                                 class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 gap-md-4">
@@ -105,7 +105,7 @@
 
                                 <div class="d-flex align-items-center gap-3 flex-grow-1 w-100">
                                     <div
-                                        class="rounded-circle bg-light text-dark d-flex align-items-center justify-content-center fw-bolder shadow-sm border border-white"
+                                        class="rounded-circle text-dark d-flex align-items-center justify-content-center fw-bolder shadow-sm border border-white"
                                         style="width: 48px; height: 48px; font-size: 1.2rem; flex-shrink: 0;">
                                         {{ strtoupper(substr($order->customer_name, 0, 1)) }}
                                     </div>
@@ -149,7 +149,7 @@
 
                                 <div class="w-100 w-md-auto d-flex justify-content-end gap-2 mt-1 mt-md-0">
                                     <button wire:click="$dispatch('openModal', { orderId: {{ $order->id }} })"
-                                            class="btn btn-light rounded-3 shadow-sm border fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
+                                            class="btn btn-primary rounded-3 shadow-sm border fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
                                         <i class="bi bi-receipt"></i> Detail
                                     </button>
 

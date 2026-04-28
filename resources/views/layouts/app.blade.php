@@ -20,7 +20,7 @@
 <body>
 
 <div id="global-loader"
-     class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-white"
+     class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-light-subtle"
      style="z-index: 9999; opacity: 0.8;">
     <div class="text-center">
         <div class="spinner-border text-brand" style="width: 3rem; height: 3rem;" role="status">

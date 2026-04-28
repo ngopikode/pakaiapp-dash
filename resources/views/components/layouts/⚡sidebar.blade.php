@@ -34,6 +34,7 @@ new class extends Component {
                 'title' => 'Pengaturan',
                 'items' => [
                     ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
+                    ['route' => 'user', 'icon' => 'bi bi-people', 'label' => 'Pengguna', 'roles' => ['manager']],
                     ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
                 ]
             ]
