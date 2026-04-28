@@ -5,23 +5,31 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
-    public $selectedOrder = null;
+
+    public ?int $orderId = null;
 
     #[On('openModal')]
     public function openModal($orderId): void
     {
-        $this->selectedOrder = Order::with('items')->find($orderId);
+        $this->orderId = $orderId;
         $this->dispatch('show-order-modal');
         $this->dispatch('show-bootstrap-modal');
     }
 
+    public function with(): array
+    {
+        return [
+            'order' => Order::with('items')->find($this->orderId)
+        ];
+    }
+
     public function updateStatus($newStatus): void
     {
-        if ($this->selectedOrder) {
-            $this->selectedOrder->update(['status' => $newStatus]);
+        if ($this->orderId) {
 
-            // Refresh data di modal
-            $this->selectedOrder = Order::with('items')->find($this->selectedOrder->id);
+            Order::where('id', $this->orderId)->update([
+                'status' => $newStatus
+            ]);
 
             // Kasih tau tabel di belakang buat refresh otomatis
             $this->dispatch('order-updated');

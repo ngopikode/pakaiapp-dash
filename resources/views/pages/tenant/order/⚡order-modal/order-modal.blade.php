@@ -3,14 +3,14 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem; overflow: hidden;">
 
-                @if($selectedOrder)
+                @if($order)
                     <div class="modal-header bg-opacity-75 border-bottom-0 px-4 pt-4 pb-3">
                         <div class="w-100 d-flex justify-content-between align-items-start">
                             <div>
-                                <h4 class="fw-bolder text-primary mb-1">INV #{{ $selectedOrder->invoice_code }}</h4>
+                                <h4 class="fw-bolder text-primary mb-1">INV #{{ $order->invoice_code }}</h4>
                                 <div class="text-muted small fw-medium text-uppercase mt-2">
-                                    <span class="badge bg-secondary me-2">{{ $selectedOrder->order_type }}</span>
-                                    <i class="bi bi-calendar-event me-1"></i> {{ $selectedOrder->created_at->format('d M Y, H:i') }}
+                                    <span class="badge bg-secondary me-2">{{ $order->order_type }}</span>
+                                    <i class="bi bi-calendar-event me-1"></i> {{ $order->created_at->format('d M Y, H:i') }}
                                 </div>
                             </div>
                             <button type="button" class="btn-close shadow-none rounded-circle p-2 border"
@@ -25,21 +25,21 @@
                                 <div class="mb-4">
                                     <span class="text-uppercase small fw-bold text-muted" style="letter-spacing: 1px;">Status Pembayaran</span>
                                     <div class="mt-2">
-                                        @if($selectedOrder->status == 'pending')
+                                        @if($order->status == 'pending')
                                             <div
                                                 class="alert alert-warning border-0 bg-warning bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-hourglass-split fs-4 text-warning me-3"></i>
                                                 <div><strong class="d-block">Belum Lunas</strong><small>Pesanan belum
                                                         dibayar.</small></div>
                                             </div>
-                                        @elseif($selectedOrder->status == 'paid')
+                                        @elseif($order->status == 'paid')
                                             <div
                                                 class="alert alert-success border-0 bg-success bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-check-circle-fill fs-4 text-success me-3"></i>
                                                 <div><strong class="d-block">Lunas</strong><small>Pembayaran telah
                                                         diterima.</small></div>
                                             </div>
-                                        @elseif($selectedOrder->status == 'cancelled')
+                                        @elseif($order->status == 'cancelled')
                                             <div
                                                 class="alert alert-danger border-0 bg-danger bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-x-octagon-fill fs-4 text-danger me-3"></i>
@@ -55,20 +55,20 @@
                                     <div class="p-3 rounded-3 mt-2">
                                         <div class="mb-2">
                                             <small class="text-muted d-block">Nama Pelanggan</small>
-                                            <span class="fw-bold">{{ $selectedOrder->customer_name }}</span>
+                                            <span class="fw-bold">{{ $order->customer_name }}</span>
                                         </div>
-                                        @if($selectedOrder->customer_phone)
+                                        @if($order->customer_phone)
                                             <div class="mb-2">
                                                 <small class="text-muted d-block">No. Telepon</small>
                                                 <span
-                                                    class="fw-bold">{{ $selectedOrder->customer_phone }}</span>
+                                                    class="fw-bold">{{ $order->customer_phone }}</span>
                                             </div>
                                         @endif
-                                        @if($selectedOrder->table_number)
+                                        @if($order->table_number)
                                             <div>
                                                 <small class="text-muted d-block">Nomor Meja</small>
                                                 <span
-                                                    class="badge bg-dark fs-6">{{ $selectedOrder->table_number }}</span>
+                                                    class="badge bg-dark fs-6">{{ $order->table_number }}</span>
                                             </div>
                                         @endif
                                     </div>
@@ -80,30 +80,30 @@
                                         <div class="d-flex justify-content-between mb-2 small">
                                             <span class="text-muted">Metode</span>
                                             <span
-                                                class="fw-bold text-uppercase">{{ $selectedOrder->payment_method }}</span>
+                                                class="fw-bold text-uppercase">{{ $order->payment_method }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2 small">
                                             <span class="text-muted">Subtotal</span>
                                             <span
-                                                class="fw-bold">Rp {{ number_format($selectedOrder->subtotal, 0, ',', '.') }}</span>
+                                                class="fw-bold">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
                                         </div>
-                                        @if($selectedOrder->discount > 0)
+                                        @if($order->discount > 0)
                                             <div class="d-flex justify-content-between mb-2 small text-danger">
                                                 <span>Diskon</span>
                                                 <span
-                                                    class="fw-bold">- Rp {{ number_format($selectedOrder->discount, 0, ',', '.') }}</span>
+                                                    class="fw-bold">- Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
                                             </div>
                                         @endif
                                         <hr class="my-2 border-secondary border-opacity-25">
                                         <div class="d-flex justify-content-between mb-2 small">
                                             <span class="text-muted">Dibayar</span>
                                             <span
-                                                class="fw-bold text-success">Rp {{ number_format($selectedOrder->amount_paid, 0, ',', '.') }}</span>
+                                                class="fw-bold text-success">Rp {{ number_format($order->amount_paid, 0, ',', '.') }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between small">
                                             <span class="text-muted">Kembalian</span>
                                             <span
-                                                class="fw-bold">Rp {{ number_format($selectedOrder->change_amount, 0, ',', '.') }}</span>
+                                                class="fw-bold">Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -141,7 +141,7 @@
                                          style="display: none;">
                                         <div class="d-flex flex-column gap-3 h-100 overflow-y-auto"
                                              style="max-height: 500px;">
-                                            @foreach($selectedOrder->items as $item)
+                                            @foreach($order->items as $item)
                                                 <div
                                                     class="d-flex justify-content-between align-items-start p-3 border rounded-3 shadow-sm">
                                                     <div class="d-flex align-items-start gap-3">
@@ -176,22 +176,24 @@
                                     </div>
 
                                     <div x-show="tab === 'invoice'" class="h-100"
-                                         style="display: none;" wire:ignore>
+                                         style="display: none;">
                                         <div
                                             class="w-100 h-100 rounded-3 shadow-sm border overflow-hidden d-flex flex-column">
                                             <div
                                                 class="border-bottom px-3 py-2 d-flex justify-content-between align-items-center">
                                                 <span class="small fw-bold text-muted"><i
                                                         class="bi bi-printer me-1"></i> Mode Cetak</span>
-                                                <a href="{{ url('/invoice/' . $selectedOrder->invoice_code) }}"
+                                                <a href="{{ url('/invoice/' . $order->invoice_code) }}"
                                                    target="_blank"
+                                                   id="{{ md5(url('/invoice/' . $order->invoice_code)) }}"
                                                    class="btn btn-sm btn-outline-secondary rounded-pill fw-bold"
                                                    style="font-size: 0.75rem;">
                                                     Buka Fullscreen <i class="bi bi-box-arrow-up-right ms-1"></i>
                                                 </a>
                                             </div>
-                                            <iframe src="{{ url('/invoice/' . $selectedOrder->invoice_code) }}"
+                                            <iframe src="{{ url('/invoice/' . $order->invoice_code) }}"
                                                     class="w-100 flex-grow-1 border-0"
+                                                    id="{{ md5(url('/invoice/' . $order->invoice_code)) }}"
                                                     style="min-height: 500px;"></iframe>
                                         </div>
                                     </div>
@@ -202,11 +204,11 @@
                                     <div class="d-flex justify-content-between align-items-end mb-4">
                                         <span class="text-muted fw-bold">Total Akhir</span>
                                         <h2 class="fw-bolder text-primary mb-0">
-                                            Rp {{ number_format($selectedOrder->total_price, 0, ',', '.') }}</h2>
+                                            Rp {{ number_format($order->total_price, 0, ',', '.') }}</h2>
                                     </div>
 
                                     <div class="d-flex flex-column flex-sm-row gap-2">
-                                        @if($selectedOrder->status == 'pending')
+                                        @if($order->status == 'pending')
                                             <button wire:click="updateStatus('cancelled')" wire:loading.attr="disabled"
                                                     class="btn btn-light border text-danger py-2 px-4 fw-bold flex-grow-1 rounded-3">
                                                 <span wire:loading.remove wire:target="updateStatus('cancelled')">Batalkan Pesanan</span>
