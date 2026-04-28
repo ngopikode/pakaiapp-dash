@@ -33,7 +33,7 @@ new class extends Component {
             [
                 'title' => 'Pengaturan',
                 'items' => [
-                    ['route' => 'home', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
+                    ['route' => 'store-setting', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
                     ['route' => 'user', 'icon' => 'bi bi-people', 'label' => 'Pengguna', 'roles' => ['manager']],
                     ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
                 ]
@@ -58,7 +58,7 @@ new class extends Component {
     <div class="sidebar-heading text-center py-4">
         <div class="d-flex flex-column align-items-center">
             <span class="font-script text-brand"
-                  style="font-size: 2.2rem; line-height: 1;">{{ StoreSetting::value('name') }}</span>
+                  style="font-size: 2.2rem; line-height: 1;">{{ StoreSetting::value('navbar_brand_text') }}</span>
             <small class="text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 2px;">
                 DASHBOARD</small>
         </div>

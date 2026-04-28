@@ -38,6 +38,7 @@ Route::middleware([
             Route::view('product', 'pages.tenant.product.product')->name('product');
             Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
             Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');
+            Route::livewire('store-setting', 'pages::tenant.setting.store-setting')->name('store-setting');
             Route::view('user', 'pages.tenant.user.index')->name('user');
             Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
         });
