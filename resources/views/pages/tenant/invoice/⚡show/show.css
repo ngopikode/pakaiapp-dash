@@ -29,19 +29,25 @@
     font-family: 'Courier Prime', monospace;
 }
 
+.payment-box {
+    position: relative;
+    overflow: hidden;
+}
+
 .status-stamp {
     position: absolute;
-    top: 180px;
-    right: 30px;
-    font-size: 2rem;
+    top: 25px;
+    right: 35px;
+    font-size: 1.8rem;
     font-weight: 800;
     text-transform: uppercase;
     border: 4px solid;
     border-radius: 8px;
-    padding: 5px 15px;
+    padding: 3px 10px;
     transform: rotate(-15deg);
     opacity: 0.15;
     pointer-events: none;
+    z-index: 10;
 }
 
 .stamp-paid {

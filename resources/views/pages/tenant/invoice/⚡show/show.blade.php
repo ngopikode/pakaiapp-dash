@@ -16,13 +16,6 @@
     </div>
 
     <div id="receipt-content" class="receipt-container p-4 p-md-5 mt-2">
-
-        @if($order->status == 'paid' || $order->status == 'completed')
-            <div class="status-stamp stamp-paid">LUNAS</div>
-        @else
-            <div class="status-stamp stamp-unpaid">{{ $order->status }}</div>
-        @endif
-
         <div class="text-center mb-4">
             @if($store && $store->logo)
                 <img src="{{ Storage::url($store->logo) }}" alt="Logo" class="mb-3"
@@ -116,7 +109,7 @@
             </div>
         </div>
 
-        <div class="bg-light p-3 rounded-2 small mb-4 border">
+        <div class="bg-light p-3 rounded-2 small mb-4 border payment-box">
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Metode Pembayaran</span>
                 <span class="fw-bold text-dark text-uppercase">{{ $order->payment_method }}</span>
@@ -130,6 +123,12 @@
                     <span class="text-muted">Kembalian</span>
                     <span class="fw-bold text-dark">Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
                 </div>
+            @endif
+
+            @if($order->status == 'paid' || $order->status == 'completed')
+                <div class="status-stamp stamp-paid">LUNAS</div>
+            @else
+                <div class="status-stamp stamp-unpaid text-uppercase">{{ $order->status }}</div>
             @endif
         </div>
 
@@ -158,25 +157,20 @@
 <script>
     function downloadReceipt() {
         const receipt = document.getElementById('receipt-content');
-
-        // Simpan state CSS awal
         const originalBoxShadow = receipt.style.boxShadow;
         const originalBorderRadius = receipt.style.borderRadius;
 
-        // Hapus styling tertentu sementara agar gambar rapi (opsional)
         receipt.style.boxShadow = 'none';
         receipt.style.borderRadius = '0px';
 
         html2canvas(receipt, {
-            scale: 2, // Resolusi tinggi agar tidak pecah
+            scale: 2,
             backgroundColor: '#ffffff',
-            useCORS: true // Penting jika ada gambar logo dari domain luar
+            useCORS: true
         }).then(canvas => {
-            // Kembalikan state CSS semula
             receipt.style.boxShadow = originalBoxShadow;
             receipt.style.borderRadius = originalBorderRadius;
 
-            // Proses Download
             let link = document.createElement('a');
             link.download = 'Invoice-{{ $order->invoice_code }}.png';
             link.href = canvas.toDataURL('image/png');
