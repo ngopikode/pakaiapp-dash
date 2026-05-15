@@ -24,6 +24,21 @@ class ProfileForm extends Form
 
     public $password_confirmation = '';
 
+    /**
+     * Tambahkan method ini untuk membuat pesan error yang mudah dipahami.
+     */
+    public function messages(): array
+    {
+        return [
+            'password.min' => 'Password minimal harus :min karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            // Kamu bisa menambahkan pesan lain di bawah ini jika mau:
+            'name.required' => 'Nama tidak boleh kosong.',
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.email' => 'Format email tidak valid.',
+        ];
+    }
+
     public function setUser($user): void
     {
         $this->name = $user->name;
