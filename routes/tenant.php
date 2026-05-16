@@ -30,6 +30,10 @@ Route::middleware([
 
     Route::view('/', 'pages.tenant.index')->name('index');
 
+    Route::get('/menu/{productId}', [\App\Http\Controllers\MenuController::class, 'showProductPreview'])->name('product.preview');
+    Route::get('/menu/{productId}/story', [\App\Http\Controllers\MenuController::class, 'shareToStory'])->name('product.story');
+    Route::get('/menu/{productId}/story/image', [\App\Http\Controllers\MenuController::class, 'generateStoryImage'])->name('product.story.image');
+
     Route::middleware('auth')->group(function () {
 
         Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
