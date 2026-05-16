@@ -28,6 +28,8 @@ Route::middleware([
 
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
 
+    Route::view('/', 'pages.tenant.index')->name('index');
+
     Route::middleware('auth')->group(function () {
 
         Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
@@ -42,6 +44,14 @@ Route::middleware([
             Route::view('user', 'pages.tenant.user.index')->name('user');
             Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
         });
+    });
+
+    Route::prefix('api')->middleware(['api'])->group(function () {
+        Route::get('/restaurant', \App\Http\Controllers\Api\RestaurantApiController::class);
+        Route::get('/categories', \App\Http\Controllers\Api\CategoryApiController::class);
+        Route::get('/products', [\App\Http\Controllers\Api\ProductApiController::class, 'index']);
+        Route::get('/products/{productId}', [\App\Http\Controllers\Api\ProductApiController::class, 'show']);
+        Route::post('/orders', [\App\Http\Controllers\Api\OrderApiController::class, 'store']);
     });
 
     require __DIR__ . '/auth.php';
