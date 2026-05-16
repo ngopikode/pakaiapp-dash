@@ -17,7 +17,7 @@ class MenuController extends Controller
      */
     public function showProductPreview(Request $request, string $productId)
     {
-        $restaurant = StoreSetting::first();
+        $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
         $product = $this->getProduct($productId);
         
         $fullReactUrl = url('/');
@@ -31,12 +31,30 @@ class MenuController extends Controller
             ]);
         }
 
-        return redirect("$fullReactUrl/menu/$productId");
+        return redirect("$fullReactUrl#$productId");
+    }
+
+    public function shareAsStory(Request $request, $productId)
+    {
+        $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
+        $product = $this->getProduct($productId);
+
+        $fullReactUrl = url('/');
+        $productUrl = "$fullReactUrl/menu/$productId";
+
+        return view('tenant.story_preview', [
+            'restaurant' => $restaurant,
+            'product' => $product,
+            'image_url' => $product->image ? Storage::url($product->image) : null,
+            'product_url' => $productUrl,
+            'share_text' => $this->generateShareText($product, $restaurant, $productUrl),
+            'share_title' => "$product->name - $restaurant->name"
+        ]);
     }
 
     public function shareToStory(Request $request, $productId)
     {
-        $restaurant = StoreSetting::first();
+        $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
         $product = $this->getProduct($productId);
 
         $productUrl = url("/menu/$productId?t=" . time());
@@ -51,7 +69,7 @@ class MenuController extends Controller
     {
         set_time_limit(60);
 
-        $restaurant = StoreSetting::first();
+        $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
         $product = $this->getProduct($productId);
         $subdomain = tenant('id');
 
@@ -67,7 +85,7 @@ class MenuController extends Controller
 
         $productImagePath = Storage::disk('public')->path($product->image);
 
-        if (!file_exists($productImagePath)) {
+        if (!$product->image || !file_exists($productImagePath)) {
             abort(404, 'Product image not found');
         }
 
@@ -78,7 +96,7 @@ class MenuController extends Controller
 
     private function isSocialMediaBot(Request $request): bool
     {
-        $userAgent = strtolower($request->header('User-Agent'));
+        $userAgent = strtolower((string) $request->header('User-Agent'));
         $bots = ['whatsapp', 'facebookexternalhit', 'facebot', 'twitterbot', 'linkedinbot'];
 
         foreach ($bots as $bot) {
