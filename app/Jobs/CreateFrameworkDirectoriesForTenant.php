@@ -33,6 +33,8 @@ class CreateFrameworkDirectoriesForTenant implements ShouldQueue
             if (!is_dir($storage_path)) {
                 @mkdir("$storage_path/app/public", 0777, true);
                 @mkdir("$storage_path/framework/cache", 0777, true);
+                @mkdir("$storage_path/framework/views", 0777, true);
+                @mkdir("$storage_path/framework/sessions", 0777, true);
                 $symlinkTarget = public_path("$suffixBase$tenant->id");
                 if (!file_exists($symlinkTarget) && !is_link($symlinkTarget)) {
                     symlink("$storage_path/app/public", $symlinkTarget);
