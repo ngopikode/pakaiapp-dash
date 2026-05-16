@@ -18,7 +18,7 @@ class MenuController extends Controller
     public function showProductPreview(Request $request, string $productId)
     {
         $restaurant = StoreSetting::first();
-        $product = Product::findOrFail($productId);
+        $product = $this->getProduct($productId);
         
         $fullReactUrl = url('/');
 
@@ -37,7 +37,7 @@ class MenuController extends Controller
     public function shareToStory(Request $request, $productId)
     {
         $restaurant = StoreSetting::first();
-        $product = Product::findOrFail($productId);
+        $product = $this->getProduct($productId);
 
         $productUrl = url("/menu/$productId?t=" . time());
 
@@ -52,7 +52,7 @@ class MenuController extends Controller
         set_time_limit(60);
 
         $restaurant = StoreSetting::first();
-        $product = Product::findOrFail($productId);
+        $product = $this->getProduct($productId);
         $subdomain = tenant('id');
 
         // --- CACHING STRATEGY ---
@@ -87,6 +87,12 @@ class MenuController extends Controller
             }
         }
         return false;
+    }
+
+    private function getProduct(string $productId): Product
+    {
+        $id = str_contains($productId, 'product-') ? explode('-', $productId)[1] : $productId;
+        return Product::findOrFail($id);
     }
 
     private function generateShareText(Product $product, StoreSetting $restaurant, string $url): string

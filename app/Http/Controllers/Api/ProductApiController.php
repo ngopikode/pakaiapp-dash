@@ -51,7 +51,8 @@ class ProductApiController extends Controller
 
     public function show(Request $request, string $productId): JsonResponse
     {
-        $product = Product::with(['category', 'variants'])->findOrFail($productId);
+        $id = str_contains($productId, 'product-') ? explode('-', $productId)[1] : $productId;
+        $product = Product::with(['category', 'variants'])->findOrFail($id);
 
         $transformedData = [
             'id' => "product-{$product->id}",
