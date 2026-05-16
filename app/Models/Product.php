@@ -10,6 +10,11 @@ class Product extends Model
 {
     protected $guarded = [];
 
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     // Relasi ke tabel variants
     public function variants(): HasMany
     {
