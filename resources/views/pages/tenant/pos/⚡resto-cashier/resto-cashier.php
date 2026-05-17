@@ -7,6 +7,7 @@ use App\Models\StoreSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
@@ -101,9 +102,9 @@ new class extends Component {
             }
 
             $subtotal = collect($cart)->sum('subtotal');
-            $discountAmount = (float) $discount;
+            $discountAmount = (float)$discount;
             $totalPrice = max(0, $subtotal - $discountAmount);
-            $paid = (float) $amountPaid ?: $totalPrice;
+            $paid = (float)$amountPaid ?: $totalPrice;
             $change = max(0, $paid - $totalPrice);
             $invoiceCode = 'INV-' . strtoupper(Str::random(6));
 
@@ -162,9 +163,9 @@ new class extends Component {
             return ['success' => false, 'error' => 'Pesanan tidak ditemukan atau sudah dibayar.'];
         }
 
-        $discountAmount = (float) $discount;
+        $discountAmount = (float)$discount;
         $totalPrice = max(0, $order->subtotal - $discountAmount);
-        $paid = (float) $amountPaid ?: $totalPrice;
+        $paid = (float)$amountPaid ?: $totalPrice;
         $change = max(0, $paid - $totalPrice);
 
         $order->update([
@@ -196,7 +197,7 @@ new class extends Component {
     {
         $orderId = $data['orderId'] ?? null;
         $note = $data['note'] ?? null;
-        
+
         $order = Order::with('items')->find($orderId);
         if ($order && $order->status === 'pending') {
             DB::transaction(function () use ($order, $note) {
@@ -204,7 +205,7 @@ new class extends Component {
                 foreach ($order->items as $item) {
                     ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
                 }
-                
+
                 $updateData = ['status' => 'cancelled'];
                 if ($note) {
                     $updateData['cancellation_note'] = $note;
@@ -225,7 +226,7 @@ new class extends Component {
         $storeSetting = StoreSetting::first();
         $orderTypes = [];
 
-        if ($storeSetting?->is_dinein_active)   $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
+        if ($storeSetting?->is_dinein_active) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
         if ($storeSetting?->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
         if ($storeSetting?->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
         if (empty($orderTypes)) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];

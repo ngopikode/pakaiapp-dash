@@ -40,12 +40,10 @@ Route::middleware([
     Route::get('/menu/{productId}/story/image', [MenuController::class, 'generateStoryImage'])->name('product.story.image');
 
     Route::middleware('auth')->group(function () {
-        
+
         // Routes accessible by manager AND cashier
         Route::middleware('role:manager,cashier')->group(function () {
             Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
-            Route::livewire('cashier/resto', 'pages::tenant.pos.resto-cashier')->name('cashier.resto');
-            Route::livewire('cashier/retail', 'pages::tenant.pos.retail-cashier')->name('cashier.retail');
 
             Route::prefix('dashboard')->group(function () {
                 Route::view('order', 'pages.tenant.order.index')->name('order');

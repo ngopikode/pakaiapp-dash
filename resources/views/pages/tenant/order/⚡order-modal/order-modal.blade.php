@@ -43,8 +43,14 @@
                                             <div
                                                 class="alert alert-danger border-0 bg-danger bg-opacity-10 d-flex align-items-center mb-0">
                                                 <i class="bi bi-x-octagon-fill fs-4 text-danger me-3"></i>
-                                                <div><strong class="d-block">Dibatalkan</strong><small>Pesanan ini
-                                                        dibatalkan.</small></div>
+                                                <div>
+                                                    <strong class="d-block">Dibatalkan</strong><small>Pesanan ini
+                                                        dibatalkan.</small>
+                                                    @if($order->cancellation_note)
+                                                        <br>
+                                                        <small>{{ $order->cancellation_note }}</small>
+                                                    @endif
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -215,7 +221,8 @@
 
                                             <button wire:click="triggerPayment" wire:loading.attr="disabled"
                                                     class="btn btn-dark py-2 px-4 fw-bold flex-grow-1 shadow-sm rounded-3">
-                                                <span wire:loading.remove wire:target="triggerPayment">Bayar Pesanan</span>
+                                                <span wire:loading.remove
+                                                      wire:target="triggerPayment">Bayar Pesanan</span>
                                                 <span wire:loading wire:target="triggerPayment"
                                                       class="spinner-border spinner-border-sm"></span>
                                             </button>

@@ -1,6 +1,13 @@
-<div class="d-flex justify-content-center align-items-center" style="height: 60vh;">
-    <div class="text-center">
-        <div class="spinner-border text-primary mb-3" role="status"></div>
-        <p class="text-muted fw-bold">Mengarahkan ke kasir...</p>
-    </div>
+<div>
+    <!-- Render komponen sesuai dengan store_type -->
+    @if($storeType === 'resto')
+        <livewire:pages::tenant.pos.resto-cashier/>
+    @elseif($storeType === 'retail')
+        <livewire:pages::tenant.pos.retail-cashier/>
+    @else
+        <div class="alert alert-danger text-center m-5">
+            Tipe toko tidak valid atau belum diatur!
+        </div>
+
+    @endif
 </div>

@@ -30,7 +30,10 @@ class ProfileForm extends Form
     public function messages(): array
     {
         return [
-            'password.min' => 'Password minimal harus :min karakter.',
+            'current_password.required' => 'Password saat ini tidak boleh kosong.',
+            'current_password.current_password' => 'Password saat ini salah.',
+            'password.required' => 'Password baru tidak boleh kosong.',
+            'password.min' => 'Password baru minimal harus :min karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             // Kamu bisa menambahkan pesan lain di bawah ini jika mau:
             'name.required' => 'Nama tidak boleh kosong.',
