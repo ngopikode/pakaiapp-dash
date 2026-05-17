@@ -40,6 +40,8 @@ new class extends Component {
                 'category_id' => $p->category_id,
                 'image_url' => $p->image ? Storage::url($p->image) : null,
                 'has_variants' => (bool)$p->has_variants,
+                'selection_type' => $p->selection_type ?? 'single',
+                'max_selections' => (int)($p->max_selections ?? 1),
 
                 // Ambil harga terendah & total stok untuk tampilan grid
                 'price' => (float)$p->variants->min('price'),

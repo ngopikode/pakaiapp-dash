@@ -20,6 +20,9 @@ new class extends Component {
     public function getMenuSectionsProperty(): array
     {
         $user = Auth::user();
+        $storeType = StoreSetting::first()?->store_type ?? 'retail';
+        $cashierRoute = $storeType === 'resto' ? 'cashier.resto' : 'cashier.retail';
+
         $sections = [
             [
                 'title' => 'Menu Utama',
@@ -27,7 +30,7 @@ new class extends Component {
                     ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard', 'roles' => ['manager']],
                     ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Produk', 'roles' => ['manager']],
                     ['route' => 'order', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
-                    ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
+                    ['route' => $cashierRoute, 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
                 ]
             ],
             [

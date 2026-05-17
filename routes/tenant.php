@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\CategoryApiController;
+use App\Http\Controllers\Api\OrderApiController;
+use App\Http\Controllers\Api\ProductApiController;
+use App\Http\Controllers\Api\RestaurantApiController;
+use App\Http\Controllers\MenuController;
 use App\Http\Middleware\FileUrlMiddleware;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -30,13 +35,15 @@ Route::middleware([
 
     Route::view('/', 'pages.tenant.index')->name('index');
 
-    Route::get('/menu/{productId}', [\App\Http\Controllers\MenuController::class, 'showProductPreview'])->name('product.preview');
-    Route::get('/menu/{productId}/story', [\App\Http\Controllers\MenuController::class, 'shareAsStory'])->name('product.story');
-    Route::get('/menu/{productId}/story/image', [\App\Http\Controllers\MenuController::class, 'generateStoryImage'])->name('product.story.image');
+    Route::get('/menu/{productId}', [MenuController::class, 'showProductPreview'])->name('product.preview');
+    Route::get('/menu/{productId}/story', [MenuController::class, 'shareAsStory'])->name('product.story');
+    Route::get('/menu/{productId}/story/image', [MenuController::class, 'generateStoryImage'])->name('product.story.image');
 
     Route::middleware('auth')->group(function () {
 
         Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
+        Route::livewire('cashier/resto', 'pages::tenant.pos.resto-cashier')->name('cashier.resto');
+        Route::livewire('cashier/retail', 'pages::tenant.pos.retail-cashier')->name('cashier.retail');
 
         Route::prefix('dashboard')->group(function () {
             Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
@@ -51,11 +58,11 @@ Route::middleware([
     });
 
     Route::prefix('api')->middleware(['api'])->group(function () {
-        Route::get('/restaurant', \App\Http\Controllers\Api\RestaurantApiController::class);
-        Route::get('/categories', \App\Http\Controllers\Api\CategoryApiController::class);
-        Route::get('/products', [\App\Http\Controllers\Api\ProductApiController::class, 'index']);
-        Route::get('/products/{productId}', [\App\Http\Controllers\Api\ProductApiController::class, 'show']);
-        Route::post('/orders', [\App\Http\Controllers\Api\OrderApiController::class, 'store']);
+        Route::get('/restaurant', RestaurantApiController::class);
+        Route::get('/categories', CategoryApiController::class);
+        Route::get('/products', [ProductApiController::class, 'index']);
+        Route::get('/products/{productId}', [ProductApiController::class, 'show']);
+        Route::post('/orders', [OrderApiController::class, 'store']);
     });
 
     require __DIR__ . '/auth.php';
