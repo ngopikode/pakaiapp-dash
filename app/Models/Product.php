@@ -9,10 +9,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Product extends Model
 {
     protected $fillable = [
-        'is_active',
         'id',
+        'category_id',
+        'name',
+        'description',
+        'image',
+        'tax_included',
+        'has_variants',
+        'is_active',
+        'selection_type',
+        'max_selections',
+        'created_at',
+        'updated_at'
     ];
-    protected $guarded = [];
 
     protected function casts(): array
     {

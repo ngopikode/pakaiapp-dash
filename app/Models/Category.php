@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Category extends Model
 {
     protected $fillable = [
+        'id',
         'name',
         'slug',
         'type',
-        'id',
+        'order_column',
+        'created_at',
+        'updated_at'
     ];
-    protected $guarded = []; // Biar gampang mass-assignment
 
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
-
 }

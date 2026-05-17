@@ -7,11 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 class StoreSetting extends Model
 {
     protected $fillable = [
-        'navbar_brand_text',
-        'hero_headline',
-        'is_active',
+        'id',
         'name',
+        'logo',
+        'theme_color',
+        'whatsapp_number',
+        'address',
+        'seo_title',
+        'seo_description',
+        'seo_keywords',
+        'og_title',
+        'og_description',
+        'og_image',
+        'hero_promo_text',
+        'hero_status_text',
+        'hero_headline',
+        'hero_tagline',
+        'hero_instagram_url',
+        'navbar_brand_text',
+        'navbar_title',
+        'navbar_subtitle',
+        'is_active',
         'store_type',
+        'is_dinein_active',
+        'is_takeaway_active',
+        'is_delivery_active',
+        'created_at',
+        'updated_at'
     ];
-    protected $guarded = [];
 }

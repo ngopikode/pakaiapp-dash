@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Guarded([])]
 #[Hidden(['password', 'remember_token'])]
 class TenantUser extends Authenticatable
 {
@@ -16,6 +14,18 @@ class TenantUser extends Authenticatable
 
     // Paksa model ini baca tabel 'users' (bukan 'tenant_users')
     protected $table = 'users';
+
+    protected $fillable = [
+        'id',
+        'name',
+        'email',
+        'email_verified_at',
+        'password',
+        'role',
+        'remember_token',
+        'created_at',
+        'updated_at'
+    ];
 
     /**
      * Get the attributes that should be cast.

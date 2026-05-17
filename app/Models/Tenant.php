@@ -12,7 +12,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     use HasDatabase, HasDomains;
 
     protected $fillable = [
-        'store_type',
         'id',
+        'user_id',
+        'subscription_plan',
+        'trial_ends_at',
+        'is_active',
+        'data',
+        'store_type',
+        'created_at',
+        'updated_at'
     ];
 }

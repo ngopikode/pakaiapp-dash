@@ -9,13 +9,16 @@ class ProductVariant extends Model
 {
     protected $fillable = [
         'id',
+        'product_id',
+        'sku',
         'name',
         'cost',
         'price',
         'stock',
         'min_stock',
+        'created_at',
+        'updated_at'
     ];
-    protected $guarded = [];
 
     public function product(): BelongsTo
     {

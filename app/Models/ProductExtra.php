@@ -9,12 +9,14 @@ class ProductExtra extends Model
 {
     protected $fillable = [
         'id',
+        'product_id',
         'name',
-        'is_active',
-        'price',
         'cost',
+        'price',
+        'is_active',
+        'created_at',
+        'updated_at'
     ];
-    protected $guarded = [];
 
     public function product(): BelongsTo
     {
