@@ -31,13 +31,17 @@ new class extends Component {
         }
     }
 
-    public function updateStatus($newStatus): void
+    public function updateStatus($newStatus, $cancellationNote = null): void
     {
         if ($this->orderId) {
 
-            Order::where('id', $this->orderId)->update([
-                'status' => $newStatus
-            ]);
+            $updateData = ['status' => $newStatus];
+            
+            if ($newStatus === 'cancelled' && $cancellationNote) {
+                $updateData['cancellation_note'] = $cancellationNote;
+            }
+
+            Order::where('id', $this->orderId)->update($updateData);
 
             // Kasih tau tabel di belakang buat refresh otomatis
             $this->dispatch('order-updated');
@@ -46,6 +50,8 @@ new class extends Component {
             // Jika dibatalkan, langsung tutup modalnya
             if ($newStatus === 'cancelled') {
                 $this->dispatch('hide-order-modal');
+                // Kasih tau alert success bahwa batal dengan alasan tercatat
+                $this->dispatch('notify', message: 'Pesanan dibatalkan dengan catatan!');
             }
         }
     }

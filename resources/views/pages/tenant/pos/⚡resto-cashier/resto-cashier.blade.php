@@ -104,7 +104,7 @@
 
                             {{-- Actions --}}
                             <div class="p-3 border-top bg-body-tertiary d-flex gap-2">
-                                <button @click="if(confirm('Batalkan pesanan ini?')) $wire.cancelOrder({{ $order->id }})"
+                                <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
                                         class="btn btn-outline-danger fw-bold flex-shrink-0"
                                         style="border-radius: 0.75rem;">
                                     <i class="bi bi-x-lg"></i>
@@ -207,6 +207,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    {{-- Cancel Modal Component --}}
+    <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
+        <x-tenant.order.cancel-modal />
     </div>
 
 </div>

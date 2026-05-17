@@ -154,12 +154,13 @@
                                     </button>
 
                                     @if($order->status == 'pending')
-                                        <button wire:click="updateStatus({{ $order->id }}, 'cancelled')"
+                                        <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
                                                 class="btn btn-outline-danger rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
                                             Batal
                                         </button>
-                                        <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
-                                                class="btn btn-dark rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
+                                        <button
+                                            wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
+                                            class="btn btn-dark rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
                                             Bayar
                                         </button>
                                     @endif
@@ -173,8 +174,8 @@
                 @if($orders->hasMorePages())
                     <div x-intersect.full="$wire.loadMore()"
                          class="d-flex justify-content-center align-items-center py-5 mt-2">
-                         <div class="spinner-border text-dark spinner-border-sm me-2" role="status"></div>
-                         <span class="fw-bold text-muted small">Memuat lebih banyak pesanan...</span>
+                        <div class="spinner-border text-dark spinner-border-sm me-2" role="status"></div>
+                        <span class="fw-bold text-muted small">Memuat lebih banyak pesanan...</span>
                     </div>
                 @endif
             @endif

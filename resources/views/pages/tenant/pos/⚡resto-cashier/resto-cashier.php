@@ -191,20 +191,28 @@ new class extends Component {
     /**
      * Batalkan pesanan pending (kembalikan stok).
      */
-    public function cancelOrder($orderId)
+    #[On('process-cancel-order')]
+    public function cancelOrder($data)
     {
+        $orderId = $data['orderId'] ?? null;
+        $note = $data['note'] ?? null;
+        
         $order = Order::with('items')->find($orderId);
-        if (!$order || $order->status !== 'pending') return;
-
-        DB::transaction(function () use ($order) {
-            foreach ($order->items as $item) {
-                if ($item->variant_id) {
-                    ProductVariant::where('id', $item->variant_id)
-                        ->increment('stock', $item->quantity);
+        if ($order && $order->status === 'pending') {
+            DB::transaction(function () use ($order, $note) {
+                // Restore stock
+                foreach ($order->items as $item) {
+                    ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
                 }
-            }
-            $order->update(['status' => 'cancelled']);
-        });
+                
+                $updateData = ['status' => 'cancelled'];
+                if ($note) {
+                    $updateData['cancellation_note'] = $note;
+                }
+                $order->update($updateData);
+            });
+            $this->dispatch('close-cancel-modal');
+        }
     }
 
     public function updateCustomerPhone($invoiceCode, $phone): void

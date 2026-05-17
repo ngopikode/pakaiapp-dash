@@ -28,7 +28,8 @@ class extends Component {
         if (Auth::attempt($credentials, $this->form['remember'])) {
             session()->regenerate();
 
-            $this->redirect('/dashboard');
+            if (auth()->user()->role === 'manager') $this->redirect('/dashboard');
+            else $this->redirectRoute('cashier');
         }
 
         $this->addError('form.email', 'Email atau password yang dimasukkan salah.');

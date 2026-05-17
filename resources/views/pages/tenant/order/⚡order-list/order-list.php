@@ -35,11 +35,22 @@ new class extends Component {
         $this->perPage += 10;
     }
 
-    public function updateStatus($id, $status): void
+    #[On('cancel-confirmed')]
+    public function handleCancelConfirmed($orderId, $note): void
+    {
+        $this->updateStatus($orderId, 'cancelled', $note);
+        $this->dispatch('close-cancel-modal');
+    }
+
+    public function updateStatus($id, $status, $cancellationNote = null): void
     {
         $order = Order::find($id);
         if ($order) {
-            $order->update(['status' => $status]);
+            $updateData = ['status' => $status];
+            if ($status === 'cancelled' && $cancellationNote) {
+                $updateData['cancellation_note'] = $cancellationNote;
+            }
+            $order->update($updateData);
             $this->dispatch('notify', message: 'Status pesanan berhasil diperbarui!');
         }
     }
