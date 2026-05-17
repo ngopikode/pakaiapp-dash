@@ -1,0 +1,107 @@
+/* Modern Minimalist UI & Shimmer Skeleton */
+.glass-search {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+}
+
+.glass-search:focus {
+    background: #fff;
+    border-color: #212529;
+    box-shadow: 0 0 0 4px rgba(33, 37, 41, 0.1);
+}
+
+.cat-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.25rem;
+}
+
+.cat-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    color: #6c757d;
+    background: transparent;
+}
+
+.cat-btn:hover {
+    background: #f8f9fa;
+}
+
+.cat-btn.active {
+    background: #212529;
+    color: #fff;
+    border-color: #212529;
+}
+
+.product-card-saas {
+    border: 1px solid #f1f3f5;
+    border-radius: 1rem;
+    background: #fff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-column: vertical;
+}
+
+.product-card-saas:hover {
+    border-color: #212529;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+}
+
+/* PREMIUM STRIPE-STYLE SHIMMER SKELETON */
+.skeleton-shimmer {
+    background: #f1f3f5;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transform: translateX(-100%);
+    animation: shimmer-move 1.5s infinite;
+}
+
+@keyframes shimmer-move {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.badge-soft-dark {
+    background: rgba(33, 37, 41, 0.85);
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+
+.badge-soft-danger {
+    background: rgba(220, 53, 69, 0.85);
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+
+.text-caramel-solid {
+    color: #b45309 !important;
+    font-weight: 700;
+}

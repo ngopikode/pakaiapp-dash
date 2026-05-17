@@ -51,11 +51,9 @@ new class extends Component {
                 $updateData['cancellation_note'] = $cancellationNote;
             }
             $order->update($updateData);
-            $this->dispatch('notify', message: 'Status pesanan berhasil diperbarui!');
+            $this->dispatch('notify', ['type' => 'success', 'message' => 'Status pesanan diperbarui.']);
         }
     }
-
-
 
     public function with(): array
     {
@@ -72,7 +70,6 @@ new class extends Component {
         return [
             'orders' => $query->latest()->paginate($this->perPage),
 
-            // Hitung badge notifikasi
             'allCount' => Order::count(),
             'pendingCount' => Order::where('status', 'pending')->count(),
             'paidCount' => Order::where('status', 'paid')->count(),

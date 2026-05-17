@@ -1,0 +1,67 @@
+/* Custom Accordion & Card Styling */
+.accordion-item-op {
+    border: none;
+    border-radius: 1.25rem !important;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    background: #fff;
+}
+
+.accordion-button-op {
+    background-color: transparent;
+    border: none;
+    padding: 1.25rem;
+    font-weight: 700;
+    color: #451a03;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+
+.accordion-button-op:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.accordion-button-op:hover {
+    background-color: #faf8f5;
+}
+
+.accordion-button-op::after {
+    content: '\F282';
+    font-family: 'bootstrap-icons', serif;
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+    margin-left: auto;
+    color: #b45309;
+}
+
+.accordion-button-op:not(.collapsed)::after {
+    transform: rotate(-180deg);
+}
+
+.accordion-body-op {
+    background-color: #faf8f5;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.product-card {
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(180, 83, 9, 0.08);
+}
+
+.btn-action-mobile {
+    padding: 0.4rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

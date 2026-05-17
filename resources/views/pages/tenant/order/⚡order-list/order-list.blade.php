@@ -1,168 +1,200 @@
-<div x-data="{ activeFilter: $wire.entangle('statusFilter').live }">
+<div x-data="{ activeFilter: $wire.entangle('statusFilter').live }" class="pb-5">
 
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end mb-4 gap-3">
-        <div>
-            <h2 class="fw-bolder text-dark mb-1" style="letter-spacing: -0.5px;">Daftar Pesanan</h2>
-            <p class="text-secondary mb-0 fw-medium">Kelola transaksi Retail dan F&B hari ini.</p>
+
+    {{-- Header Section --}}
+    <div class="mb-4 pt-2">
+        <h2 class="fw-bolder text-dark mb-1" style="letter-spacing: -0.5px;">Pesanan</h2>
+        <p class="text-secondary small mb-0 fw-medium">Pantau dan kelola semua transaksi masuk secara real-time.</p>
+    </div>
+
+    {{-- Controls: Search & Filters --}}
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+
+        {{-- Segmented Filters --}}
+        <div class="filter-nav">
+            @php
+                $filters = [
+                    ['id' => 'all', 'label' => 'Semua', 'count' => $allCount],
+                    ['id' => 'pending', 'label' => 'Menunggu', 'count' => $pendingCount],
+                    ['id' => 'paid', 'label' => 'Selesai', 'count' => $paidCount],
+                    ['id' => 'cancelled', 'label' => 'Batal', 'count' => $cancelledCount]
+                ];
+            @endphp
+            @foreach($filters as $filter)
+                <button type="button"
+                        @click="activeFilter = '{{ $filter['id'] }}'"
+                        :class="activeFilter === '{{ $filter['id'] }}' ? 'active' : ''"
+                        class="filter-btn d-flex align-items-center gap-2">
+                    {{ $filter['label'] }}
+                    <span class="badge rounded-pill"
+                          :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-white text-dark' : 'bg-secondary bg-opacity-10 text-secondary'">
+                        {{ $filter['count'] }}
+                    </span>
+                </button>
+            @endforeach
         </div>
 
-        <div class="position-relative" style="min-width: 300px;">
-            <i class="bi bi-search position-absolute text-muted fs-5"
-               style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
+        {{-- Search Bar --}}
+        <div class="position-relative" style="min-width: 280px;">
+            <i class="bi bi-search position-absolute text-muted"
+               style="top: 50%; left: 1rem; transform: translateY(-50%);"></i>
             <input type="text"
-                   class="form-control form-control-lg rounded-pill border border-light shadow-sm ps-5 text-sm fw-medium transition-all"
+                   class="form-control glass-input rounded-pill ps-5 py-2"
                    wire:model.live.debounce.300ms="search"
-                   placeholder="Cari Invoice, Nama, atau Meja...">
+                   placeholder="Cari pesanan...">
         </div>
     </div>
 
-    <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
-        @php
-            $filters = [
-                ['id' => 'all', 'count' => $allCount, 'label' => 'Semua Pesanan', 'icon' => 'bi-inbox-fill', 'color' => 'dark'],
-                ['id' => 'pending', 'count' => $pendingCount, 'label' => 'Menunggu', 'icon' => 'bi-hourglass-split', 'color' => 'warning'],
-                ['id' => 'paid', 'count' => $paidCount, 'label' => 'Selesai', 'icon' => 'bi-check-circle-fill', 'color' => 'success'],
-                ['id' => 'cancelled', 'count' => $cancelledCount, 'label' => 'Dibatalkan', 'icon' => 'bi-x-octagon-fill', 'color' => 'danger']
-            ];
-        @endphp
+    {{-- Orders Container Canvas --}}
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden" wire:poll.15s>
 
-        @foreach($filters as $filter)
-            <div class="col">
-                <div @click="activeFilter = '{{ $filter['id'] }}'"
-                     :class="activeFilter === '{{ $filter['id'] }}' ? 'border-{{ $filter['color'] }} border-2 shadow' : 'border-light shadow-sm hover-shadow'"
-                     class="card rounded-4 border transition-all h-100" style="cursor: pointer;">
-                    <div class="card-body p-3 p-xl-4">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <div
-                                class="p-2 rounded-circle bg-{{ $filter['color'] }} bg-opacity-10 text-{{ $filter['color'] }}">
-                                <i class="bi {{ $filter['icon'] }} fs-5"></i>
-                            </div>
-                        </div>
-                        <h3 class="fw-bolder text-dark mb-0">{{ $filter['count'] }}</h3>
-                        <p class="small fw-medium mb-0 mt-1 text-muted">{{ $filter['label'] }}</p>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    </div>
-
-    <div class="position-relative" wire:poll.15s>
-
-        <div wire:loading wire:target="statusFilter, search"
-             class="w-100 position-absolute top-0 start-0 z-2 bg-opacity-75 rounded-4"
-             style="min-height: 400px; backdrop-filter: blur(3px);">
-            <div class="d-flex flex-column gap-3 py-4 px-2 px-md-3">
+        {{-- 1. SKELETON LAYER (Hanya Aktif Pas Loading Cari / Filter) --}}
+        <div wire:loading wire:target="statusFilter, search" class="w-100">
+            <div class="d-flex flex-column">
                 @for($i = 0; $i < 4; $i++)
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div
-                            class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 placeholder-glow">
-                            <span class="placeholder col-2 rounded d-none d-md-block"></span>
-                            <div class="d-flex align-items-center gap-3 flex-grow-1 w-100">
-                                <span class="placeholder rounded-circle" style="width: 48px; height: 48px;"></span>
-                                <div class="d-flex flex-column gap-2 w-75">
-                                    <span class="placeholder col-8 rounded"></span>
-                                    <span class="placeholder col-4 rounded bg-secondary"></span>
+                    <div class="order-row p-3 p-md-4">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center gap-3 w-100">
+                                <!-- Avatar Skeleton -->
+                                <div class="skeleton-block rounded-circle"
+                                     style="width: 42px; height: 42px; flex-shrink: 0;"></div>
+                                <div class="w-100 flex-grow-1">
+                                    <!-- Name Skeleton -->
+                                    <div class="skeleton-block mb-2" style="width: 35%; height: 18px;"></div>
+                                    <!-- Invoice Info Skeleton -->
+                                    <div class="skeleton-block" style="width: 20%; height: 12px;"></div>
                                 </div>
                             </div>
-                            <span class="placeholder col-2 rounded"></span>
+                            <!-- Price & Badge Skeleton -->
+                            <div
+                                class="d-flex flex-row flex-md-column align-items-md-end justify-content-between w-100 w-md-auto gap-2"
+                                style="min-width: 150px;">
+                                <div class="skeleton-block d-md-block" style="width: 80px; height: 20px;"></div>
+                                <div class="skeleton-block"
+                                     style="width: 110px; height: 22px; border-radius: 2rem;"></div>
+                            </div>
+                            <!-- Button Action Skeleton (Desktop) -->
+                            <div class="d-none d-md-flex gap-2 ms-md-3">
+                                <div class="skeleton-block rounded-circle" style="width: 38px; height: 38px;"></div>
+                                <div class="skeleton-block rounded-circle" style="width: 38px; height: 38px;"></div>
+                            </div>
                         </div>
                     </div>
                 @endfor
             </div>
         </div>
 
-        <div wire:loading.remove wire:target="statusFilter, search" class="w-100">
-
+        {{-- 2. LIVE DATA LAYER (Sembunyi otomatis pas loading) --}}
+        <div wire:loading.remove wire:target="statusFilter, search">
             @if($orders->isEmpty())
-                <div
-                    class="card border border-light border-2 border-dashed shadow-none rounded-4 text-center py-5 my-3">
-                    <div class="card-body py-5">
-                        <div
-                            class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
-                            style="width: 80px; height: 80px;">
-                            <i class="bi bi-search fs-2 text-muted"></i>
-                        </div>
-                        <h5 class="fw-bold text-dark mb-2">Data Tidak Ditemukan</h5>
-                        <p class="text-secondary mb-0">Belum ada pesanan yang sesuai dengan pencarian atau filter saat
-                            ini.</p>
+                <div class="text-center py-5">
+                    <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 text-muted">
+                        <i class="bi bi-receipt fs-1"></i>
                     </div>
+                    <h6 class="fw-bold text-dark">Data Tidak Ditemukan</h6>
+                    <p class="text-muted small mb-0">Belum ada transaksi masuk di filter ini.</p>
                 </div>
             @else
-                <div class="d-flex flex-column gap-3">
+                <div class="d-flex flex-column">
                     @foreach($orders as $order)
-                        <div class="card border border-light shadow-sm rounded-4 transition-all hover-shadow"
-                             wire:key="order-{{ $order->id }}">
+                        <div class="order-row p-3 p-md-4" wire:key="order-{{ $order->id }}">
                             <div
-                                class="card-body p-3 p-md-4 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 gap-md-4">
+                                class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
 
-                                <div
-                                    class="w-100 w-md-auto d-flex d-md-block justify-content-between align-items-center"
-                                    style="min-width: 130px;">
-                                    <div class="fw-bolder text-primary fs-5">#{{ $order->invoice_code }}</div>
-                                    <div class="small text-muted fw-medium mt-1"><i
-                                            class="bi bi-clock me-1"></i>{{ $order->created_at->format('H:i') }}</div>
-                                </div>
-
-                                <div class="d-flex align-items-center gap-3 flex-grow-1 w-100">
-                                    <div
-                                        class="rounded-circle text-dark d-flex align-items-center justify-content-center fw-bolder shadow-sm border border-white"
-                                        style="width: 48px; height: 48px; font-size: 1.2rem; flex-shrink: 0;">
+                                {{-- Left: Customer Info --}}
+                                <div class="d-flex align-items-center gap-3 w-100">
+                                    <div class="avatar-initial flex-shrink-0">
                                         {{ strtoupper(substr($order->customer_name, 0, 1)) }}
                                     </div>
-                                    <div class="overflow-hidden">
-                                        <h6 class="fw-bold text-dark mb-1 text-truncate">
-                                            {{ $order->customer_name }}
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <h6 class="fw-bold text-dark mb-0 text-truncate">{{ $order->customer_name }}</h6>
                                             @if($order->table_number)
-                                                <span class="badge bg-dark ms-2">Meja {{ $order->table_number }}</span>
+                                                <span class="badge bg-light text-dark border fw-bold"
+                                                      style="font-size: 0.75rem;">Meja {{ $order->table_number }}</span>
                                             @endif
-                                        </h6>
-                                        <div class="d-flex align-items-center gap-2 small">
-                                            <span class="text-secondary fw-medium text-capitalize"><i
-                                                    class="bi bi-bag-check me-1"></i>{{ $order->order_type }}</span>
-                                            <span class="text-light">•</span>
-                                            <span
-                                                class="text-secondary fw-medium text-uppercase">{{ $order->payment_method }}</span>
+                                        </div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2 small text-muted">
+                                            <span class="fw-bold text-secondary">#{{ $order->invoice_code }}</span>
+                                            <span>&bull;</span>
+                                            <span class="text-capitalize fw-medium">{{ $order->order_type }}</span>
+                                            <span>&bull;</span>
+                                            <span>{{ $order->created_at->format('H:i') }}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="w-100 w-md-auto pt-3 pt-md-0 mt-2 mt-md-0" style="min-width: 140px;">
-                                    @if($order->status == 'pending')
-                                        <span
-                                            class="badge bg-warning bg-opacity-10 text-warning-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Menunggu</span>
-                                    @elseif($order->status == 'paid')
-                                        <span
-                                            class="badge bg-success bg-opacity-10 text-success-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start"><i
-                                                class="bi bi-check-circle me-1"></i> Selesai</span>
-                                    @elseif($order->status == 'cancelled')
-                                        <span
-                                            class="badge bg-danger bg-opacity-10 text-danger-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Dibatalkan</span>
-                                    @endif
-                                </div>
-
+                                {{-- Middle: Status & Price --}}
                                 <div
-                                    class="w-100 w-md-auto text-md-end d-flex d-md-block justify-content-between align-items-center"
-                                    style="min-width: 130px;">
-                                    <div class="fw-bolder text-dark fs-5">
+                                    class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between w-100 w-md-auto mt-2 mt-md-0 px-1 px-md-0"
+                                    style="min-width: 150px;">
+                                    <div class="fw-bolder text-dark mb-md-2" style="font-size: 1.1rem;">
                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}</div>
+                                    <div>
+                                        @if($order->status == 'pending')
+                                            <span
+                                                class="badge badge-soft-warning rounded-pill px-2 py-1 border border-warning border-opacity-25">Menunggu Pembayaran</span>
+                                        @elseif($order->status == 'paid')
+                                            <span
+                                                class="badge badge-soft-success rounded-pill px-2 py-1 border border-success border-opacity-25"><i
+                                                    class="bi bi-check2"></i> Selesai</span>
+                                        @elseif($order->status == 'cancelled')
+                                            <span
+                                                class="badge badge-soft-danger rounded-pill px-2 py-1 border border-danger border-opacity-25">Dibatalkan</span>
+                                        @endif
+                                    </div>
                                 </div>
 
-                                <div class="w-100 w-md-auto d-flex justify-content-end gap-2 mt-1 mt-md-0">
+                                {{-- Mobile Action Grid --}}
+                                <div class="d-md-none mobile-action-grid mt-2">
                                     <button wire:click="$dispatch('openModal', { orderId: {{ $order->id }} })"
-                                            class="btn btn-primary rounded-3 shadow-sm border fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
-                                        <i class="bi bi-receipt"></i> Detail
+                                            class="btn btn-light border text-secondary fw-bold rounded-3 py-2 btn-sm mobile-action-full">
+                                        Lihat Detail
                                     </button>
-
                                     @if($order->status == 'pending')
                                         <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
-                                                class="btn btn-outline-danger rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
-                                            Batal
+                                                class="btn btn-outline-danger fw-bold rounded-3 py-2 btn-sm">Batal
                                         </button>
                                         <button
                                             wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
-                                            class="btn btn-dark rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
-                                            Bayar
+                                            class="btn btn-dark fw-bold rounded-3 py-2 btn-sm">Bayar
                                         </button>
+                                    @endif
+                                </div>
+
+                                {{-- Desktop Actions --}}
+                                <div class="d-none d-md-flex gap-2 ms-md-3">
+                                    <button wire:click="$dispatch('openModal', { orderId: {{ $order->id }} })"
+                                            class="btn btn-light border text-secondary rounded-circle"
+                                            title="Detail Pesanan"
+                                            style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @if($order->status == 'pending')
+                                        <div class="dropdown">
+                                            <button class="btn btn-light border text-secondary rounded-circle"
+                                                    type="button" data-bs-toggle="dropdown"
+                                                    style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3">
+                                                <li>
+                                                    <button class="dropdown-item fw-bold text-dark py-2"
+                                                            wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })">
+                                                        <i class="bi bi-cash me-2"></i> Proses Pembayaran
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item fw-bold text-danger py-2"
+                                                            @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })">
+                                                        <i class="bi bi-x-circle me-2"></i> Batalkan Pesanan
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     @endif
                                 </div>
 
@@ -170,16 +202,15 @@
                         </div>
                     @endforeach
                 </div>
-
-                @if($orders->hasMorePages())
-                    <div x-intersect.full="$wire.loadMore()"
-                         class="d-flex justify-content-center align-items-center py-5 mt-2">
-                        <div class="spinner-border text-dark spinner-border-sm me-2" role="status"></div>
-                        <span class="fw-bold text-muted small">Memuat lebih banyak pesanan...</span>
-                    </div>
-                @endif
             @endif
         </div>
     </div>
 
+    {{-- Infinite Scroll Bottom Loader --}}
+    @if($orders->hasMorePages())
+        <div x-intersect.full="$wire.loadMore()" class="d-flex justify-content-center align-items-center py-4">
+            <div class="spinner-border text-secondary spinner-border-sm me-2" role="status"></div>
+            <span class="fw-bold text-muted small">Memuat data...</span>
+        </div>
+    @endif
 </div>

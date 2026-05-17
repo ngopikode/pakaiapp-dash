@@ -49,7 +49,7 @@
     <div id="page-content-wrapper">
         <livewire:layouts.navbar :header="$header ?? null"/>
 
-        <main class="container-fluid px-4 py-4">
+        <main class="container-fluid p-3">
             {{ $slot }}
         </main>
     </div>

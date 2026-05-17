@@ -1,25 +1,36 @@
 <?php
 
 use App\Models\Category;
+use App\Models\StoreSetting;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
-    public $categoryId = null;
-    public $name = '';
-    public $type = 'retail'; // Default retail
-    public $isEditing = false;
+    public ?int $categoryId = null;
+    public string $name = '';
+    public string $type = 'retail';
+    public bool $isEditing = false;
 
-    // Menangkap event dispatch dari tombol "Tambah Kategori" atau "Edit Kategori"
+    // Ambil tipe toko saat komponen dimuat
+    public function mount(): void
+    {
+        $setting = StoreSetting::first();
+        if ($setting) $this->type = $setting->store_type;
+    }
+
     #[On('openModal')]
-    public function handleOpenModal($type, $mode, $id = null)
+    public function handleOpenModal($type, $mode, $id = null): void
     {
         if ($type !== 'category') return;
 
         $this->resetValidation();
         $this->reset(['categoryId', 'name']);
-        $this->type = 'retail';
+
+        // Pastikan tipe tetap ke-lock setiap kali modal dibuka
+        $setting = StoreSetting::first();
+        $this->type = $setting ? $setting->store_type : 'retail';
+
         $this->isEditing = ($mode === 'edit');
 
         if ($this->isEditing && $id) {
@@ -27,21 +38,19 @@ new class extends Component {
             if ($category) {
                 $this->categoryId = $category->id;
                 $this->name = $category->name;
-                $this->type = $category->type;
+                // $this->type sengaja tidak di-override dari kategori lama untuk keamanan
             }
         }
 
         $this->dispatch('show-category-modal');
-        $this->dispatch('show-bootstrap-modal');
     }
 
-    public function save()
+    public function save(): void
     {
         $this->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:retail,fnb',
         ], [
-            'name.required' => 'Nama kategori wajib diisi.',
+            'name.required' => 'Nama kategori wajib diisi, Bro.',
         ]);
 
         // Auto generate slug
@@ -57,7 +66,7 @@ new class extends Component {
             [
                 'name' => $this->name,
                 'slug' => $slug,
-                'type' => $this->type,
+                'type' => $this->type, // Otomatis pakai tipe toko yang di-lock
             ]
         );
 

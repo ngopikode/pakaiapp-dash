@@ -1,0 +1,127 @@
+/* Modern Minimalist CSS */
+.glass-input {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+}
+
+.glass-input:focus {
+    background: #fff;
+    border-color: #212529;
+    box-shadow: 0 0 0 4px rgba(33, 37, 41, 0.1);
+}
+
+.filter-nav {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+}
+
+.filter-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    color: #6c757d;
+    background: transparent;
+}
+
+.filter-btn:hover {
+    background: #f8f9fa;
+}
+
+.filter-btn.active {
+    background: #212529;
+    color: #fff;
+    border-color: #212529;
+}
+
+.order-row {
+    border-bottom: 1px solid #f1f3f5;
+    transition: background 0.2s;
+}
+
+.order-row:last-child {
+    border-bottom: none;
+}
+
+.order-row:hover {
+    background: #f8f9fa;
+}
+
+.avatar-initial {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #f1f3f5;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* Subtle Badges */
+.badge-soft-warning {
+    background: #fff3cd;
+    color: #997404;
+}
+
+.badge-soft-success {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.badge-soft-danger {
+    background: #f8d7da;
+    color: #842029;
+}
+
+@media (max-width: 768px) {
+    .mobile-action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .mobile-action-full {
+        grid-column: span 2;
+    }
+}
+
+/* PREMIUM SKELETON ANIMATION ACCORDING TO STRIPE UI */
+.skeleton-block {
+    background: #f1f3f5;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.skeleton-block::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}

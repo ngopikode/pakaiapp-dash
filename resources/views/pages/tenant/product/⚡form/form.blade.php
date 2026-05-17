@@ -1,346 +1,408 @@
-<div class="container-fluid py-4" x-data="{ tab: 'general' }">
+<div class="container-fluid py-4 pb-5 pb-md-4" x-data="{ tab: 'general' }">
+
+    {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold font-serif text-primary mb-1">
+            <h2 class="fw-bolder mb-1" style="color: #451a03; letter-spacing: -0.5px;">
                 {{ $product ? 'Edit Produk' : 'Tambah Produk Baru' }}
             </h2>
-            <p class="text-muted small mb-0">Lengkapi informasi produk atau menu restoranmu.</p>
+            <p class="text-secondary small mb-0 fw-medium">Lengkapi informasi dan harga untuk menu/produkmu.</p>
         </div>
-        <a href="{{ route('product') }}" class="btn btn-outline-secondary px-4" style="border-radius: 0.75rem;"
+        <a href="{{ route('product') }}"
+           class="btn btn-white border shadow-sm rounded-pill px-3 px-md-4 d-none d-md-flex align-items-center"
            wire:navigate>
-            <i class="bi bi-arrow-left me-1"></i> Kembali
+            <i class="bi bi-arrow-left me-1"></i> Batal
         </a>
     </div>
 
     @if (session()->has('error'))
-        <div class="alert alert-danger" style="border-radius: 1rem;">{{ session('error') }}</div>
+        <div class="alert alert-danger rounded-4 shadow-sm mb-4 border-0 border-start border-danger"><i
+                class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
+        </div>
     @endif
 
     <form wire:submit.prevent="save">
         <div class="row g-4">
 
+            {{-- Sidebar / Mobile Tabs Navigation --}}
             <div class="col-md-3">
-                <div class="card position-sticky top-0 p-2">
-                    <div class="list-group list-group-flush">
-                        <button type="button" class="list-group-item list-group-item-action"
-                                :class="tab === 'general' ? 'active' : ''" @click="tab = 'general'">
-                            <i class="bi bi-box-seam"></i> 1. Data Umum
+                <div class="position-sticky" style="top: 1.5rem;">
+                    <div class="mobile-tabs hide-scrollbar d-md-flex flex-md-column gap-md-2">
+                        <button type="button" class="btn btn-tab text-start fw-bold p-3 transition-all"
+                                :class="tab === 'general' ? 'btn-primary shadow-sm' : 'bg-white border text-secondary'"
+                                @click="tab = 'general'" style="border-radius: 1rem;">
+                            <i class="bi bi-box-seam me-2"></i> Data Umum
                         </button>
-                        <button type="button" class="list-group-item list-group-item-action"
-                                :class="tab === 'pricing' ? 'active' : ''" @click="tab = 'pricing'">
-                            <i class="bi bi-tags"></i> 2. Harga & Varian
+                        <button type="button" class="btn btn-tab text-start fw-bold p-3 transition-all"
+                                :class="tab === 'pricing' ? 'btn-primary shadow-sm' : 'bg-white border text-secondary'"
+                                @click="tab = 'pricing'" style="border-radius: 1rem;">
+                            <i class="bi bi-tags me-2"></i> Harga & Varian
                         </button>
                         @if($selectedCategoryType === 'fnb')
-                            <button type="button" class="list-group-item list-group-item-action"
-                                    :class="tab === 'extras' ? 'active' : ''" @click="tab = 'extras'">
-                                <i class="bi bi-plus-circle-dotted"></i> 3. Add-ons
+                            <button type="button" class="btn btn-tab text-start fw-bold p-3 transition-all"
+                                    :class="tab === 'extras' ? 'btn-primary shadow-sm' : 'bg-white border text-secondary'"
+                                    @click="tab = 'extras'" style="border-radius: 1rem;">
+                                <i class="bi bi-plus-circle-dotted me-2"></i> Add-ons
                             </button>
                         @endif
                     </div>
                 </div>
             </div>
 
+            {{-- Main Form Content --}}
             <div class="col-md-9">
-                <div class="card p-4">
+                <div class="card border-0 shadow-sm rounded-4" style="background: rgba(255,255,255,0.95);">
+                    <div class="card-body p-4 p-lg-5">
 
-                    <div x-show="tab === 'general'" x-transition.opacity>
-                        <h5 class="fw-bold mb-4 border-bottom pb-2 font-serif text-primary">Informasi Umum</h5>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-muted">Nama Produk/Menu <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" wire:model="name"
-                                           placeholder="Misal: Kopi Susu Gula Aren">
-                                    @error('name') <span
-                                        class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-muted">Kategori <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select" wire:model.live="categoryId">
-                                        <option value="">-- Pilih Kategori --</option>
-                                        @foreach($categories as $cat)
-                                            <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('categoryId') <span
-                                        class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-muted">Deskripsi (Opsional)</label>
-                                    <textarea class="form-control" wire:model="description" rows="3"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label small fw-bold text-muted d-block text-center">Foto
-                                    Produk</label>
-                                <div
-                                    class="ratio ratio-1x1 overflow-hidden position-relative border border-2 border-dashed mx-auto bg-body-tertiary"
-                                    style="border-radius: 1.25rem;">
+                        {{-- TAB 1: GENERAL INFO --}}
+                        <div x-show="tab === 'general'" x-transition.opacity>
+                            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-info-square text-warning me-2"></i>Informasi
+                                Umum</h5>
 
-                                    @if ($image)
-                                        @php
-                                            try { $url = $image->temporaryUrl(); }
-                                            catch (Exception $e) { $url = ''; }
-                                        @endphp
-                                        @if($url)
-                                            <img src="{{ $url }}" class="object-fit-cover w-100 h-100" alt="">
+                            <div class="row g-4 flex-column-reverse flex-md-row">
+                                <div class="col-md-8">
+                                    <div class="form-floating mb-3">
+                                        <input type="text"
+                                               class="form-control rounded-3 bg-light border-0 @error('name') is-invalid @enderror"
+                                               wire:model="name" id="productName" placeholder="Nama Produk">
+                                        <label for="productName" class="fw-medium">Nama Produk/Menu <span
+                                                class="text-danger">*</span></label>
+                                        @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div class="form-floating mb-3">
+                                        <select
+                                            class="form-select rounded-3 bg-light border-0 @error('categoryId') is-invalid @enderror"
+                                            wire:model.live="categoryId" id="categorySelect">
+                                            <option value="">-- Pilih Kategori --</option>
+                                            @foreach($categories as $cat)
+                                                <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        <label for="categorySelect" class="fw-medium">Kategori <span
+                                                class="text-danger">*</span></label>
+                                        @error('categoryId') <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-floating mb-3">
+                                        <textarea class="form-control rounded-3 bg-light border-0"
+                                                  wire:model="description" id="productDesc" style="height: 100px;"
+                                                  placeholder="Deskripsi"></textarea>
+                                        <label for="productDesc" class="fw-medium">Deskripsi Singkat (Opsional)</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="text-center mb-2 fw-bold text-muted small">Foto Produk</div>
+                                    <div class="upload-zone position-relative overflow-hidden mx-auto shadow-sm"
+                                         style="width: 100%; aspect-ratio: 1/1; max-width: 250px;">
+                                        @if ($image)
+                                            @php try { $url = $image->temporaryUrl(); } catch (Exception $e) { $url = ''; }
+                                            @endphp
+                                            @if($url)
+                                                <img src="{{ $url }}" class="object-fit-cover w-100 h-100" alt="">
+                                            @endif
+                                        @elseif($product && $product->image)
+                                            <img src="{{ Storage::url($product->image) }}"
+                                                 class="object-fit-cover w-100 h-100" alt="">
                                         @else
                                             <div
-                                                class="d-flex flex-column align-items-center justify-content-center h-100 text-success">
-                                                <i class="bi bi-check-circle fs-1"></i><small>Foto Dipilih</small>
+                                                class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                                                <i class="bi bi-cloud-arrow-up fs-1 mb-2"></i>
+                                                <small class="fw-bold">Ketuk untuk Upload</small>
                                             </div>
                                         @endif
-                                    @elseif($product && $product->image)
-                                        <img src="{{ Storage::url($product->image) }}"
-                                             class="object-fit-cover w-100 h-100" alt="">
-                                    @else
-                                        <div
-                                            class="d-flex flex-column align-items-center justify-content-center h-100 text-muted opacity-50">
-                                            <i class="bi bi-camera fs-1"></i><small>Upload Foto</small>
-                                        </div>
-                                    @endif
+                                        <input type="file" wire:model="image" accept="image/*"
+                                               class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer">
+                                    </div>
+                                    <div wire:loading wire:target="image"
+                                         class="mt-2 text-center w-100 small text-warning fw-bold"><i
+                                            class="bi bi-arrow-repeat spin"></i> Mengunggah...
+                                    </div>
 
-                                    <input type="file" wire:model="image" accept="image/*"
-                                           class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer">
-                                </div>
-                                <div wire:loading wire:target="image" class="mt-2 text-center w-100">
-                                    <small class="text-primary fw-bold">Mengunggah...</small>
-                                </div>
-                                <div class="bg-body-tertiary p-3 border mt-4" style="border-radius: 1rem;">
                                     <div
-                                        class="form-check form-switch d-flex justify-content-between align-items-center p-0 m-0">
-                                        <label class="form-check-label small fw-bold" for="activeSwitch">Tampilkan di
-                                            Menu</label>
-                                        <input class="form-check-input ms-0 fs-4 cursor-pointer" type="checkbox"
-                                               role="switch" id="activeSwitch" wire:model="isActive">
+                                        class="bg-light p-3 rounded-4 mt-4 d-flex justify-content-between align-items-center border shadow-sm">
+                                        <div>
+                                            <div class="fw-bold text-dark small">Status Tampil</div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Sembunyikan jika kosong
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch fs-4 m-0 p-0">
+                                            <input class="form-check-input m-0 cursor-pointer shadow-none"
+                                                   type="checkbox" role="switch" wire:model="isActive">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="text-end mt-4">
-                            <button type="button" class="btn btn-primary" @click="tab = 'pricing'">Lanjut ke Harga <i
-                                    class="bi bi-arrow-right ms-1"></i></button>
-                        </div>
-                    </div>
 
-                    <div x-show="tab === 'pricing'" x-transition.opacity x-cloak>
-                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
-                            <h5 class="fw-bold mb-0 font-serif text-primary">Harga & Varian</h5>
-                        </div>
+                        {{-- TAB 2: PRICING & VARIANTS --}}
+                        <div x-show="tab === 'pricing'" x-transition.opacity x-cloak>
+                            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-tags text-primary me-2"></i>Harga &
+                                Varian</h5>
 
-                        <div class="rounded-4 border mb-4" style="border-color: #e9ecef !important;">
-                            <div class="d-flex align-items-center justify-content-between py-3 px-4">
+                            {{-- Variant Toggle Card --}}
+                            <div
+                                class="bg-light p-3 rounded-4 border shadow-sm mb-4 d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-brand-light text-brand p-2 rounded-3">
-                                        <i class="bi bi-diagram-2"></i>
+                                    <div
+                                        class="bg-white text-primary p-2 rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                        style="width: 45px; height: 45px;">
+                                        <i class="bi bi-diagram-3 fs-5"></i>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0 fw-bold small">Gunakan Varian</h6>
-                                        <p class="text-muted mb-0" style="font-size: 0.75rem;">Aktifkan untuk ukuran,
-                                            warna, atau rasa.</p>
+                                        <h6 class="mb-0 fw-bold text-dark">Gunakan Varian Produk</h6>
+                                        <p class="text-muted mb-0" style="font-size: 0.75rem;">Aktifkan jika punya
+                                            Ukuran (S/M/L) atau Rasa.</p>
                                     </div>
                                 </div>
-
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input cursor-pointer shadow-none" type="checkbox"
-                                           role="switch"
-                                           id="variantSwitch" wire:model.live="hasVariants"
-                                           style="transform: scale(1.4);">
+                                <div class="form-check form-switch fs-3 m-0 p-0">
+                                    <input class="form-check-input m-0 cursor-pointer shadow-none" type="checkbox"
+                                           role="switch" wire:model.live="hasVariants">
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Selection Mode (visible only when variants are enabled) --}}
-                        @if($hasVariants)
-                            <div class="rounded-4 border mb-4 p-4" style="border-color: #e9ecef !important; background: #f8f9fa;">
-                                <h6 class="fw-bold small mb-3"><i class="bi bi-ui-checks-grid me-2 text-primary"></i>Mode Pemilihan Varian</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-bold text-muted">Tipe Seleksi</label>
-                                        <select class="form-select" wire:model.live="selectionType">
-                                            <option value="single">Pilih 1 (Radio) — Ukuran, Warna</option>
-                                            <option value="multiple">Pilih Banyak (Checkbox) — Rasa, Topping</option>
-                                        </select>
-                                        <small class="text-muted d-block mt-1">
-                                            @if($selectionType === 'single')
-                                                Pelanggan hanya bisa memilih <strong>1 varian</strong>.
-                                            @else
-                                                Pelanggan bisa memilih <strong>beberapa varian</strong> sekaligus.
-                                            @endif
-                                        </small>
-                                    </div>
-                                    @if($selectionType === 'multiple')
+                            {{-- Selection Mode (F&B Only & Variants Enabled) --}}
+                            @if($hasVariants && $selectedCategoryType === 'fnb')
+                                <div class="bg-white p-3 p-md-4 rounded-4 border mb-4 border-warning border-opacity-25"
+                                     style="box-shadow: 0 4px 15px rgba(202, 138, 4, 0.05);">
+                                    <h6 class="fw-bold small mb-3 text-warning"><i
+                                            class="bi bi-ui-checks-grid me-2"></i>Aturan
+                                        Pilihan Pelanggan</h6>
+                                    <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label small fw-bold text-muted">Maks. Pilihan</label>
-                                            <input type="number" class="form-control" wire:model="maxSelections" min="1" max="20" placeholder="3">
-                                            <small class="text-muted d-block mt-1">Berapa banyak varian yang boleh dipilih pelanggan.</small>
+                                            <div class="form-floating">
+                                                <select class="form-select bg-light border-0 rounded-3"
+                                                        wire:model.live="selectionType" id="selType">
+                                                    <option value="single">Pilih 1 (Radio) — Ex: Ukuran</option>
+                                                    <option value="multiple">Pilih Banyak (Checkbox) — Ex: Rasa</option>
+                                                </select>
+                                                <label for="selType" class="fw-medium text-muted">Tipe Seleksi</label>
+                                            </div>
                                         </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                        @if(!$hasVariants)
-                            <div class="row g-3 bg-body-tertiary p-3 border" style="border-radius: 1rem;">
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted">HPP / Modal</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-card text-muted small">Rp</span>
-                                        <input type="number" class="form-control" wire:model="baseCost" placeholder="0">
+                                        @if($selectionType === 'multiple')
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input type="number"
+                                                           class="form-control bg-light border-0 rounded-3"
+                                                           wire:model="maxSelections" min="1" max="20" id="maxSel">
+                                                    <label for="maxSel" class="fw-medium text-muted">Batas Maksimal
+                                                        Pilihan</label>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted">Harga Jual <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-card text-muted small">Rp</span>
-                                        <input type="number" class="form-control" wire:model="basePrice" placeholder="0"
-                                               required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted">Stok Saat Ini</label>
-                                    <input type="number" class="form-control" wire:model="baseStock" placeholder="0">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted">Notif Minimal Stok</label>
-                                    <input type="number" class="form-control" wire:model="baseMinStock" placeholder="0">
-                                </div>
-                            </div>
-                        @endif
+                            @endif
 
-                        @if($hasVariants)
-                            <div class="table-responsive">
-                                <table class="table table-borderless align-middle">
-                                    <thead class="bg-body-tertiary text-muted small font-serif">
-                                    <tr>
-                                        <th style="border-top-left-radius: 1rem; border-bottom-left-radius: 1rem;">Nama
-                                            Varian
-                                        </th>
-                                        <th>HPP (Rp)</th>
-                                        <th>Harga Jual (Rp)</th>
-                                        <th>Stok</th>
-                                        <th class="text-center"
-                                            style="border-top-right-radius: 1rem; border-bottom-right-radius: 1rem;">
-                                            Aksi
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            {{-- NO VARIANTS: Simple Pricing --}}
+                            @if(!$hasVariants)
+                                <div class="row g-3 bg-white p-3 p-md-4 border rounded-4 shadow-sm">
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-bold text-muted mb-1">Modal / HPP</label>
+                                        <input type="number" class="form-control bg-light border-0 rounded-3"
+                                               wire:model="baseCost" placeholder="Rp 0">
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-bold text-danger mb-1">Harga Jual *</label>
+                                        <input type="number" class="form-control bg-light border-0 rounded-3 fw-bold"
+                                               wire:model="basePrice" placeholder="Rp 0" required
+                                               style="color: #b45309;">
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-bold text-muted mb-1">Stok Saat Ini</label>
+                                        <input type="number" class="form-control bg-light border-0 rounded-3"
+                                               wire:model="baseStock" placeholder="0">
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-bold text-muted mb-1">Notif Stok Tipis</label>
+                                        <input type="number" class="form-control bg-light border-0 rounded-3"
+                                               wire:model="baseMinStock" placeholder="0">
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- YES VARIANTS: Card List Form --}}
+                            @if($hasVariants)
+                                <div class="d-none d-md-flex row fw-bold text-muted small px-3 mb-2">
+                                    <div class="col-md-3">Nama Varian</div>
+                                    <div class="col-md-3">Modal (Rp)</div>
+                                    <div class="col-md-3">Harga Jual (Rp)</div>
+                                    <div class="col-md-2">Stok</div>
+                                    <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
+                                </div>
+
+                                <div class="d-flex flex-column gap-2 mb-3">
                                     @foreach($variants as $index => $variant)
-                                        <tr class="border-bottom">
-                                            <td><input type="text" class="form-control"
-                                                       wire:model="variants.{{ $index }}.name" required></td>
-                                            <td><input type="number" class="form-control"
-                                                       wire:model="variants.{{ $index }}.cost" placeholder="0"></td>
-                                            <td><input type="number" class="form-control border-primary"
-                                                       wire:model="variants.{{ $index }}.price" placeholder="0"
-                                                       required></td>
-                                            <td><input type="number" class="form-control"
-                                                       wire:model="variants.{{ $index }}.stock" placeholder="0"
-                                                       style="width: 80px;"></td>
-                                            <td class="text-center">
-                                                @if(count($variants) > 1)
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                            style="border-radius: 0.5rem;"
-                                                            wire:click="removeVariant({{ $index }})"><i
-                                                            class="bi bi-trash"></i></button>
-                                                @endif
-                                            </td>
-                                        </tr>
+                                        <div class="row-card position-relative">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-12 col-md-3">
+                                                    <label class="d-md-none small fw-bold text-muted mb-1">Nama
+                                                        Varian</label>
+                                                    <input type="text"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3"
+                                                           wire:model="variants.{{ $index }}.name"
+                                                           placeholder="Misal: Large"
+                                                           required>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <label class="d-md-none small fw-bold text-muted mb-1">Modal</label>
+                                                    <input type="number"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3"
+                                                           wire:model="variants.{{ $index }}.cost" placeholder="0">
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <label class="d-md-none small fw-bold text-danger mb-1">Harga Jual
+                                                        *</label>
+                                                    <input type="number"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3 fw-bold text-primary"
+                                                           wire:model="variants.{{ $index }}.price" placeholder="0"
+                                                           required>
+                                                </div>
+                                                <div class="col-10 col-md-2">
+                                                    <label class="d-md-none small fw-bold text-muted mb-1">Stok</label>
+                                                    <input type="number"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3"
+                                                           wire:model="variants.{{ $index }}.stock" placeholder="0">
+                                                </div>
+                                                <div class="col-2 col-md-1 text-end text-md-center mt-4 mt-md-0">
+                                                    @if(count($variants) > 1)
+                                                        <button type="button"
+                                                                class="btn btn-white text-danger shadow-sm rounded-circle p-2"
+                                                                wire:click="removeVariant({{ $index }})"><i
+                                                                class="bi bi-trash3"></i></button>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endforeach
-                                    </tbody>
-                                </table>
-                                <button type="button" class="btn btn-sm btn-outline-secondary fw-bold"
-                                        style="border-radius: 0.75rem;" wire:click="addVariant">
-                                    <i class="bi bi-plus-lg me-1"></i> Tambah Varian
-                                </button>
-                            </div>
-                        @endif
-
-                        <div class="text-end mt-5 border-top pt-4">
-                            <button type="button" class="btn btn-outline-secondary me-2" @click="tab = 'general'">
-                                Kembali
-                            </button>
-                            @if($selectedCategoryType === 'fnb')
-                                <button type="button" class="btn btn-primary" @click="tab = 'extras'">Lanjut ke Add-ons
-                                    <i class="bi bi-arrow-right ms-1"></i></button>
-                            @else
-                                <button type="submit" class="btn btn-primary fw-bold" wire:loading.attr="disabled">
-                                    <span wire:loading.remove wire:target="save"><i
-                                            class="bi bi-check2-circle me-1"></i> Simpan</span>
-                                    <span wire:loading wire:target="save"><span
-                                            class="spinner-border spinner-border-sm me-1"></span> Menyimpan...</span>
+                                </div>
+                                <button type="button"
+                                        class="btn btn-light border fw-bold rounded-pill shadow-sm px-4 text-primary"
+                                        wire:click="addVariant">
+                                    <i class="bi bi-plus-circle-dotted me-1"></i> Tambah Varian Baru
                                 </button>
                             @endif
                         </div>
-                    </div>
 
-                    @if($selectedCategoryType === 'fnb')
-                        <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
-                            <div class="mb-4 border-bottom pb-2">
-                                <h5 class="fw-bold mb-1 font-serif text-primary">Add-ons / Ekstra</h5>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-borderless align-middle">
-                                    <thead class="bg-body-tertiary text-muted small font-serif">
-                                    <tr>
-                                        <th class="w-50"
-                                            style="border-top-left-radius: 1rem; border-bottom-left-radius: 1rem;">Nama
-                                            Add-on
-                                        </th>
-                                        <th>HPP (Rp)</th>
-                                        <th>Harga Jual (Rp)</th>
-                                        <th class="text-center"
-                                            style="border-top-right-radius: 1rem; border-bottom-right-radius: 1rem;">
-                                            Aksi
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                        {{-- TAB 3: EXTRAS / ADD-ONS (F&B Only) --}}
+                        @if($selectedCategoryType === 'fnb')
+                            <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
+                                <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-plus-circle text-success me-2"></i>Add-ons
+                                    / Ekstra</h5>
+
+                                <div class="d-none d-md-flex row fw-bold text-muted small px-3 mb-2">
+                                    <div class="col-md-5">Nama Add-on (Ex: Ekstra Keju)</div>
+                                    <div class="col-md-3">Modal (Rp)</div>
+                                    <div class="col-md-3">Harga Jual (Rp)</div>
+                                    <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
+                                </div>
+
+                                <div class="d-flex flex-column gap-2 mb-3">
                                     @foreach($extras as $index => $extra)
-                                        <tr class="border-bottom">
-                                            <td><input type="text" class="form-control"
-                                                       wire:model="extras.{{ $index }}.name"></td>
-                                            <td><input type="number" class="form-control"
-                                                       wire:model="extras.{{ $index }}.cost" placeholder="0"></td>
-                                            <td><input type="number" class="form-control"
-                                                       wire:model="extras.{{ $index }}.price" placeholder="0"></td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        style="border-radius: 0.5rem;"
-                                                        wire:click="removeExtra({{ $index }})"><i
-                                                        class="bi bi-trash"></i></button>
-                                            </td>
-                                        </tr>
+                                        <div class="row-card position-relative">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-12 col-md-5">
+                                                    <label class="d-md-none small fw-bold text-muted mb-1">Nama
+                                                        Add-on</label>
+                                                    <input type="text"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3"
+                                                           wire:model="extras.{{ $index }}.name"
+                                                           placeholder="Misal: Shot Espresso">
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <label class="d-md-none small fw-bold text-muted mb-1">Modal</label>
+                                                    <input type="number"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3"
+                                                           wire:model="extras.{{ $index }}.cost" placeholder="0">
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <label class="d-md-none small fw-bold text-danger mb-1">Harga
+                                                        Jual</label>
+                                                    <input type="number"
+                                                           class="form-control bg-white border-0 shadow-sm rounded-3 fw-bold text-primary"
+                                                           wire:model="extras.{{ $index }}.price" placeholder="0">
+                                                </div>
+                                                <div
+                                                    class="col-12 col-md-1 text-end text-md-center mt-3 mt-md-0 border-top border-md-none pt-2 pt-md-0">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-white text-danger shadow-sm rounded-pill w-100 w-md-auto"
+                                                            wire:click="removeExtra({{ $index }})"><i
+                                                            class="bi bi-trash3 d-md-none me-1"></i> Hapus
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endforeach
-                                    </tbody>
-                                </table>
-                                <button type="button" class="btn btn-sm btn-outline-secondary fw-bold"
-                                        style="border-radius: 0.75rem;" wire:click="addExtra">
-                                    <i class="bi bi-plus-lg me-1"></i> Tambah Add-on
+                                </div>
+                                <button type="button"
+                                        class="btn btn-light border fw-bold rounded-pill shadow-sm px-4 text-success"
+                                        wire:click="addExtra">
+                                    <i class="bi bi-plus-circle-dotted me-1"></i> Tambah Add-on Baru
                                 </button>
                             </div>
+                        @endif
 
-                            <div class="text-end mt-5 border-top pt-4">
-                                <button type="button" class="btn btn-outline-secondary me-2" @click="tab = 'pricing'">
-                                    Kembali
-                                </button>
-                                <button type="submit"
-                                        class="btn btn-primary fw-bold d-inline-flex align-items-center gap-2"
-                                        wire:loading.attr="disabled">
-                                    <span wire:loading.remove wire:target="save"><i
-                                            class="bi bi-cloud-arrow-up fs-5"></i> Simpan</span>
-                                    <span wire:loading wire:target="save"><span
-                                            class="spinner-border spinner-border-sm"></span> Menyimpan...</span>
-                                </button>
-                            </div>
-                        </div>
-                    @endif
-
+                    </div>
                 </div>
             </div>
         </div>
+
+        {{-- Desktop Action Buttons (Hidden on mobile) --}}
+        <div class="d-none d-md-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <button type="button" class="btn btn-white border fw-bold rounded-pill px-4 shadow-sm"
+                    x-show="tab !== 'general'" @click="tab = tab === 'extras' ? 'pricing' : 'general'">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </button>
+            <button type="button" class="btn btn-primary fw-bold rounded-pill px-5 shadow-sm" x-show="tab === 'general'"
+                    @click="tab = 'pricing'">
+                Lanjut Harga <i class="bi bi-arrow-right"></i>
+            </button>
+            @if($selectedCategoryType === 'fnb')
+                <button type="button" class="btn btn-primary fw-bold rounded-pill px-5 shadow-sm"
+                        x-show="tab === 'pricing'"
+                        @click="tab = 'extras'">
+                    Lanjut Add-ons <i class="bi bi-arrow-right"></i>
+                </button>
+            @endif
+            <button type="submit"
+                    class="btn btn-brand-gradient fw-bold rounded-pill px-5 shadow-sm d-flex align-items-center gap-2"
+                    x-show="tab === '{{ $selectedCategoryType === 'fnb' ? 'extras' : 'pricing' }}'"
+                    wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="save"><i class="bi bi-check2-circle"></i> Simpan Produk</span>
+                <span wire:loading wire:target="save"><span class="spinner-border spinner-border-sm"></span> Menyimpan...</span>
+            </button>
+        </div>
+
+        {{-- Sticky Mobile Footer Actions (Visible only on mobile) --}}
+        <div class="d-md-none sticky-mobile-footer">
+            <button type="button" class="btn btn-light border fw-bold rounded-pill shadow-sm flex-shrink-0 px-3"
+                    x-show="tab !== 'general'" @click="tab = tab === 'extras' ? 'pricing' : 'general'">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+
+            <button type="button" class="btn btn-primary fw-bold rounded-pill shadow-sm flex-grow-1"
+                    x-show="tab === 'general'" @click="tab = 'pricing'">
+                Lanjut <i class="bi bi-arrow-right"></i>
+            </button>
+
+            @if($selectedCategoryType === 'fnb')
+                <button type="button" class="btn btn-primary fw-bold rounded-pill shadow-sm flex-grow-1"
+                        x-show="tab === 'pricing'" @click="tab = 'extras'">
+                    Lanjut <i class="bi bi-arrow-right"></i>
+                </button>
+            @endif
+
+            <button type="submit"
+                    class="btn btn-brand-gradient fw-bold rounded-pill shadow-sm flex-grow-1 d-flex justify-content-center align-items-center gap-2"
+                    x-show="tab === '{{ $selectedCategoryType === 'fnb' ? 'extras' : 'pricing' }}'"
+                    wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="save"><i class="bi bi-check2-circle"></i> Simpan</span>
+                <span wire:loading wire:target="save"><span
+                        class="spinner-border spinner-border-sm"></span> Loading</span>
+            </button>
+        </div>
+
     </form>
 </div>

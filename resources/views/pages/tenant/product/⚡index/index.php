@@ -48,7 +48,6 @@ new class extends Component {
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Kategori dihapus.']);
     }
 
-    // Refresh saat ada kategori baru dari modal
     #[On('category-saved')]
     public function refreshTable(): void
     {

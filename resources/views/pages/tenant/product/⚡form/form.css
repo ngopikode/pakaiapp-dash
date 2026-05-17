@@ -2,57 +2,95 @@
     display: none !important;
 }
 
-/* Mengatur warna utama brand (Bisa dihapus kalau sudah ada di app.css utama) */
-.text-brand {
-    color: #d97706;
+/* Mobile Scrollable Tabs */
+.mobile-tabs {
+    transition: all 0.3s ease;
 }
 
-/* Sesuaikan warna EzMenu */
-.bg-brand {
-    background-color: #d97706;
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 
-.btn-brand {
-    background-color: #d97706;
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-tabs {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 0.5rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .mobile-tabs .btn-tab {
+        flex: 0 0 auto;
+        border-radius: 2rem !important;
+        border: 1px solid #e9ecef;
+    }
+
+    /* Sticky Footer Actions on Mobile */
+    .sticky-mobile-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        z-index: 1030;
+        display: flex;
+        gap: 0.5rem;
+        border-top: 1px solid #f0f0f0;
+    }
+}
+
+/* Dropzone & Inputs */
+.upload-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 1.25rem;
+    transition: all 0.3s ease;
+    background-color: #faf8f5;
+}
+
+.upload-zone:hover {
+    border-color: #b45309;
+    background-color: #fff;
+}
+
+.form-floating > label {
+    color: #856404;
+    opacity: 0.7;
+}
+
+/* Responsive Card Rows (Replacement for Table) */
+.row-card {
+    background: #faf8f5;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.row-card:hover {
+    border-color: #ca8a04;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+}
+
+.btn-brand-gradient {
+    background: linear-gradient(135deg, #ca8a04, #b45309);
     color: white;
     border: none;
 }
 
-.btn-brand:hover {
-    background-color: #b45309;
+.btn-brand-gradient:hover {
+    background: linear-gradient(135deg, #b45309, #92400e);
     color: white;
-}
-
-.btn-outline-brand {
-    color: #d97706;
-    border-color: #d97706;
-}
-
-.btn-outline-brand:hover {
-    background-color: #d97706;
-    color: white;
-}
-
-.border-brand {
-    border-color: #d97706 !important;
-}
-
-/* Styling custom untuk cursor dan table border */
-.cursor-pointer {
-    cursor: pointer;
-}
-
-.font-serif {
-    font-family: Georgia, serif;
-}
-
-/* Sesuaikan font bawaanmu */
-
-.table-borderless tbody tr:last-child {
-    border-bottom: none !important;
-}
-
-/* Transisi halus saat ganti tab Alpine */
-.row {
-    transition: all 0.3s ease;
+    transform: translateY(-1px);
 }

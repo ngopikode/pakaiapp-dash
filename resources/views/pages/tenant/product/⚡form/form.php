@@ -10,7 +10,6 @@ use Livewire\WithFileUploads;
 new class extends Component {
     use WithFileUploads;
 
-    // Properti penampung jika mode Edit
     public ?Product $product = null;
 
     public array $categories = [];
@@ -19,7 +18,7 @@ new class extends Component {
     public string $name = '';
     public string $categoryId = '';
     public string $description = '';
-    public $image; // File upload baru
+    public $image;
     public bool $taxIncluded = false;
     public bool $isActive = true;
 
@@ -39,7 +38,6 @@ new class extends Component {
         $this->categories = Category::select('id', 'name', 'type')->orderBy('name')->get()->toArray();
 
         if ($product && $product->exists) {
-            // MODE EDIT: Isi form dengan data dari database
             $this->product = $product;
             $this->name = $product->name;
             $this->categoryId = $product->category_id;
@@ -52,7 +50,6 @@ new class extends Component {
 
             $this->updatedCategoryId($this->categoryId);
 
-            // Load Varian
             if ($this->hasVariants) {
                 foreach ($product->variants as $variant) {
                     $this->variants[] = [
@@ -74,7 +71,6 @@ new class extends Component {
                 }
             }
 
-            // Load Ekstra
             foreach ($product->extras as $extra) {
                 $this->extras[] = [
                     'id' => $extra->id,
@@ -83,9 +79,7 @@ new class extends Component {
                     'price' => (float)$extra->price,
                 ];
             }
-
         } else {
-            // MODE CREATE: Siapkan baris kosong
             $this->addVariant();
             $this->addExtra();
         }
@@ -99,7 +93,6 @@ new class extends Component {
 
     public function addVariant(): void
     {
-        // Pakai 'id' => null penanda bahwa ini varian baru
         $this->variants[] = ['id' => null, 'name' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => ''];
     }
 
@@ -129,14 +122,13 @@ new class extends Component {
                 'image' => 'nullable|image|max:2048',
             ]);
         } catch (ValidationException $exception) {
-            $this->dispatch('notify', message: $exception->getMessage());
+            $this->dispatch('notify', ['type' => 'error', 'message' => $exception->getMessage()]);
             return;
         }
 
         DB::beginTransaction();
         try {
             $imagePath = $this->product?->image;
-
             if ($this->image) {
                 $imagePath = $this->image->store('products', 'public');
             }
@@ -156,15 +148,12 @@ new class extends Component {
                 $productData['max_selections'] = $this->hasVariants ? $this->maxSelections : 1;
             }
 
-            // Update atau Buat Produk
             $product = Product::updateOrCreate(
                 ['id' => $this->product?->id],
                 $productData
             );
 
-            // --- MANAJEMEN VARIAN ---
             $variantIdsToKeep = [];
-
             if ($this->hasVariants) {
                 foreach ($this->variants as $variantData) {
                     if (!empty($variantData['name'])) {
@@ -193,12 +182,9 @@ new class extends Component {
                 );
                 $variantIdsToKeep[] = $defaultVariant->id;
             }
-
             $product->variants()->whereNotIn('id', $variantIdsToKeep)->delete();
 
-            // --- MANAJEMEN EKSTRA ---
             $extraIdsToKeep = [];
-
             if ($this->selectedCategoryType === 'fnb') {
                 foreach ($this->extras as $extraData) {
                     if (!empty($extraData['name'])) {
@@ -218,7 +204,6 @@ new class extends Component {
             $product->extras()->whereNotIn('id', $extraIdsToKeep)->delete();
 
             DB::commit();
-
             session()->flash('success', 'Produk berhasil disimpan.');
             $this->redirectRoute('product', navigate: true);
 

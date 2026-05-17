@@ -8,14 +8,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
+    protected $fillable = [
+        'is_active',
+    ];
     protected $guarded = [];
 
     protected function casts(): array
     {
         return [
-            'has_variants'   => 'boolean',
-            'is_active'      => 'boolean',
-            'tax_included'   => 'boolean',
+            'has_variants' => 'boolean',
+            'is_active' => 'boolean',
+            'tax_included' => 'boolean',
             'max_selections' => 'integer',
         ];
     }
