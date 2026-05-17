@@ -10,6 +10,7 @@ class Product extends Model
 {
     protected $fillable = [
         'is_active',
+        'id',
     ];
     protected $guarded = [];
 

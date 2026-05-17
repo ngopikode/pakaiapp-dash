@@ -49,9 +49,7 @@ new class extends Component {
             $this->hasVariants = $product->has_variants;
             $this->selectionType = $product->selection_type ?? 'single';
             $this->maxSelections = $product->max_selections ?? 1;
-
-            $this->updatedCategoryId($this->categoryId);
-
+            
             if ($this->hasVariants) {
                 foreach ($product->variants as $variant) {
                     $this->variants[] = [
@@ -203,7 +201,7 @@ new class extends Component {
             session()->flash('success', 'Produk berhasil disimpan.');
             $this->redirectRoute('product', navigate: true);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             session()->flash('error', 'SYSTEM ERROR: ' . $e->getMessage());
         }

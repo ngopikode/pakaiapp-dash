@@ -1,6 +1,6 @@
 /* Modern Minimalist CSS - Safe for Custom Dark Mode */
 .glass-input {
-    background: var(--bs-body-tertiary-bg);
+    background: var(--bs-tertiary-bg);
     border: 1px solid var(--bs-border-color);
     color: var(--bs-body-color);
     transition: all 0.2s;
@@ -38,7 +38,7 @@
 }
 
 .filter-btn:hover {
-    background: var(--bs-body-tertiary-bg);
+    background: var(--bs-tertiary-bg);
 }
 
 .filter-btn.active {
@@ -57,14 +57,14 @@
 }
 
 .order-row:hover {
-    background: var(--bs-body-tertiary-bg);
+    background: var(--bs-tertiary-bg);
 }
 
 .avatar-initial {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: var(--bs-body-tertiary-bg);
+    background: var(--bs-tertiary-bg);
     color: var(--bs-body-color);
     display: flex;
     align-items: center;
@@ -120,7 +120,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: linear-gradient(90deg, transparent, var(--bs-body-tertiary-bg), transparent);
+    background: linear-gradient(90deg, transparent, var(--bs-tertiary-bg), transparent);
     transform: translateX(-100%);
     animation: skeleton-shimmer 1.5s infinite;
 }
