@@ -1,12 +1,11 @@
 <?php
 
-use Livewire\Component;
-use Livewire\Attributes\Computed;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use Livewire\Attributes\Computed;
+use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     public string $category = 'all';
     public string $viewMode = 'grid';
     public int $perPage = 10;
@@ -32,11 +31,11 @@ new class extends Component
     #[Computed]
     public function categories(): array
     {
-        return Category::orderBy('name')->pluck('name')->toArray();
+        return Category::orderBy('order_column')->pluck('name')->toArray();
     }
 
     #[Computed]
-    public function products()
+    public function products(): array
     {
         $query = Product::query()->with(['category', 'variants']);
 
@@ -51,20 +50,20 @@ new class extends Component
 
         return $items->map(function ($p) {
             return [
-                'id'              => $p->id,
-                'name'            => $p->name,
-                'description'     => $p->description,
-                'image'           => $p->image ? \Illuminate\Support\Facades\Storage::url($p->image) : null,
-                'price'           => $p->price,
+                'id' => $p->id,
+                'name' => $p->name,
+                'description' => $p->description,
+                'image' => $p->image ? \Illuminate\Support\Facades\Storage::url($p->image) : null,
+                'price' => $p->price,
                 'formatted_price' => $p->formatted_price,
-                'category'        => $p->category?->name ?? '',
-                'is_active'       => $p->is_active,
-                'has_variants'    => $p->has_variants,
-                'selection_type'  => $p->selection_type ?? 'single',
-                'max_selections'  => $p->max_selections ?? 1,
-                'variants'        => $p->variants->map(fn($v) => [
-                    'id'    => $v->id,
-                    'name'  => $v->name,
+                'category' => $p->category?->name ?? '',
+                'is_active' => $p->is_active,
+                'has_variants' => $p->has_variants,
+                'selection_type' => $p->selection_type ?? 'single',
+                'max_selections' => $p->max_selections ?? 1,
+                'variants' => $p->variants->map(fn($v) => [
+                    'id' => $v->id,
+                    'name' => $v->name,
                     'price' => $v->price,
                 ])->toArray(),
             ];
