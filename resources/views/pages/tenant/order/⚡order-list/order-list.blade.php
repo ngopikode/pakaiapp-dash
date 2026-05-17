@@ -26,7 +26,7 @@
                         class="filter-btn d-flex align-items-center gap-2">
                     {{ $filter['label'] }}
                     <span class="badge rounded-pill"
-                          :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-body text-auto' : 'bg-secondary bg-opacity-10 text-secondary'">
+                          :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-primary text-white' : 'bg-secondary bg-opacity-10 text-secondary'">
                         {{ $filter['count'] }}
                     </span>
                 </button>
