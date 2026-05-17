@@ -43,45 +43,109 @@
         </div>
     </div>
 
-    {{-- New Order Notification Banner (Safe Alert Opacity for Dark Mode) --}}
+    {{-- New Order Notification Glassmorphism Island --}}
     @if($newOrderCount > 0)
-        <div
-            class="alert border-0 shadow-sm rounded-4 p-4 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
-            style="background-color: rgba(245, 158, 11, 0.15); color: #ca8a04; border-left: 5px solid #ca8a04 !important;">
-            <div class="d-flex align-items-center gap-3">
-                <div
-                    class="text-warning rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm bg-body"
-                    style="width: 45px; height: 45px;">
-                    <i class="bi bi-bell-fill fs-5" style="animation: swing 2s ease-in-out infinite;"></i>
-                </div>
-                <div>
-                    <h5 class="fw-bold mb-1">Wow, {{ $newOrderCount }} Pesanan Masuk! 🎉</h5>
-                    <p class="mb-0 small fw-medium text-body opacity-75">Ada pelanggan yang nungguin pesanannya nih,
-                        segera proses ya!</p>
+        <div class="card border-0 shadow-lg p-3 mb-4 transition-all"
+             style="border-radius: 1.25rem;
+                background: linear-gradient(135deg, rgba(202, 138, 4, 0.1) 0%, rgba(180, 83, 9, 0.05) 100%);
+                border: 1px solid rgba(180, 83, 9, 0.2) !important;
+                backdrop-filter: blur(8px);
+                position: relative;
+                overflow: hidden;">
+
+            {{-- Decorative Subtle Glow Behind --}}
+            <div class="position-absolute rounded-circle"
+                 style="width: 150px; height: 150px; background: rgba(202, 138, 4, 0.15); filter: blur(40px); top: -50px; right: -30px; pointer-events: none;">
+            </div>
+
+            <div
+                class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 position-relative z-1">
+                <div class="d-flex align-items-center gap-3">
+                    {{-- Glowing Icon Wrapper --}}
+                    <div
+                        class="d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm rounded-circle position-relative bg-body border"
+                        style="width: 48px; height: 48px; border-color: rgba(180, 83, 9, 0.2) !important;">
+                        <div class="position-absolute rounded-circle bg-warning opacity-25 w-100 h-100"
+                             style="animation: pulse-glow 2s infinite;"></div>
+                        <i class="bi bi-bell-fill fs-5"
+                           style="color: var(--brand-caramel, #b45309); animation: smooth-bounce 2.5s ease infinite;"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h6 class="fw-black mb-0 text-body" style="letter-spacing: -0.3px;">{{ $newOrderCount }}
+                                Pesanan Baru Masuk!</h6>
+                            <span class="badge bg-danger rounded-pill fw-bold animate-pulse"
+                                  style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">LIVE</span>
+                        </div>
+                        <p class="mb-0 small text-secondary fw-medium mt-0.5 opacity-75">Antrian kasir bertambah. Segera
+                            periksa dan proses pesanan pelanggan.</p>
+                    </div>
                 </div>
             </div>
+
+            {{-- Premium Action Button --}}
             <button wire:click="acknowledgeOrders"
-                    class="btn btn-warning fw-bold text-dark rounded-pill px-4 py-2 shadow-sm flex-shrink-0 w-100 w-md-auto border-0">
-                Oke, Siap!
+                    class="btn text-white fw-bold rounded-pill px-4 py-2.5 shadow-sm flex-shrink-0 w-100 w-md-auto border-0 transition-all mt-2"
+                    style="background: linear-gradient(135deg, #ca8a04, #b45309); font-size: 0.85rem;"
+                    onmouseover="this.style.opacity='0.9'; this.style.transform='translateY(-1px)';"
+                    onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)';">
+                <i class="bi bi-check2-all me-1"></i> Selesai Periksa
             </button>
         </div>
-        <style>@keyframes swing {
-                   20% {
-                       transform: rotate(15deg);
-                   }
-                   40% {
-                       transform: rotate(-10deg);
-                   }
-                   60% {
-                       transform: rotate(5deg);
-                   }
-                   80% {
-                       transform: rotate(-5deg);
-                   }
-                   100% {
-                       transform: rotate(0deg);
-                   }
-               }</style>
+
+        {{-- Refined Micro-Animations --}}
+        <style>
+            @keyframes smooth-bounce {
+                0%, 100% {
+                    transform: translateY(0) rotate(0);
+                }
+                10% {
+                    transform: translateY(-4px) rotate(-8deg);
+                }
+                20% {
+                    transform: translateY(-4px) rotate(8deg);
+                }
+                30% {
+                    transform: translateY(0) rotate(-4deg);
+                }
+                40% {
+                    transform: translateY(0) rotate(4deg);
+                }
+                50% {
+                    transform: translateY(0) rotate(0);
+                }
+            }
+
+            @keyframes pulse-glow {
+                0% {
+                    transform: scale(0.9);
+                    opacity: 0.3;
+                }
+                50% {
+                    transform: scale(1.2);
+                    opacity: 0;
+                }
+                100% {
+                    transform: scale(0.9);
+                    opacity: 0.3;
+                }
+            }
+
+            .animate-pulse {
+                animation: text-pulse 1.5s infinite ease-in-out;
+            }
+
+            @keyframes text-pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.6;
+                }
+            }
+        </style>
+
+        {{-- Audio System Notification --}}
         <script>
             if (!window._newOrderAlertPlayed) {
                 try {
@@ -91,12 +155,12 @@
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(880, ctx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start();
-                    osc.stop(ctx.currentTime + 0.5);
+                    osc.stop(ctx.currentTime + 0.4);
                     window._newOrderAlertPlayed = true;
                 } catch (e) {
                 }
