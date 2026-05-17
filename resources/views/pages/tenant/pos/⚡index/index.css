@@ -38,3 +38,74 @@
 .product-card:active {
     transform: scale(0.97);
 }
+
+.pos-container {
+    height: calc(100vh - 100px); /* Sesuaikan dengan tinggi navbar lu */
+    overflow: hidden;
+}
+
+.product-grid {
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.cart-sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-items {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* Sembunyikan scrollbar biar rapi tapi tetep bisa discroll */
+.product-grid::-webkit-scrollbar, .cart-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.product-grid::-webkit-scrollbar-thumb, .cart-items::-webkit-scrollbar-thumb {
+    background-color: #dee2e6;
+    border-radius: 10px;
+}
+
+.product-card {
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.product-card:active {
+    transform: scale(0.97);
+}
+
+.cart-mobile-wrapper {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 992px) {
+    .modal-bottom-mobile .modal-dialog {
+        display: flex;
+        align-items: flex-end;
+        min-height: 100%;
+        margin: 0;
+    }
+
+    .modal-bottom-mobile .modal-content {
+        border-radius: 1.5rem 1.5rem 0 0 !important;
+        border: none;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .floating-cart-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        z-index: 1030;
+        box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);
+    }
+}
+

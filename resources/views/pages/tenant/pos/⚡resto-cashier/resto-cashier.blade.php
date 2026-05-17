@@ -1,36 +1,56 @@
-<div class="pos-container d-flex flex-column h-100" x-data="restoPos()" @add-product.window="handleProductClick($event.detail.product)" x-cloak>
-
-    {{-- Tab Navigation (Backend-driven) --}}
-    <div class="d-flex gap-2 mb-3 flex-shrink-0">
+<div class="pos-container d-flex flex-column h-100 bg-light" x-data="restoPos()"
+     @add-product.window="handleProductClick($event.detail.product)" x-cloak>
+    {{-- Tab Navigation --}}
+    <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
         <button wire:click="changeTab('cashier')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="$wire.activeTab === 'cashier' ? 'btn-primary shadow-sm' : 'btn-outline-secondary bg-body'"
+                :class="$wire.activeTab === 'cashier' ? 'btn-primary shadow' : 'btn-white bg-white text-secondary shadow-sm'"
                 style="border-radius: 1rem;">
             <i class="bi bi-plus-circle"></i> Kasir Baru
         </button>
         <button wire:click="changeTab('queue')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all position-relative"
-                :class="$wire.activeTab === 'queue' ? 'btn-warning shadow-sm text-dark' : 'btn-outline-secondary bg-body'"
+                :class="$wire.activeTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-white bg-white text-secondary shadow-sm'"
                 style="border-radius: 1rem;">
             <i class="bi bi-hourglass-split"></i> Antrian
             @if($pendingOrders->count() > 0)
-                <span class="badge bg-danger rounded-pill">{{ $pendingOrders->count() }}</span>
+                <span
+                    class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">{{ $pendingOrders->count() }}</span>
             @endif
         </button>
     </div>
 
     {{-- ===== TAB 1: KASIR BARU ===== --}}
-    <div x-show="$wire.activeTab === 'cashier'" class="row g-4 flex-grow-1" style="min-height: 0;" x-transition.opacity.duration.150ms>
-        <div class="col-lg-7 col-xl-8 d-flex flex-column h-100">
+    <div x-show="$wire.activeTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
+         x-transition.opacity.duration.150ms>
+
+        <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
+        <div class="col-lg-7 col-xl-8 flex-column h-100 px-2 px-lg-3"
+             :class="isMobileCartOpen ? 'd-none d-lg-flex' : 'd-flex'">
             <livewire:tenant.pos.product-list/>
         </div>
-        <div class="col-lg-5 col-xl-4 h-100">
+
+        <!-- KOLOM KERANJANG (Sembunyi di HP kalau belum pencet tombol keranjang) -->
+        <div class="col-lg-5 col-xl-4 h-100 px-2 px-lg-3 cart-mobile-wrapper"
+             :class="isMobileCartOpen ? 'd-block' : 'd-none d-lg-block'">
             @include('pages.tenant.pos._cart-resto', ['orderTypes' => $restoOrderTypes])
         </div>
     </div>
 
+    {{-- Floating Cart Button for Mobile --}}
+    <!-- Tombol ini cuma muncul di HP kalau ada isi keranjang DAN keranjangnya lagi gak dibuka -->
+    <button
+        class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center"
+        x-show="$wire.activeTab === 'cashier' && cart.length > 0 && !isMobileCartOpen"
+        @click="isMobileCartOpen = true"
+        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+        <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
+        <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
+    </button>
+
     {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="$wire.activeTab === 'queue'" class="flex-grow-1 overflow-y-auto" style="min-height: 0;" x-transition.opacity.duration.150ms>
+    <div x-show="$wire.activeTab === 'queue'" class="flex-grow-1 overflow-y-auto" style="min-height: 0;"
+         x-transition.opacity.duration.150ms>
         @if($pendingOrders->isEmpty())
             <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 1.25rem;">
                 <i class="bi bi-check-circle text-success" style="font-size: 4rem; opacity: 0.3;"></i>
@@ -43,7 +63,8 @@
                     <div class="col">
                         <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 1.25rem;">
                             {{-- Order Header --}}
-                            <div class="p-3 bg-warning bg-opacity-10 border-bottom d-flex justify-content-between align-items-center">
+                            <div
+                                class="p-3 bg-warning bg-opacity-10 border-bottom d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="fw-bold mb-0 text-dark">{{ $order->invoice_code }}</h6>
                                     <small class="text-muted fw-bold" style="font-size: 0.7rem;">
@@ -62,7 +83,8 @@
                                         <i class="bi bi-person me-1"></i>{{ $order->customer_name }}
                                     </span>
                                     @if($order->table_number)
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill">
+                                        <span
+                                            class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill">
                                             <i class="bi bi-hash"></i>Meja {{ $order->table_number }}
                                         </span>
                                     @endif
@@ -74,8 +96,9 @@
                                 {{-- Items --}}
                                 <div class="mb-3">
                                     @foreach($order->items as $item)
-                                        <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed"
-                                             style="font-size: 0.85rem;">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed"
+                                            style="font-size: 0.85rem;">
                                             <span class="text-dark">
                                                 <span class="fw-bold text-primary">{{ $item->quantity }}x</span>
                                                 {{ $item->product_name }}
@@ -83,7 +106,8 @@
                                                     <small class="text-muted">({{ $item->variant_name }})</small>
                                                 @endif
                                                 @if($item->note)
-                                                    <br><small class="text-muted fst-italic"><i class="bi bi-chat-dots me-1"></i>{{ $item->note }}</small>
+                                                    <br><small class="text-muted fst-italic"><i
+                                                            class="bi bi-chat-dots me-1"></i>{{ $item->note }}</small>
                                                 @endif
                                             </span>
                                             <span class="fw-bold text-nowrap" style="color: var(--brand-caramel);">
@@ -94,7 +118,8 @@
                                 </div>
 
                                 {{-- Total --}}
-                                <div class="d-flex justify-content-between align-items-center p-2 bg-body-tertiary rounded-3">
+                                <div
+                                    class="d-flex justify-content-between align-items-center p-2 bg-body-tertiary rounded-3">
                                     <span class="fw-bold text-muted small">TOTAL</span>
                                     <h5 class="fw-bolder mb-0" style="color: var(--brand-caramel);">
                                         Rp {{ number_format($order->subtotal, 0, ',', '.') }}
@@ -132,53 +157,51 @@
     @include('pages.tenant.pos._modal-variant')
     @include('pages.tenant.pos._modal-success')
 
-    {{-- ===== MULTI-SELECT OPTION MODAL (selection_type = multiple) ===== --}}
-    <div class="modal fade" id="optionModal" tabindex="-1" aria-hidden="true">
+    {{-- ===== OPTION MODAL (DIPERBAIKI LOGIKANYA) ===== --}}
+    <div class="modal fade modal-bottom-mobile" id="optionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
-                <div class="modal-header border-bottom pb-3 pt-4 px-4 bg-body-tertiary"
-                     style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem;">
+            <div class="modal-content shadow-lg" style="border-radius: 1.5rem;">
+                <div class="modal-header border-bottom pb-3 pt-4 px-4 bg-light"
+                     style="border-radius: 1.5rem 1.5rem 0 0;">
                     <div>
-                        <h4 class="fw-bold font-serif text-primary mb-1">Pilih Varian</h4>
+                        <h5 class="fw-bold text-dark mb-1">Pilih Varian</h5>
                         <p class="text-muted small mb-0" x-text="optionProduct ? optionProduct.name : ''"></p>
                         <template x-if="optionProduct && optionProduct.selection_type === 'multiple'">
-                            <small class="text-primary fw-bold" x-text="'Pilih maks ' + optionProduct.max_selections + ' pilihan'"></small>
+                            <span class="badge bg-warning text-dark mt-1"
+                                  x-text="'Pilih maks ' + optionProduct.max_selections + ' pilihan'"></span>
                         </template>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4 bg-body" style="border-bottom-left-radius: 1.25rem; border-bottom-right-radius: 1.25rem;">
-                    <div class="d-flex flex-column gap-2">
+                <div class="modal-body p-4 bg-white" style="border-radius: 0 0 1.5rem 1.5rem;">
+                    <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height: 50vh;">
                         <template x-if="optionProduct">
                             <template x-for="variant in optionProduct.variants" :key="variant.id">
                                 <button type="button"
                                         class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all"
                                         :class="{
-                                            'opacity-50 bg-body-tertiary': variant.stock <= 0,
-                                            'border-primary shadow-sm bg-primary bg-opacity-10': isOptionSelected(variant.name),
-                                            'border-secondary': variant.stock > 0 && !isOptionSelected(variant.name)
+                                            'opacity-50 bg-light': variant.stock <= 0,
+                                            'border-warning bg-warning bg-opacity-10': isOptionSelected(variant.name),
+                                            'border-light': variant.stock > 0 && !isOptionSelected(variant.name)
                                         }"
                                         :disabled="variant.stock <= 0"
                                         @click="if(variant.stock > 0) toggleOption(variant)"
                                         style="border-radius: 1rem;">
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center gap-3">
                                         <template x-if="optionProduct.selection_type === 'multiple'">
-                                            <i class="bi fs-5"
-                                               :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-primary' : 'bi-square text-muted'"></i>
+                                            <i class="bi fs-4"
+                                               :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-warning' : 'bi-square text-muted'"></i>
                                         </template>
                                         <template x-if="optionProduct.selection_type !== 'multiple'">
-                                            <i class="bi fs-5"
-                                               :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-primary' : 'bi-circle text-muted'"></i>
+                                            <i class="bi fs-4"
+                                               :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-warning' : 'bi-circle text-muted'"></i>
                                         </template>
                                         <div>
-                                            <h6 class="fw-bold text-dark mb-1" x-text="variant.name"></h6>
-                                            <span class="small badge rounded-pill"
-                                                  :class="variant.stock > 0 ? 'bg-body-tertiary text-muted border' : 'bg-danger text-white'"
-                                                  x-text="variant.stock > 0 ? 'Tersedia: ' + variant.stock : 'Stok Habis'"></span>
+                                            <h6 class="fw-bold text-dark mb-0" x-text="variant.name"></h6>
                                         </div>
                                     </div>
-                                    <h5 class="fw-bold mb-0" style="color: var(--brand-caramel);"
-                                        x-text="'Rp ' + formatRupiah(variant.price)"></h5>
+                                    <h6 class="fw-bold text-secondary mb-0"
+                                        x-text="optionProduct.selection_type === 'multiple' ? 'Included' : '+ Rp ' + formatRupiah(variant.price)"></h6>
                                 </button>
                             </template>
                         </template>
@@ -186,21 +209,23 @@
 
                     {{-- Qty + Confirm --}}
                     <div class="mt-4 pt-3 border-top" x-show="optionSelected.length > 0">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold text-muted small">JUMLAH</span>
-                            <div class="d-flex align-items-center bg-body-tertiary rounded-pill border" style="padding: 0.15rem;">
-                                <button @click="if(optionQty > 1) optionQty--" class="btn btn-sm btn-light rounded-circle p-1"
-                                        style="width: 32px; height: 32px;"><i class="bi bi-dash"></i></button>
-                                <span class="fw-bold px-3" x-text="optionQty"></span>
-                                <button @click="optionQty++" class="btn btn-sm btn-primary rounded-circle p-1"
-                                        style="width: 32px; height: 32px;"><i class="bi bi-plus"></i></button>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fw-bold text-muted">Jumlah Pesanan</span>
+                            <div class="d-flex align-items-center bg-light rounded-pill border"
+                                 style="padding: 0.25rem;">
+                                <button @click="if(optionQty > 1) optionQty--"
+                                        class="btn btn-sm btn-white rounded-circle p-1 shadow-sm"
+                                        style="width: 36px; height: 36px;"><i class="bi bi-dash"></i></button>
+                                <span class="fw-bold px-4 fs-5" x-text="optionQty"></span>
+                                <button @click="optionQty++" class="btn btn-sm btn-primary rounded-circle p-1 shadow-sm"
+                                        style="width: 36px; height: 36px;"><i class="bi bi-plus"></i></button>
                             </div>
                         </div>
                         <button @click="confirmOption"
-                                class="btn btn-primary fw-bold w-100 py-3 d-flex justify-content-between align-items-center"
+                                class="btn btn-primary fw-bold w-100 py-3 d-flex justify-content-between align-items-center shadow-sm"
                                 style="border-radius: 1rem;"
                                 :disabled="optionSelected.length === 0">
-                            <span><i class="bi bi-cart-plus me-2"></i>Tambahkan</span>
+                            <span><i class="bi bi-cart-plus me-2"></i>Tambahkan ke Keranjang</span>
                             <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>
                         </button>
                     </div>
@@ -211,7 +236,7 @@
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
-        <x-tenant.order.cancel-modal />
+        <x-tenant.order.cancel-modal/>
     </div>
 
 </div>
@@ -220,15 +245,15 @@
 <script>
     Alpine.data('restoPos', () => ({
         cart: [],
+        isMobileCartOpen: false,
         selectedProduct: null,
         variantModalInstance: null,
         paymentModalInstance: null,
         successModalInstance: null,
         optionModalInstance: null,
 
-        // Option/Multi-select state
         optionProduct: null,
-        optionSelected: [],  // array of variant names
+        optionSelected: [],
         optionQty: 1,
 
         customerName: '',
@@ -254,44 +279,33 @@
             return this.cart.reduce((t, i) => t + i.subtotal, 0);
         },
         get payTotal() {
-            if (this.payingOrder) return Math.max(0, this.payingOrder.subtotal - (parseFloat(this.payDiscount) || 0));
-            return this.subTotal;
+            return this.payingOrder ? Math.max(0, this.payingOrder.subtotal - (parseFloat(this.payDiscount) || 0)) : this.subTotal;
         },
         get getChange() {
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
         },
 
-        // === Product handling with selection_type support ===
         handleProductClick(product) {
-            if (product.stock <= 0) { showIslandToast('Stok habis!', 'warning'); return; }
-
-            // Multi-select (toppings, flavors) or single with >1 variant → open option modal
+            if (product.stock <= 0) {
+                showIslandToast('Stok habis!', 'warning');
+                return;
+            }
             if (product.selection_type === 'multiple' || (product.has_variants && product.variants.length > 1)) {
                 this.openOptionModal(product);
             } else {
-                // Simple product: 1 variant, langsung masuk cart
                 this.addToCart(product, product.variants[0]);
             }
         },
 
-        // === Option Modal (supports both single & multiple selection) ===
         openOptionModal(product) {
             this.optionProduct = product;
             this.optionQty = 1;
-
-            if (product.selection_type === 'multiple') {
-                this.optionSelected = [];
-            } else {
-                // Single: pre-select first variant with stock
-                const firstAvailable = product.variants.find(v => v.stock > 0);
-                this.optionSelected = firstAvailable ? [firstAvailable.name] : [];
-            }
+            this.optionSelected = product.selection_type === 'multiple' ? [] : (product.variants.find(v => v.stock > 0) ? [product.variants.find(v => v.stock > 0).name] : []);
             this.optionModalInstance.show();
         },
 
         toggleOption(variant) {
             if (!this.optionProduct) return;
-
             if (this.optionProduct.selection_type === 'multiple') {
                 const idx = this.optionSelected.indexOf(variant.name);
                 if (idx > -1) {
@@ -304,7 +318,6 @@
                     this.optionSelected.push(variant.name);
                 }
             } else {
-                // Single select: replace
                 this.optionSelected = [variant.name];
             }
         },
@@ -313,69 +326,87 @@
             return this.optionSelected.includes(name);
         },
 
+        // BUG FIXED: Logic Harga untuk Multiple
         get optionTotalPrice() {
-            if (!this.optionProduct) return 0;
-            // Sum prices of all selected variants × qty
-            let total = 0;
-            for (const name of this.optionSelected) {
-                const v = this.optionProduct.variants.find(v => v.name === name);
-                if (v) total += v.price;
+            if (!this.optionProduct || this.optionSelected.length === 0) return 0;
+
+            if (this.optionProduct.selection_type === 'multiple') {
+                // Harga flat, ambil dari varian pertama yang dipilih (diasumsikan harganya merepresentasikan harga paket/base)
+                const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                return (baseVariant ? baseVariant.price : 0) * this.optionQty;
+            } else {
+                // Single select: harga varian yang dipilih
+                const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                return (variant ? variant.price : 0) * this.optionQty;
             }
-            return total * this.optionQty;
         },
 
+        // BUG FIXED: Logic Masuk Keranjang untuk Multiple (Digabung 1 Baris)
         confirmOption() {
             if (!this.optionProduct || this.optionSelected.length === 0) return;
 
-            // Each selected variant → its own cart line item (correct stock tracking)
-            for (const variantName of this.optionSelected) {
-                const variant = this.optionProduct.variants.find(v => v.name === variantName);
-                if (!variant) continue;
+            if (this.optionProduct.selection_type === 'multiple') {
+                // Gabung nama varian jadi 1 string (Misal: "Coklat, Keju")
+                const combinedVariantName = this.optionSelected.join(', ');
+                const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                const basePrice = baseVariant.price;
 
-                const existing = this.cart.find(i => i.variant_id === variant.id);
+                // Cari stock terkecil dari varian yang dipilih biar ga over-order
+                const minStock = Math.min(...this.optionSelected.map(name => this.optionProduct.variants.find(v => v.name === name).stock));
+
+                const existing = this.cart.find(i => i.id === this.optionProduct.id && i.variant_name === combinedVariantName);
                 if (existing) {
-                    if (existing.quantity + this.optionQty <= variant.stock) {
+                    if (existing.quantity + this.optionQty <= minStock) {
                         existing.quantity += this.optionQty;
-                        existing.subtotal = existing.quantity * existing.price;
+                        existing.subtotal = existing.quantity * basePrice;
                     } else {
-                        showIslandToast(`Stok ${variant.name} sisa ${variant.stock}!`, 'warning');
+                        showIslandToast(`Stok bahan tidak mencukupi!`, 'warning');
                     }
                 } else {
-                    if (this.optionQty > variant.stock) {
-                        showIslandToast(`Stok ${variant.name} sisa ${variant.stock}!`, 'warning');
-                        continue;
+                    if (this.optionQty > minStock) {
+                        showIslandToast(`Stok bahan tidak mencukupi!`, 'warning');
+                        return;
                     }
                     this.cart.push({
                         id: this.optionProduct.id,
-                        variant_id: variant.id,
+                        variant_id: baseVariant.id, // Pakai ID varian utama sebagai referensi DB
                         name: this.optionProduct.name,
-                        variant_name: variant.name,
-                        price: variant.price,
+                        variant_name: combinedVariantName,
+                        price: basePrice,
                         quantity: this.optionQty,
-                        subtotal: variant.price * this.optionQty,
-                        stock: variant.stock,
+                        subtotal: basePrice * this.optionQty,
+                        stock: minStock,
                         note: ''
                     });
                 }
+            } else {
+                // Single select logic
+                const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                this.addToCart(this.optionProduct, variant, this.optionQty);
             }
 
             this.optionModalInstance.hide();
             setTimeout(() => this.optionProduct = null, 300);
         },
 
-        // === Standard cart operations ===
-        addToCart(product, variant) {
+        addToCart(product, variant, qty = 1) {
             let existing = this.cart.find(i => i.variant_id === variant.id);
             if (existing) {
-                if (existing.quantity < variant.stock) {
-                    existing.quantity++;
+                if (existing.quantity + qty <= variant.stock) {
+                    existing.quantity += qty;
                     existing.subtotal = existing.quantity * variant.price;
-                } else { showIslandToast(`Mentok! Stok sisa ${variant.stock}.`, 'warning'); }
+                } else {
+                    showIslandToast(`Stok sisa ${variant.stock}.`, 'warning');
+                }
             } else {
+                if (qty > variant.stock) {
+                    showIslandToast(`Stok sisa ${variant.stock}.`, 'warning');
+                    return;
+                }
                 this.cart.push({
                     id: product.id, variant_id: variant.id, name: product.name,
                     variant_name: product.has_variants ? variant.name : null,
-                    price: variant.price, quantity: 1, subtotal: variant.price,
+                    price: variant.price, quantity: qty, subtotal: variant.price * qty,
                     stock: variant.stock, note: ''
                 });
             }
@@ -389,27 +420,44 @@
 
         increaseQty(i) {
             let item = this.cart[i];
-            if (item.quantity < item.stock) { item.quantity++; item.subtotal = item.quantity * item.price; }
-            else { showIslandToast(`Mentok! Stok sisa ${item.stock}.`, 'warning'); }
+            if (item.quantity < item.stock) {
+                item.quantity++;
+                item.subtotal = item.quantity * item.price;
+            } else {
+                showIslandToast(`Mentok! Stok sisa ${item.stock}.`, 'warning');
+            }
         },
         decreaseQty(i) {
             if (this.cart[i].quantity > 1) {
                 this.cart[i].quantity--;
                 this.cart[i].subtotal = this.cart[i].quantity * this.cart[i].price;
-            } else { this.removeFromCart(i); }
+            } else {
+                this.removeFromCart(i);
+            }
         },
-        removeFromCart(i) { this.cart.splice(i, 1); },
-        clearCart() { this.cart = []; },
+        removeFromCart(i) {
+            this.cart.splice(i, 1);
+        },
+        clearCart() {
+            this.cart = [];
+            this.isMobileCartOpen = false;
+        },
         validateStock() {
             this.stockError = '';
             for (let item of this.cart) {
-                if (item.quantity > item.stock) { this.stockError = `Batas stok ${item.name} dilewati!`; break; }
+                if (item.quantity > item.stock) {
+                    this.stockError = `Batas stok ${item.name} dilewati!`;
+                    break;
+                }
             }
         },
 
         // === Submit new order (PENDING, no payment) ===
         async submitNewOrder() {
-            if (this.cart.length === 0) { showIslandToast('Keranjang kosong!', 'warning'); return; }
+            if (this.cart.length === 0) {
+                showIslandToast('Keranjang kosong!', 'warning');
+                return;
+            }
             this.isSubmitting = true;
             try {
                 const result = await $wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType);
@@ -423,7 +471,9 @@
                     showIslandToast(result.error, 'danger');
                     Livewire.dispatch('stock-updated');
                 }
-            } catch (e) { showIslandToast('Kesalahan sistem.', 'danger'); }
+            } catch (e) {
+                showIslandToast('Kesalahan sistem.', 'danger');
+            }
             this.isSubmitting = false;
         },
 
@@ -440,7 +490,8 @@
         openDirectPaymentModal() {
             this.validateStock();
             if (this.cart.length === 0 || this.stockError !== '') {
-                showIslandToast(this.stockError || 'Keranjang kosong!', 'warning'); return;
+                showIslandToast(this.stockError || 'Keranjang kosong!', 'warning');
+                return;
             }
             this.payingOrder = null; // null means direct checkout from cart
             this.payDiscount = 0;
@@ -451,7 +502,8 @@
 
         async submitPayment() {
             if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
-                showIslandToast('Uang tidak cukup!', 'warning'); return;
+                showIslandToast('Uang tidak cukup!', 'warning');
+                return;
             }
             this.isSubmitting = true;
             try {
@@ -482,12 +534,16 @@
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
                 }
-            } catch (e) { showIslandToast('Kesalahan sistem.', 'danger'); }
+            } catch (e) {
+                showIslandToast('Kesalahan sistem.', 'danger');
+            }
             this.isSubmitting = false;
         },
 
         // === Helpers ===
-        formatRupiah(n) { return new Intl.NumberFormat('id-ID').format(n); },
+        formatRupiah(n) {
+            return new Intl.NumberFormat('id-ID').format(n);
+        },
         appendNumber(num) {
             let c = String(this.amountPaid || '');
             if (c.length < 12) this.amountPaid = parseInt(c + num);
@@ -518,7 +574,7 @@
             this.lastOrder = {};
             this.payDiscount = 0;
             this.amountPaid = '';
-        },
+        }
     }));
 </script>
 @endscript

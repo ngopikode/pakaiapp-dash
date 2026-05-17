@@ -1,15 +1,33 @@
-<div class="row g-4 pos-container h-100"
+<div class="pos-container d-flex flex-column h-100 bg-light"
      x-data="retailPos()"
      @add-product.window="handleProductClick($event.detail.product)"
      x-cloak>
 
-    <div class="col-lg-7 col-xl-8 d-flex flex-column h-100">
-        <livewire:tenant.pos.product-list/>
+    <div class="row g-3 g-lg-4 flex-grow-1 mx-0 pt-3" style="min-height: 0;">
+
+        <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
+        <div class="col-lg-7 col-xl-8 flex-column h-100 px-2 px-lg-3"
+             :class="isMobileCartOpen ? 'd-none d-lg-flex' : 'd-flex'">
+            <livewire:tenant.pos.product-list/>
+        </div>
+
+        <!-- KOLOM KERANJANG (Sembunyi di HP kalau belum pencet tombol keranjang) -->
+        <div class="col-lg-5 col-xl-4 h-100 px-2 px-lg-3 cart-mobile-wrapper"
+             :class="isMobileCartOpen ? 'd-block' : 'd-none d-lg-block'">
+            @include('pages.tenant.pos._cart-retail')
+        </div>
     </div>
 
-    <div class="col-lg-5 col-xl-4 h-100">
-        @include('pages.tenant.pos._cart-retail')
-    </div>
+    {{-- Floating Cart Button for Mobile --}}
+    <!-- Tombol ini cuma muncul di HP kalau ada isi keranjang DAN keranjangnya lagi gak dibuka -->
+    <button
+        class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center"
+        x-show="cart.length > 0 && !isMobileCartOpen"
+        @click="isMobileCartOpen = true"
+        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+        <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
+        <span x-text="'Rp ' + formatRupiah(grandTotal)"></span>
+    </button>
 
     {{-- Shared Modals --}}
     @include('pages.tenant.pos._modal-payment')
@@ -22,6 +40,8 @@
 <script>
     Alpine.data('retailPos', () => ({
         cart: [],
+        isMobileCartOpen: false, // State baru untuk kontrol halaman HP
+
         selectedProduct: null,
         variantModalInstance: null,
         paymentModalInstance: null,
@@ -51,7 +71,9 @@
         get grandTotal() {
             return Math.max(0, this.subTotal - (parseFloat(this.globalDiscount) || 0));
         },
-        get payTotal() { return this.grandTotal; },
+        get payTotal() {
+            return this.grandTotal;
+        },
         get payDiscount() {
             let itemDiscounts = this.cart.reduce((t, i) => t + (parseFloat(i.itemDiscount) || 0), 0);
             return itemDiscounts + (parseFloat(this.globalDiscount) || 0);
@@ -69,7 +91,10 @@
 
         // === Product handling ===
         handleProductClick(product) {
-            if (product.stock <= 0) { showIslandToast('Stok habis!', 'warning'); return; }
+            if (product.stock <= 0) {
+                showIslandToast('Stok habis!', 'warning');
+                return;
+            }
             if (product.has_variants && product.variants.length > 1) {
                 this.selectedProduct = product;
                 this.variantModalInstance.show();
@@ -83,7 +108,9 @@
                 if (existing.quantity < variant.stock) {
                     existing.quantity++;
                     existing.subtotal = (existing.quantity * variant.price) - (parseFloat(existing.itemDiscount) || 0);
-                } else { showIslandToast(`Mentok! Stok sisa ${variant.stock}.`, 'warning'); }
+                } else {
+                    showIslandToast(`Mentok! Stok sisa ${variant.stock}.`, 'warning');
+                }
             } else {
                 this.cart.push({
                     id: product.id, variant_id: variant.id, name: product.name,
@@ -103,21 +130,35 @@
             if (item.quantity < item.stock) {
                 item.quantity++;
                 item.subtotal = Math.max(0, (item.quantity * item.price) - (parseFloat(item.itemDiscount) || 0));
-            } else { showIslandToast(`Mentok! Stok sisa ${item.stock}.`, 'warning'); }
+            } else {
+                showIslandToast(`Mentok! Stok sisa ${item.stock}.`, 'warning');
+            }
         },
         decreaseQty(i) {
             if (this.cart[i].quantity > 1) {
                 this.cart[i].quantity--;
                 let item = this.cart[i];
                 item.subtotal = Math.max(0, (item.quantity * item.price) - (parseFloat(item.itemDiscount) || 0));
-            } else { this.removeFromCart(i); }
+            } else {
+                this.removeFromCart(i);
+            }
         },
-        removeFromCart(i) { this.cart.splice(i, 1); },
-        clearCart() { this.cart = []; },
+        removeFromCart(i) {
+            this.cart.splice(i, 1);
+        },
+
+        clearCart() {
+            this.cart = [];
+            this.isMobileCartOpen = false; // Otomatis balik ke menu di HP
+        },
+
         validateStock() {
             this.stockError = '';
             for (let item of this.cart) {
-                if (item.quantity > item.stock) { this.stockError = `Batas stok ${item.name} dilewati!`; break; }
+                if (item.quantity > item.stock) {
+                    this.stockError = `Batas stok ${item.name} dilewati!`;
+                    break;
+                }
             }
         },
 
@@ -125,7 +166,8 @@
         openPaymentModal() {
             this.validateStock();
             if (this.cart.length === 0 || this.stockError !== '') {
-                showIslandToast(this.stockError || 'Keranjang kosong!', 'warning'); return;
+                showIslandToast(this.stockError || 'Keranjang kosong!', 'warning');
+                return;
             }
             this.amountPaid = '';
             this.paymentMethod = 'cash';
@@ -134,7 +176,8 @@
 
         async submitPayment() {
             if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
-                showIslandToast('Uang tidak cukup!', 'warning'); return;
+                showIslandToast('Uang tidak cukup!', 'warning');
+                return;
             }
             this.isSubmitting = true;
             try {
@@ -151,12 +194,16 @@
                     showIslandToast(result.error, 'danger');
                     Livewire.dispatch('stock-updated');
                 }
-            } catch (e) { showIslandToast('Kesalahan sistem.', 'danger'); }
+            } catch (e) {
+                showIslandToast('Kesalahan sistem.', 'danger');
+            }
             this.isSubmitting = false;
         },
 
         // === Helpers ===
-        formatRupiah(n) { return new Intl.NumberFormat('id-ID').format(n); },
+        formatRupiah(n) {
+            return new Intl.NumberFormat('id-ID').format(n);
+        },
         appendNumber(num) {
             let c = String(this.amountPaid || '');
             if (c.length < 12) this.amountPaid = parseInt(c + num);
@@ -189,7 +236,7 @@
             this.globalDiscount = '';
             this.amountPaid = '';
             this.lastOrder = {};
-        },
+        }
     }));
 </script>
 @endscript
