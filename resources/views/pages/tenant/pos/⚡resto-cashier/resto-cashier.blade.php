@@ -201,7 +201,7 @@
                                         </div>
                                     </div>
                                     <h6 class="fw-bold text-secondary mb-0"
-                                        x-text="optionProduct.selection_type === 'multiple' ? 'Included' : '+ Rp ' + formatRupiah(variant.price)"></h6>
+                                        x-text="optionProduct.selection_type === 'multiple' ? '' : '+ Rp ' + formatRupiah(variant.price)"></h6>
                                 </button>
                             </template>
                         </template>
