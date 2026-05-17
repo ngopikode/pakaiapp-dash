@@ -1,16 +1,17 @@
 <div class="pos-container d-flex flex-column h-100 bg-light" x-data="restoPos()"
      @add-product.window="handleProductClick($event.detail.product)" x-cloak>
+
     {{-- Tab Navigation --}}
     <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
         <button wire:click="changeTab('cashier')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="$wire.activeTab === 'cashier' ? 'btn-primary shadow' : 'btn-white bg-white text-secondary shadow-sm'"
+                :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-white bg-white text-secondary shadow-sm'"
                 style="border-radius: 1rem;">
             <i class="bi bi-plus-circle"></i> Kasir Baru
         </button>
         <button wire:click="changeTab('queue')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all position-relative"
-                :class="$wire.activeTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-white bg-white text-secondary shadow-sm'"
+                :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-white bg-white text-secondary shadow-sm'"
                 style="border-radius: 1rem;">
             <i class="bi bi-hourglass-split"></i> Antrian
             @if($pendingOrders->count() > 0)
@@ -21,7 +22,7 @@
     </div>
 
     {{-- ===== TAB 1: KASIR BARU ===== --}}
-    <div x-show="$wire.activeTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
+    <div x-show="currentTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
 
         <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
@@ -37,202 +38,30 @@
         </div>
     </div>
 
-    {{-- Floating Cart Button for Mobile --}}
-    <!-- Tombol ini cuma muncul di HP kalau ada isi keranjang DAN keranjangnya lagi gak dibuka -->
-    <button
-        class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center"
-        x-show="$wire.activeTab === 'cashier' && cart.length > 0 && !isMobileCartOpen"
-        @click="isMobileCartOpen = true"
-        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
-        <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
-        <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
-    </button>
-
     {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="$wire.activeTab === 'queue'" class="flex-grow-1 overflow-y-auto" style="min-height: 0;"
+    <div x-show="currentTab === 'queue'" class="flex-grow-1 overflow-y-auto" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
-        @if($pendingOrders->isEmpty())
-            <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 1.25rem;">
-                <i class="bi bi-check-circle text-success" style="font-size: 4rem; opacity: 0.3;"></i>
-                <h5 class="fw-bold font-serif text-muted mt-3">Tidak ada antrian</h5>
-                <p class="text-muted small">Semua pesanan sudah dibayar 🎉</p>
-            </div>
-        @else
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-                @foreach($pendingOrders as $order)
-                    <div class="col">
-                        <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 1.25rem;">
-                            {{-- Order Header --}}
-                            <div
-                                class="p-3 bg-warning bg-opacity-10 border-bottom d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark">{{ $order->invoice_code }}</h6>
-                                    <small class="text-muted fw-bold" style="font-size: 0.7rem;">
-                                        {{ $order->created_at->diffForHumans() }}
-                                    </small>
-                                </div>
-                                <span class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
-                                    <i class="bi bi-hourglass-split me-1"></i>Pending
-                                </span>
-                            </div>
-
-                            {{-- Order Info --}}
-                            <div class="card-body p-3">
-                                <div class="d-flex gap-2 mb-3 flex-wrap">
-                                    <span class="badge bg-body-tertiary text-dark border rounded-pill">
-                                        <i class="bi bi-person me-1"></i>{{ $order->customer_name }}
-                                    </span>
-                                    @if($order->table_number)
-                                        <span
-                                            class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill">
-                                            <i class="bi bi-hash"></i>Meja {{ $order->table_number }}
-                                        </span>
-                                    @endif
-                                    <span class="badge bg-body-tertiary text-muted border rounded-pill text-capitalize">
-                                        {{ $order->order_type }}
-                                    </span>
-                                </div>
-
-                                {{-- Items --}}
-                                <div class="mb-3">
-                                    @foreach($order->items as $item)
-                                        <div
-                                            class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed"
-                                            style="font-size: 0.85rem;">
-                                            <span class="text-dark">
-                                                <span class="fw-bold text-primary">{{ $item->quantity }}x</span>
-                                                {{ $item->product_name }}
-                                                @if($item->variant_name)
-                                                    <small class="text-muted">({{ $item->variant_name }})</small>
-                                                @endif
-                                                @if($item->note)
-                                                    <br><small class="text-muted fst-italic"><i
-                                                            class="bi bi-chat-dots me-1"></i>{{ $item->note }}</small>
-                                                @endif
-                                            </span>
-                                            <span class="fw-bold text-nowrap" style="color: var(--brand-caramel);">
-                                                Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                {{-- Total --}}
-                                <div
-                                    class="d-flex justify-content-between align-items-center p-2 bg-body-tertiary rounded-3">
-                                    <span class="fw-bold text-muted small">TOTAL</span>
-                                    <h5 class="fw-bolder mb-0" style="color: var(--brand-caramel);">
-                                        Rp {{ number_format($order->subtotal, 0, ',', '.') }}
-                                    </h5>
-                                </div>
-                            </div>
-
-                            {{-- Actions --}}
-                            <div class="p-3 border-top bg-body-tertiary d-flex gap-2">
-                                <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
-                                        class="btn btn-outline-danger fw-bold flex-shrink-0"
-                                        style="border-radius: 0.75rem;">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                                <button @click="openPayForOrder({{ json_encode([
-                                            'id' => $order->id,
-                                            'invoice_code' => $order->invoice_code,
-                                            'customer_name' => $order->customer_name,
-                                            'subtotal' => $order->subtotal,
-                                        ]) }})"
-                                        class="btn btn-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2"
-                                        style="border-radius: 0.75rem;">
-                                    <i class="bi bi-cash-coin"></i> Bayar Sekarang
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @endif
+        @include('pages.tenant.post._queue-resto')
     </div>
+
+    {{-- Floating Cart Button for Mobile --}}
+    <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
+        <button
+            class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center"
+            @click="isMobileCartOpen = true"
+            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
+            <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
+            <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
+        </button>
+    </template>
 
     {{-- Shared Modals --}}
     @include('pages.tenant.pos._modal-payment')
     @include('pages.tenant.pos._modal-variant')
     @include('pages.tenant.pos._modal-success')
 
-    {{-- ===== OPTION MODAL (DIPERBAIKI LOGIKANYA) ===== --}}
-    <div class="modal fade modal-bottom-mobile" id="optionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg" style="border-radius: 1.5rem;">
-                <div class="modal-header border-bottom pb-3 pt-4 px-4 bg-light"
-                     style="border-radius: 1.5rem 1.5rem 0 0;">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-1">Pilih Varian</h5>
-                        <p class="text-muted small mb-0" x-text="optionProduct ? optionProduct.name : ''"></p>
-                        <template x-if="optionProduct && optionProduct.selection_type === 'multiple'">
-                            <span class="badge bg-warning text-dark mt-1"
-                                  x-text="'Pilih maks ' + optionProduct.max_selections + ' pilihan'"></span>
-                        </template>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4 bg-white" style="border-radius: 0 0 1.5rem 1.5rem;">
-                    <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height: 50vh;">
-                        <template x-if="optionProduct">
-                            <template x-for="variant in optionProduct.variants" :key="variant.id">
-                                <button type="button"
-                                        class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all"
-                                        :class="{
-                                            'opacity-50 bg-light': variant.stock <= 0,
-                                            'border-warning bg-warning bg-opacity-10': isOptionSelected(variant.name),
-                                            'border-light': variant.stock > 0 && !isOptionSelected(variant.name)
-                                        }"
-                                        :disabled="variant.stock <= 0"
-                                        @click="if(variant.stock > 0) toggleOption(variant)"
-                                        style="border-radius: 1rem;">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <template x-if="optionProduct.selection_type === 'multiple'">
-                                            <i class="bi fs-4"
-                                               :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-warning' : 'bi-square text-muted'"></i>
-                                        </template>
-                                        <template x-if="optionProduct.selection_type !== 'multiple'">
-                                            <i class="bi fs-4"
-                                               :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-warning' : 'bi-circle text-muted'"></i>
-                                        </template>
-                                        <div>
-                                            <h6 class="fw-bold text-dark mb-0" x-text="variant.name"></h6>
-                                        </div>
-                                    </div>
-                                    <h6 class="fw-bold text-secondary mb-0"
-                                        x-text="optionProduct.selection_type === 'multiple' ? '' : '+ Rp ' + formatRupiah(variant.price)"></h6>
-                                </button>
-                            </template>
-                        </template>
-                    </div>
-
-                    {{-- Qty + Confirm --}}
-                    <div class="mt-4 pt-3 border-top" x-show="optionSelected.length > 0">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="fw-bold text-muted">Jumlah Pesanan</span>
-                            <div class="d-flex align-items-center bg-light rounded-pill border"
-                                 style="padding: 0.25rem;">
-                                <button @click="if(optionQty > 1) optionQty--"
-                                        class="btn btn-sm btn-white rounded-circle p-1 shadow-sm"
-                                        style="width: 36px; height: 36px;"><i class="bi bi-dash"></i></button>
-                                <span class="fw-bold px-4 fs-5" x-text="optionQty"></span>
-                                <button @click="optionQty++" class="btn btn-sm btn-primary rounded-circle p-1 shadow-sm"
-                                        style="width: 36px; height: 36px;"><i class="bi bi-plus"></i></button>
-                            </div>
-                        </div>
-                        <button @click="confirmOption"
-                                class="btn btn-primary fw-bold w-100 py-3 d-flex justify-content-between align-items-center shadow-sm"
-                                style="border-radius: 1rem;"
-                                :disabled="optionSelected.length === 0">
-                            <span><i class="bi bi-cart-plus me-2"></i>Tambahkan ke Keranjang</span>
-                            <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- ===== OPTION MODAL ===== --}}
+    @include('pages.tenant.pos._modal-option')
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -246,6 +75,9 @@
     Alpine.data('restoPos', () => ({
         cart: [],
         isMobileCartOpen: false,
+
+        currentTab: $wire.entangle('activeTab').live,
+
         selectedProduct: null,
         variantModalInstance: null,
         paymentModalInstance: null,
@@ -326,32 +158,26 @@
             return this.optionSelected.includes(name);
         },
 
-        // BUG FIXED: Logic Harga untuk Multiple
         get optionTotalPrice() {
             if (!this.optionProduct || this.optionSelected.length === 0) return 0;
 
             if (this.optionProduct.selection_type === 'multiple') {
-                // Harga flat, ambil dari varian pertama yang dipilih (diasumsikan harganya merepresentasikan harga paket/base)
                 const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
                 return (baseVariant ? baseVariant.price : 0) * this.optionQty;
             } else {
-                // Single select: harga varian yang dipilih
                 const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
                 return (variant ? variant.price : 0) * this.optionQty;
             }
         },
 
-        // BUG FIXED: Logic Masuk Keranjang untuk Multiple (Digabung 1 Baris)
         confirmOption() {
             if (!this.optionProduct || this.optionSelected.length === 0) return;
 
             if (this.optionProduct.selection_type === 'multiple') {
-                // Gabung nama varian jadi 1 string (Misal: "Coklat, Keju")
                 const combinedVariantName = this.optionSelected.join(', ');
                 const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
                 const basePrice = baseVariant.price;
 
-                // Cari stock terkecil dari varian yang dipilih biar ga over-order
                 const minStock = Math.min(...this.optionSelected.map(name => this.optionProduct.variants.find(v => v.name === name).stock));
 
                 const existing = this.cart.find(i => i.id === this.optionProduct.id && i.variant_name === combinedVariantName);
@@ -369,7 +195,7 @@
                     }
                     this.cart.push({
                         id: this.optionProduct.id,
-                        variant_id: baseVariant.id, // Pakai ID varian utama sebagai referensi DB
+                        variant_id: baseVariant.id,
                         name: this.optionProduct.name,
                         variant_name: combinedVariantName,
                         price: basePrice,
@@ -380,7 +206,6 @@
                     });
                 }
             } else {
-                // Single select logic
                 const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
                 this.addToCart(this.optionProduct, variant, this.optionQty);
             }
@@ -452,7 +277,6 @@
             }
         },
 
-        // === Submit new order (PENDING, no payment) ===
         async submitNewOrder() {
             if (this.cart.length === 0) {
                 showIslandToast('Keranjang kosong!', 'warning');
@@ -477,7 +301,6 @@
             this.isSubmitting = false;
         },
 
-        // === Pay pending order from queue ===
         openPayForOrder(order) {
             this.payingOrder = order;
             this.payDiscount = 0;
@@ -486,14 +309,13 @@
             this.paymentModalInstance.show();
         },
 
-        // === Pay direct from cart (Direct checkout) ===
         openDirectPaymentModal() {
             this.validateStock();
             if (this.cart.length === 0 || this.stockError !== '') {
                 showIslandToast(this.stockError || 'Keranjang kosong!', 'warning');
                 return;
             }
-            this.payingOrder = null; // null means direct checkout from cart
+            this.payingOrder = null;
             this.payDiscount = 0;
             this.amountPaid = '';
             this.paymentMethod = 'cash';
@@ -540,7 +362,6 @@
             this.isSubmitting = false;
         },
 
-        // === Helpers ===
         formatRupiah(n) {
             return new Intl.NumberFormat('id-ID').format(n);
         },
