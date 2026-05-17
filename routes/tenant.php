@@ -40,20 +40,27 @@ Route::middleware([
     Route::get('/menu/{productId}/story/image', [MenuController::class, 'generateStoryImage'])->name('product.story.image');
 
     Route::middleware('auth')->group(function () {
+        
+        // Routes accessible by manager AND cashier
+        Route::middleware('role:manager,cashier')->group(function () {
+            Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
+            Route::livewire('cashier/resto', 'pages::tenant.pos.resto-cashier')->name('cashier.resto');
+            Route::livewire('cashier/retail', 'pages::tenant.pos.retail-cashier')->name('cashier.retail');
 
-        Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
-        Route::livewire('cashier/resto', 'pages::tenant.pos.resto-cashier')->name('cashier.resto');
-        Route::livewire('cashier/retail', 'pages::tenant.pos.retail-cashier')->name('cashier.retail');
+            Route::prefix('dashboard')->group(function () {
+                Route::view('order', 'pages.tenant.order.index')->name('order');
+                Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
+            });
+        });
 
-        Route::prefix('dashboard')->group(function () {
+        // Routes accessible ONLY by manager
+        Route::middleware('role:manager')->prefix('dashboard')->group(function () {
             Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
-            Route::view('order', 'pages.tenant.order.index')->name('order');
             Route::view('product', 'pages.tenant.product.product')->name('product');
             Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
             Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');
             Route::livewire('store-setting', 'pages::tenant.setting.store-setting')->name('store-setting');
             Route::view('user', 'pages.tenant.user.index')->name('user');
-            Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
         });
     });
 
