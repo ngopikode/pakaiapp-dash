@@ -1,7 +1,7 @@
 {{-- ===== CART PANEL: RETAIL MODE ===== --}}
 {{-- Fitur: Diskon per-item, Stok ketat, Langsung bayar --}}
 
-<div class="card h-100 d-flex flex-column overflow-hidden shadow-sm" style="border-radius: 1.25rem;">
+<div class="card d-flex flex-column overflow-hidden shadow-sm" style="border-radius: 1.25rem;">
 
     {{-- Header --}}
     <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-body-tertiary">

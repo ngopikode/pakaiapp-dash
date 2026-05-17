@@ -1,7 +1,7 @@
 {{-- ===== CART PANEL: RESTO / F&B MODE ===== --}}
 {{-- Flow: Buat pesanan (pending) → Bayar nanti dari Antrian --}}
 
-<div class="card h-100 d-flex flex-column overflow-hidden shadow-sm" style="border-radius: 1.25rem;">
+<div class="card d-flex flex-column overflow-hidden shadow-sm" style="border-radius: 1.25rem;">
 
     {{-- Header --}}
     <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-body-tertiary">
@@ -106,17 +106,26 @@
 
         <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
 
-        {{-- Submit Order (creates PENDING order, no payment yet) --}}
-        <button @click="submitNewOrder"
-                class="btn btn-primary btn-lg w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center"
-                :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
-                style="padding: 1rem; font-size: 1.1rem; border-radius: 1rem;">
-            <span>
-                <i class="bi bi-send me-2" x-show="!isSubmitting"></i>
-                <span class="spinner-border spinner-border-sm me-2" x-show="isSubmitting"></span>
-                <span x-text="isSubmitting ? 'Mengirim...' : 'Buat Pesanan'"></span>
-            </span>
-            <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
-        </button>
+        <div class="row g-2">
+            <div class="col-6">
+                <button @click="submitNewOrder"
+                        class="btn btn-warning btn-lg w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center text-dark"
+                        :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
+                        style="padding: 1rem; font-size: 0.95rem; border-radius: 1rem;">
+                    <i class="bi bi-hourglass-split me-2" x-show="!isSubmitting"></i>
+                    <span class="spinner-border spinner-border-sm me-2" x-show="isSubmitting"></span>
+                    <span x-text="isSubmitting ? 'Menyimpan...' : 'Antrikan'"></span>
+                </button>
+            </div>
+            <div class="col-6">
+                <button @click="openDirectPaymentModal"
+                        class="btn btn-primary btn-lg w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center"
+                        :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
+                        style="padding: 1rem; font-size: 0.95rem; border-radius: 1rem;">
+                    <span>Bayar</span>
+                    <span x-text="formatRupiah(subTotal)"></span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>

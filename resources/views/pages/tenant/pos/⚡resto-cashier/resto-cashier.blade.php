@@ -1,16 +1,16 @@
-<div class="pos-container h-100" x-data="restoPos()" @add-product.window="handleProductClick($event.detail.product)" x-cloak>
+<div class="pos-container d-flex flex-column h-100" x-data="restoPos()" @add-product.window="handleProductClick($event.detail.product)" x-cloak>
 
-    {{-- Tab Navigation --}}
-    <div class="d-flex gap-2 mb-3">
-        <button @click="switchTab('cashier')"
+    {{-- Tab Navigation (Backend-driven) --}}
+    <div class="d-flex gap-2 mb-3 flex-shrink-0">
+        <button wire:click="changeTab('cashier')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="activeTab === 'cashier' ? 'btn-primary shadow-sm' : 'btn-outline-secondary bg-body'"
+                :class="$wire.activeTab === 'cashier' ? 'btn-primary shadow-sm' : 'btn-outline-secondary bg-body'"
                 style="border-radius: 1rem;">
             <i class="bi bi-plus-circle"></i> Kasir Baru
         </button>
-        <button @click="switchTab('queue')"
+        <button wire:click="changeTab('queue')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all position-relative"
-                :class="activeTab === 'queue' ? 'btn-warning shadow-sm text-dark' : 'btn-outline-secondary bg-body'"
+                :class="$wire.activeTab === 'queue' ? 'btn-warning shadow-sm text-dark' : 'btn-outline-secondary bg-body'"
                 style="border-radius: 1rem;">
             <i class="bi bi-hourglass-split"></i> Antrian
             @if($pendingOrders->count() > 0)
@@ -20,7 +20,7 @@
     </div>
 
     {{-- ===== TAB 1: KASIR BARU ===== --}}
-    <div x-show="activeTab === 'cashier'" class="row g-4 h-100" x-transition>
+    <div x-show="$wire.activeTab === 'cashier'" class="row g-4 flex-grow-1" style="min-height: 0;" x-transition.opacity.duration.150ms>
         <div class="col-lg-7 col-xl-8 d-flex flex-column h-100">
             <livewire:tenant.pos.product-list/>
         </div>
@@ -30,7 +30,7 @@
     </div>
 
     {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="activeTab === 'queue'" x-transition>
+    <div x-show="$wire.activeTab === 'queue'" class="flex-grow-1 overflow-y-auto" style="min-height: 0;" x-transition.opacity.duration.150ms>
         @if($pendingOrders->isEmpty())
             <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 1.25rem;">
                 <i class="bi bi-check-circle text-success" style="font-size: 4rem; opacity: 0.3;"></i>
@@ -214,7 +214,6 @@
 @script
 <script>
     Alpine.data('restoPos', () => ({
-        activeTab: 'cashier',
         cart: [],
         selectedProduct: null,
         variantModalInstance: null,
@@ -244,12 +243,6 @@
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
-        },
-
-        // === Tab switch triggers Livewire re-render ===
-        switchTab(tab) {
-            this.activeTab = tab;
-            $wire.$refresh(); // Re-query pending orders from DB
         },
 
         get subTotal() {
@@ -317,57 +310,48 @@
 
         get optionTotalPrice() {
             if (!this.optionProduct) return 0;
-            if (this.optionProduct.selection_type === 'multiple') {
-                // Multi: base price * qty
-                return this.optionProduct.price * this.optionQty;
-            } else {
-                // Single: selected variant price * qty
-                const v = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                return (v ? v.price : this.optionProduct.price) * this.optionQty;
+            // Sum prices of all selected variants × qty
+            let total = 0;
+            for (const name of this.optionSelected) {
+                const v = this.optionProduct.variants.find(v => v.name === name);
+                if (v) total += v.price;
             }
+            return total * this.optionQty;
         },
 
         confirmOption() {
             if (!this.optionProduct || this.optionSelected.length === 0) return;
 
-            const selectedLabel = this.optionSelected.join(', ');
-            let price;
+            // Each selected variant → its own cart line item (correct stock tracking)
+            for (const variantName of this.optionSelected) {
+                const variant = this.optionProduct.variants.find(v => v.name === variantName);
+                if (!variant) continue;
 
-            if (this.optionProduct.selection_type === 'multiple') {
-                price = this.optionProduct.price;
-            } else {
-                const v = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                price = v ? v.price : this.optionProduct.price;
-            }
-
-            // Find variant_id for single select, or first variant for multi
-            let variantId;
-            if (this.optionProduct.selection_type === 'multiple') {
-                variantId = this.optionProduct.variants[0]?.id;
-            } else {
-                const v = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                variantId = v?.id || this.optionProduct.variants[0]?.id;
-            }
-
-            const cartKey = `${this.optionProduct.name} (${selectedLabel})`;
-            const existing = this.cart.find(i => i.cartKey === cartKey);
-
-            if (existing) {
-                existing.quantity += this.optionQty;
-                existing.subtotal = existing.quantity * existing.price;
-            } else {
-                this.cart.push({
-                    id: this.optionProduct.id,
-                    variant_id: variantId,
-                    name: this.optionProduct.name,
-                    variant_name: selectedLabel,
-                    cartKey: cartKey,
-                    price: price,
-                    quantity: this.optionQty,
-                    subtotal: price * this.optionQty,
-                    stock: 999, // Multi-select items are typically made-to-order
-                    note: ''
-                });
+                const existing = this.cart.find(i => i.variant_id === variant.id);
+                if (existing) {
+                    if (existing.quantity + this.optionQty <= variant.stock) {
+                        existing.quantity += this.optionQty;
+                        existing.subtotal = existing.quantity * existing.price;
+                    } else {
+                        showIslandToast(`Stok ${variant.name} sisa ${variant.stock}!`, 'warning');
+                    }
+                } else {
+                    if (this.optionQty > variant.stock) {
+                        showIslandToast(`Stok ${variant.name} sisa ${variant.stock}!`, 'warning');
+                        continue;
+                    }
+                    this.cart.push({
+                        id: this.optionProduct.id,
+                        variant_id: variant.id,
+                        name: this.optionProduct.name,
+                        variant_name: variant.name,
+                        price: variant.price,
+                        quantity: this.optionQty,
+                        subtotal: variant.price * this.optionQty,
+                        stock: variant.stock,
+                        note: ''
+                    });
+                }
             }
 
             this.optionModalInstance.hide();
@@ -376,7 +360,7 @@
 
         // === Standard cart operations ===
         addToCart(product, variant) {
-            let existing = this.cart.find(i => i.variant_id === variant.id && !i.cartKey);
+            let existing = this.cart.find(i => i.variant_id === variant.id);
             if (existing) {
                 if (existing.quantity < variant.stock) {
                     existing.quantity++;
@@ -392,7 +376,6 @@
             }
         },
 
-        // Legacy: still used by _modal-variant for simple single-variant pick
         addVariantToCart(variant) {
             this.addToCart(this.selectedProduct || this.optionProduct, variant);
             this.variantModalInstance.hide();
@@ -430,10 +413,10 @@
                     this.clearCart();
                     this.customerName = '';
                     this.tableNumber = '';
-                    Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
+                    Livewire.dispatch('stock-updated');
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
-                    Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
+                    Livewire.dispatch('stock-updated');
                 }
             } catch (e) { showIslandToast('Kesalahan sistem.', 'danger'); }
             this.isSubmitting = false;
@@ -447,22 +430,49 @@
             this.paymentMethod = 'cash';
             this.paymentModalInstance.show();
         },
-        openPaymentModal() {},
+
+        // === Pay direct from cart (Direct checkout) ===
+        openDirectPaymentModal() {
+            this.validateStock();
+            if (this.cart.length === 0 || this.stockError !== '') {
+                showIslandToast(this.stockError || 'Keranjang kosong!', 'warning'); return;
+            }
+            this.payingOrder = null; // null means direct checkout from cart
+            this.payDiscount = 0;
+            this.amountPaid = '';
+            this.paymentMethod = 'cash';
+            this.paymentModalInstance.show();
+        },
 
         async submitPayment() {
-            if (!this.payingOrder) return;
             if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
                 showIslandToast('Uang tidak cukup!', 'warning'); return;
             }
             this.isSubmitting = true;
             try {
-                const result = await $wire.processPayment(
-                    this.payingOrder.id, this.paymentMethod, this.payDiscount || 0, this.amountPaid
-                );
+                let result;
+                let isDirect = !this.payingOrder;
+
+                if (this.payingOrder) {
+                    result = await $wire.processPayment(
+                        this.payingOrder.id, this.paymentMethod, this.payDiscount || 0, this.amountPaid
+                    );
+                } else {
+                    result = await $wire.processDirectCheckout(
+                        this.cart, this.customerName, this.tableNumber, this.orderType, this.paymentMethod, this.payDiscount || 0, this.amountPaid
+                    );
+                }
+
                 if (result && result.success) {
                     this.lastOrder = result;
                     this.paymentModalInstance.hide();
                     this.payingOrder = null;
+                    if (isDirect) {
+                        this.clearCart();
+                        this.customerName = '';
+                        this.tableNumber = '';
+                    }
+                    Livewire.dispatch('stock-updated');
                     setTimeout(() => this.successModalInstance.show(), 300);
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');

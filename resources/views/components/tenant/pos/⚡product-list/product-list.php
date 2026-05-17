@@ -2,12 +2,23 @@
 
 use App\Models\Category;
 use App\Models\Product;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
     public string $search = '';
     public string $categoryFilter = 'all';
     public int $limit = 12;
+
+    /**
+     * Re-render when stock is updated (after checkout/order).
+     */
+    #[On('stock-updated')]
+    public function stockUpdated(): void
+    {
+        // No-op: just triggers a re-render so product data refreshes from DB
+    }
+
 
     public function updatedSearch(): void
     {

@@ -145,11 +145,11 @@
                 if (result && result.success) {
                     this.lastOrder = result;
                     this.paymentModalInstance.hide();
-                    Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
+                    Livewire.dispatch('stock-updated');
                     setTimeout(() => this.successModalInstance.show(), 300);
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
-                    Livewire.dispatchTo('tenant.pos.product-list', '$refresh');
+                    Livewire.dispatch('stock-updated');
                 }
             } catch (e) { showIslandToast('Kesalahan sistem.', 'danger'); }
             this.isSubmitting = false;

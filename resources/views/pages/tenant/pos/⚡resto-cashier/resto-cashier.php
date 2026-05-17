@@ -11,6 +11,13 @@ use Livewire\Component;
 
 new class extends Component {
 
+    public string $activeTab = 'cashier';
+
+    public function changeTab($tab)
+    {
+        $this->activeTab = $tab;
+    }
+
     /**
      * Buat pesanan baru (status: pending, belum bayar).
      * Kasir hanya input item + info pelanggan, bayar nanti dari tab Antrian.
@@ -69,6 +76,79 @@ new class extends Component {
             }
 
             return ['success' => true, 'invoice_code' => $invoiceCode];
+        });
+    }
+
+    /**
+     * Checkout langsung bayar (gabungan create order + payment)
+     */
+    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid)
+    {
+        if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
+
+        return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid) {
+            $dbVariants = [];
+
+            foreach ($cart as $index => $item) {
+                $variant = ProductVariant::lockForUpdate()->find($item['variant_id']);
+                if (!$variant || $variant->stock < $item['quantity']) {
+                    return [
+                        'success' => false,
+                        'error' => "Stok '{$item['name']}' tidak cukup. Sisa: " . ($variant ? $variant->stock : 0)
+                    ];
+                }
+                $dbVariants[$index] = $variant;
+            }
+
+            $subtotal = collect($cart)->sum('subtotal');
+            $discountAmount = (float) $discount;
+            $totalPrice = max(0, $subtotal - $discountAmount);
+            $paid = (float) $amountPaid ?: $totalPrice;
+            $change = max(0, $paid - $totalPrice);
+            $invoiceCode = 'INV-' . strtoupper(Str::random(6));
+
+            $order = Order::create([
+                'invoice_code' => $invoiceCode,
+                'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                'customer_name' => $customerName ?: 'Pelanggan Umum',
+                'order_type' => $orderType,
+                'payment_method' => $paymentMethod,
+                'subtotal' => $subtotal,
+                'discount' => $discountAmount,
+                'total_price' => $totalPrice,
+                'amount_paid' => $paid,
+                'change_amount' => $change,
+                'status' => 'paid',
+                'user_id' => Auth::id(),
+            ]);
+
+            foreach ($cart as $index => $item) {
+                $variant = $dbVariants[$index];
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['id'],
+                    'variant_id' => $variant->id,
+                    'product_name' => $item['name'],
+                    'variant_name' => $item['variant_name'] ?? null,
+                    'quantity' => $item['quantity'],
+                    'price' => $variant->price,
+                    'discount' => 0,
+                    'subtotal' => $item['subtotal'],
+                    'note' => $item['note'] ?? null,
+                ]);
+                $variant->decrement('stock', $item['quantity']);
+            }
+
+            $storeName = StoreSetting::first()->name ?? 'Resto Kami';
+
+            return [
+                'success' => true,
+                'invoice_code' => $order->invoice_code,
+                'customer_name' => $order->customer_name,
+                'customer_phone' => null,
+                'store_name' => $storeName,
+                'total_price' => $totalPrice,
+            ];
         });
     }
 
