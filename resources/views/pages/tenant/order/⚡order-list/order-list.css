@@ -1,14 +1,16 @@
-/* Modern Minimalist CSS */
+/* Modern Minimalist CSS - Safe for Custom Dark Mode */
 .glass-input {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background: var(--bs-body-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
     transition: all 0.2s;
 }
 
 .glass-input:focus {
-    background: #fff;
-    border-color: #212529;
-    box-shadow: 0 0 0 4px rgba(33, 37, 41, 0.1);
+    background: var(--bs-body-bg);
+    border-color: var(--bs-body-color);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 4px var(--bs-border-color-translucent);
 }
 
 .filter-nav {
@@ -31,22 +33,22 @@
     border: 1px solid transparent;
     transition: all 0.2s;
     white-space: nowrap;
-    color: #6c757d;
+    color: var(--bs-secondary-color);
     background: transparent;
 }
 
 .filter-btn:hover {
-    background: #f8f9fa;
+    background: var(--bs-body-tertiary-bg);
 }
 
 .filter-btn.active {
-    background: #212529;
-    color: #fff;
-    border-color: #212529;
+    background: var(--bs-link-color, #212529);
+    color: var(--bs-body-bg);
+    border-color: var(--bs-link-color, #212529);
 }
 
 .order-row {
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
     transition: background 0.2s;
 }
 
@@ -55,15 +57,15 @@
 }
 
 .order-row:hover {
-    background: #f8f9fa;
+    background: var(--bs-body-tertiary-bg);
 }
 
 .avatar-initial {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: #f1f3f5;
-    color: #495057;
+    background: var(--bs-body-tertiary-bg);
+    color: var(--bs-body-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,20 +73,23 @@
     font-size: 1rem;
 }
 
-/* Subtle Badges */
+/* Subtle Badges - Utilizing safe contrast opacity */
 .badge-soft-warning {
-    background: #fff3cd;
-    color: #997404;
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
 .badge-soft-success {
-    background: #d1e7dd;
-    color: #0f5132;
+    background: rgba(25, 135, 84, 0.15);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
 }
 
 .badge-soft-danger {
-    background: #f8d7da;
-    color: #842029;
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
 @media (max-width: 768px) {
@@ -102,7 +107,7 @@
 
 /* PREMIUM SKELETON ANIMATION ACCORDING TO STRIPE UI */
 .skeleton-block {
-    background: #f1f3f5;
+    background: var(--bs-border-color-translucent);
     position: relative;
     overflow: hidden;
     border-radius: 0.5rem;
@@ -115,7 +120,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, var(--bs-body-tertiary-bg), transparent);
     transform: translateX(-100%);
     animation: skeleton-shimmer 1.5s infinite;
 }

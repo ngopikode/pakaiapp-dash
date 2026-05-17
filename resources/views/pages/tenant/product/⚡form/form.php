@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -35,6 +36,7 @@ new class extends Component {
 
     public function mount(?Product $product = null): void
     {
+        $this->selectedCategoryType = StoreSetting::value('store_type') ?? 'retail';
         $this->categories = Category::select('id', 'name', 'type')->orderBy('name')->get()->toArray();
 
         if ($product && $product->exists) {
@@ -83,12 +85,6 @@ new class extends Component {
             $this->addVariant();
             $this->addExtra();
         }
-    }
-
-    public function updatedCategoryId($value): void
-    {
-        $cat = collect($this->categories)->firstWhere('id', $value);
-        $this->selectedCategoryType = $cat['type'] ?? 'retail';
     }
 
     public function addVariant(): void

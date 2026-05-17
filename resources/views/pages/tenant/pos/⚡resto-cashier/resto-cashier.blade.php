@@ -1,22 +1,27 @@
-<div class="pos-container d-flex flex-column h-100 bg-light" x-data="restoPos()"
+<div class="pos-container d-flex flex-column h-100 bg-transparent" x-data="restoPos()"
      @add-product.window="handleProductClick($event.detail.product)" x-cloak>
 
-    {{-- Tab Navigation --}}
+    {{-- Tab Navigation (Safe Context Colors) --}}
     <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
         <button wire:click="changeTab('cashier')"
                 class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-white bg-white text-secondary shadow-sm'"
+                :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
                 style="border-radius: 1rem;">
             <i class="bi bi-plus-circle"></i> Kasir Baru
         </button>
         <button wire:click="changeTab('queue')"
-                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all position-relative"
-                :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-white bg-white text-secondary shadow-sm'"
+                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
                 style="border-radius: 1rem;">
-            <i class="bi bi-hourglass-split"></i> Antrian
+            <i class="bi bi-hourglass-split"></i>
+            <span>Antrian</span>
+
             @if($pendingOrders->count() > 0)
-                <span
-                    class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">{{ $pendingOrders->count() }}</span>
+                <!-- Badge digeser masuk secara inline (sejajar teks), dijamin gak bakal mentok ujung layar luar lagi -->
+                <small class="bg-danger text-white fw-bold d-flex align-items-center justify-content-center px-2"
+                       style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
+                    {{ $pendingOrders->count() }}
+                </small>
             @endif
         </button>
     </div>
@@ -39,15 +44,15 @@
     </div>
 
     {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="currentTab === 'queue'" class="flex-grow-1 overflow-y-auto" style="min-height: 0;"
+    <div x-show="currentTab === 'queue'" class="flex-grow-1 overflow-y-auto bg-transparent" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
         @include('pages.tenant.post._queue-resto')
     </div>
 
-    {{-- Floating Cart Button for Mobile --}}
+    {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
     <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
         <button
-            class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center"
+            class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
             style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>

@@ -1,4 +1,4 @@
-<div class="pos-container d-flex flex-column h-100 bg-light"
+<div class="pos-container d-flex flex-column h-100 bg-transparent"
      x-data="retailPos()"
      @add-product.window="handleProductClick($event.detail.product)"
      x-cloak>
@@ -18,13 +18,13 @@
         </div>
     </div>
 
-    {{-- Floating Cart Button for Mobile --}}
+    {{-- Floating Cart Button for Mobile - Safe Context Styling --}}
     <!-- Tombol ini cuma muncul di HP kalau ada isi keranjang DAN keranjangnya lagi gak dibuka -->
     <button
-        class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center"
+        class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
         x-show="cart.length > 0 && !isMobileCartOpen"
         @click="isMobileCartOpen = true"
-        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
         <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
         <span x-text="'Rp ' + formatRupiah(grandTotal)"></span>
     </button>

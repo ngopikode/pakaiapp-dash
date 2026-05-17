@@ -1,8 +1,6 @@
 /* Modern SaaS Dashboard Styling with Coffee/Sunset Palette */
 .dash-card {
-    border: none;
     border-radius: 1.5rem;
-    background: #ffffff;
     box-shadow: 0 4px 20px rgba(69, 26, 3, 0.04);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -21,21 +19,15 @@
     background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
 }
 
-.text-espresso {
-    color: #451a03 !important;
-}
-
 /* Custom List Group */
 .list-group-item-custom {
     border: 1px solid rgba(0, 0, 0, 0.03);
     border-radius: 1.25rem !important;
     margin-bottom: 0.5rem;
-    background: #faf8f5;
     transition: all 0.2s;
 }
 
 .list-group-item-custom:hover {
-    background-color: #fff;
     border-color: #ca8a04;
 }
 

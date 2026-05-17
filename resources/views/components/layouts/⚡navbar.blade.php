@@ -77,15 +77,15 @@ new class extends Component {
                         </span>
                     @endif
                 </a>
-                
+
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2" style="width: 320px;" aria-labelledby="notifDropdown">
-                    <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                    <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center rounded-top-4">
                         <span class="fw-bold text-dark">Notifikasi</span>
                         @if($this->pendingOrdersCount > 0)
                             <span class="badge bg-danger rounded-pill">{{ $this->pendingOrdersCount }} Baru</span>
                         @endif
                     </li>
-                    
+
                     @if($this->pendingOrdersCount > 0)
                         <li>
                             <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate>
@@ -104,9 +104,9 @@ new class extends Component {
                             </div>
                         </li>
                     @endif
-                    
+
                     <li class="border-top">
-                        <a href="{{ route('order') }}" wire:navigate class="dropdown-item text-center py-2 text-primary fw-bold small bg-light rounded-bottom-4">Lihat Semua Pesanan</a>
+                        <a href="{{ route('order') }}" wire:navigate class="dropdown-item text-center py-2 text-primary fw-bold small rounded-bottom-4">Lihat Semua Pesanan</a>
                     </li>
                 </ul>
             </li>
@@ -131,7 +131,7 @@ new class extends Component {
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2"
                     aria-labelledby="navbarDropdown">
-                    <li class="d-lg-none px-3 py-2 border-bottom mb-2 bg-light">
+                    <li class="d-lg-none px-3 py-2 border-bottom mb-2">
                         <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
                         <small class="text-muted">Admin</small>
                     </li>

@@ -28,17 +28,12 @@
     {{-- 3. Product Grid Canvas --}}
     <div class="product-grid pb-4">
 
-        {{-- KONDISI LOADING: Layer Skeleton Muncul Menggantikan Data Utama (Aman Dari Bug Crop) --}}
-        @if($errors->any())
-            {{-- Dummy condition biar struktur terbaca rapi --}}
-        @endif
-
+        {{-- KONDISI LOADING: Layer Skeleton Muncul --}}
         <div wire:loading wire:target="search, categoryFilter" class="w-100">
             <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
                 @for($i = 0; $i < 8; $i++)
                     <div class="col">
-                        <div class="card h-100 border-0 bg-white p-2"
-                             style="border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                        <div class="card h-100 border p-2 bg-body-tertiary" style="border-radius: 1rem;">
                             <!-- Aspect Ratio Image Skeleton -->
                             <div class="ratio ratio-1x1 skeleton-shimmer mb-3" style="border-radius: 0.75rem;"></div>
                             <div class="card-body p-2 d-flex flex-column align-items-center">
@@ -59,10 +54,10 @@
                 @forelse($products as $product)
                     <div class="col">
                         <div
-                            class="card h-100 overflow-hidden cursor-pointer user-select-none {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
-                            style="border-radius: 1.25rem; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 8px 24px rgba(69, 26, 3, 0.03); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;"
-                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 30px rgba(180, 83, 9, 0.1)';"
-                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(69, 26, 3, 0.03)';"
+                            class="card h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
+                            style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;"
+                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 30px rgba(180, 83, 9, 0.15)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.02)';"
                             x-data
                             @click="$dispatch('add-product', { product: {{ json_encode($product) }} })">
 
@@ -81,7 +76,7 @@
 
                             {{-- Image Container --}}
                             <div class="ratio ratio-1x1 bg-body-tertiary position-relative border-bottom"
-                                 style="border-color: rgba(0,0,0,0.03) !important;">
+                                 style="border-color: var(--bs-border-color-translucent) !important;">
                                 @if($product['image_url'])
                                     <img src="{{ $product['image_url'] }}" class="w-100 h-100 object-fit-cover"
                                          loading="lazy" alt="{{ $product['name'] }}">
@@ -94,9 +89,9 @@
                             </div>
 
                             {{-- Info Content --}}
-                            <div class="card-body p-3 text-center d-flex flex-column justify-content-between bg-white">
+                            <div class="card-body p-3 text-center d-flex flex-column justify-content-between bg-body">
                                 <div>
-                                    <h6 class="fw-bold font-serif mb-1 text-truncate text-dark"
+                                    <h6 class="fw-bold font-serif mb-1 text-truncate text-body"
                                         style="font-size: 0.9rem;">
                                         {{ $product['name'] }}
                                     </h6>
@@ -108,10 +103,11 @@
                                         </p>
                                         <small class="text-muted d-block mt-1"
                                                style="font-size: 0.7rem; font-weight: 500;">
-                                            Sisa Stok: <span class="fw-bold">{{ $product['stock'] }}</span>
+                                            Sisa Stok: <span class="fw-bold text-body">{{ $product['stock'] }}</span>
                                         </small>
                                     @else
-                                        <p class="text-muted mb-0 small" style="font-size: 0.75rem; font-weight: 500;">
+                                        <p class="text-secondary mb-0 small"
+                                           style="font-size: 0.75rem; font-weight: 500;">
                                             Mulai
                                             <span class="text-caramel-solid d-block d-md-inline mt-1 mt-md-0"
                                                   style="font-size: 1rem;">
@@ -125,9 +121,10 @@
                     </div>
                 @empty
                     <div class="col-12 text-center py-5">
-                        <div class="card p-5 border border-dashed rounded-4 bg-white" style="border-width: 2px;">
+                        <div class="card p-5 border border-dashed rounded-4 bg-body-tertiary"
+                             style="border-width: 2px; border-color: var(--bs-border-color) !important;">
                             <i class="bi bi-search fs-1 mb-3 text-muted opacity-25"></i>
-                            <h5 class="fw-bold font-serif text-espresso">Produk tidak ditemukan</h5>
+                            <h5 class="fw-bold text-body">Produk tidak ditemukan</h5>
                             <p class="text-muted small mb-0">Coba cari dengan kata kunci lain atau pilih semua
                                 kategori.</p>
                         </div>
@@ -144,7 +141,7 @@
                 </div>
             @else
                 <div class="text-center py-4 text-muted small fw-bold opacity-50 border-top mt-4"
-                     style="border-color: #f1f3f5 !important;">
+                     style="border-color: var(--bs-border-color-translucent) !important;">
                     <i class="bi bi-check2-all"></i> Semua menu telah dimuat
                 </div>
             @endif

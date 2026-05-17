@@ -4,7 +4,7 @@
             <div class="modal-content shadow-lg" style="border-radius: 1.5rem;">
 
                 {{-- Header --}}
-                <div class="modal-header border-bottom bg-light px-4 py-3" style="border-radius: 1.5rem 1.5rem 0 0;">
+                <div class="modal-header border-bottom px-4 py-3" style="border-radius: 1.5rem 1.5rem 0 0;">
                     <h5 class="modal-title fw-bold text-dark mb-0 d-flex align-items-center">
                         <i class="bi bi-folder2-open text-warning me-2 fs-4"></i>
                         {{ $isEditing ? 'Edit Kategori' : 'Kategori Baru' }}
@@ -14,13 +14,13 @@
 
                 {{-- Body Form --}}
                 <form wire:submit.prevent="save">
-                    <div class="modal-body p-4 bg-white">
+                    <div class="modal-body p-4">
 
                         <!-- Input Nama pakai Floating Label ala SaaS -->
                         <div class="mb-4">
                             <div class="form-floating">
                                 <input type="text"
-                                       class="form-control fw-bold text-dark bg-light border-0 shadow-sm @error('name') is-invalid @enderror"
+                                       class="form-control fw-bold border-0 shadow-sm @error('name') is-invalid @enderror"
                                        id="categoryName"
                                        wire:model="name"
                                        placeholder="Nama Kategori"
@@ -35,7 +35,7 @@
                     </div>
 
                     {{-- Footer Actions --}}
-                    <div class="modal-footer bg-light border-top p-3" style="border-radius: 0 0 1.5rem 1.5rem;">
+                    <div class="modal-footer border-top p-3" style="border-radius: 0 0 1.5rem 1.5rem;">
                         <div class="d-flex w-100 gap-2">
                             <button type="button"
                                     class="btn btn-white border fw-bold flex-shrink-0 rounded-pill shadow-sm px-4"
