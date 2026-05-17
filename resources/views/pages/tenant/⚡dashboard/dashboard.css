@@ -1,12 +1,12 @@
-/* Modern SaaS Dashboard Styling with Coffee/Sunset Palette */
+/* Modern SaaS Dashboard Styling with Coffee/Sunset Palette - Safe for Custom Dark Mode */
 .dash-card {
     border-radius: 1.5rem;
-    box-shadow: 0 4px 20px rgba(69, 26, 3, 0.04);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dash-card:hover {
-    box-shadow: 0 10px 30px rgba(69, 26, 3, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
     transform: translateY(-3px);
 }
 
@@ -21,14 +21,14 @@
 
 /* Custom List Group */
 .list-group-item-custom {
-    border: 1px solid rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--bs-border-color-translucent);
     border-radius: 1.25rem !important;
     margin-bottom: 0.5rem;
     transition: all 0.2s;
 }
 
 .list-group-item-custom:hover {
-    border-color: #ca8a04;
+    border-color: #ca8a04 !important;
 }
 
 /* Mobile specific adjustments */

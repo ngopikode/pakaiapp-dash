@@ -3,10 +3,10 @@
     {{-- Welcome Header --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-md-5 gap-3 pt-3">
         <div>
-            <h6 class="text-muted small fw-bold mb-1 text-uppercase" style="letter-spacing: 1px;">
+            <h6 class="text-secondary small fw-bold mb-1 text-uppercase" style="letter-spacing: 1px;">
                 Selamat Datang, {{ explode(' ', $user->name)[0] }} 👋
             </h6>
-            <h2 class="fw-bolder mb-2" style="letter-spacing: -1px; font-size: 2.2rem;">
+            <h2 class="fw-bolder mb-2 text-body" style="letter-spacing: -1px; font-size: 2.2rem;">
                 {{ $store->name ?? 'Setup Tokomu' }}
             </h2>
             <div class="d-flex flex-wrap align-items-center gap-2">
@@ -18,7 +18,7 @@
                     </span>
                     <a href="{{ url('/') }}"
                        target="_blank"
-                       class="badge text-secondary border rounded-pill px-3 py-2 text-decoration-none hover-text-primary transition-all">
+                       class="badge text-secondary bg-body-tertiary border rounded-pill px-3 py-2 text-decoration-none transition-all">
                         <i class="bi bi-box-arrow-up-right me-1"></i> Buka Toko
                     </a>
                 @endif
@@ -28,7 +28,7 @@
         {{-- Header Buttons (Mobile Friendly) --}}
         <div class="d-flex flex-column flex-sm-row gap-2 mt-2 mt-md-0">
             <button wire:click="exportLaporan"
-                    class="btn btn-white border shadow-sm rounded-pill px-4 py-2.5 fw-bold dash-header-btn text-success d-flex align-items-center gap-2"
+                    class="btn btn-secondary border bg-body text-success shadow-sm rounded-pill px-4 py-2.5 fw-bold dash-header-btn d-flex align-items-center gap-2"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="exportLaporan"><i class="bi bi-file-earmark-excel-fill fs-5"></i> Export Excel</span>
                 <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm"></span> Menyusun Data...</span>
@@ -37,30 +37,31 @@
                class="btn bg-gradient-caramel text-white rounded-pill px-4 py-2.5 fw-bold shadow-sm dash-header-btn d-flex align-items-center gap-2 border-0">
                 <i class="bi bi-cart-check-fill fs-5"></i> Buka Kasir
                 @if($newOrderCount > 0)
-                    <span class="badge text-danger rounded-circle ms-1">{{ $newOrderCount }}</span>
+                    <span class="badge text-danger rounded-circle ms-1 bg-white">{{ $newOrderCount }}</span>
                 @endif
             </a>
         </div>
     </div>
 
-    {{-- New Order Notification Banner --}}
+    {{-- New Order Notification Banner (Safe Alert Opacity for Dark Mode) --}}
     @if($newOrderCount > 0)
         <div
             class="alert border-0 shadow-sm rounded-4 p-4 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
-            style="background-color: #fef3c7; color: #92400e; border-left: 5px solid #d97706 !important;">
+            style="background-color: rgba(245, 158, 11, 0.15); color: #ca8a04; border-left: 5px solid #ca8a04 !important;">
             <div class="d-flex align-items-center gap-3">
                 <div
-                    class="text-warning rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
+                    class="text-warning rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm bg-body"
                     style="width: 45px; height: 45px;">
                     <i class="bi bi-bell-fill fs-5" style="animation: swing 2s ease-in-out infinite;"></i>
                 </div>
                 <div>
                     <h5 class="fw-bold mb-1">Wow, {{ $newOrderCount }} Pesanan Masuk! 🎉</h5>
-                    <p class="mb-0 small fw-medium">Ada pelanggan yang nungguin pesanannya nih, segera proses ya!</p>
+                    <p class="mb-0 small fw-medium text-body opacity-75">Ada pelanggan yang nungguin pesanannya nih,
+                        segera proses ya!</p>
                 </div>
             </div>
             <button wire:click="acknowledgeOrders"
-                    class="btn btn-warning fw-bold rounded-pill px-4 py-2 shadow-sm flex-shrink-0 w-100 w-md-auto">
+                    class="btn btn-warning fw-bold text-dark rounded-pill px-4 py-2 shadow-sm flex-shrink-0 w-100 w-md-auto border-0">
                 Oke, Siap!
             </button>
         </div>
@@ -109,14 +110,14 @@
         <div class="card bg-warning bg-opacity-10 border-0 rounded-4 p-4 mb-5 dash-card">
             <div class="d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-4">
                 <div
-                    class="bg-warning text-white rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
+                    class="bg-warning text-dark rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
                     style="width: 60px; height: 60px;"><i class="bi bi-shop fs-3"></i></div>
                 <div class="w-100">
-                    <h5 class="fw-bold mb-1">Lengkapi Profil Tokomu!</h5>
-                    <p class="mb-3 small text-muted">Pelanggan belum bisa melihat katalogmu karena informasi toko masih
-                        kosong.</p>
-                    <a href="{{ route('dashboard') }}" class="btn btn-warning fw-bold rounded-pill px-4">Atur
-                        Sekarang</a>
+                    <h5 class="fw-bold mb-1 text-body">Lengkapi Profil Tokomu!</h5>
+                    <p class="mb-3 small text-secondary">Pelanggan belum bisa melihat katalogmu karena informasi toko
+                        masih kosong.</p>
+                    <a href="{{ route('dashboard') }}"
+                       class="btn btn-warning fw-bold rounded-pill px-4 border-0 text-dark">Atur Sekarang</a>
                 </div>
             </div>
         </div>
@@ -126,18 +127,18 @@
 
             {{-- Omset Hari Ini --}}
             <div class="col">
-                <div class="card h-100 dash-card bg-gradient-caramel text-white position-relative overflow-hidden p-2">
+                <div
+                    class="card h-100 dash-card bg-gradient-caramel text-white position-relative overflow-hidden p-2 border-0">
                     <div class="position-absolute top-0 end-0 p-3 opacity-25">
                         <i class="bi bi-wallet2" style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem;"></i>
                     </div>
                     <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span
-                            class="badge rounded-pill px-3 py-2 fw-bold shadow-sm">Omset Hari Ini</span>
+                            <span class="badge rounded-pill px-3 py-2 fw-bold bg-white text-dark bg-opacity-25">Omset Hari Ini</span>
                         </div>
                         <div>
-                            <h2 class="fw-black mb-1 display-6">Rp {{ number_format($stats['revenue_today'], 0, ',', '.')
-                            }}</h2>
+                            <h2 class="fw-black mb-1 display-6">
+                                Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}</h2>
                             <p class="text-white text-opacity-75 small fw-bold mb-0">Dari {{ $stats['orders_today'] }}
                                 Transaksi Sukses</p>
                         </div>
@@ -147,19 +148,20 @@
 
             {{-- Omset Bulan Ini --}}
             <div class="col">
-                <div class="card h-100 dash-card bg-gradient-espresso text-white position-relative overflow-hidden p-2">
+                <div
+                    class="card h-100 dash-card bg-gradient-espresso text-white position-relative overflow-hidden p-2 border-0">
                     <div class="position-absolute top-0 end-0 p-3 opacity-25">
                         <i class="bi bi-graph-up-arrow"
                            style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem;"></i>
                     </div>
                     <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span
-                            class="badge bg-opacity-25 text-white border border-light border-opacity-25 rounded-pill px-3 py-2 fw-bold">Omset Bulan Ini</span>
+                            <span
+                                class="badge bg-opacity-25 text-white border border-light border-opacity-25 rounded-pill px-3 py-2 fw-bold">Omset Bulan Ini</span>
                         </div>
                         <div>
-                            <h2 class="fw-black mb-1 display-6">Rp {{ number_format($stats['revenue_month'], 0, ',', '.')
-                            }}</h2>
+                            <h2 class="fw-black mb-1 display-6">
+                                Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}</h2>
                             <p class="text-white text-opacity-75 small fw-bold mb-0">Total Pendapatan Bulanan</p>
                         </div>
                     </div>
@@ -169,7 +171,7 @@
             {{-- Pesanan Pending --}}
             <div class="col">
                 <div
-                    class="card h-100 dash-card position-relative overflow-hidden border {{ $stats['pending_orders'] > 0 ? 'border-danger border-2' : '' }} p-2">
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 {{ $stats['pending_orders'] > 0 ? 'border-danger border-2' : 'border-secondary border-opacity-25' }}">
                     @if($stats['pending_orders'] > 0)
                         <div class="position-absolute top-0 end-0 m-3">
                             <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
@@ -182,12 +184,13 @@
                                 style="width: 45px; height: 45px;">
                                 <i class="bi bi-hourglass-split fs-5"></i>
                             </div>
-                            <span class="badge text-muted border rounded-pill px-3 py-2">Antrean</span>
+                            <span
+                                class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary">Antrean</span>
                         </div>
                         <div>
-                            <h2 class="fw-black text-{{ $stats['pending_orders'] > 0 ? 'danger' : 'muted' }} mb-1 display-6">
+                            <h2 class="fw-black mb-1 display-6 {{ $stats['pending_orders'] > 0 ? 'text-danger' : 'text-secondary' }}">
                                 {{ $stats['pending_orders'] }}</h2>
-                            <p class="text-muted small fw-bold mb-0">Pesanan Menunggu Diproses</p>
+                            <p class="text-secondary small fw-bold mb-0 opacity-75">Pesanan Menunggu Diproses</p>
                         </div>
                     </div>
                 </div>
@@ -197,20 +200,21 @@
         <div class="row g-3 g-md-4">
             {{-- Pesanan Terbaru --}}
             <div class="col-xl-8">
-                <div class="card dash-card h-100">
+                <div class="card dash-card h-100 bg-body border"
+                     style="border-color: var(--bs-border-color-translucent) !important;">
                     <div
                         class="card-header bg-transparent border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0"><i class="bi bi-receipt me-2 text-warning"></i>Pesanan
+                        <h5 class="fw-bold mb-0 text-body"><i class="bi bi-receipt me-2 text-warning"></i>Pesanan
                             Terbaru</h5>
                         <a href="{{ route('order') }}" wire:navigate
-                           class="btn btn-light border text-primary btn-sm rounded-pill px-3 fw-bold shadow-sm d-none d-sm-inline-block">Kelola
+                           class="btn btn-secondary border bg-body-tertiary text-secondary btn-sm rounded-pill px-3 fw-bold d-none d-sm-inline-block">Kelola
                             Pesanan</a>
                     </div>
-                    <div class="card-body p-3 p-md-4 pt-0">
-                        <div class="list-group list-group-flush">
+                    <div class="card-body p-3 p-md-4 pt-0 bg-body">
+                        <div class="list-group list-group-flush bg-transparent">
                             @forelse($recentOrders as $order)
                                 <div
-                                    class="list-group-item list-group-item-custom p-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                                    class="list-group-item list-group-item-custom p-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 bg-body-tertiary">
                                     <div class="d-flex align-items-center gap-3">
                                         <div
                                             class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bolder shadow-sm bg-gradient-caramel flex-shrink-0"
@@ -219,52 +223,53 @@
                                         </div>
                                         <div>
                                             <div class="d-flex align-items-center gap-2 mb-1">
-                                                <h6 class="fw-bold mb-0">{{ $order->customer_name }}</h6>
+                                                <h6 class="fw-bold mb-0 text-body">{{ $order->customer_name }}</h6>
                                             </div>
                                             <div
-                                                class="text-muted small fw-medium d-flex align-items-center flex-wrap gap-2">
-                                                <span class="badge border text-secondary"
+                                                class="text-secondary small fw-medium d-flex align-items-center flex-wrap gap-2 opacity-75">
+                                                <span class="badge border text-secondary bg-body"
                                                       style="font-size: 0.65rem;">#{{ $order->invoice_code }}</span>
                                                 <span class="text-uppercase" style="font-size: 0.7rem;"><i
                                                         class="bi bi-tag-fill text-warning me-1"></i>{{ $order->order_type }}</span>
-                                                <span class="text-light-emphasis d-none d-sm-inline">&bull;</span>
+                                                <span class="text-secondary d-none d-sm-inline">&bull;</span>
                                                 <span>{{ $order->created_at->diffForHumans() }}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="text-start text-sm-end w-100 w-sm-auto ps-5 ps-sm-0 mt-2 mt-sm-0 d-flex justify-content-between d-sm-block align-items-center border-top border-sm-0 pt-2 pt-sm-0">
-                                        <div class="fw-bold mb-sm-1" style="font-size: 1.1rem;">Rp {{
-                                    number_format($order->total_price, 0, ',', '.') }}
-                                        </div>
+                                        class="text-start text-sm-end w-100 w-sm-auto ps-5 ps-sm-0 mt-2 mt-sm-0 d-flex justify-content-between d-sm-block align-items-center border-top border-sm-0 pt-2 pt-sm-0"
+                                        style="border-color: var(--bs-border-color-translucent) !important;">
+                                        <div class="fw-bold mb-sm-1 text-body" style="font-size: 1.1rem;">
+                                            Rp {{ number_format($order->total_price, 0, ',', '.') }}</div>
                                         <div>
                                             @if($order->status == 'pending')
                                                 <span
-                                                    class="badge bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-pill px-3 py-1">Menunggu</span>
+                                                    class="badge bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-pill px-3 py-1 text-warning fw-bold">Menunggu</span>
                                             @elseif($order->status == 'paid')
                                                 <span
-                                                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1"><i
+                                                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 fw-bold"><i
                                                         class="bi bi-check-circle me-1"></i> Lunas</span>
                                             @elseif($order->status == 'cancelled')
                                                 <span
-                                                    class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1">Batal</span>
+                                                    class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 fw-bold">Batal</span>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
                             @empty
                                 <div class="text-center py-5">
-                                    <div class="rounded-circle d-inline-flex p-4 mb-3 text-muted">
+                                    <div
+                                        class="rounded-circle d-inline-flex p-4 mb-3 text-secondary bg-body-tertiary border">
                                         <i class="bi bi-inbox fs-1"></i>
                                     </div>
-                                    <h6 class="fw-bold">Belum Ada Pesanan</h6>
-                                    <p class="text-muted small mb-0">Pesanan terbaru akan muncul di sini secara
+                                    <h6 class="fw-bold text-body">Belum Ada Pesanan</h6>
+                                    <p class="text-secondary small mb-0">Pesanan terbaru akan muncul di sini secara
                                         otomatis.</p>
                                 </div>
                             @endforelse
                         </div>
                         <a href="{{ route('order') }}" wire:navigate
-                           class="btn btn-primary border text-primary w-100 rounded-pill fw-bold shadow-sm d-block d-sm-none mt-3">
+                           class="btn btn-outline-secondary border bg-body text-secondary w-100 rounded-pill fw-bold d-block d-sm-none mt-3">
                             Lihat Semua Pesanan
                         </a>
                     </div>
@@ -276,45 +281,47 @@
                 <div class="d-flex flex-column gap-3 gap-md-4 h-100">
 
                     {{-- Widget Produk Terlaris --}}
-                    <div class="card dash-card flex-grow-1 p-2">
+                    <div class="card dash-card flex-grow-1 p-2 bg-body border"
+                         style="border-color: var(--bs-border-color-translucent) !important;">
                         <div class="card-header border-0 bg-transparent pt-3 px-3 d-flex align-items-center gap-2">
                             <i class="bi bi-star-fill text-warning fs-5"></i>
-                            <h6 class="fw-bold mb-0">Menu Terlaris Bulan Ini</h6>
+                            <h6 class="fw-bold mb-0 text-body">Menu Terlaris Bulan Ini</h6>
                         </div>
-                        <div class="card-body p-3 pt-1">
+                        <div class="card-body p-3 pt-1 bg-body">
                             @if(count($topProducts) > 0)
                                 <div class="d-flex flex-column gap-2">
                                     @foreach($topProducts as $index => $item)
                                         <div
-                                            class="d-flex align-items-center justify-content-between p-2 rounded-3 border border-white">
+                                            class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
+                                            style="border-color: var(--bs-border-color-translucent) !important;">
                                             <div class="d-flex align-items-center gap-2">
-                                                <div class="fw-bold text-muted small" style="width: 20px;">
+                                                <div class="fw-bold text-secondary small" style="width: 20px;">
                                                     #{{ $index + 1 }}</div>
-                                                <div class="fw-bold small text-truncate"
-                                                     style="max-width: 150px;">{{
-                                        $item->product_name }}
-                                                </div>
+                                                <div class="fw-bold small text-truncate text-body"
+                                                     style="max-width: 150px;">{{ $item->product_name }}</div>
                                             </div>
-                                            <span class="badge border shadow-sm rounded-pill"><i
+                                            <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i
                                                     class="bi bi-graph-up-arrow text-success me-1"></i> {{ $item->total_sold }} Terjual</span>
                                         </div>
                                     @endforeach
                                 </div>
                             @else
-                                <div class="text-center py-4 rounded-4">
-                                    <small class="text-muted fw-bold">Belum ada data penjualan bulan ini.</small>
+                                <div class="text-center py-4 rounded-4 bg-body-tertiary border">
+                                    <small class="text-secondary fw-bold">Belum ada data penjualan bulan ini.</small>
                                 </div>
                             @endif
                         </div>
                     </div>
 
                     {{-- Quick Actions --}}
-                    <div class="card dash-card p-2">
-                        <div class="card-body p-3">
-                            <h6 class="fw-bold mb-3">Aksi Cepat</h6>
+                    <div class="card dash-card p-2 bg-body border"
+                         style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="card-body p-3 bg-body">
+                            <h6 class="fw-bold mb-3 text-body">Aksi Cepat</h6>
                             <div class="d-flex flex-column gap-2">
                                 <a href="{{ route('product.create') }}" wire:navigate
-                                   class="btn border d-flex align-items-center text-start gap-3 p-3 rounded-4 shadow-sm">
+                                   class="btn border d-flex align-items-center text-start gap-3 p-3 rounded-4 shadow-sm bg-body-tertiary text-body"
+                                   style="border-color: var(--bs-border-color-translucent) !important;">
                                     <div
                                         class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 flex-shrink-0 d-flex justify-content-center align-items-center"
                                         style="width: 40px; height: 40px;">
@@ -322,8 +329,8 @@
                                     </div>
                                     <div>
                                         <h6 class="fw-bold mb-0 small">Tambah Produk Baru</h6>
-                                        <small class="text-muted d-block" style="font-size: 0.65rem;">Perbarui katalog
-                                            jualanmu</small>
+                                        <small class="text-secondary d-block opacity-75" style="font-size: 0.65rem;">Perbarui
+                                            katalog jualanmu</small>
                                     </div>
                                 </a>
                             </div>
