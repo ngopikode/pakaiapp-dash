@@ -16,7 +16,7 @@
                         <div class="rounded-circle bg-success"
                              style="width:8px; height:8px; animation: pulse-ring-caramel 2s infinite"></div> Online
                     </span>
-                    <a href="https://{{ tenant('id') }}.{{ config('tenancy.central_domains')[2] ?? 'pakaiapp.online' }}"
+                    <a href="{{ url('/') }}"
                        target="_blank"
                        class="badge bg-light text-secondary border rounded-pill px-3 py-2 text-decoration-none hover-text-primary transition-all">
                         <i class="bi bi-box-arrow-up-right me-1"></i> Buka Toko
