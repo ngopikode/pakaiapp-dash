@@ -10,6 +10,16 @@ class Product extends Model
 {
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'has_variants'   => 'boolean',
+            'is_active'      => 'boolean',
+            'tax_included'   => 'boolean',
+            'max_selections' => 'integer',
+        ];
+    }
+
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Category::class);

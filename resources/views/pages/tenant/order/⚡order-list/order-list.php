@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Order;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -42,6 +43,8 @@ new class extends Component {
             $this->dispatch('notify', message: 'Status pesanan berhasil diperbarui!');
         }
     }
+
+
 
     public function with(): array
     {

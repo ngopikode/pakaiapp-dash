@@ -32,7 +32,7 @@ class TenancyServiceProvider extends ServiceProvider
             Events\TenantCreated::class => [
                 JobPipeline::make([
                     Jobs\CreateDatabase::class,
-                    Jobs\MigrateDatabase::class,
+                    // Jobs\MigrateDatabase::class, // Disabled: Handled manually by CreateTenant based on store_type
                     // Jobs\SeedDatabase::class,
 
                     // Your own jobs to prepare the tenant.

@@ -149,8 +149,8 @@ document.addEventListener('livewire:navigated', () => {
 
     // HOOK LIVEWIRE UNTUK LOADER OTOMATIS
     Livewire.hook('commit', ({commit, succeed, fail}) => {
-        // Tambahkan 'loadProducts' atau method lain yang dirasa berat
-        const heavyActions = ['save', 'deleteProduct', 'deleteCategory'];
+        // Tambahkan method lain yang dirasa berat
+        const heavyActions = ['save', 'deleteProduct', 'deleteCategory', 'processPayment', 'updateStatus', 'openPaymentModal'];
 
         const isHeavy = commit.calls.some(call => heavyActions.includes(call.method));
 
@@ -163,6 +163,7 @@ document.addEventListener('livewire:navigated', () => {
 
     // Listener manual untuk dispatch modal dari Livewire
     window.addEventListener('openModal', () => window.showLoader());
+    window.addEventListener('trigger-payment-modal', () => window.showLoader());
     window.addEventListener('show-bootstrap-modal', () => window.hideLoader());
 
 });

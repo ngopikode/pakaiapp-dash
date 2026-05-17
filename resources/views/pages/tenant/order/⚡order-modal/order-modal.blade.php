@@ -112,24 +112,21 @@
                             <div class="col-lg-8 d-flex flex-column bg-opacity-25" x-data="{ tab: 'items' }">
 
                                 <div class="px-4 pt-4 pb-0">
-                                    <ul class="nav nav-pills p-1 rounded-pill shadow-sm d-inline-flex border"
-                                        role="tablist" style="font-size: 0.9rem;">
-                                        <li class="nav-item" role="presentation">
-                                            <button
-                                                @click="tab = 'items'"
-                                                :class="tab === 'items' ? 'bg-primary' :  hover-shadow'"
-                                                class="nav-link rounded-pill fw-bold px-4 py-2 transition-all border-0"
-                                                type="button">
-                                                <i class="bi bi-list-ul me-1"></i> Daftar Pesanan
+                                    <ul class="nav nav-pills p-1 bg-light rounded-pill w-100 d-flex mb-4 border shadow-sm">
+                                        <li class="nav-item flex-grow-1 text-center">
+                                            <button @click="tab = 'items'"
+                                                    :class="tab === 'items' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-muted hover-shadow'"
+                                                    class="nav-link rounded-pill fw-bold px-4 py-2 transition-all border-0 w-100"
+                                                    type="button">
+                                                <i class="bi bi-cart3 me-1"></i> Daftar Menu
                                             </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button
-                                                @click="tab = 'invoice'"
-                                                :class="tab === 'invoice' ? 'bg-primary' :  hover-shadow'"
-                                                class="nav-link rounded-pill fw-bold px-4 py-2 transition-all border-0"
-                                                type="button">
-                                                <i class="bi bi-receipt me-1"></i> Preview Invoice
+                                        <li class="nav-item flex-grow-1 text-center">
+                                            <button @click="tab = 'invoice'"
+                                                    :class="tab === 'invoice' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-muted hover-shadow'"
+                                                    class="nav-link rounded-pill fw-bold px-4 py-2 transition-all border-0 w-100"
+                                                    type="button">
+                                                <i class="bi bi-receipt me-1"></i> Rincian Tagihan
                                             </button>
                                         </li>
                                     </ul>
@@ -216,10 +213,10 @@
                                                       class="spinner-border spinner-border-sm"></span>
                                             </button>
 
-                                            <button wire:click="updateStatus('paid')" wire:loading.attr="disabled"
+                                            <button wire:click="triggerPayment" wire:loading.attr="disabled"
                                                     class="btn btn-dark py-2 px-4 fw-bold flex-grow-1 shadow-sm rounded-3">
-                                                <span wire:loading.remove wire:target="updateStatus('paid')">Tandai Lunas</span>
-                                                <span wire:loading wire:target="updateStatus('paid')"
+                                                <span wire:loading.remove wire:target="triggerPayment">Bayar Pesanan</span>
+                                                <span wire:loading wire:target="triggerPayment"
                                                       class="spinner-border spinner-border-sm"></span>
                                             </button>
                                         @else

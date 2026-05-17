@@ -20,17 +20,17 @@
                 <div class="card-body p-3">
                     <div class="nav flex-column nav-pills gap-2" role="tablist" aria-orientation="vertical">
                         <button @click="tab = 'basic'"
-                                :class="tab === 'basic' ? 'bg-primary text-white shadow-sm' : 'bg-transparent hover-'"
+                                :class="tab === 'basic' ? 'bg-primary text-white shadow-sm' : 'bg-transparent hover-bg-light'"
                                 class="nav-link text-start rounded-3 fw-bold px-3 py-3 transition-all border-0">
                             <i class="bi bi-shop me-2"></i> Info Dasar
                         </button>
                         <button @click="tab = 'hero'"
-                                :class="tab === 'hero' ? 'bg-primary text-white shadow-sm' : 'bg-transparent hover-'"
+                                :class="tab === 'hero' ? 'bg-primary text-white shadow-sm' : 'bg-transparent hover:bg-light'"
                                 class="nav-link text-start rounded-3 fw-bold px-3 py-3 transition-all border-0">
                             <i class="bi bi-window-sidebar me-2"></i> Hero & Navbar
                         </button>
                         <button @click="tab = 'seo'"
-                                :class="tab === 'seo' ? 'bg-primary text-white shadow-sm' : 'bg-transparent hover-'"
+                                :class="tab === 'seo' ? 'bg-primary text-white shadow-sm' : 'bg-transparent hover:bg-light'"
                                 class="nav-link text-start rounded-3 fw-bold px-3 py-3 transition-all border-0">
                             <i class="bi bi-search me-2"></i> SEO & Meta
                         </button>
@@ -105,7 +105,6 @@
                             </div>
                         </div>
 
-                        <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label small text-muted fw-bold">Nomor WhatsApp</label>
                                 <div class="input-group">
@@ -118,6 +117,36 @@
                                 <label class="form-label small text-muted fw-bold">Alamat Lengkap</label>
                                 <textarea class="form-control " wire:model="address" rows="2"
                                           placeholder="Jl. Sudirman No. 123..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted fw-bold">Tipe Toko</label>
+                                <select class="form-select rounded-3" wire:model.live="store_type">
+                                    <option value="resto">Restoran / Cafe</option>
+                                    <option value="retail">Toko Retail</option>
+                                    <option value="service">Jasa</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted fw-bold">Metode Pesanan</label>
+                                <div class="d-flex flex-column gap-2 mt-1">
+                                    @if($store_type === 'resto')
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="dineinSwitch" wire:model="is_dinein_active">
+                                            <label class="form-check-label ms-2" for="dineinSwitch">Makan Sini (Dine-in)</label>
+                                        </div>
+                                    @endif
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="takeawaySwitch" wire:model="is_takeaway_active">
+                                        <label class="form-check-label ms-2" for="takeawaySwitch">Bungkus / Ambil Sendiri (Takeaway)</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="deliverySwitch" wire:model="is_delivery_active">
+                                        <label class="form-check-label ms-2" for="deliverySwitch">Diantar (Delivery)</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

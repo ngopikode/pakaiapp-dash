@@ -6,6 +6,19 @@ use App\Models\StoreSetting;
 use Livewire\Component;
 
 new class extends Component {
+    public int $lastCheckedOrderId = 0;
+
+    public function mount(): void
+    {
+        // Track the latest order ID at page load
+        $this->lastCheckedOrderId = Order::max('id') ?? 0;
+    }
+
+    public function acknowledgeOrders(): void
+    {
+        $this->lastCheckedOrderId = Order::max('id') ?? 0;
+    }
+
     public function with(): array
     {
         $user = Auth::user();
@@ -20,6 +33,7 @@ new class extends Component {
             'active_products' => 0,
         ];
         $recentOrders = [];
+        $newOrderCount = 0;
 
         if ($store) {
             $stats['orders_today'] = Order::whereDate('created_at', today())->count();
@@ -33,6 +47,9 @@ new class extends Component {
             $stats['active_products'] = Product::where('is_active', true)->count();
 
             $recentOrders = Order::latest()->take(5)->get();
+
+            // Count orders that arrived after last check
+            $newOrderCount = Order::where('id', '>', $this->lastCheckedOrderId)->count();
         }
 
         // Data ini otomatis dilempar ke index.blade.php
@@ -41,6 +58,7 @@ new class extends Component {
             'store' => $store,
             'stats' => $stats,
             'recentOrders' => $recentOrders,
+            'newOrderCount' => $newOrderCount,
         ];
     }
 };

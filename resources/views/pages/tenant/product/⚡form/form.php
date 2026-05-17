@@ -24,6 +24,8 @@ new class extends Component {
     public bool $isActive = true;
 
     public bool $hasVariants = false;
+    public string $selectionType = 'single';
+    public int $maxSelections = 1;
     public float $baseCost = 0;
     public float $basePrice = 0;
     public int $baseStock = 0;
@@ -45,6 +47,8 @@ new class extends Component {
             $this->taxIncluded = $product->tax_included;
             $this->isActive = $product->is_active;
             $this->hasVariants = $product->has_variants;
+            $this->selectionType = $product->selection_type ?? 'single';
+            $this->maxSelections = $product->max_selections ?? 1;
 
             $this->updatedCategoryId($this->categoryId);
 
@@ -137,18 +141,25 @@ new class extends Component {
                 $imagePath = $this->image->store('products', 'public');
             }
 
+            $productData = [
+                'category_id' => $this->categoryId,
+                'name' => $this->name,
+                'description' => $this->description,
+                'image' => $imagePath,
+                'tax_included' => $this->taxIncluded,
+                'has_variants' => $this->hasVariants,
+                'is_active' => $this->isActive,
+            ];
+
+            if (tenant('store_type') === 'resto') {
+                $productData['selection_type'] = $this->hasVariants ? $this->selectionType : 'single';
+                $productData['max_selections'] = $this->hasVariants ? $this->maxSelections : 1;
+            }
+
             // Update atau Buat Produk
             $product = Product::updateOrCreate(
                 ['id' => $this->product?->id],
-                [
-                    'category_id' => $this->categoryId,
-                    'name' => $this->name,
-                    'description' => $this->description,
-                    'image' => $imagePath,
-                    'tax_included' => $this->taxIncluded,
-                    'has_variants' => $this->hasVariants,
-                    'is_active' => $this->isActive,
-                ]
+                $productData
             );
 
             // --- MANAJEMEN VARIAN ---

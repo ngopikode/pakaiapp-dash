@@ -151,6 +151,36 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Selection Mode (visible only when variants are enabled) --}}
+                        @if($hasVariants)
+                            <div class="rounded-4 border mb-4 p-4" style="border-color: #e9ecef !important; background: #f8f9fa;">
+                                <h6 class="fw-bold small mb-3"><i class="bi bi-ui-checks-grid me-2 text-primary"></i>Mode Pemilihan Varian</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-muted">Tipe Seleksi</label>
+                                        <select class="form-select" wire:model.live="selectionType">
+                                            <option value="single">Pilih 1 (Radio) — Ukuran, Warna</option>
+                                            <option value="multiple">Pilih Banyak (Checkbox) — Rasa, Topping</option>
+                                        </select>
+                                        <small class="text-muted d-block mt-1">
+                                            @if($selectionType === 'single')
+                                                Pelanggan hanya bisa memilih <strong>1 varian</strong>.
+                                            @else
+                                                Pelanggan bisa memilih <strong>beberapa varian</strong> sekaligus.
+                                            @endif
+                                        </small>
+                                    </div>
+                                    @if($selectionType === 'multiple')
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-muted">Maks. Pilihan</label>
+                                            <input type="number" class="form-control" wire:model="maxSelections" min="1" max="20" placeholder="3">
+                                            <small class="text-muted d-block mt-1">Berapa banyak varian yang boleh dipilih pelanggan.</small>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                         @if(!$hasVariants)
                             <div class="row g-3 bg-body-tertiary p-3 border" style="border-radius: 1rem;">
                                 <div class="col-md-6">

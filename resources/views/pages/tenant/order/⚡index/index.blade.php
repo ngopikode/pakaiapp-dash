@@ -1,4 +1,5 @@
 <div>
     <livewire:pages::tenant.order.order-list/>
     <livewire:pages::tenant.order.order-modal/>
+    <livewire:pages::tenant.order.payment-modal/>
 </div>

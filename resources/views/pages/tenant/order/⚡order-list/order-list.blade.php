@@ -20,8 +20,8 @@
         @php
             $filters = [
                 ['id' => 'all', 'count' => $allCount, 'label' => 'Semua Pesanan', 'icon' => 'bi-inbox-fill', 'color' => 'dark'],
-                ['id' => 'pending', 'count' => $pendingCount, 'label' => 'Belum Lunas', 'icon' => 'bi-hourglass-split', 'color' => 'warning'],
-                ['id' => 'paid', 'count' => $paidCount, 'label' => 'Lunas', 'icon' => 'bi-check-circle-fill', 'color' => 'success'],
+                ['id' => 'pending', 'count' => $pendingCount, 'label' => 'Menunggu', 'icon' => 'bi-hourglass-split', 'color' => 'warning'],
+                ['id' => 'paid', 'count' => $paidCount, 'label' => 'Selesai', 'icon' => 'bi-check-circle-fill', 'color' => 'success'],
                 ['id' => 'cancelled', 'count' => $cancelledCount, 'label' => 'Dibatalkan', 'icon' => 'bi-x-octagon-fill', 'color' => 'danger']
             ];
         @endphp
@@ -129,11 +129,11 @@
                                 <div class="w-100 w-md-auto pt-3 pt-md-0 mt-2 mt-md-0" style="min-width: 140px;">
                                     @if($order->status == 'pending')
                                         <span
-                                            class="badge bg-warning bg-opacity-10 text-warning-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Belum Lunas</span>
+                                            class="badge bg-warning bg-opacity-10 text-warning-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Menunggu</span>
                                     @elseif($order->status == 'paid')
                                         <span
                                             class="badge bg-success bg-opacity-10 text-success-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start"><i
-                                                class="bi bi-check-circle me-1"></i> Lunas</span>
+                                                class="bi bi-check-circle me-1"></i> Selesai</span>
                                     @elseif($order->status == 'cancelled')
                                         <span
                                             class="badge bg-danger bg-opacity-10 text-danger-emphasis rounded-pill px-3 py-2 fw-bold w-100 text-center text-md-start">Dibatalkan</span>
@@ -154,8 +154,11 @@
                                     </button>
 
                                     @if($order->status == 'pending')
-                                        <button wire:click="updateStatus({{ $order->id }}, 'paid')"
-                                                wire:loading.attr="disabled"
+                                        <button wire:click="updateStatus({{ $order->id }}, 'cancelled')"
+                                                class="btn btn-outline-danger rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
+                                            Batal
+                                        </button>
+                                        <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
                                                 class="btn btn-dark rounded-3 shadow-sm fw-bold px-3 py-2 flex-grow-1 flex-md-grow-0 transition-all">
                                             Bayar
                                         </button>
@@ -170,11 +173,12 @@
                 @if($orders->hasMorePages())
                     <div x-intersect.full="$wire.loadMore()"
                          class="d-flex justify-content-center align-items-center py-5 mt-2">
-                        <div class="spinner-border text-dark spinner-border-sm me-2" role="status"></div>
-                        <span class="fw-bold text-muted small">Memuat lebih banyak pesanan...</span>
+                         <div class="spinner-border text-dark spinner-border-sm me-2" role="status"></div>
+                         <span class="fw-bold text-muted small">Memuat lebih banyak pesanan...</span>
                     </div>
                 @endif
             @endif
         </div>
     </div>
+
 </div>

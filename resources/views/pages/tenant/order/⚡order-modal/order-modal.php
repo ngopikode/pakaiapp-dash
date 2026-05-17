@@ -23,6 +23,14 @@ new class extends Component {
         ];
     }
 
+    public function triggerPayment(): void
+    {
+        if ($this->orderId) {
+            $this->dispatch('hide-order-modal');
+            $this->dispatch('trigger-payment-modal', orderId: $this->orderId);
+        }
+    }
+
     public function updateStatus($newStatus): void
     {
         if ($this->orderId) {

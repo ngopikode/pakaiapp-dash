@@ -23,15 +23,16 @@ class MenuController extends Controller
         $fullReactUrl = url('/');
 
         if ($this->isSocialMediaBot($request)) {
-            return view('tenant.product_preview', [
+            return response()->view('tenant.product_preview', [
                 'restaurant' => $restaurant,
                 'product' => $product,
                 'image_url' => $product->image ? Storage::url($product->image) : null,
                 'react_app_url' => $fullReactUrl,
-            ]);
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
         }
 
-        return redirect("$fullReactUrl#$productId");
+        return redirect("$fullReactUrl#$productId")
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     public function shareAsStory(Request $request, $productId)

@@ -162,3 +162,8 @@
         animation: fadeInScale 0.3s ease-out both;
     }
 }
+
+/* Disable overscroll / pull-to-refresh bawaan browser — persis dari React useEffect */
+body {
+    overscroll-behavior-y: none;
+}

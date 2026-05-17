@@ -14,6 +14,10 @@ new class extends Component {
     public ?string $whatsapp_number = '';
     public ?string $address = '';
     public bool $is_active = true;
+    public string $store_type = 'resto';
+    public bool $is_dinein_active = true;
+    public bool $is_takeaway_active = true;
+    public bool $is_delivery_active = true;
 
     // Foto lama
     public $logo;
@@ -51,6 +55,10 @@ new class extends Component {
             $this->whatsapp_number = $setting->whatsapp_number;
             $this->address = $setting->address;
             $this->is_active = $setting->is_active;
+            $this->store_type = $setting->store_type ?? 'resto';
+            $this->is_dinein_active = (bool) $setting->is_dinein_active;
+            $this->is_takeaway_active = (bool) $setting->is_takeaway_active;
+            $this->is_delivery_active = (bool) $setting->is_delivery_active;
 
             $this->logo = $setting->logo;
             $this->og_image = $setting->og_image;
@@ -88,6 +96,10 @@ new class extends Component {
             'whatsapp_number' => $this->whatsapp_number,
             'address' => $this->address,
             'is_active' => $this->is_active,
+            'store_type' => $this->store_type,
+            'is_dinein_active' => $this->is_dinein_active,
+            'is_takeaway_active' => $this->is_takeaway_active,
+            'is_delivery_active' => $this->is_delivery_active,
 
             'hero_promo_text' => $this->hero_promo_text,
             'hero_status_text' => $this->hero_status_text,
