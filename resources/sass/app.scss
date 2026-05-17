@@ -202,3 +202,85 @@ div:where(.swal2-container) div:where(.swal2-popup) {
     border-radius: 1.5rem !important;
     border: 1px solid var(--bs-border-color) !important;
 }
+
+/* Modern Minimalist UI & Shimmer Skeleton - Safe for Custom Dark Mode */
+.glass-search {
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
+    transition: all 0.2s;
+}
+
+.glass-search:focus {
+    background: var(--bs-body-bg);
+    border-color: var(--bs-body-color);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 4px var(--bs-border-color-translucent);
+}
+
+.cat-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.25rem;
+}
+
+.cat-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    color: var(--bs-secondary-color);
+    background: transparent;
+}
+
+.cat-btn:hover {
+    background: var(--bs-tertiary-bg);
+}
+
+.cat-btn.active {
+    background: var(--bs-link-color, #212529);
+    color: var(--bs-body-bg);
+    border-color: var(--bs-link-color, #212529);
+}
+
+/* PREMIUM STRIPE-STYLE SHIMMER SKELETON */
+.skeleton-shimmer {
+    background: var(--bs-border-color-translucent);
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg, transparent, var(--bs-tertiary-bg), transparent);
+    transform: translateX(-100%);
+    animation: shimmer-move 1.5s infinite;
+}
+
+@keyframes shimmer-move {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.text-caramel-solid {
+    color: var(--brand-caramel, #b45309) !important;
+    font-weight: 700;
+}
+
