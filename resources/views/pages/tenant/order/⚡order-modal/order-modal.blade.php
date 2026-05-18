@@ -97,11 +97,20 @@
                                             <span
                                                 class="fw-bold">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
                                         </div>
-                                        @if($order->discount > 0)
+                                        @php
+                                            $totalItemDiscount = $order->items->sum('discount');
+                                            $extraDiscount = max(0, $order->discount - $totalItemDiscount);
+                                        @endphp
+                                        @if($totalItemDiscount > 0)
                                             <div class="d-flex justify-content-between mb-2 small text-danger">
-                                                <span>Diskon</span>
-                                                <span
-                                                    class="fw-bold">- Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
+                                                <span>Diskon Item</span>
+                                                <span class="fw-bold">- Rp {{ number_format($totalItemDiscount, 0, ',', '.') }}</span>
+                                            </div>
+                                        @endif
+                                        @if($extraDiscount > 0)
+                                            <div class="d-flex justify-content-between mb-2 small text-danger">
+                                                <span>Diskon Ekstra</span>
+                                                <span class="fw-bold">- Rp {{ number_format($extraDiscount, 0, ',', '.') }}</span>
                                             </div>
                                         @endif
                                         <hr class="my-2" style="border-color: var(--bs-border-color) !important;">
@@ -171,12 +180,22 @@
                                                                     "{{ $item->note }}"
                                                                 </div>
                                                             @endif
-                                                            <div class="small text-muted mt-2">@
+                                                            <div class="small text-muted mt-1">@
                                                                 Rp {{ number_format($item->price, 0, ',', '.') }}</div>
+                                                            @if($item->discount > 0)
+                                                                <div class="text-danger small mt-1 fw-bold" style="font-size: 0.75rem;">
+                                                                    <i class="bi bi-tag-fill me-1"></i> Diskon Item: -Rp {{ number_format($item->discount, 0, ',', '.') }}
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     </div>
-                                                    <div class="fw-bolder fs-6 text-end text-body">
-                                                        Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                                                    <div class="text-end text-body">
+                                                        @if($item->discount > 0)
+                                                            <span class="text-muted text-decoration-line-through small d-block fw-normal" style="font-size: 0.75rem;">
+                                                                Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}
+                                                            </span>
+                                                        @endif
+                                                        <span class="fw-bolder fs-6">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                                                     </div>
                                                 </div>
                                             @endforeach

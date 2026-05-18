@@ -38,7 +38,7 @@ new class extends Component {
             $totalItemDiscount = collect($cart)->sum(fn($i) => (float) ($i['itemDiscount'] ?? 0));
             $globalDiscountAmount = (float) $globalDiscount;
             $totalDiscount = $totalItemDiscount + $globalDiscountAmount;
-            $totalPrice = max(0, $subtotal);
+            $totalPrice = max(0, $subtotal - $globalDiscountAmount);
             $paid = (float) $amountPaid ?: $totalPrice;
             $change = max(0, $paid - $totalPrice);
             $invoiceCode = 'INV-' . strtoupper(Str::random(6));
