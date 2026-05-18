@@ -272,7 +272,10 @@
 <footer class="bg-body py-4 border-top">
     <div class="container text-center">
         <p class="text-secondary small mb-0">&copy; {{ date('Y') }} pakaiapp.online. Solusi Digital dari <span
-                class="fw-bold text-primary">PT Sinergi Kode Kreatif</span>.</p>
+                class="fw-bold text-primary">
+                <a href="https://www.ngopikode.com" target="_blank"
+                   class="text-decoration-none text-primary">ngopikode.</a>
+            </span>.</p>
     </div>
 </footer>
 
