@@ -43,8 +43,8 @@
     =============================================== -->
     <script type="application/ld+json">
         {
-          "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+      "@@context": "https://schema.org",
+      "@@type": "SoftwareApplication",
       "name": "Pakaiapp.online",
       "operatingSystem": "Web, Android, iOS (PWA)",
       "applicationCategory": "BusinessApplication",
@@ -57,7 +57,7 @@
         "description": "Pendaftaran gratis, biaya penggunaan hanya Rp 300 per transaksi sukses."
       },
       "creator": {
-        "@type": "Organization",
+        "@@type": "Organization",
         "name": "PT Sinergi Kode Kreatif (ngopikode)",
         "url": "https://www.ngopikode.com"
       }
