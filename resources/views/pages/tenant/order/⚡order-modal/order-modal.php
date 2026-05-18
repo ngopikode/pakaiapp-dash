@@ -36,7 +36,7 @@ new class extends Component {
         if ($this->orderId) {
 
             $updateData = ['status' => $newStatus];
-            
+
             if ($newStatus === 'cancelled' && $cancellationNote) {
                 $updateData['cancellation_note'] = $cancellationNote;
             }

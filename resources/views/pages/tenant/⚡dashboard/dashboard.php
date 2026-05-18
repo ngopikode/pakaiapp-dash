@@ -1,18 +1,25 @@
 <?php
 
+namespace App\Livewire;
+
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\StoreSetting;
+use App\Services\TenantWalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 new class extends Component {
     public int $lastCheckedOrderId = 0;
 
+    // Tarif per transaksi, disamakan dengan kasir
+    private int $feePerTransaction = 300;
+
     public function mount(): void
     {
-        // Track the latest order ID at page load
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
     }
 
@@ -21,13 +28,12 @@ new class extends Component {
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
     }
 
-    // Fitur Download Laporan Excel (Format CSV agar ringan dan tanpa package tambahan)
-    public function exportLaporan()
+    public function exportLaporan(): ?StreamedResponse
     {
         $store = StoreSetting::first();
         if (!$store) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Toko belum di-setup!']);
-            return;
+            return null;
         }
 
         $orders = Order::whereMonth('created_at', date('m'))
@@ -37,7 +43,6 @@ new class extends Component {
 
         $filename = "Laporan_Penjualan_" . Str::slug($store->name) . "_" . date('Y_m') . ".csv";
 
-        // Generate CSV Data
         $csvData = "Tanggal,No. Invoice,Nama Pelanggan,Tipe Pesanan,Total Belanja (Rp)\n";
         foreach ($orders as $order) {
             $date = $order->created_at->format('Y-m-d H:i');
@@ -57,34 +62,32 @@ new class extends Component {
         $stats = [
             'orders_today' => 0,
             'revenue_today' => 0,
-            'revenue_month' => 0, // Tambahan: Omset Bulanan
+            'revenue_month' => 0,
             'pending_orders' => 0,
             'active_products' => 0,
+            'wallet_balance' => 0, // Tambahkan ini
+            'fee_per_trx' => $this->feePerTransaction // Tambahkan ini untuk kalkulasi UI
         ];
+
         $recentOrders = [];
-        $topProducts = []; // Tambahan: Produk Terlaris
+        $topProducts = [];
         $newOrderCount = 0;
 
         if ($store) {
-            // Stats Hari Ini
+            // Stats Hari Ini & Bulanan
             $stats['orders_today'] = Order::whereDate('created_at', today())->count();
-            $stats['revenue_today'] = Order::whereDate('created_at', today())
-                ->where('status', 'paid')
-                ->sum('total_price');
-
-            // Stats Bulan Ini (Real-time Omset)
-            $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))
-                ->where('status', 'paid')
-                ->sum('total_price');
-
+            $stats['revenue_today'] = Order::whereDate('created_at', today())->where('status', 'paid')->sum('total_price');
+            $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('status', 'paid')->sum('total_price');
             $stats['pending_orders'] = Order::where('status', 'pending')->count();
             $stats['active_products'] = Product::where('is_active', true)->count();
+
+            // AMBIL SALDO WALLET
+            $stats['wallet_balance'] = app(TenantWalletService::class)->getWallet()->balance;
 
             // 5 Pesanan Terbaru
             $recentOrders = Order::latest()->take(5)->get();
 
-            // Query Aman untuk Produk Terlaris (Bulan Ini)
+            // Produk Terlaris
             try {
                 $topProducts = DB::table('order_items')
                     ->join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -96,7 +99,6 @@ new class extends Component {
                     ->limit(5)
                     ->get();
             } catch (\Exception $e) {
-                // Fallback jika tabel order_items belum sesuai namanya
                 $topProducts = collect([]);
             }
 

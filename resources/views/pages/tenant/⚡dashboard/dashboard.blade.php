@@ -341,8 +341,50 @@
             </div>
 
             {{-- Sidebar Kanan (Produk Terlaris & Aksi Cepat) --}}
+            {{-- Sidebar Kanan (Produk Terlaris & Aksi Cepat) --}}
             <div class="col-xl-4">
                 <div class="d-flex flex-column gap-3 gap-md-4 h-100">
+
+                    {{-- WIDGET SALDO KREDIT (BARU) --}}
+                    <div class="card dash-card p-1 bg-body border shadow-sm"
+                         style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div
+                                        class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 38px; height: 38px;">
+                                        <i class="bi bi-wallet2 fs-5"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 text-body">Saldo Pakaiapp</h6>
+                                </div>
+                                {{-- Nanti bisa diarahkan ke halaman Top Up --}}
+                                <button class="btn btn-sm btn-primary rounded-pill fw-bold px-3">Top Up</button>
+                            </div>
+
+                            <div class="bg-body-tertiary rounded-3 p-3 border"
+                                 style="border-color: var(--bs-border-color-translucent) !important;">
+                                <h3 class="fw-black mb-1 {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : 'text-body' }}">
+                                    Rp {{ number_format($stats['wallet_balance'], 0, ',', '.') }}
+                                </h3>
+
+                                @if($stats['wallet_balance'] < 3000)
+                                    <small class="text-danger fw-bold">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Saldo menipis, isi ulang
+                                        sekarang!
+                                    </small>
+                                @else
+                                    <small class="text-secondary fw-bold">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                        Cukup untuk ~{{ floor($stats['wallet_balance'] / $stats['fee_per_trx']) }}
+                                        transaksi
+                                    </small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    {{-- END WIDGET SALDO KREDIT --}}
+
 
                     {{-- Widget Produk Terlaris --}}
                     <div class="card dash-card flex-grow-1 p-2 bg-body border"

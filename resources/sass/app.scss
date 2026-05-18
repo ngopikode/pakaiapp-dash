@@ -2,56 +2,113 @@
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-/* --- 1. Override Variabel Bootstrap (Premium Earthy Palette) --- */
+/* ==========================================================================
+   1. CORE VARIABLES (Premium Earthy Palette)
+   ========================================================================== */
 :root {
     /* Brand Colors */
     --brand-espresso: #321E14;
     --brand-caramel: #B67332;
     --brand-mocha: #846A58;
-    --brand-latte: #F9F7F5; /* Background yang lebih bersih */
+    --brand-latte: #F9F7F5;
 
     /* Typography */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-serif: 'Plus Jakarta Sans', sans-serif;
+    --bs-body-font-family: var(--font-sans);
 
-    /* Bootstrap Core Overrides */
+    /* --- LIGHT MODE MAPPINGS (Default) --- */
+
+    /* Primary & Secondary */
     --bs-primary: var(--brand-espresso);
     --bs-primary-rgb: 50, 30, 20;
     --bs-secondary: var(--brand-mocha);
     --bs-secondary-rgb: 132, 106, 88;
+    --bs-warning: var(--brand-caramel);
+    --bs-warning-rgb: 182, 115, 50;
+
+    /* Links */
     --bs-link-color: var(--brand-caramel);
     --bs-link-hover-color: var(--brand-espresso);
 
-    /* Body & Surface */
+    /* Surface & Backgrounds */
     --bs-body-bg: var(--brand-latte);
-    --bs-body-color: #211B17; /* Teks utama jauh lebih gelap & tajam */
-    --bs-secondary-color: #7A6F68; /* Teks muted/sekunder */
+    --bs-body-bg-rgb: 249, 247, 245;
+    --bs-secondary-bg: #FFFFFF;
+    --bs-tertiary-bg: #F0EBE6;
+
+    /* Text Colors */
+    --bs-body-color: #211B17;
+    --bs-body-color-rgb: 33, 27, 23;
+    --bs-secondary-color: #7A6F68;
+    --bs-tertiary-color: #A3978F;
+
+    /* Borders & Cards */
     --bs-border-color: #E9E2DB;
-    --bs-body-font-family: var(--font-sans);
+    --bs-border-color-translucent: rgba(50, 30, 20, 0.1);
     --bs-card-bg: #FFFFFF;
+    --bs-card-cap-bg: rgba(249, 247, 245, 0.5);
+
+    /* Utility Colors Baseline (Light Mode) */
+    --bs-white-rgb: 255, 255, 255; /* Untuk .bg-white, .text-white */
+    --bs-light-rgb: 248, 249, 250; /* Untuk .bg-light, .text-light */
+    --bs-dark-rgb: 33, 37, 41; /* Untuk .bg-dark, .text-dark */
+    --bs-black-rgb: 0, 0, 0; /* Untuk .bg-black, .text-black */
 }
 
+/* ==========================================================================
+   2. DARK MODE OVERRIDES (Deep Espresso Vibe)
+   ========================================================================== */
 [data-bs-theme="dark"] {
-    /* Dark Mode: Deep Espresso Coffee vibe */
-    --bs-primary: #D4A373; /* Caramel lebih terang untuk kontras */
+    /* Brand Adjustments (Lebih terang agar kontras) */
+    --bs-primary: #D4A373;
     --bs-primary-rgb: 212, 163, 115;
+    --bs-warning: #E8B97D;
+    --bs-warning-rgb: 232, 185, 125;
+    --bs-link-color: #D4A373;
+    --bs-link-hover-color: #EBE3D5;
 
-    --bs-body-bg: #120F0D; /* Hitam pekat dengan sedikit warm tone */
-    --bs-body-color: #EBE3D5; /* Teks putih gading (nyaman di mata) */
+    /* Surface & Backgrounds */
+    --bs-body-bg: #120F0D; /* Hitam pekat warm tone */
+    --bs-body-bg-rgb: 18, 15, 13;
+    --bs-secondary-bg: #1C1815; /* Card background level 1 */
+    --bs-tertiary-bg: #25211E; /* Card background level 2 */
+
+    /* Text Colors */
+    --bs-body-color: #EBE3D5; /* Putih gading (nyaman di mata) */
+    --bs-body-color-rgb: 235, 227, 213;
     --bs-secondary-color: #A89B91;
+    --bs-tertiary-color: #7A6F68;
 
-    --bs-secondary-bg: #1C1815;
-    --bs-tertiary-bg: #25211E;
+    /* Borders & Cards */
     --bs-border-color: #2F2924;
+    --bs-border-color-translucent: rgba(235, 227, 213, 0.1);
     --bs-card-bg: #1C1815;
+    --bs-card-cap-bg: rgba(37, 33, 30, 0.5);
+
+    /* 🎩 MAGIC INVERT: Mengakali Utility Class Bootstrap (.bg-white, .text-dark dll) */
+    /* Membuat .bg-white menjadi gelap dan .text-dark menjadi terang secara otomatis! */
+    --bs-white-rgb: 28, 24, 21; /* #1C1815 -> .bg-white jadi warna card gelap */
+    --bs-light-rgb: 37, 33, 30; /* #25211E -> .bg-light jadi warna surface gelap */
+    --bs-dark-rgb: 235, 227, 213; /* #EBE3D5 -> .text-dark jadi terang (putih gading) */
+    --bs-black-rgb: 255, 255, 255; /* #FFFFFF -> .text-black jadi putih bersih */
 }
 
-/* --- 2. Base Styles --- */
+
+/* ==========================================================================
+   3. GLOBAL TRANSITIONS & BASE STYLES
+   ========================================================================== */
 body {
-    transition: background-color 0.3s ease, color 0.3s ease;
+    /* Transisi super mulus saat klik tombol Dark Mode */
+    transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: var(--bs-body-color);
+}
+
+/* Transisi untuk elemen HTML yang sering pakai class utility */
+.bg-white, .bg-light, .bg-dark, .bg-body, .bg-body-tertiary,
+.text-dark, .text-light, .text-muted, .border, .card {
+    transition: background-color 0.4s ease-in-out, border-color 0.4s ease-in-out, color 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
 }
 
 #wrapper {
@@ -68,13 +125,16 @@ body {
     transition: margin 0.3s ease-in-out;
 }
 
-/* --- 3. Sidebar --- */
+
+/* ==========================================================================
+   4. LAYOUT COMPONENTS (Sidebar & Navbar)
+   ========================================================================== */
 #sidebar-wrapper {
     min-width: 280px;
     max-width: 280px;
     background-color: var(--bs-card-bg);
     border-right: 1px solid var(--bs-border-color);
-    transition: margin 0.3s ease-in-out, background-color 0.3s ease;
+    transition: margin 0.3s ease-in-out, background-color 0.4s ease-in-out, border-color 0.4s ease-in-out;
     display: flex;
     flex-direction: column;
 }
@@ -97,110 +157,149 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 }
 
 .list-group-item-action:hover {
-    background-color: rgba(182, 115, 50, 0.05); /* Soft Caramel tint */
-    color: var(--brand-caramel);
-}
-
-.list-group-item-action.active {
-    color: var(--brand-espresso);
-    background: linear-gradient(90deg, rgba(182, 115, 50, 0.08) 0%, transparent 100%);
-    border-left-color: var(--brand-caramel);
-    font-weight: 600;
-}
-
-[data-bs-theme="dark"] .list-group-item-action.active {
+    background-color: rgba(var(--bs-primary-rgb), 0.08);
     color: var(--bs-primary);
 }
 
-/* --- 4. Navbar --- */
+.list-group-item-action.active {
+    color: var(--bs-primary);
+    background: linear-gradient(90deg, rgba(var(--bs-primary-rgb), 0.1) 0%, transparent 100%);
+    border-left-color: var(--bs-primary);
+    font-weight: 600;
+}
+
 .navbar-dashboard {
-    background: rgba(var(--bs-body-bg-rgb), 0.8);
+    background: rgba(var(--bs-body-bg-rgb), 0.85);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--bs-border-color);
-    transition: background-color 0.3s ease;
 }
 
-.navbar-dashboard h5 {
-    color: var(--brand-espresso) !important;
-    font-weight: 700;
-}
 
-[data-bs-theme="dark"] .navbar-dashboard h5 {
-    color: var(--bs-body-color) !important;
-}
-
-/* --- 5. Form & Inputs --- */
+/* ==========================================================================
+   5. FORMS, BUTTONS & CARDS
+   ========================================================================== */
 .form-control, .form-select {
     border-radius: 0.75rem;
     border-color: var(--bs-border-color);
-    background-color: var(--bs-card-bg);
-    padding: 0.75rem 1rem;
+    background-color: var(--bs-secondary-bg);
     color: var(--bs-body-color);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: var(--brand-caramel);
-    box-shadow: 0 0 0 3px rgba(182, 115, 50, 0.15);
+    background-color: var(--bs-secondary-bg);
+    border-color: var(--bs-primary);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.15);
 }
 
-/* --- 6. Buttons --- */
+/* Fix input autofill background di Chrome untuk Dark Mode */
+[data-bs-theme="dark"] input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--bs-secondary-bg) inset !important;
+    -webkit-text-fill-color: var(--bs-body-color) !important;
+}
+
 .btn-primary {
-    --bs-btn-bg: var(--brand-espresso);
-    --bs-btn-border-color: var(--brand-espresso);
-    --bs-btn-hover-bg: #1A100B;
-    --bs-btn-hover-border-color: #1A100B;
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-bg: rgba(var(--bs-primary-rgb), 0.8);
+    --bs-btn-hover-border-color: rgba(var(--bs-primary-rgb), 0.8);
     color: #FFFFFF;
     font-weight: 600;
     border-radius: 0.75rem;
     padding: 0.6rem 1.5rem;
-    box-shadow: 0 4px 12px rgba(50, 30, 20, 0.15);
-    transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(50, 30, 20, 0.25);
+    box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.2);
+    transition: all 0.3s ease;
 }
 
 [data-bs-theme="dark"] .btn-primary {
-    --bs-btn-bg: var(--brand-caramel);
-    --bs-btn-border-color: var(--brand-caramel);
-    color: #120F0D;
+    color: #120F0D; /* Teks tombol primary jadi gelap di dark mode */
 }
 
-/* --- 7. Cards & Utility --- */
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(var(--bs-primary-rgb), 0.3);
+}
+
 .card {
     border: 1px solid var(--bs-border-color);
     border-radius: 1.25rem;
-    box-shadow: 0 8px 24px rgba(50, 30, 20, 0.04);
-    background: var(--bs-card-bg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+    background-color: var(--bs-card-bg);
 }
 
-.text-muted {
-    color: var(--bs-secondary-color) !important;
-}
 
+/* ==========================================================================
+   6. UTILITIES, TABLES, & PLUGINS FIX
+   ========================================================================== */
 .font-serif {
     font-family: var(--font-serif), serif;
 }
 
-/* --- 8. NProgress --- */
+/* Table Override agar tidak silau */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-border-color: var(--bs-border-color);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-bg-type: var(--bs-tertiary-bg);
+}
+
+/* Dropdown Menu Override */
+.dropdown-menu {
+    background-color: var(--bs-card-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    color: var(--bs-body-color);
+}
+
+.dropdown-item:hover {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-primary);
+}
+
+/* Modals Override */
+.modal-content {
+    background-color: var(--bs-card-bg);
+    border-color: var(--bs-border-color);
+}
+
+.modal-header {
+    border-bottom-color: var(--bs-border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--bs-border-color);
+}
+
+/* NProgress Loader */
 #nprogress .bar {
-    background: var(--brand-caramel) !important;
+    background: var(--bs-primary) !important;
     height: 3px !important;
 }
 
-/* --- 9. Dark Mode Fixes --- */
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--bs-primary), 0 0 5px var(--bs-primary) !important;
+}
+
+/* SVG & Icon Fix untuk Dark Mode (.btn-close dll) */
 [data-bs-theme="dark"] .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* --- 10. SweetAlert Customization --- */
+/* SweetAlert Customization (Menyesuaikan Tema Otomatis) */
 div:where(.swal2-container) div:where(.swal2-popup) {
     background: var(--bs-card-bg) !important;
     color: var(--bs-body-color) !important;
     border-radius: 1.5rem !important;
     border: 1px solid var(--bs-border-color) !important;
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
-
-

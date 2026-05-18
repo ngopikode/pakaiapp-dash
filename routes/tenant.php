@@ -44,20 +44,18 @@ Route::middleware([
         // Routes accessible by manager AND cashier
         Route::middleware('role:manager,cashier')->group(function () {
             Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
-
-            Route::prefix('dashboard')->group(function () {
-                Route::view('order', 'pages.tenant.order.index')->name('order');
-                Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
-            });
+            Route::view('order', 'pages.tenant.order.index')->name('order');
+            Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
         });
 
         // Routes accessible ONLY by manager
-        Route::middleware('role:manager')->prefix('dashboard')->group(function () {
-            Route::livewire('/', 'pages::tenant.dashboard')->name('dashboard');
+        Route::middleware('role:manager')->group(function () {
+            Route::livewire('dashboard', 'pages::tenant.dashboard')->name('dashboard');
             Route::view('product', 'pages.tenant.product.product')->name('product');
             Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
             Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');
             Route::livewire('store-setting', 'pages::tenant.setting.store-setting')->name('store-setting');
+            Route::livewire('product-slot/buy', 'pages::tenant.setting.buy-product-slot')->name('product-slot.buy');
             Route::view('user', 'pages.tenant.user.index')->name('user');
         });
     });
