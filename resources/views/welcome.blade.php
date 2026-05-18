@@ -4,7 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Pakaiapp.online - Kasir SaaS Masa Depan</title>
+    <!-- ==============================================
+           SEO ON-PAGE & META TAGS
+      =============================================== -->
+    <!-- Primary Meta Tags -->
+    <title>Pakaiapp - Aplikasi Kasir Pintar UMKM Tanpa Biaya Bulanan</title>
+    <meta name="title" content="Pakaiapp - Aplikasi Kasir Pintar UMKM Tanpa Biaya Bulanan">
+    <meta name="description"
+          content="Tinggalkan biaya langganan! Pakaiapp adalah aplikasi kasir (POS) berbasis cloud untuk UMKM F&B dan Retail. Sistem adil, cuma bayar Rp 300 per transaksi sukses.">
+    <meta name="keywords"
+          content="aplikasi kasir, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
+    <meta name="author" content="PT Sinergi Kode Kreatif">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Indonesian">
+
+    <!-- Canonical URL (Penting biar Google nggak bingung kalau ada duplicate URL) -->
+    <link rel="canonical" href="https://pakaiapp.online/">
+
+    <!-- Open Graph / Facebook / WhatsApp (Untuk Thumbnail saat Link di-share) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pakaiapp.online/">
+    <meta property="og:title" content="Pakaiapp - Kasir Pintar Bayar Suka-Suka">
+    <meta property="og:description"
+          content="Kasir sepi = Gratis. Kasir ramai = Tetap murah. Revolusi sistem kasir SaaS untuk F&B dan Retail dengan skema Rp 300/transaksi sukses.">
+    <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
+    <!-- Pastikan bikin gambar banner ukuran 1200x630px -->
+
+    <!-- Twitter / X -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://pakaiapp.online/">
+    <meta property="twitter:title" content="Pakaiapp - Kasir Pintar Bayar Suka-Suka">
+    <meta property="twitter:description"
+          content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">
+    <meta property="twitter:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
+
+    <!-- ==============================================
+         STRUCTURED DATA (JSON-LD) UNTUK GOOGLE RICH SNIPPET
+    =============================================== -->
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Pakaiapp.online",
+      "operatingSystem": "Web, Android, iOS (PWA)",
+      "applicationCategory": "BusinessApplication",
+      "description": "Sistem kasir pintar (POS) berbasis cloud untuk UMKM F&B dan Retail tanpa biaya langganan bulanan. Menggunakan skema potong saldo Rp 300 per transaksi.",
+      "url": "https://www.pakaiapp.online",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "IDR",
+        "description": "Pendaftaran gratis, biaya penggunaan hanya Rp 300 per transaksi sukses."
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "PT Sinergi Kode Kreatif (ngopikode)",
+        "url": "https://www.ngopikode.com"
+      }
+    }
+    </script>
 
     <!-- External Libraries for OP Interactivity -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
