@@ -8,7 +8,8 @@ export default defineConfig({
                 'resources/sass/app.scss',
                 'resources/js/app.js',
                 'resources/css/store.css',
-                'resources/js/store.js'
+                'resources/js/store.js',
+                'resources/sass/welcome.scss'
             ],
             refresh: true
         })

@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/store.css": {
-    "file": "assets/store-Cn_Zwver.css",
+    "file": "assets/store-RXfsAFuS.css",
     "name": "store",
     "names": [
       "store.css"
@@ -29,7 +29,7 @@
     "isEntry": true
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-Bs8SbfY3.css",
+    "file": "assets/app-Btytqv_A.css",
     "name": "app",
     "names": [
       "app.css"
@@ -40,5 +40,14 @@
       "assets/bootstrap-icons-mSm7cUeB.woff2",
       "assets/bootstrap-icons-BeopsB42.woff"
     ]
+  },
+  "resources/sass/welcome.scss": {
+    "file": "assets/welcome-BbDm22c5.css",
+    "name": "welcome",
+    "names": [
+      "welcome.css"
+    ],
+    "src": "resources/sass/welcome.scss",
+    "isEntry": true
   }
 }
