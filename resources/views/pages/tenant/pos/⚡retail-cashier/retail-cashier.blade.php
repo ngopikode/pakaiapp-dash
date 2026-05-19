@@ -18,16 +18,16 @@
         </div>
     </div>
 
-    {{-- Floating Cart Button for Mobile - Safe Context Styling --}}
-    <!-- Tombol ini cuma muncul di HP kalau ada isi keranjang DAN keranjangnya lagi gak dibuka -->
-    <button
-        class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
-        x-show="cart.length > 0 && !isMobileCartOpen"
-        @click="isMobileCartOpen = true"
-        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
-        <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
-        <span x-text="'Rp ' + formatRupiah(grandTotal)"></span>
-    </button>
+    {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
+    <template x-if="!isMobileCartOpen && cart.length > 0">
+        <button
+            class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
+            @click="isMobileCartOpen = true"
+            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
+            <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
+            <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
+        </button>
+    </template>
 
     {{-- Shared Modals --}}
     @include('pages.tenant.pos._modal-payment')
@@ -40,7 +40,7 @@
 <script>
     Alpine.data('retailPos', () => ({
         cart: [],
-        isMobileCartOpen: false, // State baru untuk kontrol halaman HP
+        isMobileCartOpen: false,
 
         selectedProduct: null,
         variantModalInstance: null,
