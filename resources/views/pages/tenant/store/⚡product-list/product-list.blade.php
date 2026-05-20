@@ -210,7 +210,7 @@
                         {{-- Share Buttons: Di atas area foto (z-20) --}}
                         <div class="absolute top-2.5 left-2.5 flex flex-col gap-2 z-20">
                             <button
-                                @click="navigator.share ? navigator.share({title: '{{ addslashes($item['name']) }}', url: window.location.origin+'/menu/{{ $item['id'] }}'}) : navigator.clipboard.writeText(window.location.origin+'/menu/{{ $item['id'] }}')"
+                                @click.prevent.stop="$store.utils.shareProduct(item)"
                                 class="bg-white/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[var(--primary-color)] hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90"
                                 aria-label="Bagikan link">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"

@@ -280,7 +280,9 @@
                     </div>
                     <div class="text-right pt-1 shrink-0">
                         <div
-                            class="text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter">{{ $product->formatted_price }}</div>
+                            class="text-xl sm:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter">
+                            {{ $product->formatted_price }}
+                        </div>
                     </div>
                 </div>
 
