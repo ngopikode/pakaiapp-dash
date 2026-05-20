@@ -254,14 +254,12 @@ document.addEventListener('alpine:init', () => {
                 const data = await res.json();
 
                 if (res.ok) {
-                    this.orderSuccess = {
-                        invoiceCode: data.data?.invoice_code || 'OK',
-                        total: this.formatPrice(this.totalCart)
-                    };
+                    const invoiceCode = data.data?.invoice_code || 'OK';
 
+                    // 1. Bikin format WA LENGKAP persis kayak punya lu
                     const waText = [
                         'Halo admin, pesanan baru nih!',
-                        `*Invoice:* ${this.orderSuccess.invoiceCode}`,
+                        `*Invoice:* ${invoiceCode}`,
                         `*Nama:* ${this.customerName.trim()}`,
                         `*Tipe:* ${this.orderType}`,
                         '*Status Pembayaran:* Belum Dibayar',
@@ -272,16 +270,25 @@ document.addEventListener('alpine:init', () => {
                         '*Daftar Pesanan:*',
                         ...this.cart.map((i) => `- ${i.qty}x ${i.cartName}`),
                         '',
-                        `*Total Tagihan:* ${this.orderSuccess.total}`
+                        `*Total Tagihan:* ${this.formatPrice(this.totalCart)}`
                     ]
                         .filter((l) => l !== null)
                         .join('\n');
 
-                    window.open(
-                        `https://wa.me/${this._waNumber}?text=${encodeURIComponent(waText)}`,
-                        '_blank'
-                    );
+                    // 2. Bikin URL WA-nya
+                    const finalWaUrl = `https://wa.me/${this._waNumber}?text=${encodeURIComponent(waText)}`;
 
+                    // 3. Simpan URL-nya ke state orderSuccess (biar tombol di HTML bisa pake link ini buat RESEND)
+                    this.orderSuccess = {
+                        invoiceCode: invoiceCode,
+                        total: this.formatPrice(this.totalCart),
+                        waUrl: finalWaUrl
+                    };
+
+                    // 4. BUKA OTOMATIS KE WA (Persis kayak fitur asli lu)
+                    window.open(finalWaUrl, '_blank');
+
+                    // 5. Baru deh aman buat kosongin cart dan form
                     this.cart = [];
                     this.saveCart();
                     this.customerName = '';
@@ -347,10 +354,9 @@ document.addEventListener('alpine:init', () => {
                     text: shareText
                 }).catch((error) => console.log('Share dibatalkan/gagal', error));
             } else {
-                showIslandToast('Teks dan link menu berhasil disalin!');
                 // Fallback kalau browser nggak support share (misal di PC)
                 navigator.clipboard.writeText(shareText).then(() => {
-                    showIslandToast('Teks dan link menu berhasil disalin!');
+                    this.showToast('Teks dan link menu berhasil disalin!');
                 });
             }
         }
