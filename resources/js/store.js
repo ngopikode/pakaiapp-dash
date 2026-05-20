@@ -9,35 +9,35 @@
  * events (@livewire:initialized, @livewire:navigating, @livewire:navigated).
  * No extra JS needed — see _loader.blade.php.
  */
-document.addEventListener("alpine:init", () => {
+document.addEventListener('alpine:init', () => {
     // -------------------------------------------------------------------------
     // UI PREFERENCES STORE
     // Persisted in localStorage. Changing viewMode NEVER triggers a Livewire
     // round-trip — it's pure client-side state.
     // -------------------------------------------------------------------------
-    Alpine.store("ui", {
-        viewMode: localStorage.getItem("ezmenu-viewmode") || "grid",
+    Alpine.store('ui', {
+        viewMode: localStorage.getItem('ezmenu-viewmode') || 'grid',
 
         setViewMode(mode) {
             this.viewMode = mode;
-            localStorage.setItem("ezmenu-viewmode", mode);
-        },
+            localStorage.setItem('ezmenu-viewmode', mode);
+        }
     });
 
     // -------------------------------------------------------------------------
     // STORE APP — global cart + modals state
     // -------------------------------------------------------------------------
-    Alpine.data("storeApp", () => ({
+    Alpine.data('storeApp', () => ({
         /* ===== CART ===== */
-        toast: { show: false, message: "" },
+        toast: {show: false, message: ''},
         qrOpen: false,
-        cart: JSON.parse(localStorage.getItem("ezmenu-cart") || "[]"),
+        cart: JSON.parse(localStorage.getItem('ezmenu-cart') || '[]'),
 
         saveCart() {
-            localStorage.setItem("ezmenu-cart", JSON.stringify(this.cart));
+            localStorage.setItem('ezmenu-cart', JSON.stringify(this.cart));
         },
 
-        addToCart(item, selectedVariants = "", quantity = 1) {
+        addToCart(item, selectedVariants = '', quantity = 1) {
             const cartName = selectedVariants
                 ? `${item.name} (${selectedVariants})`
                 : item.name;
@@ -45,10 +45,10 @@ document.addEventListener("alpine:init", () => {
             if (existing) {
                 existing.qty += quantity;
             } else {
-                this.cart.push({ ...item, cartName, qty: quantity });
+                this.cart.push({...item, cartName, qty: quantity});
             }
             this.saveCart();
-            this.showToast("Berhasil ditambahkan ke keranjang!");
+            this.showToast('Berhasil ditambahkan ke keranjang!');
         },
 
         updateQty(cartName, delta) {
@@ -68,34 +68,34 @@ document.addEventListener("alpine:init", () => {
         get totalCart() {
             return this.cart.reduce(
                 (acc, item) => acc + item.price * item.qty,
-                0,
+                0
             );
         },
 
         formatPrice(price) {
-            return new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                minimumFractionDigits: 0,
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
             }).format(price);
         },
 
         /* ===== TOAST ===== */
         showToast(msg, duration = 3000) {
-            this.toast = { show: true, message: msg };
+            this.toast = {show: true, message: msg};
             clearTimeout(this._toastTimer);
             this._toastTimer = setTimeout(
                 () => (this.toast.show = false),
-                duration,
+                duration
             );
         },
 
         /* ===== QR MODAL ===== */
         get qrUrl() {
             return (
-                "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+                'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
                 encodeURIComponent(window.location.href) +
-                "&bgcolor=ffffff&color=000000&margin=10"
+                '&bgcolor=ffffff&color=000000&margin=10'
             );
         },
 
@@ -106,7 +106,7 @@ document.addEventListener("alpine:init", () => {
         optionQty: 1,
 
         get isMulti() {
-            return this.optionProduct?.selection_type === "multiple";
+            return this.optionProduct?.selection_type === 'multiple';
         },
         get maxSel() {
             return this.optionProduct?.max_selections || 1;
@@ -115,7 +115,7 @@ document.addEventListener("alpine:init", () => {
         openOption(product) {
             this.optionProduct = product;
             this.optionQty = 1;
-            if (product.selection_type === "multiple") {
+            if (product.selection_type === 'multiple') {
                 this.optionSelected = [];
             } else {
                 // Single: pre-select first variant for better UX
@@ -125,13 +125,13 @@ document.addEventListener("alpine:init", () => {
                         : [];
             }
             this.optionOpen = true;
-            document.body.style.overflow = "hidden";
+            document.body.style.overflow = 'hidden';
         },
         closeOption() {
             this.optionOpen = false;
             setTimeout(() => {
                 this.optionProduct = null;
-                document.body.style.overflow = "";
+                document.body.style.overflow = '';
             }, 300);
         },
         toggleOption(variantName) {
@@ -162,64 +162,64 @@ document.addEventListener("alpine:init", () => {
                 return this.optionProduct.price * this.optionQty;
             }
             const v = this.optionProduct.variants.find(
-                (v) => v.name === this.optionSelected[0],
+                (v) => v.name === this.optionSelected[0]
             );
             return (v ? v.price : this.optionProduct.price) * this.optionQty;
         },
         confirmOption() {
             if (!this.optionValid || !this.optionProduct) return;
-            const selectedLabel = this.optionSelected.join(", ");
+            const selectedLabel = this.optionSelected.join(', ');
             let price;
             if (this.isMulti) {
                 price = this.optionProduct.price;
             } else {
                 const v = this.optionProduct.variants.find(
-                    (v) => v.name === this.optionSelected[0],
+                    (v) => v.name === this.optionSelected[0]
                 );
                 price = v ? v.price : this.optionProduct.price;
             }
             this.addToCart(
-                { ...this.optionProduct, price },
+                {...this.optionProduct, price},
                 selectedLabel,
-                this.optionQty,
+                this.optionQty
             );
             this.closeOption();
         },
 
         /* ===== CHECKOUT MODAL ===== */
         checkoutOpen: false,
-        customerName: "",
-        customerInfo: "",
-        orderType: "",
+        customerName: '',
+        customerInfo: '',
+        orderType: '',
         checkoutLoading: false,
         orderSuccess: null,
 
         init() {
             const root = this.$el;
-            this.orderType = root.dataset.defaultOrderType || "takeaway";
-            this._waNumber = root.dataset.waNumber || "6281234567890";
+            this.orderType = root.dataset.defaultOrderType || 'takeaway';
+            this._waNumber = root.dataset.waNumber || '6281234567890';
         },
 
         openCheckout() {
             this.orderSuccess = null;
             this.checkoutOpen = true;
-            document.body.style.overflow = "hidden";
+            document.body.style.overflow = 'hidden';
         },
         closeCheckout() {
             this.checkoutOpen = false;
             setTimeout(() => {
                 this.orderSuccess = null;
-                document.body.style.overflow = "";
+                document.body.style.overflow = '';
             }, 300);
         },
 
         async processOrder() {
             if (this.cart.length === 0) {
-                this.showToast("Keranjang Anda kosong!");
+                this.showToast('Keranjang Anda kosong!');
                 return;
             }
             if (!this.customerName.trim()) {
-                this.showToast("Masukkan nama pemesan dulu ya!");
+                this.showToast('Masukkan nama pemesan dulu ya!');
                 return;
             }
 
@@ -234,70 +234,126 @@ document.addEventListener("alpine:init", () => {
                     product_id: item.id,
                     name: item.cartName,
                     quantity: item.qty,
-                    price: parseFloat(item.price),
-                })),
+                    price: parseFloat(item.price)
+                }))
             };
 
             try {
-                const res = await fetch("/api/orders", {
-                    method: "POST",
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json",
-                        "X-CSRF-TOKEN":
-                            document.querySelector("meta[name=csrf-token]")
-                                ?.content || "",
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN':
+                            document.querySelector('meta[name=csrf-token]')
+                                ?.content || ''
                     },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await res.json();
 
                 if (res.ok) {
                     this.orderSuccess = {
-                        invoiceCode: data.data?.invoice_code || "OK",
-                        total: this.formatPrice(this.totalCart),
+                        invoiceCode: data.data?.invoice_code || 'OK',
+                        total: this.formatPrice(this.totalCart)
                     };
 
                     const waText = [
-                        "Halo admin, pesanan baru nih!",
+                        'Halo admin, pesanan baru nih!',
                         `*Invoice:* ${this.orderSuccess.invoiceCode}`,
                         `*Nama:* ${this.customerName.trim()}`,
                         `*Tipe:* ${this.orderType}`,
-                        "*Status Pembayaran:* Belum Dibayar",
+                        '*Status Pembayaran:* Belum Dibayar',
                         this.customerInfo.trim()
                             ? `*Catatan/Meja:* ${this.customerInfo.trim()}`
                             : null,
-                        "",
-                        "*Daftar Pesanan:*",
+                        '',
+                        '*Daftar Pesanan:*',
                         ...this.cart.map((i) => `- ${i.qty}x ${i.cartName}`),
-                        "",
-                        `*Total Tagihan:* ${this.orderSuccess.total}`,
+                        '',
+                        `*Total Tagihan:* ${this.orderSuccess.total}`
                     ]
                         .filter((l) => l !== null)
-                        .join("\n");
+                        .join('\n');
 
                     window.open(
                         `https://wa.me/${this._waNumber}?text=${encodeURIComponent(waText)}`,
-                        "_blank",
+                        '_blank'
                     );
 
                     this.cart = [];
                     this.saveCart();
-                    this.customerName = "";
-                    this.customerInfo = "";
-                    this.showToast("Pesanan berhasil dikirim!");
+                    this.customerName = '';
+                    this.customerInfo = '';
+                    this.showToast('Pesanan berhasil dikirim!');
                 } else {
                     this.showToast(
-                        data.message || "Gagal mengirim pesanan. Coba lagi.",
+                        data.message || 'Gagal mengirim pesanan. Coba lagi.'
                     );
                 }
             } catch (err) {
-                console.error("Order error:", err);
-                this.showToast("Koneksi bermasalah. Coba lagi ya.");
+                console.error('Order error:', err);
+                this.showToast('Koneksi bermasalah. Coba lagi ya.');
             } finally {
                 this.checkoutLoading = false;
             }
-        },
+        }
     }));
+
+    Alpine.store('utils', {
+
+        // 1. Fungsi untuk generate text share
+        generateShareText(product, restaurantName, url) {
+            const generalHooks = [
+                '✨ Barangkali lagi kepikiran',
+                '🌟 Salah satu menu favorit dari',
+                '📍 Jangan sampai kelewat nikmatnya',
+                '🍃 Pilihan pas buat nemenin harimu:',
+                '🤍 Rekomendasi spesial untukmu:',
+                '💡 Wajib cobain menu andalan ini:'
+            ];
+
+            const randomHook = generalHooks[Math.floor(Math.random() * generalHooks.length)];
+            const priceFormatted = 'Rp' + Number(product.price).toLocaleString('id-ID');
+
+            let shareText = `${randomHook} ${product.name} di ${restaurantName}. `;
+
+            if (product.description && product.description.trim() !== '') {
+                let desc = product.description.trim();
+                let shortDesc = desc.length > 50 ? desc.substring(0, 50) + '...' : desc;
+                shareText += `(${shortDesc}) `;
+            }
+
+            shareText += `Harganya cuma ${priceFormatted} aja. Order praktis di sini: ${url}`;
+
+            return shareText;
+        },
+
+        // 2. Fungsi eksekusi share (bisa dipanggil dari mana aja)
+        shareProduct(product, restaurantName = null) {
+            restaurantName = restaurantName ?? document.title;
+
+            // Otomatis bikin URL berdasarkan ID produk
+            const shareUrl = window.location.origin + '/menu/' + product.id;
+
+            // Panggil fungsi generate text di atas
+            const shareText = this.generateShareText(product, restaurantName, shareUrl);
+
+            // Eksekusi Web Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: product.name,
+                    text: shareText
+                }).catch((error) => console.log('Share dibatalkan/gagal', error));
+            } else {
+                showIslandToast('Teks dan link menu berhasil disalin!');
+                // Fallback kalau browser nggak support share (misal di PC)
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showIslandToast('Teks dan link menu berhasil disalin!');
+                });
+            }
+        }
+
+    });
 });

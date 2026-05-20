@@ -15,14 +15,15 @@
     x-transition:leave="transition-opacity ease-in duration-300"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    @livewire:initialized.window="show = false"
-    @livewire:navigating.window="show = true"
-    @livewire:navigated.window="show = false"
+    x-on:livewire:initialized.window="show = false"
+    x-on:livewire:navigating.window="show = true"
+    x-on:livewire:navigated.window="show = false"
     class="fixed inset-0 z-[2000] bg-zinc-50 flex flex-col items-center justify-center gap-6"
     style="display:flex"
 >
     <div class="relative">
-        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 animate-bounce">
+        <div
+            class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 animate-bounce">
             {{-- UtensilsCrossed SVG (Lucide equivalent) --}}
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2"
