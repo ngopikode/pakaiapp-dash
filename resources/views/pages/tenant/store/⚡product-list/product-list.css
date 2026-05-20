@@ -1,0 +1,4 @@
+/* FIX: Tambahin html juga di sini, terus kasih overscroll-y-none */
+html, body {
+    @apply overscroll-y-none;
+}
