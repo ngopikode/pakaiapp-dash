@@ -278,9 +278,9 @@
                         @endif
                         <h1 class="text-[1.75rem] font-black text-zinc-900 leading-tight tracking-tight">{{ $product->name }}</h1>
                     </div>
-                    <div class="text-right pt-1 shrink-0">
+                    <div class="text-right pt-1 shrink-0 min-w-0">
                         <div
-                            class="text-xl sm:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter">
+                            class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap">
                             {{ $product->formatted_price }}
                         </div>
                     </div>
