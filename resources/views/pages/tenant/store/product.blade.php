@@ -216,7 +216,7 @@
                     </svg>
                 </a>
                 <button
-                    @click.prevent.stop="$store.utils.shareProduct(item, '{{ $storeName }}')"
+                    @click.prevent.stop="$store.utils.shareProduct({{ json_encode($productData) }}, '{{ $storeName }}')"
                     class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border"
                     :class="scrolled ? 'bg-white text-zinc-900 border-zinc-200' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
                     aria-label="Bagikan link"

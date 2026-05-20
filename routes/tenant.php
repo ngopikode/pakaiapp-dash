@@ -37,13 +37,12 @@ Route::middleware([
 
     // Product detail page — full server-rendered HTML with OG/SEO meta for crawlers & sharing.
     Route::get('/menu/{productId}', function (string $productId) {
-        $id = is_numeric($productId) ? (int) $productId : (int) last(explode('-', $productId));
+        $id = is_numeric($productId) ? (int)$productId : (int)last(explode('-', $productId));
         $product = \App\Models\Product::with(['category', 'variants'])->findOrFail($id);
         return view('pages.tenant.store.product', compact('product'));
     })->name('product.show');
 
     Route::get('/menu/{productId}/story', [MenuController::class, 'shareAsStory'])->name('product.story');
-    Route::get('/menu/{productId}/story/image', [MenuController::class, 'generateStoryImage'])->name('product.story.image');
 
     Route::middleware('auth')->group(function () {
 

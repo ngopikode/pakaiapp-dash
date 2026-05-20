@@ -347,17 +347,21 @@ document.addEventListener('alpine:init', () => {
             // Panggil fungsi generate text di atas
             const shareText = this.generateShareText(product, restaurantName, shareUrl);
 
-            // Eksekusi Web Share API
-            if (navigator.share) {
-                navigator.share({
-                    title: product.name,
-                    text: shareText
-                }).catch((error) => console.log('Share dibatalkan/gagal', error));
-            } else {
-                // Fallback kalau browser nggak support share (misal di PC)
-                navigator.clipboard.writeText(shareText).then(() => {
-                    this.showToast('Teks dan link menu berhasil disalin!');
-                });
+            try {
+                // Eksekusi Web Share API
+                if (navigator.share) {
+                    navigator.share({
+                        title: product.name,
+                        text: shareText
+                    }).catch((error) => console.log('Share dibatalkan/gagal', error));
+                } else {
+                    // Fallback kalau browser nggak support share (misal di PC)
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        showIslandToast('Teks dan link menu berhasil disalin!');
+                    });
+                }
+            } catch (e) {
+                showIslandToast('Tidak Bisa Menyalin Teks dan Link Menu!');
             }
         }
 
