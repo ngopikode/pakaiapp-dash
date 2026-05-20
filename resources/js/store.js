@@ -339,13 +339,13 @@ document.addEventListener('alpine:init', () => {
 
         // 2. Fungsi eksekusi share (bisa dipanggil dari mana aja)
         shareProduct(product, restaurantName = null) {
-            restaurantName = restaurantName ?? document.title;
+            let cleanName = restaurantName ?? document.title;
+            cleanName = cleanName.split(/[—|,-]/)[0].trim();
 
-            // Otomatis bikin URL berdasarkan ID produk
+            cleanName = cleanName.split(/[—|,-]/)[0].trim();
+
             const shareUrl = window.location.origin + '/menu/' + product.id;
-
-            // Panggil fungsi generate text di atas
-            const shareText = this.generateShareText(product, restaurantName, shareUrl);
+            const shareText = this.generateShareText(product, cleanName, shareUrl);
 
             try {
                 // Eksekusi Web Share API

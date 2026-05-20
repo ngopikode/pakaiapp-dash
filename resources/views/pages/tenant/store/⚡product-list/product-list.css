@@ -1,4 +1,17 @@
-/* FIX: Tambahin html juga di sini, terus kasih overscroll-y-none */
-html, body {
-    @apply overscroll-y-none;
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    /* Langsung target tag html dan body tanpa & */
+    html, body {
+        @apply overscroll-y-none;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 }
