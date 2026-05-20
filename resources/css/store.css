@@ -69,6 +69,11 @@
         @apply border-border;
     }
 
+    /* Tambahkan html di sini agar Chrome Android berhenti pull-to-refresh */
+    html, body {
+        @apply overscroll-none !important;
+    }
+
     body {
         @apply bg-background text-foreground;
         font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
