@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\RestaurantApiController;
 use App\Http\Controllers\MenuController;
 use App\Http\Middleware\FileUrlMiddleware;
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -35,14 +36,13 @@ Route::middleware([
 
     Route::view('/', 'pages.tenant.index')->name('index');
 
-    // Product detail page — full server-rendered HTML with OG/SEO meta for crawlers & sharing.
-    Route::get('/menu/{productId}', function (string $productId) {
-        $id = is_numeric($productId) ? (int)$productId : (int)last(explode('-', $productId));
-        $product = \App\Models\Product::with(['category', 'variants'])->findOrFail($id);
-        return view('pages.tenant.store.product', compact('product'));
-    })->name('product.show');
+    // routes/web.php
 
-    Route::get('/menu/{productId}/story', [MenuController::class, 'shareAsStory'])->name('product.story');
+    Route::get('/menu/{product}',
+        fn(Product $product) => view('pages.tenant.store.product', compact('product'))
+    )->name('product.show');
+
+    Route::get('/menu/{product}/story', [MenuController::class, 'shareAsStory'])->name('product.story');
 
     Route::middleware('auth')->group(function () {
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 #[ObservedBy(ProductObserver::class)]
 class Product extends Model
@@ -34,6 +35,22 @@ class Product extends Model
             'tax_included' => 'boolean',
             'max_selections' => 'integer',
         ];
+    }
+
+    public function getRouteKey(): string
+    {
+        // Hasilnya: nasi-goreng-123
+        // Ini nggak nambah kolom, cuma ngolah string di memori pas generate link
+        return Str::slug($this->name) . '-' . $this->id;
+    }
+
+    public function resolveRouteBinding($value, $field = null): Model|Product|null
+    {
+        // Ambil angka terakhir (ID) dari string
+        $id = (int)last(explode('-', $value));
+
+        // Tetep cari pake ID, jadi database lu gak bakal keberatan
+        return $this->where('id', $id)->firstOrFail();
     }
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo

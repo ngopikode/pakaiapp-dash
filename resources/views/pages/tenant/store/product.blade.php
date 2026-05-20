@@ -203,7 +203,7 @@
 
             <div class="flex items-center gap-2">
                 <a
-                    :href="'/menu/' + product.id + '/story'"
+                    :href="'{{ route('product.story', $product) }}'"
                     target="_blank" rel="noreferrer"
                     class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border hover:bg-[#25D366] hover:text-white hover:border-[#25D366]"
                     :class="scrolled ? 'bg-white text-zinc-900 border-zinc-200' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"

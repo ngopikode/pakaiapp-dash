@@ -1,3 +1,4 @@
+@php use App\Models\Product; @endphp
 <div
     x-data="{
         viewMode: 'grid',
@@ -178,7 +179,8 @@
                 >
 
                     {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
-                    <a href="/menu/{{ $item['id'] }}" wire:navigate class="absolute inset-0 z-10"></a>
+                    <a href="{{ route('product.show', new Product($item)) }}" wire:navigate
+                       class="absolute inset-0 z-10"></a>
 
                     {{-- 1. Image Wrapper --}}
                     <div
@@ -224,7 +226,7 @@
                                 </svg>
                             </button>
                             <button
-                                @click="window.open('/menu/{{ $item['id'] }}/story', '_blank')"
+                                @click="window.open('{{ route('product.story', new Product($item)) }}', '_blank')"
                                 class="bg-white/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[#25D366] hover:text-white hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90 group/story"
                                 aria-label="Share ke Status WA">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"

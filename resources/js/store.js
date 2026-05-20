@@ -337,14 +337,21 @@ document.addEventListener('alpine:init', () => {
             return shareText;
         },
 
-        // 2. Fungsi eksekusi share (bisa dipanggil dari mana aja)
         shareProduct(product, restaurantName = null) {
             let cleanName = restaurantName ?? document.title;
             cleanName = cleanName.split(/[—|,-]/)[0].trim();
 
             cleanName = cleanName.split(/[—|,-]/)[0].trim();
 
-            const shareUrl = window.location.origin + '/menu/' + product.id;
+            const createSlug = (text) => text.toString().toLowerCase()
+                .replace(/\s+/g, '-')           // ganti spasi jadi -
+                .replace(/[^\w\-]+/g, '')       // hapus karakter aneh
+                .replace(/-\-+/g, '-')          // ganti multiple dash jadi satu
+                .replace(/^-+/, '')             // hapus dash di awal
+                .replace(/-+$/, '');            // hapus dash di akhir
+
+            const slugName = createSlug(product.name);
+            const shareUrl = window.location.origin + '/menu/' + slugName + '-' + product.id;
             const shareText = this.generateShareText(product, cleanName, shareUrl);
 
             try {

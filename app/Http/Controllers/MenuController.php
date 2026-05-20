@@ -9,13 +9,10 @@ use Illuminate\Support\Str;
 
 class MenuController extends Controller
 {
-    public function shareAsStory($productId)
+    public function shareAsStory(Product $product)
     {
         $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
-        $product = $this->getProduct($productId);
-
-        $fullReactUrl = url('/');
-        $productUrl = "$fullReactUrl/menu/$productId";
+        $productUrl = route('product.show', $product);
 
         return view('tenant.story_preview', [
             'restaurant' => $restaurant,
@@ -25,13 +22,6 @@ class MenuController extends Controller
             'share_text' => $this->generateShareText($product, $restaurant, $productUrl),
             'share_title' => "$product->name - $restaurant->name"
         ]);
-    }
-
-
-    private function getProduct(string $productId): Product
-    {
-        $id = str_contains($productId, 'product-') ? explode('-', $productId)[1] : $productId;
-        return Product::findOrFail($id);
     }
 
     private function generateShareText(Product $product, StoreSetting $restaurant, string $url): string
