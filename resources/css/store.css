@@ -161,9 +161,30 @@
     .animate-fade-in-scale {
         animation: fadeInScale 0.3s ease-out both;
     }
+
+    .bg-skeleton {
+        background-color: #e4e4e7; /* Sama kayak bg-zinc-200 */
+        background-image: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.6) 20%,
+            transparent 40%
+        );
+        background-size: 200% 100%;
+        animation: skeletonWave 1.5s infinite linear;
+    }
 }
 
 /* Disable overscroll / pull-to-refresh bawaan browser — persis dari React useEffect */
 body {
     overscroll-behavior-y: none;
+}
+
+@keyframes skeletonWave {
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
 }

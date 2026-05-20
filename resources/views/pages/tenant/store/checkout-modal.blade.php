@@ -63,7 +63,10 @@
                 </div>
 
                 <h3 class="text-xl font-black text-zinc-900 mb-1">Pesanan Terkirim! 🎉</h3>
-                <p class="text-xs font-medium text-zinc-400 mb-6">Pesanan kamu sudah masuk ke sistem toko.</p>
+                <p class="text-xs font-medium text-zinc-400 mb-1">Pesanan kamu sudah masuk ke sistem toko.</p>
+                <p class="text-xs font-medium text-zinc-500 mb-6">
+                    Yuk, langsung ke kasir untuk konfirmasi dan selesaikan pembayaranmu.
+                </p>
 
                 {{-- Interactive Invoice Card --}}
                 <div

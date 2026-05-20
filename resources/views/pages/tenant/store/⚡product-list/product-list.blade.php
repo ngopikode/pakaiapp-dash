@@ -107,6 +107,46 @@
         </div>
     </div>
 
+    {{-- Loading Skeleton (Pake class bg-skeleton dari store.css) --}}
+    <div wire:loading.class.remove="hidden" wire:target="setCategory" class="hidden">
+        <main
+            class="max-w-xl mx-auto px-5 mt-4"
+            :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
+        >
+            @for($s = 0; $s < 6; $s++)
+                <div
+                    class="bg-white rounded-2xl border border-zinc-100/80 shadow-sm flex overflow-hidden"
+                    :class="viewMode === 'grid' ? 'flex-col h-full' : 'flex-row items-center gap-4 p-3'"
+                >
+                    {{-- Image Skeleton --}}
+                    <div
+                        class="bg-skeleton shrink-0"
+                        :class="viewMode === 'grid' ? 'w-full aspect-[4/3]' : 'w-20 h-20 rounded-xl'"
+                    ></div>
+
+                    {{-- Content Skeleton --}}
+                    <div
+                        class="flex-1 flex flex-col justify-between min-h-0"
+                        :class="viewMode === 'grid' ? 'p-3.5 pt-2.5' : ''"
+                    >
+                        <div>
+                            <div class="h-4 bg-skeleton rounded-md w-3/4 mb-2"></div>
+
+                            {{-- Menggunakan x-show Alpine menggantikan @if PHP --}}
+                            <div x-show="viewMode === 'list'" class="h-3.5 bg-skeleton rounded-md w-1/3 mb-2"></div>
+
+                            <div class="h-2.5 bg-skeleton rounded-md w-full mb-1.5"></div>
+                            <div class="h-2.5 bg-skeleton rounded-md w-2/3"></div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="w-full h-8 bg-skeleton rounded-xl"></div>
+                        </div>
+                    </div>
+                </div>
+            @endfor
+        </main>
+    </div>
+
     {{-- ===== PRODUCT LIST ===== --}}
     <div wire:loading.remove wire:target="setCategory">
         <main
@@ -137,10 +177,10 @@
                     style="animation-delay: {{ $delay }}ms"
                 >
 
-                    {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (Berada di layer z-10) --}}
+                    {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
                     <a href="/menu/{{ $item['id'] }}" wire:navigate class="absolute inset-0 z-10"></a>
 
-                    {{-- 1. Image Wrapper (HAPUS Z-0 DISINI BIAR TOMBOL BISA NAIK KE ATAS) --}}
+                    {{-- 1. Image Wrapper --}}
                     <div
                         class="bg-zinc-100 overflow-hidden shrink-0 relative transition-all duration-300"
                         :class="viewMode === 'grid' ? 'w-full aspect-[4/3]' : 'w-24 h-24 rounded-xl'"
@@ -167,10 +207,10 @@
                             </div>
                         @endif
 
-                        {{-- Share Buttons: Berada di z-20 (DI ATAS LINK TRANSPARAN) --}}
+                        {{-- Share Buttons: Di atas area foto (z-20) --}}
                         <div class="absolute top-2.5 left-2.5 flex flex-col gap-2 z-20">
                             <button
-                                @click.prevent.stop="$store.utils.shareProduct(item)"
+                                @click="navigator.share ? navigator.share({title: '{{ addslashes($item['name']) }}', url: window.location.origin+'/menu/{{ $item['id'] }}'}) : navigator.clipboard.writeText(window.location.origin+'/menu/{{ $item['id'] }}')"
                                 class="bg-white/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[var(--primary-color)] hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90"
                                 aria-label="Bagikan link">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -196,7 +236,6 @@
                             </button>
                         </div>
 
-                        {{-- Habis Badge (Biarkan dibawah z-10 biar tetep bisa diklik cardnya kalau pas kena tulisan) --}}
                         @if(! $item['is_active'])
                             <div
                                 class="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
@@ -204,27 +243,20 @@
                                     class="bg-zinc-800/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg backdrop-blur-sm shadow-sm">Habis</span>
                             </div>
                         @endif
-
-                        {{-- Price Badge (Grid Only) --}}
-                        <div
-                            x-show="viewMode === 'grid'"
-                            class="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-black shadow-md border border-white/50 pointer-events-none"
-                        >{{ $item['formatted_price'] }}</div>
                     </div>
 
-                    {{-- 2. Content Wrapper (HAPUS Z-0 DISINI JUGA) --}}
                     <div
                         class="flex-1 flex flex-col justify-between min-w-0 min-h-0"
                         :class="viewMode === 'grid' ? 'p-3' : 'py-1'"
                     >
+                        {{-- FIX HARGA: Digabung di bawah, baik Grid maupun List dapet posisi yang sama --}}
                         <div class="mb-2 pointer-events-none">
                             <h3 class="font-bold text-sm text-zinc-900 leading-snug mb-0.5 truncate">{{ $item['name'] }}</h3>
-                            <p x-show="viewMode === 'list'"
-                               class="text-sm font-extrabold text-[var(--primary-color)] mb-0.5">{{ $item['formatted_price'] }}</p>
+                            <p class="text-sm font-extrabold text-[var(--primary-color)] mb-0.5">{{ $item['formatted_price'] }}</p>
                             <p class="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">{{ $item['description'] }}</p>
                         </div>
 
-                        {{-- Cart Stepper / Add Button: Berada di z-20 (DI ATAS LINK TRANSPARAN) --}}
+                        {{-- Cart Stepper / Add Button (z-20) --}}
                         <div class="mt-auto relative z-20">
                             <template x-if="showStepper">
                                 <div class="flex items-center justify-between bg-zinc-900 rounded-xl p-1 shadow-md">
@@ -277,14 +309,45 @@
             @endforelse
         </main>
 
-        {{-- ===== INFINITE SCROLL SENTINEL ===== --}}
-        @if($hasMore)
+        {{-- ===== INFINITE SCROLL SENTINEL & LOAD MORE SKELETON ===== --}}
+        @if($this->hasMore)
             <div
+                wire:key="scroll-sentinel-{{ $category }}-{{ $perPage }}"
                 x-intersect.once="$wire.loadMore()"
-                class="flex justify-center py-8"
+                {{-- FIX: Tambahin pembatas lebar dan margin biar presisi sama list di atasnya --}}
+                class="max-w-xl mx-auto px-5 pt-4 pb-8"
             >
-                <div
-                    class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
+                {{-- SKELETON KHUSUS LOAD MORE --}}
+                <div wire:loading.class.remove="hidden" wire:target="loadMore" class="hidden">
+                    <div :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'">
+                        @for($s = 0; $s < 2; $s++)
+                            <div
+                                class="bg-white rounded-2xl border border-zinc-100/80 shadow-sm flex overflow-hidden animate-slide-up"
+                                :class="viewMode === 'grid' ? 'flex-col h-full' : 'flex-row items-center gap-4 p-3'"
+                            >
+                                <div
+                                    class="bg-skeleton shrink-0"
+                                    :class="viewMode === 'grid' ? 'w-full aspect-[4/3]' : 'w-20 h-20 rounded-xl'"
+                                ></div>
+                                <div
+                                    class="flex-1 flex flex-col justify-between min-h-0"
+                                    :class="viewMode === 'grid' ? 'p-3.5 pt-2.5' : ''"
+                                >
+                                    <div>
+                                        <div class="h-4 bg-skeleton rounded-md w-3/4 mb-2"></div>
+                                        <div x-show="viewMode === 'list'"
+                                             class="h-3.5 bg-skeleton rounded-md w-1/3 mb-2"></div>
+                                        <div class="h-2.5 bg-skeleton rounded-md w-full mb-1.5"></div>
+                                        <div class="h-2.5 bg-skeleton rounded-md w-2/3"></div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="w-full h-8 bg-skeleton rounded-xl"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
             </div>
         @endif
     </div>
