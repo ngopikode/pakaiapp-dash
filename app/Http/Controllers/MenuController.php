@@ -12,29 +12,6 @@ use Intervention\Image\Typography\FontFactory;
 
 class MenuController extends Controller
 {
-    /**
-     * Show a product preview for social media bots.
-     */
-    public function showProductPreview(Request $request, string $productId)
-    {
-        $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
-        $product = $this->getProduct($productId);
-        
-        $fullReactUrl = url('/');
-
-        if ($this->isSocialMediaBot($request)) {
-            return response()->view('tenant.product_preview', [
-                'restaurant' => $restaurant,
-                'product' => $product,
-                'image_url' => $product->image ? Storage::url($product->image) : null,
-                'react_app_url' => $fullReactUrl,
-            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
-        }
-
-        return redirect("$fullReactUrl#$productId")
-            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
-    }
-
     public function shareAsStory(Request $request, $productId)
     {
         $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
@@ -51,19 +28,6 @@ class MenuController extends Controller
             'share_text' => $this->generateShareText($product, $restaurant, $productUrl),
             'share_title' => "$product->name - $restaurant->name"
         ]);
-    }
-
-    public function shareToStory(Request $request, $productId)
-    {
-        $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
-        $product = $this->getProduct($productId);
-
-        $productUrl = url("/menu/$productId?t=" . time());
-
-        $storyText = $this->generateShareText($product, $restaurant, $productUrl);
-        $encodedText = urlencode($storyText);
-
-        return redirect()->away("https://wa.me/?text=$encodedText");
     }
 
     public function generateStoryImage(Request $request, $productId)
@@ -93,19 +57,6 @@ class MenuController extends Controller
         $this->createStoryImage($product, $restaurant, $productImagePath, $cacheFileName);
 
         return $this->downloadStoryImage($cacheFileName, $downloadName);
-    }
-
-    private function isSocialMediaBot(Request $request): bool
-    {
-        $userAgent = strtolower((string) $request->header('User-Agent'));
-        $bots = ['whatsapp', 'facebookexternalhit', 'facebot', 'twitterbot', 'linkedinbot'];
-
-        foreach ($bots as $bot) {
-            if (str_contains($userAgent, $bot)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private function getProduct(string $productId): Product

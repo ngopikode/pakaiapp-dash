@@ -26,12 +26,12 @@
         x-transition:leave="transition-transform ease-in duration-200"
         x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full"
-        class="fixed inset-x-0 bottom-0 max-w-xl mx-auto bg-white rounded-t-[2rem] shadow-2xl flex flex-col max-h-[85vh]"
+        class="fixed inset-x-0 bottom-0 max-w-xl mx-auto bg-white rounded-t-[2rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
     >
         <template x-if="optionProduct">
-            <div class="flex flex-col h-full">
+            <div class="flex flex-col flex-1 min-h-0">
                 {{-- Drag Handle & Header --}}
-                <div class="px-5 pt-3 pb-4 border-b border-zinc-100 sticky top-0 bg-white rounded-t-[2rem] z-10 flex flex-col items-center">
+                <div class="px-5 pt-3 pb-4 border-b border-zinc-100 bg-white rounded-t-[2rem] flex flex-col items-center shrink-0">
                     <div class="w-12 h-1.5 bg-zinc-200 rounded-full mb-4"></div>
                     <div class="w-full flex justify-between items-start">
                         <div>
@@ -67,7 +67,7 @@
                 </div>
 
                 {{-- Options List --}}
-                <div class="overflow-y-auto px-5 py-4 pb-48">
+                <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 pb-4">
                     <div class="flex flex-col gap-2.5">
                         <template x-for="variant in optionProduct.variants" :key="variant.id">
                             <div
@@ -109,7 +109,7 @@
                 </div>
 
                 {{-- Fixed Bottom Area (Qty & Add to Cart) --}}
-                <div class="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-zinc-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] rounded-t-[1rem]">
+                <div class="shrink-0 p-5 bg-white border-t border-zinc-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
 
                     {{-- Qty Selector --}}
                     <div class="flex items-center justify-between mb-4 bg-zinc-50 p-3 rounded-xl border border-zinc-100">

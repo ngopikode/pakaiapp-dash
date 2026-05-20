@@ -1,3 +1,12 @@
+@php
+    $promoText     = $setting->hero_promo_text    ?? 'Promo';
+    $statusText    = $setting->hero_status_text   ?? 'Buka Sekarang';
+    $tagline       = $setting->hero_tagline       ?? 'Nikmati menu spesial kami.';
+    $instagramUrl  = $setting->hero_instagram_url ?? '#';
+    $address       = $setting->address            ?? '';
+    $headlineParts = array_map('trim', explode('&', $setting->hero_headline ?? 'Enjoy & Dine'));
+@endphp
+
 <section class="px-3 py-2">
     <div class="relative max-w-xl mx-auto bg-gradient-to-br from-[#18181b] via-[#1e1e22] to-[#111113] rounded-[2rem] p-7 overflow-hidden text-white shadow-xl shadow-zinc-900/20 border border-white/[0.04]">
 
@@ -5,8 +14,6 @@
         <div class="absolute -top-16 -right-16 w-56 h-56 bg-[var(--primary-color)]/15 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-[var(--primary-color)]/8 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/40 to-transparent"></div>
-
-        <!-- Subtle grid pattern -->
         <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 24px 24px"></div>
 
         <div class="relative z-10">
@@ -29,20 +36,19 @@
             </h2>
 
             <div class="mb-6 border-l-2 border-[var(--primary-color)]/40 pl-3.5 space-y-1">
-                <p class="text-zinc-300 text-xs leading-relaxed font-medium">
-                    {{ $address ?: 'Lokasi belum diatur' }}
-                </p>
-                <p class="text-[var(--primary-color)] text-[10px] italic font-medium opacity-90">
-                    {{ $tagline }}
-                </p>
+                <p class="text-zinc-300 text-xs leading-relaxed font-medium">{{ $address ?: 'Lokasi belum diatur' }}</p>
+                <p class="text-[var(--primary-color)] text-[10px] italic font-medium opacity-90">{{ $tagline }}</p>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="document.getElementById('menu-start')?.scrollIntoView({behavior: 'smooth', block: 'start'})" class="bg-[var(--primary-color)] text-zinc-900 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[var(--primary-color)]/25 active:scale-95 transition-all hover:brightness-110 hover:shadow-xl hover:shadow-[var(--primary-color)]/30">
-                    Pesan Sekarang 
+                <button
+                    onclick="document.getElementById('menu-start')?.scrollIntoView({behavior: 'smooth', block: 'start'})"
+                    class="bg-[var(--primary-color)] text-zinc-900 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[var(--primary-color)]/25 active:scale-95 transition-all hover:brightness-110 hover:shadow-xl hover:shadow-[var(--primary-color)]/30">
+                    Pesan Sekarang
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
-                <a href="{{ $instagramUrl }}" target="_blank" rel="noreferrer" class="bg-white/10 border border-white/10 text-white px-4 py-3.5 rounded-xl flex items-center gap-2 hover:bg-white/20 transition-all active:scale-95 backdrop-blur-sm">
+                <a href="{{ $instagramUrl }}" target="_blank" rel="noreferrer"
+                   class="bg-white/10 border border-white/10 text-white px-4 py-3.5 rounded-xl flex items-center gap-2 hover:bg-white/20 transition-all active:scale-95 backdrop-blur-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
                 </a>
             </div>
