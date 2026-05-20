@@ -7,7 +7,7 @@
 
     $setting = StoreSetting::first();
 
-    $waNumber  = '';
+    $waNumber   = '';
     $orderTypes = [['id' => 'takeaway', 'label' => 'Takeaway']];
 
     if ($setting) {
@@ -45,10 +45,26 @@
         ])->toArray(),
     ];
 
+    // --- SEO & META OPTIMIZATION ---
     $storeName    = $setting?->name ?? 'Menu Digital';
     $themeColor   = $setting?->theme_color ?? '#f59e0b';
-    $ogDesc       = Str::limit($product->description ?: 'Menu dari ' . $storeName, 160);
     $canonicalUrl = url()->current();
+
+    // 1. Dynamic Title (Lebih hangat)
+    $pageTitle = "{$product->name} di {$storeName}";
+
+    // 2. Dynamic Description (Gabungan trik lama + dilimit 155 char agar SEO friendly di Google)
+    $hooks = ['Cuma', 'Hanya', 'Spesial', 'Nikmati seharga', 'Dapatkan cuma', 'Pesan sekarang'];
+    $randomHook = $hooks[array_rand($hooks)];
+    $priceString = 'Rp ' . number_format($product->price, 0, ',', '.');
+    $rawDesc = $product->description ? trim($product->description) : "Menu favorit dari {$storeName}.";
+
+    // Hasil: "Cuma Rp 15.000! Nasi goreng gila pedas mampus..."
+    $fullDesc = "{$randomHook} {$priceString}! {$rawDesc}";
+    $ogDesc = Str::limit($fullDesc, 155, '...');
+
+    // 3. Image Versioning (Agar thumbnail WA terupdate otomatis jika foto diubah)
+    $imageVersion = $product->updated_at ? $product->updated_at->timestamp : time();
 @endphp
     <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -61,9 +77,11 @@
         }</style>
 
     {{-- Primary SEO --}}
-    <title>{{ $product->name }} — {{ $storeName }}</title>
+    <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $ogDesc }}"/>
-    <meta name="keywords" content="{{ $product->name }}, {{ $storeName }}, menu online"/>
+    {{-- Tambahan dynamic keyword dari kategori --}}
+    <meta name="keywords"
+          content="{{ $product->name }}, {{ $product->category?->name ?? 'Menu' }}, {{ $storeName }}, pesan online, menu resto"/>
     <meta name="theme-color" content="{{ $setting->theme_color ?: '#18181b' }}">
 
     {{-- Favicon / Icon --}}
@@ -78,41 +96,43 @@
     <link rel="canonical" href="{{ $canonicalUrl }}"/>
 
     {{-- Open Graph (WhatsApp / Facebook / Instagram crawler) --}}
-    <meta property="og:title" content="{{ $product->name }} — {{ $storeName }}"/>
+    <meta property="og:title" content="{{ $pageTitle }}"/>
     <meta property="og:description" content="{{ $ogDesc }}"/>
     <meta property="og:type" content="product"/>
     <meta property="og:url" content="{{ $canonicalUrl }}"/>
+    <meta property="og:site_name" content="{{ $storeName }}"/>
+
     @if($product->image)
-        <meta property="og:image" content="{{ Storage::url($product->image) }}"/>
+        <meta property="og:image" content="{{ Storage::url($product->image) }}?v={{ $imageVersion }}"/>
         <meta property="og:image:width" content="800"/>
         <meta property="og:image:height" content="600"/>
         <meta property="og:image:alt" content="{{ $product->name }}"/>
     @else
-        <meta property="og:image" content="/logo.png"/>
+        <meta property="og:image" content="{{ url('/logo.png') }}"/>
     @endif
 
     {{-- Twitter Card --}}
     <meta name="twitter:card" content="summary_large_image"/>
-    <meta name="twitter:title" content="{{ $product->name }} — {{ $storeName }}"/>
+    <meta name="twitter:title" content="{{ $pageTitle }}"/>
     <meta name="twitter:description" content="{{ $ogDesc }}"/>
     @if($product->image)
-        <meta name="twitter:image" content="{{ Storage::url($product->image) }}"/>
+        <meta name="twitter:image" content="{{ Storage::url($product->image) }}?v={{ $imageVersion }}"/>
     @endif
 
     {{-- JSON-LD Structured Data (Google rich results) --}}
     <script type="application/ld+json">
         {
             "@@context": "https://schema.org",
-        "@type": "Product",
-        "name": {{ json_encode($product->name) }},
-        "description": {{ json_encode($product->description ?? '') }},
-        "url": {{ json_encode($canonicalUrl) }},
-        "offers": {
-            "@type": "Offer",
-            "price": "{{ $product->price }}",
-            "priceCurrency": "IDR",
-            "availability": "{{ $product->is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}"
-        }
+            "@type": "Product",
+            "name": {{ json_encode($product->name) }},
+            "description": {{ json_encode($product->description ?? 'Menu spesial dari ' . $storeName) }},
+            "url": {{ json_encode($canonicalUrl) }},
+            "offers": {
+                "@type": "Offer",
+                "price": "{{ $product->price }}",
+                "priceCurrency": "IDR",
+                "availability": "{{ $product->is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}"
+            }
         @if($product->image)
             ,"image": {{ json_encode(Storage::url($product->image)) }}
         @endif
