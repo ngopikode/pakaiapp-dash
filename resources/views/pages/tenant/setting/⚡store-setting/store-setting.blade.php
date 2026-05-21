@@ -175,7 +175,10 @@
                                     @endif
 
                                     <div class="setting-switch">
-                                        <span class="fw-bold"><i class="bi bi-bag me-2 text-primary"></i>Takeaway (Bungkus)</span>
+                                        <span class="fw-bold">
+                                            <i class="bi bi-bag me-2 text-primary"></i>
+                                            {{ $store_type === 'resto' ? 'Takeaway (Bungkus)' : 'Ambil di Tempat' }}
+                                        </span>
                                         <div class="form-check form-switch fs-5 mb-0">
                                             <input class="form-check-input" type="checkbox" role="switch"
                                                    wire:model="is_takeaway_active">
@@ -183,7 +186,10 @@
                                     </div>
 
                                     <div class="setting-switch">
-                                        <span class="fw-bold"><i class="bi bi-motorcycle me-2 text-success"></i>Delivery (Diantar)</span>
+                                        <span class="fw-bold">
+                                            <i class="bi bi-motorcycle me-2 text-success"></i>
+                                            {{ $store_type === 'resto' ? 'Delivery (Diantar)' : 'Kirim / Diantar' }}
+                                        </span>
                                         <div class="form-check form-switch fs-5 mb-0">
                                             <input class="form-check-input" type="checkbox" role="switch"
                                                    wire:model="is_delivery_active">
