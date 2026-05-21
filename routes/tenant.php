@@ -40,6 +40,7 @@ Route::middleware([
 
     Route::get('/menu/{product}',
         fn(Product $product) => view('pages.tenant.store.product', compact('product'))
+            ->with('product', $product->load(['variants', 'extras']))
     )->name('product.show');
 
     Route::get('/menu/{product}/story', [MenuController::class, 'shareAsStory'])->name('product.story');

@@ -179,20 +179,18 @@ new class extends Component {
             $product->variants()->whereNotIn('id', $variantIdsToKeep)->delete();
 
             $extraIdsToKeep = [];
-            if ($this->selectedCategoryType === 'fnb') {
-                foreach ($this->extras as $extraData) {
-                    if (!empty($extraData['name'])) {
-                        $extra = $product->extras()->updateOrCreate(
-                            ['id' => $extraData['id'] ?? null],
-                            [
-                                'name' => $extraData['name'],
-                                'cost' => $extraData['cost'] ?: 0,
-                                'price' => $extraData['price'] ?: 0,
-                                'is_active' => true,
-                            ]
-                        );
-                        $extraIdsToKeep[] = $extra->id;
-                    }
+            foreach ($this->extras as $extraData) {
+                if (!empty($extraData['name'])) {
+                    $extra = $product->extras()->updateOrCreate(
+                        ['id' => $extraData['id'] ?? null],
+                        [
+                            'name' => $extraData['name'],
+                            'cost' => $extraData['cost'] ?: 0,
+                            'price' => $extraData['price'] ?: 0,
+                            'is_active' => true,
+                        ]
+                    );
+                    $extraIdsToKeep[] = $extra->id;
                 }
             }
             $product->extras()->whereNotIn('id', $extraIdsToKeep)->delete();

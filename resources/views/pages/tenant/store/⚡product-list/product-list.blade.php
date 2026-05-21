@@ -285,7 +285,7 @@
                             <template x-if="!showStepper">
                                 <button
                                     {{ ! $item['is_active'] ? 'disabled' : '' }}
-                                    @click="item.has_variants ? openOption(item) : addToCart(item)"
+                                    @click="(item.has_variants || (item.extras && item.extras.length > 0)) ? openOption(item) : addToCart(item)"
                                     class="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 {{ $item['is_active'] ? 'bg-zinc-50 text-zinc-800 border border-zinc-200/80 hover:bg-[var(--primary-color)] hover:text-zinc-900 hover:border-[var(--primary-color)] active:scale-95 hover:shadow-md' : 'bg-zinc-100 text-zinc-400 border border-zinc-100 cursor-not-allowed' }}"
                                 >
                                     @if($item['is_active'])

@@ -18,6 +18,12 @@ class ProductExtra extends Model
         'updated_at'
     ];
 
+    protected $casts = [
+        'price'     => 'float',
+        'cost'      => 'float',
+        'is_active' => 'boolean',
+    ];
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

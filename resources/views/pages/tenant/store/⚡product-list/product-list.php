@@ -47,7 +47,7 @@ new class extends Component {
     public function products(): array
     {
         return Product::query()
-            ->with(['category', 'variants'])
+            ->with(['category', 'variants', 'extras'])
             ->when(
                 $this->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
@@ -72,6 +72,11 @@ new class extends Component {
                     'name' => $v->name,
                     'price' => $v->price,
                 ])->toArray(),
+                'extras' => $p->extras->where('is_active', true)->map(fn($e) => [
+                    'id' => $e->id,
+                    'name' => $e->name,
+                    'price' => $e->price,
+                ])->values()->toArray(),
             ])
             ->toArray();
     }

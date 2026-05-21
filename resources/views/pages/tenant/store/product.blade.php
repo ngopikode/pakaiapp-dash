@@ -43,6 +43,11 @@
             'name'  => $v->name,
             'price' => $v->price,
         ])->toArray(),
+        'extras'          => $product->extras->where('is_active', true)->map(fn ($e) => [
+            'id'    => $e->id,
+            'name'  => $e->name,
+            'price' => $e->price,
+        ])->values()->toArray(),
     ];
 
     // --- SEO & META OPTIMIZATION ---
@@ -328,6 +333,30 @@
                         </div>
                     </div>
                 @endif
+
+                @php $activeExtras = $product->extras->where('is_active', true); @endphp
+                @if($activeExtras->count() > 0)
+                    <div class="mt-6 space-y-3">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="text-zinc-400">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" x2="12" y1="8" y2="16"/>
+                                <line x1="8" x2="16" y1="12" y2="12"/>
+                            </svg>
+                            Pilihan Tambahan (Add-On)
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($activeExtras as $extra)
+                                <span class="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600">
+                                    {{ $extra->name }}
+                                    <span class="text-[var(--primary-color)] ml-1">+Rp {{ number_format($extra->price, 0, ',', '.') }}</span>
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </main>
 
@@ -336,8 +365,8 @@
             class="fixed bottom-0 left-0 right-0 z-[120] bg-white border-t border-zinc-100 px-5 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
             <div class="max-w-xl mx-auto flex flex-col gap-2.5">
 
-                {{-- Stepper (non-variant item already in cart) --}}
-                <template x-if="qtyInCart > 0 && !product.has_variants">
+                {{-- Stepper (non-variant, non-extra item already in cart) --}}
+                <template x-if="qtyInCart > 0 && !product.has_variants && !(product.extras && product.extras.length > 0)">
                     <div class="flex items-center justify-between rounded-2xl p-1.5 w-full bg-zinc-900 shadow-xl">
                         <button @click="updateQty(product.name, -1)"
                                 class="w-12 h-12 flex items-center justify-center rounded-xl text-white hover:bg-zinc-700 transition-all active:scale-90">
@@ -360,10 +389,10 @@
                     </div>
                 </template>
 
-                {{-- Add / Variant button --}}
-                <template x-if="qtyInCart === 0 || product.has_variants">
+                {{-- Add / Variant / Extra button --}}
+                <template x-if="qtyInCart === 0 || product.has_variants || (product.extras && product.extras.length > 0)">
                     <button
-                        @click="product.has_variants ? openOption(product) : addToCart(product)"
+                        @click="(product.has_variants || (product.extras && product.extras.length > 0)) ? openOption(product) : addToCart(product)"
                         :disabled="!product.is_active"
                         class="w-full py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
                         :class="product.is_active ? 'bg-zinc-900 text-white shadow-xl hover:bg-zinc-800' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'"
@@ -380,7 +409,15 @@
                                 Pilih Opsi Varian
                             </span>
                         </template>
-                        <template x-if="product.is_active && !product.has_variants">
+                        <template x-if="product.is_active && !product.has_variants && product.extras && product.extras.length > 0">
+                            <span class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="text-[var(--primary-color)]"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+                                Pilih Add-On &bull; {{ $product->formatted_price }}
+                            </span>
+                        </template>
+                        <template x-if="product.is_active && !product.has_variants && !(product.extras && product.extras.length > 0)">
                             <span class="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

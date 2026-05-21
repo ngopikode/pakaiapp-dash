@@ -38,13 +38,11 @@
                                 @click="tab = 'pricing'" style="border-radius: 1rem;">
                             <i class="bi bi-tags me-2"></i> Harga & Varian
                         </button>
-                        @if($selectedCategoryType === 'resto')
-                            <button type="button" class="btn btn-tab text-start fw-bold p-3 transition-all"
-                                    :class="tab === 'extras' ? 'btn-primary shadow-sm' : 'border text-secondary bg-body'"
-                                    @click="tab = 'extras'" style="border-radius: 1rem;">
-                                <i class="bi bi-plus-circle-dotted me-2"></i> Add-ons
-                            </button>
-                        @endif
+                        <button type="button" class="btn btn-tab text-start fw-bold p-3 transition-all"
+                                :class="tab === 'extras' ? 'btn-primary shadow-sm' : 'border text-secondary bg-body'"
+                                @click="tab = 'extras'" style="border-radius: 1rem;">
+                            <i class="bi bi-plus-circle-dotted me-2"></i> Add-ons
+                        </button>
                     </div>
                 </div>
             </div>
@@ -284,63 +282,61 @@
                             @endif
                         </div>
 
-                        {{-- TAB 3: EXTRAS / ADD-ONS (F&B Only) --}}
-                        @if($selectedCategoryType === 'resto')
-                            <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
-                                <h5 class="fw-bold mb-4"><i class="bi bi-plus-circle text-success me-2"></i>Add-ons /
-                                    Ekstra</h5>
+                        {{-- TAB 3: EXTRAS / ADD-ONS --}}
+                        <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
+                            <h5 class="fw-bold mb-4"><i class="bi bi-plus-circle text-success me-2"></i>Add-ons /
+                                Ekstra</h5>
 
-                                <div class="d-none d-md-flex row fw-bold text-muted small px-3 mb-2">
-                                    <div class="col-md-5">Nama Add-on (Ex: Ekstra Keju)</div>
-                                    <div class="col-md-3">Modal (Rp)</div>
-                                    <div class="col-md-3">Harga Jual (Rp)</div>
-                                    <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
-                                </div>
+                            <div class="d-none d-md-flex row fw-bold text-muted small px-3 mb-2">
+                                <div class="col-md-5">Nama Add-on (Ex: Ekstra Keju)</div>
+                                <div class="col-md-3">Modal (Rp)</div>
+                                <div class="col-md-3">Harga Jual (Rp)</div>
+                                <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
+                            </div>
 
-                                <div class="d-flex flex-column gap-2 mb-3">
-                                    @foreach($extras as $index => $extra)
-                                        <div class="position-relative bg-body-tertiary p-3 rounded-4 border">
-                                            <div class="row g-2 align-items-center">
-                                                <div class="col-12 col-md-5">
-                                                    <label class="d-md-none small fw-bold text-muted mb-1">Nama
-                                                        Add-on</label>
-                                                    <input type="text"
-                                                           class="form-control bg-body border-0 shadow-sm rounded-3"
-                                                           wire:model="extras.{{ $index }}.name"
-                                                           placeholder="Misal: Shot Espresso">
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <label class="d-md-none small fw-bold text-muted mb-1">Modal</label>
-                                                    <input type="number"
-                                                           class="form-control bg-body border-0 shadow-sm rounded-3"
-                                                           wire:model="extras.{{ $index }}.cost" placeholder="0">
-                                                </div>
-                                                <div class="col-6 col-md-3">
-                                                    <label class="d-md-none small fw-bold text-danger mb-1">Harga
-                                                        Jual</label>
-                                                    <input type="number"
-                                                           class="form-control bg-body border-0 shadow-sm rounded-3 fw-bold text-primary"
-                                                           wire:model="extras.{{ $index }}.price" placeholder="0">
-                                                </div>
-                                                <div
-                                                    class="col-12 col-md-1 text-end text-md-center mt-3 mt-md-0 border-top border-md-none pt-2 pt-md-0">
-                                                    <button type="button"
-                                                            class="btn btn-sm btn-body text-danger shadow-sm rounded-pill w-100 w-md-auto"
-                                                            wire:click="removeExtra({{ $index }})"><i
-                                                            class="bi bi-trash3 d-md-none me-1"></i> Hapus
-                                                    </button>
-                                                </div>
+                            <div class="d-flex flex-column gap-2 mb-3">
+                                @foreach($extras as $index => $extra)
+                                    <div class="position-relative bg-body-tertiary p-3 rounded-4 border">
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-12 col-md-5">
+                                                <label class="d-md-none small fw-bold text-muted mb-1">Nama
+                                                    Add-on</label>
+                                                <input type="text"
+                                                       class="form-control bg-body border-0 shadow-sm rounded-3"
+                                                       wire:model="extras.{{ $index }}.name"
+                                                       placeholder="Misal: Shot Espresso">
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <label class="d-md-none small fw-bold text-muted mb-1">Modal</label>
+                                                <input type="number"
+                                                       class="form-control bg-body border-0 shadow-sm rounded-3"
+                                                       wire:model="extras.{{ $index }}.cost" placeholder="0">
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <label class="d-md-none small fw-bold text-danger mb-1">Harga
+                                                    Jual</label>
+                                                <input type="number"
+                                                       class="form-control bg-body border-0 shadow-sm rounded-3 fw-bold text-primary"
+                                                       wire:model="extras.{{ $index }}.price" placeholder="0">
+                                            </div>
+                                            <div
+                                                class="col-12 col-md-1 text-end text-md-center mt-3 mt-md-0 border-top border-md-none pt-2 pt-md-0">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-body text-danger shadow-sm rounded-pill w-100 w-md-auto"
+                                                        wire:click="removeExtra({{ $index }})"><i
+                                                        class="bi bi-trash3 d-md-none me-1"></i> Hapus
+                                                </button>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                                <button type="button"
-                                        class="btn btn-outline-success border fw-bold rounded-pill shadow-sm px-4"
-                                        wire:click="addExtra">
-                                    <i class="bi bi-plus-circle-dotted me-1"></i> Tambah Add-on Baru
-                                </button>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endif
+                            <button type="button"
+                                    class="btn btn-outline-success border fw-bold rounded-pill shadow-sm px-4"
+                                    wire:click="addExtra">
+                                <i class="bi bi-plus-circle-dotted me-1"></i> Tambah Add-on Baru
+                            </button>
+                        </div>
 
                     </div>
                 </div>
@@ -357,16 +353,14 @@
                     @click="tab = 'pricing'">
                 Lanjut Harga <i class="bi bi-arrow-right"></i>
             </button>
-            @if($selectedCategoryType === 'resto')
-                <button type="button" class="btn btn-primary fw-bold rounded-pill px-5 shadow-sm"
-                        x-show="tab === 'pricing'" @click="tab = 'extras'">
-                    Lanjut Add-ons <i class="bi bi-arrow-right"></i>
-                </button>
-            @endif
+            <button type="button" class="btn btn-primary fw-bold rounded-pill px-5 shadow-sm"
+                    x-show="tab === 'pricing'" @click="tab = 'extras'">
+                Lanjut Add-ons <i class="bi bi-arrow-right"></i>
+            </button>
             <button type="submit"
                     class="btn fw-bold rounded-pill px-5 shadow-sm d-flex align-items-center gap-2 text-white"
                     style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
-                    x-show="tab === '{{ $selectedCategoryType === 'resto' ? 'extras' : 'pricing' }}'"
+                    x-show="tab === 'extras'"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save"><i class="bi bi-check2-circle"></i> Simpan Produk</span>
                 <span wire:loading wire:target="save"><span class="spinner-border spinner-border-sm"></span> Menyimpan...</span>
@@ -387,17 +381,15 @@
                 Lanjut <i class="bi bi-arrow-right"></i>
             </button>
 
-            @if($selectedCategoryType === 'resto')
                 <button type="button" class="btn btn-primary fw-bold rounded-pill shadow-sm flex-grow-1"
                         x-show="tab === 'pricing'" @click="tab = 'extras'">
                     Lanjut <i class="bi bi-arrow-right"></i>
                 </button>
-            @endif
 
             <button type="submit"
                     class="btn fw-bold rounded-pill shadow-sm flex-grow-1 d-flex justify-content-center align-items-center gap-2 text-white"
                     style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
-                    x-show="tab === '{{ $selectedCategoryType === 'resto' ? 'extras' : 'pricing' }}'"
+                    x-show="tab === 'extras'"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save"><i class="bi bi-check2-circle"></i> Simpan</span>
                 <span wire:loading wire:target="save"><span

@@ -103,6 +103,7 @@ document.addEventListener('alpine:init', () => {
         optionOpen: false,
         optionProduct: null,
         optionSelected: [],
+        extrasSelected: [],
         optionQty: 1,
 
         get isMulti() {
@@ -115,6 +116,7 @@ document.addEventListener('alpine:init', () => {
         openOption(product) {
             this.optionProduct = product;
             this.optionQty = 1;
+            this.extrasSelected = [];
             if (product.selection_type === 'multiple') {
                 this.optionSelected = [];
             } else {
@@ -153,31 +155,74 @@ document.addEventListener('alpine:init', () => {
         isOptionSelected(name) {
             return this.optionSelected.includes(name);
         },
+
+        /* ===== EXTRAS (Add-ons) ===== */
+        toggleExtra(extraName) {
+            const idx = this.extrasSelected.indexOf(extraName);
+            if (idx > -1) {
+                this.extrasSelected.splice(idx, 1);
+            } else {
+                this.extrasSelected.push(extraName);
+            }
+        },
+        isExtraSelected(name) {
+            return this.extrasSelected.includes(name);
+        },
+        get extrasTotal() {
+            if (!this.optionProduct?.extras?.length) return 0;
+            return this.optionProduct.extras
+                .filter(e => this.extrasSelected.includes(e.name))
+                .reduce((sum, e) => sum + (parseFloat(e.price) || 0), 0);
+        },
         get optionValid() {
-            return this.optionSelected.length > 0;
+            // Valid kalau ada variant yang dipilih (atau produk tidak punya variant)
+            return this.optionProduct?.variants?.length
+                ? this.optionSelected.length > 0
+                : true;
         },
         get optionTotalPrice() {
             if (!this.optionProduct) return 0;
-            if (this.isMulti) {
-                return this.optionProduct.price * this.optionQty;
+            let basePrice;
+            if (!this.optionProduct.variants?.length) {
+                basePrice = parseFloat(this.optionProduct.price) || 0;
+            } else if (this.isMulti) {
+                basePrice = parseFloat(this.optionProduct.price) || 0;
+            } else {
+                const v = this.optionProduct.variants.find(
+                    (v) => v.name === this.optionSelected[0]
+                );
+                basePrice = v ? (parseFloat(v.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
             }
-            const v = this.optionProduct.variants.find(
-                (v) => v.name === this.optionSelected[0]
-            );
-            return (v ? v.price : this.optionProduct.price) * this.optionQty;
+            return (basePrice + this.extrasTotal) * this.optionQty;
         },
         confirmOption() {
             if (!this.optionValid || !this.optionProduct) return;
-            const selectedLabel = this.optionSelected.join(', ');
+
+            // Hitung harga variant
             let price;
-            if (this.isMulti) {
+            let variantLabel = '';
+            if (!this.optionProduct.variants?.length) {
                 price = this.optionProduct.price;
+            } else if (this.isMulti) {
+                price = this.optionProduct.price;
+                variantLabel = this.optionSelected.join(', ');
             } else {
                 const v = this.optionProduct.variants.find(
                     (v) => v.name === this.optionSelected[0]
                 );
                 price = v ? v.price : this.optionProduct.price;
+                variantLabel = this.optionSelected[0] || '';
             }
+
+            // Tambahkan harga extras
+            price += this.extrasTotal;
+
+            // Bangun label lengkap untuk cartName
+            const extrasLabel = this.extrasSelected.length
+                ? this.extrasSelected.join(', ')
+                : '';
+            const selectedLabel = [variantLabel, extrasLabel].filter(Boolean).join(' + ');
+
             this.addToCart(
                 {...this.optionProduct, price},
                 selectedLabel,
