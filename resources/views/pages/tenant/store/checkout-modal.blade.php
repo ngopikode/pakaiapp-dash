@@ -387,6 +387,19 @@
                                         Proses Otomatis
                                     </span>
                                 </div>
+
+                                @if(config('duitku.sandbox'))
+                                <div class="mb-3.5 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-2xl flex gap-2.5 items-start text-left"
+                                     x-show="selectedPaymentMethod !== 'cash'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                                    <div>
+                                        <h6 class="text-[11px] font-black text-amber-900 leading-tight mb-0.5">Mode Uji Coba (Sandbox)</h6>
+                                        <p class="text-[10px] text-amber-800 leading-normal font-semibold">
+                                            Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
+                                        </p>
+                                    </div>
+                                </div>
+                                @endif
                                 
                                 <!-- Compact list in an elegant scrollable box -->
                                 <div class="max-h-[160px] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">

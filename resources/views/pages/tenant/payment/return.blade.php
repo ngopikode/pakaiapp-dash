@@ -189,6 +189,18 @@
 
         {{-- Invoice Info --}}
         @if ($order)
+            @if(! $isPaid && ! $isCancelled && config('duitku.sandbox'))
+                <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0.75rem; padding: 0.75rem 1rem; margin-bottom: 1.25rem; text-align: left; display: flex; gap: 0.5rem; align-items: start;">
+                    <span style="color: #f59e0b; font-size: 1.1rem; line-height: 1; flex-shrink: 0; margin-top: 1px;">⚠️</span>
+                    <div>
+                        <h6 style="font-weight: 700; font-size: 0.75rem; color: #78350f; margin-bottom: 0.15rem;">Mode Uji Coba (Sandbox)</h6>
+                        <p style="font-size: 0.68rem; color: #92400e; line-height: 1.35; margin: 0;">
+                            Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
+                        </p>
+                    </div>
+                </div>
+            @endif
+
             <div class="invoice-box">
                 <div style="text-align: left;">
                     <span class="invoice-label">Kode Invoice</span>

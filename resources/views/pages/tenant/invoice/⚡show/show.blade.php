@@ -37,6 +37,19 @@
                 </span>
             </div>
 
+            @if(config('duitku.sandbox'))
+                <div class="alert alert-warning border-0 rounded-3 mb-3 p-3 text-start d-flex gap-2.5 shadow-none"
+                     style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important; border-radius: 10px !important;">
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0" style="margin-top: 1px;"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="font-size: 0.8rem; color: #78350f;">Mode Uji Coba (Sandbox)</h6>
+                        <p class="mb-0 text-muted" style="font-size: 0.7rem; line-height: 1.4; color: #92400e !important;">
+                            Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
+                        </p>
+                    </div>
+                </div>
+            @endif
+
             <div class="d-flex align-items-center gap-3 bg-light p-3 rounded-3 mb-4"
                  style="border-radius: 12px !important;">
                 <img src="{{ $duitkuDetails['logo'] }}" alt="{{ $duitkuDetails['name'] }}"
