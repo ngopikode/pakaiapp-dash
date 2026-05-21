@@ -409,14 +409,16 @@
                 return;
             }
 
-            // Validasi Duitku: metode & email wajib ada
+            // Validasi Duitku: cukup metode yang wajib ada, email opsional
             if (this.paymentMethod === 'duitku') {
                 if (!this.duitkuMethod) {
                     showIslandToast('Pilih metode Duitku dulu!', 'warning');
                     return;
                 }
-                if (!this.duitkuCustomerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.duitkuCustomerEmail.trim())) {
-                    showIslandToast('Email customer tidak valid!', 'warning');
+                // Email opsional di kasir — kalau diisi, validasi formatnya saja
+                const email = this.duitkuCustomerEmail.trim();
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showIslandToast('Format email tidak valid!', 'warning');
                     return;
                 }
             }

@@ -33,16 +33,18 @@
                          window.showIslandToast('Uang yang diterima tidak cukup!', 'warning');
                          return;
                      }
-                     if (this.paymentMethod === 'duitku') {
-                         if (!this.duitkuMethod) {
-                             window.showIslandToast('Pilih metode Duitku dulu!', 'warning');
-                             return;
-                         }
-                         if (!this.duitkuCustomerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.duitkuCustomerEmail.trim())) {
-                             window.showIslandToast('Email customer tidak valid!', 'warning');
-                             return;
-                         }
-                     }
+                      if (this.paymentMethod === 'duitku') {
+                          if (!this.duitkuMethod) {
+                              window.showIslandToast('Pilih metode Duitku dulu!', 'warning');
+                              return;
+                          }
+                          // Email opsional — validasi format saja kalau diisi
+                          const email = this.duitkuCustomerEmail.trim();
+                          if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                              window.showIslandToast('Format email tidak valid!', 'warning');
+                              return;
+                          }
+                      }
                      this.isSubmitting = true;
                      await $wire.processPayment();
                      this.isSubmitting = false;
@@ -198,7 +200,7 @@
                                 <!-- Bagian 2: Form Email Pelanggan -->
                                 <div class="mt-3">
                                     <label class="form-label small fw-bold text-muted mb-1.5 text-uppercase tracking-wider" style="font-size: 0.65rem;">
-                                        2. Kirim Tagihan ke Email Customer <span class="text-danger">*</span>
+                                        2. Kirim Tagihan ke Email Customer <span class="text-muted">(opsional)</span>
                                     </label>
                                     <div class="p-3 bg-light rounded-4 border">
                                         <div class="input-group">
@@ -211,7 +213,7 @@
                                         </div>
                                         <div class="d-flex align-items-center gap-1.5 text-muted mt-2" style="font-size: 0.68rem;">
                                             <i class="bi bi-info-circle-fill text-warning"></i>
-                                            <span>Email wajib diisi untuk notifikasi & pengiriman kuitansi resmi Duitku.</span>
+                                            <span>Kosongkan jika tidak ada — sistem akan pakai email toko secara otomatis.</span>
                                         </div>
                                     </div>
                                 </div>
@@ -323,7 +325,7 @@
                             style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
                             :disabled="isSubmitting
                                 || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))
-                                || (paymentMethod === 'duitku' && (!duitkuMethod || !duitkuCustomerEmail))"
+                                || (paymentMethod === 'duitku' && !duitkuMethod)"
                     >
                         <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">
                             <span x-show="paymentMethod !== 'duitku'">Selesaikan Transaksi</span>

@@ -252,12 +252,16 @@ new class extends Component {
             return ['success' => false, 'error' => 'Pembayaran digital Duitku sedang tidak aktif.'];
         }
 
-        if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
-            return ['success' => false, 'error' => 'Email customer tidak valid.'];
+        // Email opsional di kasir — fallback ke email manager jika tidak diisi
+        $resolvedEmail = trim($customerEmail ?? '');
+        if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
+            $manager = \App\Models\TenantUser::where('role', 'manager')->first()
+                ?? \App\Models\TenantUser::first();
+            $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
         }
 
         try {
-            return DB::transaction(function () use ($orderId, $paymentMethod, $customerEmail) {
+            return DB::transaction(function () use ($orderId, $paymentMethod, $resolvedEmail) {
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
                 if (!$order || $order->status !== 'pending') {
@@ -267,7 +271,7 @@ new class extends Component {
                 $customerDetail = [
                     'firstName' => $order->customer_name ?: 'Pelanggan',
                     'lastName' => '',
-                    'email' => $customerEmail,
+                    'email' => $resolvedEmail,
                     'phoneNumber' => $order->customer_phone ?: '',
                     'address' => 'Indonesia',
                     'city' => 'Jakarta',
@@ -300,6 +304,7 @@ new class extends Component {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+
 
     /**
      * Batalkan pesanan pending (kembalikan stok).

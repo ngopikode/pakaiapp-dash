@@ -81,10 +81,12 @@ class DuitkuService
         $lastName = substr(strip_tags($customerDetail['lastName'] ?? ''), 0, 50);
         $phoneNumber = preg_replace('/[^0-9+]/', '', $customerDetail['phoneNumber'] ?? '');
 
-        // Email wajib valid untuk Duitku
+        // Email wajib valid untuk Duitku — gunakan fallback jika tidak ada
+        // (Kasir sering tidak punya email customer; email manager sudah di-resolve di controller)
         $email = filter_var($customerDetail['email'] ?? '', FILTER_VALIDATE_EMAIL)
             ? $customerDetail['email']
-            : throw new RuntimeException('Email customer tidak valid. Email wajib untuk pembayaran Duitku.');
+            : 'noreply@pakaiapp.online';
+
 
         $address = [
             'firstName' => $firstName,

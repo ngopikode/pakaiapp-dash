@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\TenantUser;
 use App\Services\DuitkuService;
 use App\Traits\ApiResponserTrait;
 use Illuminate\Http\JsonResponse;
@@ -33,10 +34,15 @@ class OrderApiController extends Controller
             ], 403);
         }
 
+        // Toko online = order_type 'online' — email wajib sebagai bukti pembayaran.
+        // Kasir (retail/dinein/takeaway) — email opsional, kasir nggak perlu nanya email customer.
+        $isOnlineOrder = strtolower($request->input('order_type', '')) === 'online';
+
         $request->validate([
             'customer_name'      => 'required|string|max:255',
-            // Email WAJIB jika bayar via Duitku (Duitku butuh email untuk notifikasi)
-            'customer_email'     => $willUseDuitku ? 'required|email|max:255' : 'nullable|email|max:255',
+            'customer_email'     => $isOnlineOrder && $willUseDuitku
+                                    ? 'required|email|max:255'
+                                    : 'nullable|email|max:255',
             'customer_phone'     => 'nullable|string|max:20',
             'order_type'         => 'nullable|string',
             'order_info'         => 'nullable|string|max:100',
@@ -114,10 +120,23 @@ class OrderApiController extends Controller
                 // Load items untuk dikirim ke Duitku
                 $order->load('items');
 
+                // Resolve email: pakai customer_email jika ada,
+                // fallback ke email manager/owner tenant agar tidak error di Duitku.
+                $customerEmail = $request->customer_email;
+                if (empty($customerEmail)) {
+                    $manager = TenantUser::where('role', 'manager')->first()
+                        ?? TenantUser::first();
+                    $customerEmail = $manager?->email ?? 'noreply@pakaiapp.online';
+
+                    Log::info('[Duitku] Email customer kosong, fallback ke email manager', [
+                        'fallback_email' => $customerEmail,
+                    ]);
+                }
+
                 $customerDetail = [
                     'firstName' => $request->customer_name,
                     'lastName' => '',
-                    'email' => $request->customer_email ?? '',
+                    'email' => $customerEmail,
                     'phoneNumber' => $request->customer_phone ?? '',
                     'address' => 'Indonesia',
                     'city' => 'Jakarta',

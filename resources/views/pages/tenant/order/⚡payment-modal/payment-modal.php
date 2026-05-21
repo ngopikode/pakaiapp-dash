@@ -71,11 +71,6 @@ new class extends Component {
                 return;
             }
 
-            if (!filter_var($this->duitkuCustomerEmail, FILTER_VALIDATE_EMAIL)) {
-                $this->dispatch('notify', message: 'Email customer tidak valid.', type: 'error');
-                return;
-            }
-
             try {
                 $paymentUrl = DB::transaction(function () {
                     $order = Order::with('items')->lockForUpdate()->find($this->paymentOrderId);
@@ -84,10 +79,18 @@ new class extends Component {
                         throw new \Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                     }
 
+                    // Email opsional di kasir — fallback ke email manager jika tidak diisi
+                    $resolvedEmail = trim($this->duitkuCustomerEmail ?? '');
+                    if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
+                        $manager = \App\Models\TenantUser::where('role', 'manager')->first()
+                            ?? \App\Models\TenantUser::first();
+                        $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
+                    }
+
                     $customerDetail = [
                         'firstName' => $order->customer_name ?: 'Pelanggan',
                         'lastName' => '',
-                        'email' => $this->duitkuCustomerEmail,
+                        'email' => $resolvedEmail,
                         'phoneNumber' => $order->customer_phone ?: '',
                         'address' => 'Indonesia',
                         'city' => 'Jakarta',
