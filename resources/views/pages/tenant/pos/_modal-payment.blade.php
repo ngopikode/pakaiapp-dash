@@ -107,6 +107,19 @@
                                     </div>
                                 </div>
 
+                                @if(config('duitku.sandbox'))
+                                <div class="alert alert-warning border-0 rounded-4 mb-3 p-3 d-flex gap-2 shadow-none align-items-start"
+                                     style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important; border-radius: 12px !important;">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0" style="margin-top: 1px;"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.8rem; color: #78350f;">Mode Uji Coba (Sandbox)</h6>
+                                        <p class="mb-0 text-muted" style="font-size: 0.7rem; line-height: 1.4; color: #92400e !important;">
+                                            Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
+                                        </p>
+                                    </div>
+                                </div>
+                                @endif
+
                                 <!-- Bagian 1: Pilih Metode Pembayaran (Grid Premium) -->
                                 <div class="mb-3 flex-grow-1">
                                     <label class="form-label small fw-bold text-muted mb-2 text-uppercase tracking-wider" style="font-size: 0.65rem;">

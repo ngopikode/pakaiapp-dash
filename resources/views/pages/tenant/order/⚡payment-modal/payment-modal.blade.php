@@ -2,7 +2,52 @@
      data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
-             style="border-radius: 1.5rem; max-height: 95vh; border-color: var(--bs-border-color-translucent) !important;">
+             style="border-radius: 1.5rem; max-height: 95vh; border-color: var(--bs-border-color-translucent) !important;"
+             x-data="{
+                 paymentMethod: $wire.entangle('paymentMethod'),
+                 amountPaid: $wire.entangle('paymentAmount'),
+                 payTotal: $wire.entangle('paymentTotal'),
+                 duitkuMethod: $wire.entangle('duitkuMethod'),
+                 duitkuCustomerEmail: $wire.entangle('duitkuCustomerEmail'),
+                 duitkuPaymentMethods: $wire.entangle('duitkuPaymentMethods'),
+                 isSubmitting: false,
+
+                 formatRupiah(val) {
+                     return new Intl.NumberFormat('id-ID').format(val || 0);
+                 },
+                 appendNumber(n) {
+                     let current = String(this.amountPaid || '');
+                     if (current === String(this.payTotal)) current = '';
+                     if (current.length < 12) this.amountPaid = parseInt(current + n) || '';
+                 },
+                 deleteNumber() {
+                     let current = String(this.amountPaid || '');
+                     if (current.length > 1) this.amountPaid = parseInt(current.slice(0, -1)) || '';
+                     else this.amountPaid = '';
+                 },
+                 get getChange() {
+                     return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
+                 },
+                 async submitPayment() {
+                     if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
+                         window.showIslandToast('Uang yang diterima tidak cukup!', 'warning');
+                         return;
+                     }
+                     if (this.paymentMethod === 'duitku') {
+                         if (!this.duitkuMethod) {
+                             window.showIslandToast('Pilih metode Duitku dulu!', 'warning');
+                             return;
+                         }
+                         if (!this.duitkuCustomerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.duitkuCustomerEmail.trim())) {
+                             window.showIslandToast('Email customer tidak valid!', 'warning');
+                             return;
+                         }
+                     }
+                     this.isSubmitting = true;
+                     await $wire.processPayment();
+                     this.isSubmitting = false;
+                 }
+             }">
 
             {{-- Header (Sticky) --}}
             <div class="modal-header border-bottom bg-body-tertiary px-4 py-3 flex-shrink-0"
@@ -12,51 +57,7 @@
             </div>
 
             {{-- Body (Scrollable only if content overflows) --}}
-            <div class="modal-body p-3 p-md-4 bg-body overflow-y-auto" x-data="{
-                paymentMethod: $wire.entangle('paymentMethod'),
-                amountPaid: $wire.entangle('paymentAmount'),
-                payTotal: $wire.entangle('paymentTotal'),
-                duitkuMethod: $wire.entangle('duitkuMethod'),
-                duitkuCustomerEmail: $wire.entangle('duitkuCustomerEmail'),
-                duitkuPaymentMethods: $wire.entangle('duitkuPaymentMethods'),
-                isSubmitting: false,
-
-                formatRupiah(val) {
-                    return new Intl.NumberFormat('id-ID').format(val || 0);
-                },
-                appendNumber(n) {
-                    let current = String(this.amountPaid || '');
-                    if (current === String(this.payTotal)) current = '';
-                    if (current.length < 12) this.amountPaid = parseInt(current + n) || '';
-                },
-                deleteNumber() {
-                    let current = String(this.amountPaid || '');
-                    if (current.length > 1) this.amountPaid = parseInt(current.slice(0, -1)) || '';
-                    else this.amountPaid = '';
-                },
-                get getChange() {
-                    return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
-                },
-                async submitPayment() {
-                    if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
-                        alert('Uang tidak cukup!');
-                        return;
-                    }
-                    if (this.paymentMethod === 'duitku') {
-                        if (!this.duitkuMethod) {
-                            alert('Pilih metode Duitku dulu!');
-                            return;
-                        }
-                        if (!this.duitkuCustomerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.duitkuCustomerEmail.trim())) {
-                            alert('Email customer tidak valid!');
-                            return;
-                        }
-                    }
-                    this.isSubmitting = true;
-                    await $wire.processPayment();
-                    this.isSubmitting = false;
-                }
-            }">
+            <div class="modal-body p-3 p-md-4 bg-body overflow-y-auto">
                 <div class="row g-3 g-md-4">
 
                     <!-- Kolom Total & Metode -->

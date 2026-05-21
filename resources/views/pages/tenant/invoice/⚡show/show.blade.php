@@ -145,15 +145,21 @@
         </div>
     @endif
 
+    {{-- Tombol Kembali ke Menu (hanya tampil di halaman standalone, BUKAN dalam iframe/modal) --}}
     @if(($store->store_type ?? 'resto') === 'resto')
-        <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
+        <div id="back-to-menu-btn" class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
              style="max-width: 450px;">
-
             <a href="{{ url('/') }}"
                class="btn btn-outline-dark rounded-3 fw-bold shadow-sm gap-2 px-3 py-2 w-100 text-center">
                 <i class="bi bi-house-door"></i> Kembali ke Menu Utama
             </a>
         </div>
+        <script>
+            // Sembunyikan tombol jika invoice dirender dalam iframe (mis. di order modal)
+            if (window.self !== window.top) {
+                document.getElementById('back-to-menu-btn')?.remove();
+            }
+        </script>
     @endif
 
     <div id="receipt-content" class="receipt-container p-4 p-md-5 mt-2">
@@ -318,14 +324,8 @@
 
         <div class="text-center mt-4 pt-3 dashed-border">
             <div class="text-center mb-3">
-                <svg x-init="JsBarcode($el, '{{ $order->invoice_code }}', {
-                    format: 'CODE128',
-                    lineColor: '#111827',
-                    width: 1.5,
-                    height: 40,
-                    displayValue: false,
-                    margin: 0
-                })"></svg>
+                <div id="receipt-qrcode" class="d-inline-block p-2 bg-white rounded-2 border" style="line-height:0;"></div>
+                <div class="text-muted mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">{{ $order->invoice_code }}</div>
             </div>
             <p class="fw-bold text-dark mb-1">Terima Kasih!</p>
             <p class="text-muted" style="font-size: 0.8rem;">Struk ini adalah bukti pembayaran yang sah.<br>Harap
@@ -465,7 +465,7 @@
         background-color: #f8fafc !important;
     }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -508,5 +508,20 @@
             console.error('Gagal menyalin: ', err);
         });
     }
+
+    // Generate QR Code untuk struk
+    document.addEventListener('DOMContentLoaded', function () {
+        const qrEl = document.getElementById('receipt-qrcode');
+        if (qrEl && typeof QRCode !== 'undefined') {
+            new QRCode(qrEl, {
+                text: '{{ $order->invoice_code }}',
+                width: 90,
+                height: 90,
+                colorDark: '#111827',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    });
 </script>
 @endassets

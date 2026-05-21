@@ -9,8 +9,6 @@ use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -177,15 +175,13 @@ new class extends Component {
                     "Biaya transaksi langsung untuk pesanan $invoiceCode"
                 );
 
-                $storeName = StoreSetting::first()->name ?? 'Resto Kami';
-
                 return [
-                    'success' => true,
-                    'invoice_code' => $order->invoice_code,
+                    'success'       => true,
+                    'invoice_code'  => $order->invoice_code,
                     'customer_name' => $order->customer_name,
-                    'customer_phone' => null,
-                    'store_name' => $storeName,
-                    'total_price' => $totalPrice,
+                    'customer_phone'=> null,
+                    'store_name'    => $storeName,
+                    'total_price'   => $totalPrice,
                 ];
             });
         } catch (Exception $e) {
@@ -339,15 +335,6 @@ new class extends Component {
 
     public function with(): array
     {
-        // Programmatic self-healing database migration run to ensure tax & service charge columns exist
-        try {
-            if (!Schema::hasColumn('orders', 'tax_amount') || !Schema::hasColumn('store_settings', 'tax_rate')) {
-                Artisan::call('migrate', ['--force' => true]);
-            }
-        } catch (\Exception $e) {
-            // Silence database locks or minor schema check exceptions
-        }
-
         $storeSetting = StoreSetting::first();
         $orderTypes = [];
 

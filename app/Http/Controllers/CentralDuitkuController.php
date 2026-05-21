@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Tenant;
 use App\Services\DuitkuService;
+use App\Services\TenantWalletService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Throwable;
@@ -236,45 +238,87 @@ class CentralDuitkuController extends Controller
             return;
         }
 
-        // Library Duitku validasi signature. Kita panggil callback() untuk validasi.
-        // Namun karena kita sudah di dalam tenant->run(), config tetap dibaca dari central.
+        // Validasi signature Duitku via HMAC-SHA256 sebelum melakukan apapun
         $duitkuService = new DuitkuService();
         $notif = $duitkuService->handleCallback();
 
         $resultCode = $notif['resultCode'] ?? null;
-        $order = Order::where('invoice_code', $invoiceCode)->first();
 
-        if (!$order) {
-            Log::warning('[Duitku Central] Order tidak ditemukan di tenant DB', [
-                'invoiceCode' => $invoiceCode,
-            ]);
-            return;
-        }
+        // Semua mutasi order + wallet dibungkus dalam satu DB transaction —
+        // jika salah satu gagal, semuanya rollback agar data tetap konsisten.
+        DB::transaction(function () use ($invoiceCode, $notif, $resultCode) {
+            // lockForUpdate: cegah race condition jika Duitku retry callback bersamaan
+            $order = Order::where('invoice_code', $invoiceCode)->lockForUpdate()->first();
 
-        if ($resultCode === '00') {
-            $order->update([
-                'status' => 'paid',
-                'payment_method' => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
-                'duitku_reference' => $notif['reference'] ?? $order->duitku_reference,
-                'amount_paid' => (int)($notif['amount'] ?? $order->total_price),
-            ]);
+            if (!$order) {
+                Log::warning('[Duitku Central] Order tidak ditemukan di tenant DB', [
+                    'invoiceCode' => $invoiceCode,
+                ]);
+                return;
+            }
 
-            Log::info('[Duitku Central] Pembayaran berhasil', ['invoiceCode' => $invoiceCode]);
+            // ──── IDEMPOTENCY GUARD ────────────────────────────────────────────
+            // Jika order sudah bukan 'pending', callback sudah diproses sebelumnya.
+            // Duitku kadang mengirim callback berulang — hentikan di sini.
+            if ($order->status !== 'pending') {
+                Log::info('[Duitku Central] Callback diabaikan — order sudah diproses', [
+                    'invoiceCode' => $invoiceCode,
+                    'currentStatus' => $order->status,
+                ]);
+                return;
+            }
+            // ──────────────────────────────────────────────────────────────────
 
-        } elseif ($resultCode === '01') {
-            $order->update([
-                'status' => 'cancelled',
-                'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
-            ]);
+            if ($resultCode === '00') {
+                // Ambil jumlah yang benar-benar dibayar customer dari notifikasi Duitku
+                $amountPaid = (int)($notif['amount'] ?? $order->total_price);
 
-            Log::info('[Duitku Central] Pembayaran gagal', ['invoiceCode' => $invoiceCode]);
+                $order->update([
+                    'status'          => 'paid',
+                    'payment_method'  => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
+                    'duitku_reference'=> $notif['reference'] ?? $order->duitku_reference,
+                    'amount_paid'     => $amountPaid,
+                ]);
 
-        } else {
-            Log::warning('[Duitku Central] resultCode tidak dikenal', [
-                'invoiceCode' => $invoiceCode,
-                'resultCode' => $resultCode,
-            ]);
-        }
+                // ── KREDIT WALLET ──────────────────────────────────────────────
+                // Uang dari customer yang berhasil masuk via Duitku dikreditkan ke
+                // wallet tenant sebagai catatan kas masuk digital.
+                $walletService = app(TenantWalletService::class);
+
+                $walletService->addBalance(
+                    $amountPaid,
+                    $order,
+                    "Pendapatan Duitku masuk untuk pesanan {$order->invoice_code}"
+                );
+
+                // Potong biaya layanan pakaiapp Rp300 per transaksi sukses
+                $walletService->deductBalance(
+                    300,
+                    $order,
+                    "Biaya layanan pakaiapp untuk pesanan {$order->invoice_code}"
+                );
+                // ──────────────────────────────────────────────────────────────
+
+                Log::info('[Duitku Central] Pembayaran berhasil, wallet dikreditkan', [
+                    'invoiceCode' => $invoiceCode,
+                    'amountPaid'  => $amountPaid,
+                ]);
+
+            } elseif ($resultCode === '01') {
+                $order->update([
+                    'status'            => 'cancelled',
+                    'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
+                ]);
+
+                Log::info('[Duitku Central] Pembayaran gagal/dibatalkan', ['invoiceCode' => $invoiceCode]);
+
+            } else {
+                Log::warning('[Duitku Central] resultCode tidak dikenal, tidak ada perubahan', [
+                    'invoiceCode' => $invoiceCode,
+                    'resultCode'  => $resultCode,
+                ]);
+            }
+        });
     }
 
     /**

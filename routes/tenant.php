@@ -58,6 +58,7 @@ Route::middleware([
         // Routes accessible ONLY by manager
         Route::middleware('role:manager')->group(function () {
             Route::livewire('dashboard', 'pages::tenant.dashboard')->name('dashboard');
+            Route::livewire('wallet', 'pages::tenant.payment.wallet')->name('wallet');
             Route::view('product', 'pages.tenant.product.product')->name('product');
             Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
             Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');

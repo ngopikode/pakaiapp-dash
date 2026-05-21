@@ -23,7 +23,7 @@ return [
     'merchant_code' => env('DUITKU_MERCHANT_CODE'),
 
     // true = sandbox (testing), false = production
-    'sandbox' => env('DUITKU_SANDBOX', true),
+    'sandbox' => filter_var(env('DUITKU_SANDBOX', true), FILTER_VALIDATE_BOOLEAN),
 
     // Masa berlaku transaksi (dalam menit)
     'expiry_period' => env('DUITKU_EXPIRY_PERIOD', 60),

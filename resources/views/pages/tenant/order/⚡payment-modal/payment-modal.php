@@ -28,7 +28,9 @@ new class extends Component {
         $order = Order::find($orderId);
         if ($order) {
             $this->paymentOrderId = $orderId;
-            $this->paymentMethod = 'cash';
+            // Gunakan payment_method yang sudah ada di order (misal dari toko online),
+            // fallback ke 'cash' hanya jika belum ada.
+            $this->paymentMethod = $order->payment_method ?: 'cash';
             $this->paymentTotal = $order->total_price;
             $this->paymentAmount = $order->total_price;
             $this->duitkuMethod = null;
