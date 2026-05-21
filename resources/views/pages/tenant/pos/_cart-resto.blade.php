@@ -106,6 +106,41 @@
 
         <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
 
+        {{-- Ringkasan Biaya & Pajak --}}
+        <div class="card p-3 border mb-3 bg-body-tertiary" style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;" x-show="cart.length > 0">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-secondary small">Subtotal</span>
+                <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(subTotal)"></span>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-secondary small">Biaya Layanan (<span x-text="serviceChargeRate"></span>%)</span>
+                    <div class="form-check form-switch mb-0 min-height-0">
+                        <input class="form-check-input" type="checkbox" role="switch" x-model="isServiceActive" style="cursor: pointer;">
+                    </div>
+                </div>
+                <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(serviceChargeAmount)"></span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-secondary small">Pajak PB1 (<span x-text="taxRate"></span>%)</span>
+                    <div class="form-check form-switch mb-0 min-height-0">
+                        <input class="form-check-input" type="checkbox" role="switch" x-model="isTaxActive" style="cursor: pointer;">
+                    </div>
+                </div>
+                <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(taxAmount)"></span>
+            </div>
+
+            <div class="border-top my-2" style="border-color: var(--bs-border-color) !important;"></div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-body">Total</span>
+                <span class="fw-bold text-primary" x-text="'Rp ' + formatRupiah(subTotalWithCharges)"></span>
+            </div>
+        </div>
+
         <div class="row g-2">
             <div class="col-12 col-xl-6">
                 <button @click="submitNewOrder"
@@ -120,8 +155,18 @@
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
                         style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
                     <span>Bayar</span>
-                    <span x-text="formatRupiah(subTotal)"></span>
+                    <span x-text="formatRupiah(subTotalWithCharges)"></span>
                 </button>
+            </div>
+        </div>
+
+        {{-- Keyboard Shortcuts Legend --}}
+        <div class="mt-3 text-center border-top pt-2 d-none d-xl-block" style="border-color: var(--bs-border-color-translucent) !important;">
+            <div class="d-flex justify-content-center flex-wrap gap-2 text-secondary" style="font-size: 0.7rem;">
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F2</kbd> Bayar</span>
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F3</kbd> Simpan Antrian</span>
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F4</kbd> Bersihkan</span>
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F8</kbd> Toggle Tab</span>
             </div>
         </div>
     </div>

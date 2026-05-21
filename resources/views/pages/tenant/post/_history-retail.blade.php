@@ -159,8 +159,8 @@
                                         <i class="bi bi-whatsapp"></i> Kirim WA
                                     </a>
                                 @else
-                                    <button class="btn btn-sm btn-outline-success fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1"
-                                            style="border-radius: 0.75rem; font-size: 0.8rem;"
+                                    <div class="btn btn-sm btn-outline-success fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1 position-relative"
+                                            style="border-radius: 0.75rem; font-size: 0.8rem; cursor: pointer;"
                                             x-data="{ showInput: false, phoneNum: '' }"
                                             @click="showInput = !showInput"
                                             :class="showInput ? 'active' : ''">
@@ -192,7 +192,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                    </button>
+                                    </div>
                                 @endif
                             </div>
                         </div>

@@ -18,6 +18,10 @@ new class extends Component {
     public bool $is_dinein_active = true;
     public bool $is_takeaway_active = true;
     public bool $is_delivery_active = true;
+    public bool $is_tax_active = true;
+    public float $tax_rate = 10.00;
+    public bool $is_service_charge_active = true;
+    public float $service_charge_rate = 5.00;
 
     // Foto lama
     public $logo;
@@ -59,6 +63,10 @@ new class extends Component {
             $this->is_dinein_active = (bool) $setting->is_dinein_active;
             $this->is_takeaway_active = (bool) $setting->is_takeaway_active;
             $this->is_delivery_active = (bool) $setting->is_delivery_active;
+            $this->is_tax_active = isset($setting->is_tax_active) ? (bool)$setting->is_tax_active : true;
+            $this->tax_rate = isset($setting->tax_rate) ? (float)$setting->tax_rate : 10.00;
+            $this->is_service_charge_active = isset($setting->is_service_charge_active) ? (bool)$setting->is_service_charge_active : true;
+            $this->service_charge_rate = isset($setting->service_charge_rate) ? (float)$setting->service_charge_rate : 5.00;
 
             $this->logo = $setting->logo;
             $this->og_image = $setting->og_image;
@@ -100,6 +108,10 @@ new class extends Component {
             'is_dinein_active' => $this->is_dinein_active,
             'is_takeaway_active' => $this->is_takeaway_active,
             'is_delivery_active' => $this->is_delivery_active,
+            'is_tax_active' => $this->is_tax_active,
+            'tax_rate' => $this->tax_rate,
+            'is_service_charge_active' => $this->is_service_charge_active,
+            'service_charge_rate' => $this->service_charge_rate,
 
             'hero_promo_text' => $this->hero_promo_text,
             'hero_status_text' => $this->hero_status_text,

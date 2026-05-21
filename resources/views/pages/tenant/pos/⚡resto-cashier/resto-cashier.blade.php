@@ -1,5 +1,6 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data="restoPos()"
-     @add-product.window="handleProductClick($event.detail.product)" x-cloak>
+     @add-product.window="handleProductClick($event.detail.product)"
+     @keydown.window="handleKeydown($event)" x-cloak>
 
     {{-- Premium Glassmorphism Loading Screen --}}
     <div wire:loading wire:target="changeTab" 
@@ -120,6 +121,11 @@
         lastOrder: {},
         payingOrder: null,
 
+        taxRate: @json($taxRate),
+        serviceChargeRate: @json($serviceChargeRate),
+        isTaxActive: @json($isTaxActive),
+        isServiceActive: @json($isServiceChargeActive),
+
         init() {
             this.variantModalInstance = new bootstrap.Modal(document.getElementById('variantModal'));
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
@@ -131,8 +137,19 @@
         get subTotal() {
             return this.cart.reduce((t, i) => t + i.subtotal, 0);
         },
+        get serviceChargeAmount() {
+            if (!this.isServiceActive) return 0;
+            return Math.round((parseFloat(this.serviceChargeRate) / 100) * this.subTotal);
+        },
+        get taxAmount() {
+            if (!this.isTaxActive) return 0;
+            return Math.round((parseFloat(this.taxRate) / 100) * (this.subTotal + this.serviceChargeAmount));
+        },
+        get subTotalWithCharges() {
+            return this.subTotal + this.serviceChargeAmount + this.taxAmount;
+        },
         get payTotal() {
-            return this.payingOrder ? Math.max(0, this.payingOrder.subtotal - (parseFloat(this.payDiscount) || 0)) : this.subTotal;
+            return this.payingOrder ? Math.max(0, (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) - (parseFloat(this.payDiscount) || 0)) : this.subTotalWithCharges;
         },
         get getChange() {
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
@@ -357,7 +374,7 @@
             }
             this.isSubmitting = true;
             try {
-                const result = await $wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType);
+                const result = await $wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
                 if (result && result.success) {
                     showIslandToast(`Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
                     this.clearCart();
@@ -411,7 +428,7 @@
                     );
                 } else {
                     result = await $wire.processDirectCheckout(
-                        this.cart, this.customerName, this.tableNumber, this.orderType, this.paymentMethod, this.payDiscount || 0, this.amountPaid
+                        this.cart, this.customerName, this.tableNumber, this.orderType, this.paymentMethod, this.payDiscount || 0, this.amountPaid, this.isTaxActive, this.isServiceActive
                     );
                 }
 
@@ -435,6 +452,44 @@
                 showIslandToast('Kesalahan sistem.', 'danger');
             }
             this.isSubmitting = false;
+        },
+
+        handleKeydown(e) {
+            if (e.key === 'F2') { 
+                e.preventDefault(); 
+                if (this.currentTab === 'cashier') {
+                    this.openDirectPaymentModal(); 
+                }
+                return; 
+            }
+            if (e.key === 'F3') { 
+                e.preventDefault(); 
+                if (this.currentTab === 'cashier' && this.cart.length > 0 && !this.isSubmitting) {
+                    this.submitNewOrder(); 
+                }
+                return; 
+            }
+            if (e.key === 'F4') { 
+                e.preventDefault(); 
+                if (this.currentTab === 'cashier') {
+                    this.clearCart(); 
+                }
+                return; 
+            }
+            if (e.key === 'F8') {
+                e.preventDefault();
+                this.currentTab = this.currentTab === 'cashier' ? 'queue' : 'cashier';
+                $wire.changeTab(this.currentTab);
+                return;
+            }
+
+            if (e.key === 'Enter' && document.getElementById('paymentModal').classList.contains('show')) {
+                e.preventDefault();
+                this.submitPayment();
+                return;
+            }
+
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         },
 
         formatRupiah(n) {

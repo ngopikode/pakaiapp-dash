@@ -123,6 +123,18 @@
                     <span class="fw-bold text-danger">- Rp {{ number_format($extraDiscount, 0, ',', '.') }}</span>
                 </div>
             @endif
+            @if(($order->service_charge_amount ?? 0) > 0)
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Biaya Layanan ({{ number_format($order->service_charge_percentage ?? 5, 0) }}%)</span>
+                    <span class="fw-bold text-dark">Rp {{ number_format($order->service_charge_amount, 0, ',', '.') }}</span>
+                </div>
+            @endif
+            @if(($order->tax_amount ?? 0) > 0)
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Pajak PB1 ({{ number_format($order->tax_percentage ?? 10, 0) }}%)</span>
+                    <span class="fw-bold text-dark">Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</span>
+                </div>
+            @endif
             <div class="d-flex justify-content-between mt-3 pt-3 border-top border-2">
                 <span class="fw-bolder text-dark fs-5">TOTAL</span>
                 <span class="fw-bolder text-dark fs-5">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>

@@ -68,18 +68,31 @@
                                     </span>
                                 </div>
                             @endforeach
-                        </div>
 
+                            @if(($order->service_charge_amount ?? 0) > 0)
+                                <div class="d-flex justify-content-between align-items-center py-1 text-muted" style="font-size: 0.8rem;">
+                                    <span>Biaya Layanan ({{ number_format($order->service_charge_percentage ?? 5, 0) }}%)</span>
+                                    <span>Rp {{ number_format($order->service_charge_amount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            @if(($order->tax_amount ?? 0) > 0)
+                                <div class="d-flex justify-content-between align-items-center py-1 text-muted" style="font-size: 0.8rem;">
+                                    <span>Pajak PB1 ({{ number_format($order->tax_percentage ?? 10, 0) }}%)</span>
+                                    <span>Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                        </div>
+ 
                         {{-- Total Info Box --}}
                         <div
                             class="d-flex justify-content-between align-items-center p-2 bg-body-tertiary rounded-3 border">
                             <span class="fw-bold text-muted small">TOTAL</span>
                             <h5 class="fw-bolder mb-0" style="color: var(--brand-caramel, #b45309);">
-                                Rp {{ number_format($order->subtotal, 0, ',', '.') }}
+                                Rp {{ number_format($order->total_price ?? $order->subtotal, 0, ',', '.') }}
                             </h5>
                         </div>
                     </div>
-
+ 
                     {{-- Actions Footer --}}
                     <div class="p-3 border-top bg-body-tertiary d-flex gap-2"
                          style="border-color: var(--bs-border-color-translucent) !important;">
@@ -93,6 +106,7 @@
                                             'invoice_code' => $order->invoice_code,
                                             'customer_name' => $order->customer_name,
                                             'subtotal' => $order->subtotal,
+                                            'total_price' => $order->total_price ?? $order->subtotal,
                                         ]) }})"
                                 class="btn btn-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 text-white"
                                 style="border-radius: 0.75rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">

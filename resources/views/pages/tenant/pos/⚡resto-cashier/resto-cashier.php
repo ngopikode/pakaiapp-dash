@@ -8,6 +8,8 @@ use App\Services\TenantWalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -27,12 +29,12 @@ new class extends Component {
      * Buat pesanan baru (status: pending, belum bayar).
      * TIDAK ADA POTONGAN KREDIT DI SINI.
      */
-    public function createOrder($cart, $customerName, $tableNumber, $orderType)
+    public function createOrder($cart, $customerName, $tableNumber, $orderType, $isTaxActive = true, $isServiceActive = true)
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
         try {
-            return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType) {
+            return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $isTaxActive, $isServiceActive) {
                 $dbVariants = [];
 
                 foreach ($cart as $index => $item) {
@@ -43,7 +45,15 @@ new class extends Component {
                     $dbVariants[$index] = $variant;
                 }
 
+                $storeSetting = StoreSetting::first();
+                $taxRate = $isTaxActive ? (isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00) : 0.00;
+                $serviceRate = $isServiceActive ? (isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00) : 0.00;
+
                 $subtotal = collect($cart)->sum('subtotal');
+                $serviceChargeAmount = round(($serviceRate / 100) * $subtotal);
+                $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
+                $totalPrice = $subtotal + $serviceChargeAmount + $taxAmount;
+
                 $invoiceCode = 'INV-' . strtoupper(Str::random(6));
 
                 $order = Order::create([
@@ -53,8 +63,12 @@ new class extends Component {
                     'order_type' => $orderType,
                     'payment_method' => 'cash',
                     'subtotal' => $subtotal,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'tax_percentage' => $taxRate,
+                    'service_charge_percentage' => $serviceRate,
                     'discount' => 0,
-                    'total_price' => $subtotal,
+                    'total_price' => $totalPrice,
                     'amount_paid' => 0,
                     'change_amount' => 0,
                     'status' => 'pending', // Belum bayar!
@@ -89,12 +103,12 @@ new class extends Component {
      * Checkout langsung bayar (gabungan create order + payment)
      * POTONG KREDIT DI SINI.
      */
-    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid)
+    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive = true, $isServiceActive = true)
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
         try {
-            return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid) {
+            return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive, $isServiceActive) {
                 $dbVariants = [];
 
                 foreach ($cart as $index => $item) {
@@ -105,9 +119,16 @@ new class extends Component {
                     $dbVariants[$index] = $variant;
                 }
 
+                $storeSetting = StoreSetting::first();
+                $taxRate = $isTaxActive ? (isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00) : 0.00;
+                $serviceRate = $isServiceActive ? (isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00) : 0.00;
+
                 $subtotal = collect($cart)->sum('subtotal');
+                $serviceChargeAmount = round(($serviceRate / 100) * $subtotal);
+                $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
+
                 $discountAmount = (float)$discount;
-                $totalPrice = max(0, $subtotal - $discountAmount);
+                $totalPrice = max(0, $subtotal + $serviceChargeAmount + $taxAmount - $discountAmount);
                 $paid = (float)$amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
                 $invoiceCode = 'INV-' . strtoupper(Str::random(6));
@@ -119,6 +140,10 @@ new class extends Component {
                     'order_type' => $orderType,
                     'payment_method' => $paymentMethod,
                     'subtotal' => $subtotal,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'tax_percentage' => $taxRate,
+                    'service_charge_percentage' => $serviceRate,
                     'discount' => $discountAmount,
                     'total_price' => $totalPrice,
                     'amount_paid' => $paid,
@@ -185,7 +210,7 @@ new class extends Component {
                 }
 
                 $discountAmount = (float)$discount;
-                $totalPrice = max(0, $order->subtotal - $discountAmount);
+                $totalPrice = max(0, (isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal) - $discountAmount);
                 $paid = (float)$amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
 
@@ -255,6 +280,15 @@ new class extends Component {
 
     public function with(): array
     {
+        // Programmatic self-healing database migration run to ensure tax & service charge columns exist
+        try {
+            if (!Schema::hasColumn('orders', 'tax_amount') || !Schema::hasColumn('store_settings', 'tax_rate')) {
+                Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Exception $e) {
+            // Silence database locks or minor schema check exceptions
+        }
+
         $storeSetting = StoreSetting::first();
         $orderTypes = [];
 
@@ -273,6 +307,10 @@ new class extends Component {
         return [
             'restoOrderTypes' => $orderTypes,
             'pendingOrders' => $pendingOrders,
+            'isTaxActive' => isset($storeSetting->is_tax_active) ? (bool)$storeSetting->is_tax_active : true,
+            'taxRate' => isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00,
+            'isServiceChargeActive' => isset($storeSetting->is_service_charge_active) ? (bool)$storeSetting->is_service_charge_active : true,
+            'serviceChargeRate' => isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00,
         ];
     }
 };

@@ -32,6 +32,10 @@ class StoreSetting extends Model
         'is_dinein_active',
         'is_takeaway_active',
         'is_delivery_active',
+        'is_tax_active',
+        'tax_rate',
+        'is_service_charge_active',
+        'service_charge_rate',
         'created_at',
         'updated_at'
     ];
