@@ -33,6 +33,7 @@ class CentralDuitkuController extends Controller
             abort(403, 'Duitku payment gateway is disabled.');
         }
     }
+
     /**
      * Handle callback (notifikasi server-to-server dari Duitku).
      *
@@ -43,7 +44,7 @@ class CentralDuitkuController extends Controller
     {
         Log::info('[Duitku Central] Callback diterima', [
             'merchantOrderId' => $request->input('merchantOrderId'),
-            'resultCode'      => $request->input('resultCode'),
+            'resultCode' => $request->input('resultCode'),
         ]);
 
         try {
@@ -53,7 +54,7 @@ class CentralDuitkuController extends Controller
             // Parse tenantId dan invoiceCode dari format "{tenantId}~{invoiceCode}"
             [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
 
-            if (! $tenantId || ! $invoiceCode) {
+            if (!$tenantId || !$invoiceCode) {
                 Log::warning('[Duitku Central] Format merchantOrderId tidak valid', [
                     'raw' => substr($rawMerchantOrderId, 0, 100),
                 ]);
@@ -63,7 +64,7 @@ class CentralDuitkuController extends Controller
             // Cari tenant — validasi keberadaan tenant
             $tenant = Tenant::find($tenantId);
 
-            if (! $tenant) {
+            if (!$tenant) {
                 Log::warning('[Duitku Central] Tenant tidak ditemukan', ['tenantId' => $tenantId]);
                 // Return 200 agar Duitku tidak retry terus untuk order yang tidak dikenal
                 return response('OK', 200);
@@ -90,32 +91,38 @@ class CentralDuitkuController extends Controller
      *
      * Format merchantOrderId di query string: "{tenantId}~{invoiceCode}"
      */
-    public function return(Request $request): \Illuminate\View\View
+    public function return(Request $request): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
     {
         $rawMerchantOrderId = $request->query('merchantOrderId', '');
 
         // Validasi karakter yang diperbolehkan
-        if (! preg_match('/^[A-Za-z0-9\-~_]+$/', $rawMerchantOrderId)) {
+        if (!preg_match('/^[A-Za-z0-9\-~_]+$/', $rawMerchantOrderId)) {
             abort(400, 'Invalid order ID format.');
         }
 
         [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
 
-        $order = null;
-
+        dd($tenantId, $invoiceCode);
         if ($tenantId && $invoiceCode) {
             $tenant = Tenant::find($tenantId);
 
             if ($tenant) {
-                $tenant->run(function () use ($invoiceCode, &$order) {
-                    $order = Order::where('invoice_code', $invoiceCode)->first();
-                });
+                // Ambil domain utama tenant
+                $domain = $tenant->domains->first()?->domain;
+                if (!$domain) {
+                    // Fallback ke subdomain default jika domain kosong
+                    $centralDomain = config('tenancy.central_domains')[2] ?? 'pakaiapp.online';
+                    $domain = $tenantId . '.' . $centralDomain;
+                }
+
+                $scheme = $request->secure() ? 'https' : 'http';
+
+                // Redirect langsung ke invoice di domain tenant
+                return redirect()->away("{$scheme}://{$domain}/invoice/{$invoiceCode}");
             }
         }
 
-        // TODO(security): Jangan expose detail sensitif order ke customer.
-        // Hanya tampilkan status dan invoice code, bukan data payment.
-        return view('pages.tenant.payment.return', compact('order'));
+        abort(404, 'Order atau Tenant tidak ditemukan.');
     }
 
     /**
@@ -129,19 +136,19 @@ class CentralDuitkuController extends Controller
     public function status(string $invoiceCode): \Illuminate\Http\JsonResponse
     {
         // Validasi format
-        if (! preg_match('/^[A-Za-z0-9\-~_]+$/', $invoiceCode)) {
+        if (!preg_match('/^[A-Za-z0-9\-~_]+$/', $invoiceCode)) {
             return response()->json(['message' => 'Format invoice code tidak valid.'], 400);
         }
 
         [$tenantId, $realInvoiceCode] = $this->parseMerchantOrderId($invoiceCode);
 
-        if (! $tenantId || ! $realInvoiceCode) {
+        if (!$tenantId || !$realInvoiceCode) {
             return response()->json(['message' => 'Format invoice code harus {tenantId}~{invoiceCode}.'], 400);
         }
 
         $tenant = Tenant::find($tenantId);
 
-        if (! $tenant) {
+        if (!$tenant) {
             return response()->json(['message' => 'Tenant tidak ditemukan.'], 404);
         }
 
@@ -151,16 +158,16 @@ class CentralDuitkuController extends Controller
             $order = Order::where('invoice_code', $realInvoiceCode)->first();
         });
 
-        if (! $order) {
+        if (!$order) {
             return response()->json(['message' => 'Order tidak ditemukan.'], 404);
         }
 
         // Jika sudah final, return dari DB
         if (in_array($order->status, ['paid', 'cancelled'])) {
             return response()->json([
-                'status'       => $order->status,
+                'status' => $order->status,
                 'invoice_code' => $order->invoice_code,
-                'payment_url'  => $order->duitku_payment_url,
+                'payment_url' => $order->duitku_payment_url,
             ]);
         }
 
@@ -173,26 +180,26 @@ class CentralDuitkuController extends Controller
                 $statusData = $duitkuService->checkTransactionStatus($invoiceCode);
 
                 return response()->json([
-                    'status'       => $order->status,
+                    'status' => $order->status,
                     'invoice_code' => $order->invoice_code,
-                    'payment_url'  => $order->duitku_payment_url,
-                    'duitku'       => [
-                        'statusCode'    => $statusData['statusCode'] ?? null,
+                    'payment_url' => $order->duitku_payment_url,
+                    'duitku' => [
+                        'statusCode' => $statusData['statusCode'] ?? null,
                         'statusMessage' => $statusData['statusMessage'] ?? null,
                     ],
                 ]);
             } catch (Throwable $e) {
                 Log::error('[Duitku Central] checkTransactionStatus error', [
                     'invoice_code' => $invoiceCode,
-                    'error'        => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         return response()->json([
-            'status'       => $order->status,
+            'status' => $order->status,
             'invoice_code' => $order->invoice_code,
-            'payment_url'  => $order->duitku_payment_url,
+            'payment_url' => $order->duitku_payment_url,
         ]);
     }
 
@@ -204,7 +211,7 @@ class CentralDuitkuController extends Controller
     private function processCallback(string $invoiceCode, Request $request): void
     {
         // Validasi format invoiceCode — only alphanumeric + dash
-        if (! preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
+        if (!preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
             Log::warning('[Duitku Central] invoiceCode tidak valid di processCallback', [
                 'invoiceCode' => substr($invoiceCode, 0, 50),
             ]);
@@ -214,12 +221,12 @@ class CentralDuitkuController extends Controller
         // Library Duitku validasi signature. Kita panggil callback() untuk validasi.
         // Namun karena kita sudah di dalam tenant->run(), config tetap dibaca dari central.
         $duitkuService = new DuitkuService();
-        $notif         = $duitkuService->handleCallback();
+        $notif = $duitkuService->handleCallback();
 
-        $resultCode  = $notif['resultCode'] ?? null;
-        $order       = Order::where('invoice_code', $invoiceCode)->first();
+        $resultCode = $notif['resultCode'] ?? null;
+        $order = Order::where('invoice_code', $invoiceCode)->first();
 
-        if (! $order) {
+        if (!$order) {
             Log::warning('[Duitku Central] Order tidak ditemukan di tenant DB', [
                 'invoiceCode' => $invoiceCode,
             ]);
@@ -228,17 +235,17 @@ class CentralDuitkuController extends Controller
 
         if ($resultCode === '00') {
             $order->update([
-                'status'           => 'paid',
-                'payment_method'   => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
+                'status' => 'paid',
+                'payment_method' => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
                 'duitku_reference' => $notif['reference'] ?? $order->duitku_reference,
-                'amount_paid'      => (int) ($notif['amount'] ?? $order->total_price),
+                'amount_paid' => (int)($notif['amount'] ?? $order->total_price),
             ]);
 
             Log::info('[Duitku Central] Pembayaran berhasil', ['invoiceCode' => $invoiceCode]);
 
         } elseif ($resultCode === '01') {
             $order->update([
-                'status'            => 'cancelled',
+                'status' => 'cancelled',
                 'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
             ]);
 
@@ -247,7 +254,7 @@ class CentralDuitkuController extends Controller
         } else {
             Log::warning('[Duitku Central] resultCode tidak dikenal', [
                 'invoiceCode' => $invoiceCode,
-                'resultCode'  => $resultCode,
+                'resultCode' => $resultCode,
             ]);
         }
     }
@@ -259,22 +266,22 @@ class CentralDuitkuController extends Controller
      */
     private function parseMerchantOrderId(string $merchantOrderId): array
     {
-        if (! str_contains($merchantOrderId, '~')) {
+        if (!str_contains($merchantOrderId, '~')) {
             return [null, null];
         }
 
         $parts = explode('~', $merchantOrderId, 2);
 
-        $tenantId    = $parts[0] ?? null;
+        $tenantId = $parts[0] ?? null;
         $invoiceCode = $parts[1] ?? null;
 
         // Validasi: tenantId hanya boleh alfanumerik + dash + underscore (UUID format)
-        if ($tenantId && ! preg_match('/^[A-Za-z0-9\-_]+$/', $tenantId)) {
+        if ($tenantId && !preg_match('/^[A-Za-z0-9\-_]+$/', $tenantId)) {
             return [null, null];
         }
 
         // Validasi: invoiceCode hanya boleh alfanumerik + dash
-        if ($invoiceCode && ! preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
+        if ($invoiceCode && !preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
             return [null, null];
         }
 
