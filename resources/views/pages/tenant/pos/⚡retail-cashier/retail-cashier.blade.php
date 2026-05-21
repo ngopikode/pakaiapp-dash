@@ -1,7 +1,22 @@
-<div class="pos-container d-flex flex-column h-100 bg-transparent"
+<div class="pos-container d-flex flex-column h-100 bg-transparent position-relative"
      x-data="retailPos()"
      @add-product.window="handleProductClick($event.detail.product)"
      x-cloak>
+
+    {{-- Premium Glassmorphism Loading Screen --}}
+    <div wire:loading wire:target="changeTab" 
+         class="position-absolute top-0 start-0 w-100 h-100"
+         style="z-index: 2000; background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(8px); border-radius: 1.5rem; transition: all 0.3s ease;">
+        <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+            <div class="text-center bg-body p-4 rounded-4 shadow border" style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
+                <div class="spinner-border text-warning mb-3" role="status" style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
+                <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
+            </div>
+        </div>
+    </div>
 
     {{-- Tab Navigation (Safe Context Colors) --}}
     <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
