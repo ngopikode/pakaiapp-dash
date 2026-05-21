@@ -102,7 +102,6 @@ class CentralDuitkuController extends Controller
 
         [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
 
-        dd($tenantId, $invoiceCode);
         if ($tenantId && $invoiceCode) {
             $tenant = Tenant::find($tenantId);
 
