@@ -9,7 +9,7 @@
          style="max-width: 450px;">
         @if(($store->store_type ?? 'resto') === 'resto')
             <a href="{{ url('/') }}"
-               class="btn btn-outline-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2 w-100">
+               class="btn btn-outline-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2 w-100 text-center">
                 <i class="bi bi-house-door"></i> Kembali ke Menu Utama
             </a>
         @endif
