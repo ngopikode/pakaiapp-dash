@@ -6,6 +6,39 @@
      @keydown.window="handleKeydown($event)"
      x-cloak>
 
+<style>
+    @media (max-width: 767.98px) {
+        .mobile-help-fab {
+            position: fixed !important;
+            bottom: 24px !important;
+            right: 24px !important;
+            width: 48px !important;
+            height: 48px !important;
+            z-index: 1040 !important;
+            background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-mocha, #846A58)) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
+            margin: 0 !important;
+            display: flex !important;
+            transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        
+        .mobile-help-fab.active-cart {
+            bottom: 96px !important; /* Raised to float above the bottom "View Cart" checkout button */
+        }
+        
+        .mobile-help-fab:hover, .mobile-help-fab:active {
+            transform: scale(1.08) !important;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.25) !important;
+        }
+
+        .mobile-help-fab i {
+            font-size: 1.3rem !important; /* Slightly larger icon for comfortable mobile tapping */
+        }
+    }
+</style>
+
     {{-- Premium Glassmorphism Loading Screen --}}
     <div wire:loading wire:target="changeTab" 
          class="position-absolute top-0 start-0 w-100 h-100"
@@ -46,9 +79,10 @@
             </button>
         </div>
 
-        {{-- Premium Help Button --}}
+        {{-- Premium Help Button (Dynamic FAB on Mobile, Standard Circle on Desktop) --}}
         <button @click="showTutorialModal()"
-                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0"
+                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0 mobile-help-fab"
+                :class="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0 ? 'active-cart' : ''"
                 style="width: 40px; height: 40px; border-radius: 50% !important;"
                 title="Panduan & Tutorial Penggunaan">
             <i class="bi bi-question-circle fs-5"></i>

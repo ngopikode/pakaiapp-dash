@@ -28,7 +28,7 @@ new class extends Component {
 };
 ?>
 
-<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm"
+<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm navbar-dashboard"
      id="mainNavbar" style="min-height: 70px;">
 
     <div class="d-flex align-items-center justify-content-between w-100 flex-nowrap">
@@ -48,6 +48,10 @@ new class extends Component {
             <h5 class="m-0 font-serif fw-bold d-none d-md-block text-truncate" style="max-width: 300px;">
                 {{ $header ?? 'Dashboard' }}
             </h5>
+
+            <span class="fs-6 fw-bold font-serif d-md-none text-truncate" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
+                {{ $header ?? 'Dashboard' }}
+            </span>
         </div>
 
         <ul class="navbar-nav ms-auto flex-row align-items-center gap-2 gap-lg-3">
@@ -67,10 +71,10 @@ new class extends Component {
 
             <li class="nav-item dropdown">
                 <a class="nav-link text-secondary position-relative p-2 hover-lift d-flex align-items-center" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" wire:poll.15s>
-                    <i class="bi bi-bell fs-5"></i>
+                    <i class="bi bi-bell fs-5" id="notifBellIcon"></i>
                     @if($this->pendingOrdersCount > 0)
                         <span
-                            class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-pill bg-danger p-1 px-2 mt-2 me-2"
+                            class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-pill bg-danger p-1 px-2 mt-2 me-2 badge-pulse"
                             style="font-size: 0.65rem;">
                             {{ $this->pendingOrdersCount }}
                             <span class="visually-hidden">pesanan baru</span>
@@ -78,9 +82,9 @@ new class extends Component {
                     @endif
                 </a>
 
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2" style="width: 320px;" aria-labelledby="notifDropdown">
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 dropdown-menu-responsive-notif" style="width: 320px;" aria-labelledby="notifDropdown">
                     <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center rounded-top-4">
-                        <span class="fw-bold text-dark">Notifikasi</span>
+                        <span class="fw-bold text-body">Notifikasi</span>
                         @if($this->pendingOrdersCount > 0)
                             <span class="badge bg-danger rounded-pill">{{ $this->pendingOrdersCount }} Baru</span>
                         @endif
@@ -90,7 +94,7 @@ new class extends Component {
                         <li>
                             <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate>
                                 <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="fw-bold text-dark fs-6"><i class="bi bi-bag-check-fill text-primary me-2"></i>Pesanan Baru</span>
+                                    <span class="fw-bold text-body fs-6"><i class="bi bi-bag-check-fill text-primary me-2"></i>Pesanan Baru</span>
                                     <small class="text-primary fw-bold"><i class="bi bi-arrow-right"></i></small>
                                 </div>
                                 <span class="text-muted small">Ada {{ $this->pendingOrdersCount }} pesanan yang menunggu konfirmasi pembayaran. Segera cek!</span>
@@ -100,7 +104,7 @@ new class extends Component {
                         <li>
                             <div class="px-3 py-4 text-center text-muted">
                                 <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary opacity-50"></i>
-                                <span class="small fw-bold">Belum ada notifikasi baru</span>
+                                <span class="small fw-bold text-body">Belum ada notifikasi baru</span>
                             </div>
                         </li>
                     @endif
@@ -156,3 +160,86 @@ new class extends Component {
         </ul>
     </div>
 </nav>
+
+<style>
+    /* Hover animation for Bell Icon */
+    .hover-lift:hover #notifBellIcon,
+    .nav-link:hover #notifBellIcon {
+        animation: bellRing 0.65s ease-in-out;
+        color: var(--brand-caramel, #B67332) !important;
+    }
+
+    @keyframes bellRing {
+        0%, 100% { transform: rotate(0); }
+        15% { transform: rotate(10deg); }
+        30% { transform: rotate(-10deg); }
+        45% { transform: rotate(5deg); }
+        60% { transform: rotate(-5deg); }
+        75% { transform: rotate(2deg); }
+        90% { transform: rotate(-2deg); }
+    }
+
+    /* Pulse animation for active notification badge */
+    .badge-pulse {
+        animation: badgePulse 2s infinite cubic-bezier(0.25, 0, 0, 1);
+    }
+
+    @keyframes badgePulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.12);
+        }
+        100% {
+            box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    /* Responsive layout for Notification Dropdown on Mobile */
+    @media (max-width: 576px) {
+        .dropdown-menu-responsive-notif {
+            position: fixed !important;
+            top: 75px !important;
+            left: 12px !important;
+            right: 12px !important;
+            width: calc(100% - 24px) !important;
+            max-width: none !important;
+            transform: none !important;
+            border-radius: 1.25rem !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+            border: 1px solid var(--bs-border-color) !important;
+            background: rgba(var(--bs-card-bg-rgb, 255, 255, 255), 0.96) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+        }
+
+        .dropdown-menu-responsive-notif::before {
+            display: none !important; /* Hilangkan panah default bootstrap dropdown di mobile */
+        }
+    }
+
+    /* Glassmorphism for notifications container on all screen sizes */
+    .dropdown-menu-responsive-notif {
+        background: rgba(var(--bs-card-bg-rgb, 255, 255, 255), 0.96) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid var(--bs-border-color) !important;
+    }
+
+    /* Micro-animation transitions */
+    .dropdown-menu-responsive-notif .dropdown-item {
+        transition: background-color 0.2s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    }
+
+    .dropdown-menu-responsive-notif .dropdown-item:hover {
+        transform: translateX(6px);
+        background-color: var(--bs-tertiary-bg) !important;
+    }
+    
+    #notifBellIcon {
+        transition: color 0.3s ease, transform 0.3s ease;
+    }
+</style>
