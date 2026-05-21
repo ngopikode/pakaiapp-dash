@@ -39,21 +39,42 @@ new class extends Component {
     public function handleCancelConfirmed($orderId, $note): void
     {
         $this->updateStatus($orderId, 'cancelled', $note);
-        $this->dispatch('close-cancel-modal');
     }
 
     public function updateStatus($id, $status, $cancellationNote = null): void
     {
-        $order = Order::find($id);
-        if ($order) {
+        $order = Order::with('items')->find($id);
+        if (!$order) return;
+
+        // Hanya pesanan pending yang boleh di-cancel
+        if ($status === 'cancelled' && $order->status !== 'pending') {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Pesanan sudah ' . ($order->status === 'paid' ? 'lunas' : 'dibatalkan') . ', tidak bisa dibatalkan.']);
+            $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+            return;
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $status, $cancellationNote) {
             $updateData = ['status' => $status];
             if ($status === 'cancelled' && $cancellationNote) {
                 $updateData['cancellation_note'] = $cancellationNote;
             }
             $order->update($updateData);
-            $this->dispatch('notify', ['type' => 'success', 'message' => 'Status pesanan diperbarui.']);
-        }
+
+            // Kembalikan stok saat cancel
+            if ($status === 'cancelled') {
+                foreach ($order->items as $item) {
+                    if ($item->variant_id) {
+                        \App\Models\ProductVariant::where('id', $item->variant_id)
+                            ->increment('stock', $item->quantity);
+                    }
+                }
+            }
+        });
+
+        $this->dispatch('notify', ['type' => 'success', 'message' => 'Status pesanan diperbarui.']);
+        $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
     }
+
 
     public function with(): array
     {

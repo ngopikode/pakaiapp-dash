@@ -308,29 +308,39 @@ new class extends Component {
 
     /**
      * Batalkan pesanan pending (kembalikan stok).
+     * Dipanggil langsung dari blade via @cancel-confirmed.window
      */
-    #[On('process-cancel-order')]
     public function cancelOrder($data)
     {
         $orderId = $data['orderId'] ?? null;
         $note = $data['note'] ?? null;
 
         $order = Order::with('items')->find($orderId);
-        if ($order && $order->status === 'pending') {
-            DB::transaction(function () use ($order, $note) {
-                // Restore stock
-                foreach ($order->items as $item) {
-                    ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
-                }
+        if (!$order) return;
 
-                $updateData = ['status' => 'cancelled'];
-                if ($note) {
-                    $updateData['cancellation_note'] = $note;
-                }
-                $order->update($updateData);
-            });
-            $this->dispatch('close-cancel-modal');
+        if ($order->status !== 'pending') {
+            // Pesanan sudah dibayar atau sudah dibatalkan
+            $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+            $this->js("window.showIslandToast('Pesanan sudah tidak bisa dibatalkan.', 'danger');");
+            return;
         }
+
+        DB::transaction(function () use ($order, $note) {
+            // Restore stock
+            foreach ($order->items as $item) {
+                ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+            }
+
+            $updateData = ['status' => 'cancelled'];
+            if ($note) {
+                $updateData['cancellation_note'] = $note;
+            }
+            $order->update($updateData);
+        });
+
+        // Dispatch sebagai window event agar cancel-modal component bisa dengar
+        $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+        $this->js("window.showIslandToast('Pesanan berhasil dibatalkan.', 'success');");
     }
 
     public function updateCustomerPhone($invoiceCode, $phone): void

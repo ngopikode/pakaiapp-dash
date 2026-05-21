@@ -268,10 +268,44 @@ new class extends Component {
     }
 
 
+    /**
+     * Batalkan pesanan pending (kembalikan stok).
+     * Dipanggil dari blade via @cancel-confirmed.window
+     */
+    public function cancelOrder($data): void
+    {
+        $orderId = $data['orderId'] ?? null;
+        $note = $data['note'] ?? null;
+
+        $order = Order::with('items')->find($orderId);
+        if (!$order) return;
+
+        if ($order->status !== 'pending') {
+            $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+            $this->js("window.showIslandToast('Pesanan sudah tidak bisa dibatalkan.', 'danger');");
+            return;
+        }
+
+        DB::transaction(function () use ($order, $note) {
+            foreach ($order->items as $item) {
+                ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+            }
+            $updateData = ['status' => 'cancelled'];
+            if ($note) {
+                $updateData['cancellation_note'] = $note;
+            }
+            $order->update($updateData);
+        });
+
+        $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+        $this->js("window.showIslandToast('Pesanan berhasil dibatalkan.', 'success');");
+    }
+
     public function updateCustomerPhone($invoiceCode, $phone): void
     {
         Order::where('invoice_code', $invoiceCode)->update(['customer_phone' => $phone]);
     }
+
 
     public function with(): array
     {

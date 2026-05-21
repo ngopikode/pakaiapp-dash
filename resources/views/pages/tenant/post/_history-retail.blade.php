@@ -151,11 +151,17 @@
 
                             <div class="d-flex gap-2">
                                 @if($order->status === 'pending')
+                                    <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
+                                            class="btn btn-sm btn-outline-danger fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1"
+                                            style="border-radius: 0.75rem; font-size: 0.85rem;">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
                                     <button @click="openPayForOrder({{ json_encode($order) }})"
                                             class="btn btn-sm btn-warning w-100 fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 border-0"
                                             style="border-radius: 0.75rem; font-size: 0.85rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);">
                                         <i class="bi bi-credit-card-2-front"></i> Bayar Sekarang
                                     </button>
+
                                 @else
                                     <a href="{{ $strukUrl }}" target="_blank"
                                        class="btn btn-sm btn-outline-secondary fw-bold bg-body border py-2 flex-grow-1 d-flex align-items-center justify-content-center gap-1"

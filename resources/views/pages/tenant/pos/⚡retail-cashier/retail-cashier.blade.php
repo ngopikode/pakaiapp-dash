@@ -130,6 +130,11 @@
     @include('pages.tenant.pos._modal-held-orders')
     @include('pages.tenant.pos._modal-tutorial', ['mode' => 'retail'])
 
+    {{-- Cancel Modal Component --}}
+    <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
+        <x-tenant.order.cancel-modal/>
+    </div>
+
 </div>
 
 @script
