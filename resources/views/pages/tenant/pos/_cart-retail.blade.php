@@ -157,5 +157,14 @@
             <span><i class="bi bi-cart-check me-2"></i> Lanjut Bayar</span>
             <span x-text="'Rp ' + formatRupiah(grandTotal)"></span>
         </button>
+
+        {{-- Keyboard Shortcuts Legend --}}
+        <div class="mt-3 text-center border-top pt-2 d-none d-xl-block" style="border-color: var(--bs-border-color-translucent) !important;">
+            <div class="d-flex justify-content-center flex-wrap gap-2 text-secondary" style="font-size: 0.7rem;">
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F2</kbd> Bayar</span>
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F4</kbd> Batal</span>
+                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F8</kbd> Tunda / Daftar</span>
+            </div>
+        </div>
     </div>
 </div>
