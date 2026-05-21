@@ -18,27 +18,37 @@
     </div>
 
     {{-- Tab Navigation (Safe Context Colors) --}}
-    <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
-        <button wire:click="changeTab('cashier')"
-                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                style="border-radius: 1rem;">
-            <i class="bi bi-plus-circle"></i> Kasir Baru
-        </button>
-        <button wire:click="changeTab('queue')"
-                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                style="border-radius: 1rem;">
-            <i class="bi bi-hourglass-split"></i>
-            <span>Antrian</span>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
+        <div class="d-flex gap-2">
+            <button wire:click="changeTab('cashier')"
+                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                    :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
+                    style="border-radius: 1rem;">
+                <i class="bi bi-plus-circle"></i> Kasir Baru
+            </button>
+            <button wire:click="changeTab('queue')"
+                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                    :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
+                    style="border-radius: 1rem;">
+                <i class="bi bi-hourglass-split"></i>
+                <span>Antrian</span>
 
-            @if($pendingOrders->count() > 0)
-                <!-- Badge digeser masuk secara inline (sejajar teks), dijamin gak bakal mentok ujung layar luar lagi -->
-                <small class="bg-danger text-white fw-bold d-flex align-items-center justify-content-center px-2"
-                       style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
-                    {{ $pendingOrders->count() }}
-                </small>
-            @endif
+                @if($pendingOrders->count() > 0)
+                    <!-- Badge digeser masuk secara inline (sejajar teks), dijamin gak bakal mentok ujung layar luar lagi -->
+                    <small class="bg-danger text-white fw-bold d-flex align-items-center justify-content-center px-2"
+                           style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
+                        {{ $pendingOrders->count() }}
+                    </small>
+                @endif
+            </button>
+        </div>
+
+        {{-- Premium Help Button --}}
+        <button @click="showTutorialModal()"
+                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0"
+                style="width: 40px; height: 40px; border-radius: 50% !important;"
+                title="Panduan & Tutorial Penggunaan">
+            <i class="bi bi-question-circle fs-5"></i>
         </button>
     </div>
 
@@ -83,6 +93,7 @@
 
     {{-- ===== OPTION MODAL ===== --}}
     @include('pages.tenant.pos._modal-option')
+    @include('pages.tenant.pos._modal-tutorial', ['mode' => 'resto'])
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -104,6 +115,7 @@
         paymentModalInstance: null,
         successModalInstance: null,
         optionModalInstance: null,
+        tutorialModalInstance: null,
 
         optionProduct: null,
         optionSelected: [],
@@ -131,6 +143,7 @@
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
+            this.tutorialModalInstance = new bootstrap.Modal(document.getElementById('tutorialModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
         },
 
@@ -525,6 +538,11 @@
             this.lastOrder = {};
             this.payDiscount = 0;
             this.amountPaid = '';
+        },
+        showTutorialModal() {
+            localStorage.setItem('pakaiapp_tutorial_dismissed', 'true');
+            window.dispatchEvent(new CustomEvent('tutorial-opened'));
+            this.tutorialModalInstance.show();
         }
     }));
 </script>

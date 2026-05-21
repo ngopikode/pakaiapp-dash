@@ -22,26 +22,36 @@
     </div>
 
     {{-- Tab Navigation (Safe Context Colors) --}}
-    <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
-        <button wire:click="changeTab('cashier')"
-                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                style="border-radius: 1rem;">
-            <i class="bi bi-plus-circle"></i> Kasir Baru
-        </button>
-        <button wire:click="changeTab('history')"
-                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                :class="currentTab === 'history' ? 'btn-success shadow text-white' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                style="border-radius: 1rem;">
-            <i class="bi bi-clock-history"></i>
-            <span>Riwayat Transaksi</span>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
+        <div class="d-flex gap-2">
+            <button wire:click="changeTab('cashier')"
+                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                    :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
+                    style="border-radius: 1rem;">
+                <i class="bi bi-plus-circle"></i> Kasir Baru
+            </button>
+            <button wire:click="changeTab('history')"
+                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                    :class="currentTab === 'history' ? 'btn-success shadow text-white' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
+                    style="border-radius: 1rem;">
+                <i class="bi bi-clock-history"></i>
+                <span>Riwayat Transaksi</span>
 
-            @if($todayOrders->count() > 0)
-                <small class="bg-light text-success fw-bold d-flex align-items-center justify-content-center px-2"
-                       style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
-                    {{ $todayOrders->count() }}
-                </small>
-            @endif
+                @if($todayOrders->count() > 0)
+                    <small class="bg-light text-success fw-bold d-flex align-items-center justify-content-center px-2"
+                           style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
+                        {{ $todayOrders->count() }}
+                    </small>
+                @endif
+            </button>
+        </div>
+
+        {{-- Premium Help Button --}}
+        <button @click="showTutorialModal()"
+                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0"
+                style="width: 40px; height: 40px; border-radius: 50% !important;"
+                title="Panduan & Tutorial Penggunaan">
+            <i class="bi bi-question-circle fs-5"></i>
         </button>
     </div>
 
@@ -84,6 +94,7 @@
     @include('pages.tenant.pos._modal-variant')
     @include('pages.tenant.pos._modal-success')
     @include('pages.tenant.pos._modal-held-orders')
+    @include('pages.tenant.pos._modal-tutorial', ['mode' => 'retail'])
 
 </div>
 
@@ -100,6 +111,7 @@
         paymentModalInstance: null,
         successModalInstance: null,
         heldOrdersModalInstance: null,
+        tutorialModalInstance: null,
 
         customerName: '',
         customerPhone: '',
@@ -120,6 +132,7 @@
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.heldOrdersModalInstance = new bootstrap.Modal(document.getElementById('heldOrdersModal'));
+            this.tutorialModalInstance = new bootstrap.Modal(document.getElementById('tutorialModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
             this.$watch('heldOrders', (val) => localStorage.setItem('posHeldOrders', JSON.stringify(val)), {deep: true});
         },
@@ -368,6 +381,11 @@
             this.globalDiscount = '';
             this.amountPaid = '';
             this.lastOrder = {};
+        },
+        showTutorialModal() {
+            localStorage.setItem('pakaiapp_tutorial_dismissed', 'true');
+            window.dispatchEvent(new CustomEvent('tutorial-opened'));
+            this.tutorialModalInstance.show();
         }
     }));
 </script>
