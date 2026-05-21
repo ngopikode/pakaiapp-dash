@@ -548,7 +548,7 @@
                         </div>
                         <div>
                             <span class="text-secondary small d-block" style="font-size: 0.72rem;">WhatsApp Admin</span>
-                            <span class="fw-black text-body" style="letter-spacing: 0.5px;">+62 851-7422-1544</span>
+                            <span class="fw-black text-body" style="letter-spacing: 0.5px;">+62 851-7244-1544</span>
                         </div>
                     </div>
 
