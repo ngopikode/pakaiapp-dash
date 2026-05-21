@@ -62,10 +62,10 @@
                             @click="$dispatch('add-product', { product: {{ json_encode($product) }} })">
 
                             <!-- Layer Badges -->
-                            @if($product['has_variants'])
+                            @if($product['has_variants'] || (!empty($product['extras']) && count($product['extras']) > 0))
                                 <span
                                     class="position-absolute top-0 end-0 m-2 badge bg-primary bg-opacity-90 shadow-sm rounded-pill py-1.5 px-2.5"
-                                    style="z-index: 2; font-size: 0.65rem; font-weight: 700;">Ada Varian</span>
+                                    style="z-index: 2; font-size: 0.65rem; font-weight: 700;">Ada Opsi</span>
                             @endif
 
                             @if(!$product['has_variants'] && $product['stock'] <= 0)
@@ -97,7 +97,7 @@
                                     </h6>
                                 </div>
                                 <div class="mt-2">
-                                    @if(!$product['has_variants'])
+                                    @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))
                                         <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
                                             Rp {{ number_format($product['price'], 0, ',', '.') }}
                                         </p>

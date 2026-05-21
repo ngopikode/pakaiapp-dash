@@ -91,6 +91,7 @@
 
         optionProduct: null,
         optionSelected: [],
+        extrasSelected: [],
         optionQty: 1,
 
         customerName: '',
@@ -127,7 +128,7 @@
                 showIslandToast('Stok habis!', 'warning');
                 return;
             }
-            if (product.selection_type === 'multiple' || (product.has_variants && product.variants.length > 1)) {
+            if (product.selection_type === 'multiple' || (product.has_variants && product.variants.length > 1) || (product.extras && product.extras.length > 0)) {
                 this.openOptionModal(product);
             } else {
                 this.addToCart(product, product.variants[0]);
@@ -138,7 +139,28 @@
             this.optionProduct = product;
             this.optionQty = 1;
             this.optionSelected = product.selection_type === 'multiple' ? [] : (product.variants.find(v => v.stock > 0) ? [product.variants.find(v => v.stock > 0).name] : []);
+            this.extrasSelected = [];
             this.optionModalInstance.show();
+        },
+
+        toggleExtra(extra) {
+            const idx = this.extrasSelected.indexOf(extra.name);
+            if (idx > -1) {
+                this.extrasSelected.splice(idx, 1);
+            } else {
+                this.extrasSelected.push(extra.name);
+            }
+        },
+
+        isExtraSelected(name) {
+            return this.extrasSelected.includes(name);
+        },
+
+        get extrasTotal() {
+            if (!this.optionProduct?.extras?.length) return 0;
+            return this.optionProduct.extras
+                .filter(e => this.extrasSelected.includes(e.name))
+                .reduce((sum, e) => sum + (parseFloat(e.price) || 0), 0);
         },
 
         toggleOption(variant) {
@@ -164,55 +186,86 @@
         },
 
         get optionTotalPrice() {
-            if (!this.optionProduct || this.optionSelected.length === 0) return 0;
-
-            if (this.optionProduct.selection_type === 'multiple') {
-                const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                return (baseVariant ? baseVariant.price : 0) * this.optionQty;
+            if (!this.optionProduct) return 0;
+            let basePrice = 0;
+            if (this.optionSelected.length > 0) {
+                if (this.optionProduct.selection_type === 'multiple') {
+                    const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                    basePrice = baseVariant ? parseFloat(baseVariant.price) : 0;
+                } else {
+                    const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                    basePrice = variant ? parseFloat(variant.price) : 0;
+                }
             } else {
-                const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                return (variant ? variant.price : 0) * this.optionQty;
+                basePrice = parseFloat(this.optionProduct.price) || 0;
             }
+            return (basePrice + this.extrasTotal) * this.optionQty;
         },
 
         confirmOption() {
-            if (!this.optionProduct || this.optionSelected.length === 0) return;
+            if (!this.optionProduct) return;
 
-            if (this.optionProduct.selection_type === 'multiple') {
-                const combinedVariantName = this.optionSelected.join(', ');
-                const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                const basePrice = baseVariant.price;
+            // Validasi jika ada variant, harus pilih variant
+            if (this.optionProduct.has_variants && this.optionSelected.length === 0) {
+                showIslandToast('Silakan pilih varian terlebih dahulu!', 'warning');
+                return;
+            }
 
-                const minStock = Math.min(...this.optionSelected.map(name => this.optionProduct.variants.find(v => v.name === name).stock));
+            let variant;
+            let combinedVariantName = '';
 
-                const existing = this.cart.find(i => i.id === this.optionProduct.id && i.variant_name === combinedVariantName);
-                if (existing) {
-                    if (existing.quantity + this.optionQty <= minStock) {
-                        existing.quantity += this.optionQty;
-                        existing.subtotal = existing.quantity * basePrice;
-                    } else {
-                        showIslandToast(`Stok bahan tidak mencukupi!`, 'warning');
-                    }
+            if (this.optionProduct.has_variants) {
+                if (this.optionProduct.selection_type === 'multiple') {
+                    combinedVariantName = this.optionSelected.join(', ');
+                    variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
                 } else {
-                    if (this.optionQty > minStock) {
-                        showIslandToast(`Stok bahan tidak mencukupi!`, 'warning');
-                        return;
-                    }
-                    this.cart.push({
-                        id: this.optionProduct.id,
-                        variant_id: baseVariant.id,
-                        name: this.optionProduct.name,
-                        variant_name: combinedVariantName,
-                        price: basePrice,
-                        quantity: this.optionQty,
-                        subtotal: basePrice * this.optionQty,
-                        stock: minStock,
-                        note: ''
-                    });
+                    variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
+                    combinedVariantName = variant ? variant.name : '';
                 }
             } else {
-                const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                this.addToCart(this.optionProduct, variant, this.optionQty);
+                // Non-variant product, gunakan default variant
+                variant = this.optionProduct.variants[0];
+            }
+
+            if (!variant) {
+                showIslandToast('Varian tidak ditemukan!', 'warning');
+                return;
+            }
+
+            // Gabungkan label variant & extras
+            const extrasLabel = this.extrasSelected.length ? this.extrasSelected.join(', ') : '';
+            const finalVariantLabel = [combinedVariantName, extrasLabel].filter(Boolean).join(' + ');
+
+            const basePrice = parseFloat(variant.price) || 0;
+            const finalUnitPrice = basePrice + this.extrasTotal;
+
+            // Cek stok variant
+            const minStock = variant.stock;
+
+            const existing = this.cart.find(i => i.variant_id === variant.id && i.variant_name === finalVariantLabel);
+            if (existing) {
+                if (existing.quantity + this.optionQty <= minStock) {
+                    existing.quantity += this.optionQty;
+                    existing.subtotal = existing.quantity * finalUnitPrice;
+                } else {
+                    showIslandToast(`Stok tidak mencukupi!`, 'warning');
+                }
+            } else {
+                if (this.optionQty > minStock) {
+                    showIslandToast(`Stok tidak mencukupi!`, 'warning');
+                    return;
+                }
+                this.cart.push({
+                    id: this.optionProduct.id,
+                    variant_id: variant.id,
+                    name: this.optionProduct.name,
+                    variant_name: finalVariantLabel || null,
+                    price: finalUnitPrice,
+                    quantity: this.optionQty,
+                    subtotal: finalUnitPrice * this.optionQty,
+                    stock: minStock,
+                    note: ''
+                });
             }
 
             this.optionModalInstance.hide();
