@@ -58,18 +58,28 @@ new class extends Component {
 
 <aside id="{{ $elementId }}">
 
-    <div class="sidebar-heading text-center py-4">
-        <div class="d-flex flex-column align-items-center">
-            <span class="font-script text-brand"
-                  style="font-size: 2.2rem; line-height: 1;">{{ StoreSetting::value('navbar_brand_text') }}</span>
-            <small class="text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 2px;">
-                DASHBOARD</small>
+    <div class="sidebar-heading px-4 py-4 border-bottom" style="border-color: var(--bs-border-color) !important;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="brand-avatar d-flex align-items-center justify-content-center text-white rounded-3 shadow-sm"
+                 style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
+                <i class="bi bi-cup-hot-fill fs-5"></i>
+            </div>
+            <div class="d-flex flex-column">
+                <span class="fw-bolder fs-5 text-body text-truncate"
+                      style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px; line-height: 1.2; max-width: 170px;">
+                    {{ StoreSetting::value('navbar_brand_text') }}
+                </span>
+                <span class="small fw-bold text-secondary text-uppercase"
+                      style="font-size: 0.62rem; letter-spacing: 1.5px; opacity: 0.8;">
+                    DASHBOARD TOKO
+                </span>
+            </div>
         </div>
     </div>
 
-    <nav class="list-group list-group-flush my-2 flex-grow-1">
+    <nav class="list-group list-group-flush my-3 flex-grow-1">
         @foreach($this->menuSections as $section)
-            <div class="small text-muted fw-bold px-4 mb-2 mt-2 text-uppercase" style="font-size: 0.7rem;">
+            <div class="small text-secondary fw-bold px-4 mb-2 mt-3 text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.8px; color: var(--brand-caramel, #B67332) !important;">
                 {{ $section['title'] }}
             </div>
 
@@ -84,9 +94,10 @@ new class extends Component {
         @endforeach
     </nav>
 
-    <div class="p-3 border-top">
+    <div class="p-3 border-top" style="border-color: var(--bs-border-color) !important;">
         <button type="button" wire:click="logout"
-                class="btn btn-outline-danger w-100 border-0 d-flex align-items-center justify-content-center gap-2 py-2">
+                class="btn btn-outline-danger w-100 border-0 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all"
+                style="background-color: rgba(220, 53, 69, 0.04); border: 1px solid rgba(220, 53, 69, 0.1) !important; color: #dc3545; font-size: 0.88rem;">
             <i class="bi bi-box-arrow-left"></i> Log Out
         </button>
     </div>

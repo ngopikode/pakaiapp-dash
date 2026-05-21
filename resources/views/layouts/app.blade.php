@@ -19,14 +19,14 @@
 </head>
 <body>
 
-<div id="global-loader"
-     class="d-none justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100 bg-light-subtle"
-     style="z-index: 9999; opacity: 0.8;">
-    <div class="text-center">
-        <div class="spinner-border text-brand" style="width: 3rem; height: 3rem;" role="status">
-            <span class="visually-hidden">Loading...</span>
+<div id="global-loader" class="global-loader">
+    <div class="loader-content">
+        <div class="loader-spinner-wrapper">
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
         </div>
-        <p class="mt-2 text-dark fw-bold">Memproses Data...</p>
+        <span class="loader-text">Memuat Halaman...</span>
     </div>
 </div>
 

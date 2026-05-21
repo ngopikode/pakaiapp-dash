@@ -5,7 +5,17 @@
     'activeRoute'   // current active route
 ])
 
+@php
+    $isActive = ($activeRoute === $route) || (str_starts_with($activeRoute, $route . '.'));
+@endphp
+
 <a href="{{ route($route) }}" wire:navigate
-   class="list-group-item list-group-item-action {{ $activeRoute === $route ? 'active' : '' }}">
-    <i class="{{ $icon }}"></i> {!! $label !!}
+   class="list-group-item list-group-item-action {{ $isActive ? 'active' : '' }} d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+        <i class="{{ $icon }}"></i>
+        <span>{!! $label !!}</span>
+    </div>
+    @if($isActive)
+        <span class="active-indicator-dot"></span>
+    @endif
 </a>

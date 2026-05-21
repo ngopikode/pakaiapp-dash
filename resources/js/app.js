@@ -7,22 +7,43 @@ window.bootstrap = bootstrap;
 window.Swal = Swal;
 NProgress.configure({showSpinner: false});
 
-document.addEventListener('livewire:navigating', () => NProgress.start());
-document.addEventListener('livewire:navigated', () => NProgress.done());
+let navigateTimeout = null;
+
+document.addEventListener('livewire:navigating', () => {
+    NProgress.start();
+    // Debounce showLoader by 150ms to prevent aggressive flashes on fast connections
+    clearTimeout(navigateTimeout);
+    navigateTimeout = setTimeout(() => {
+        window.showLoader();
+    }, 150);
+});
+
+document.addEventListener('livewire:navigated', () => {
+    NProgress.done();
+    clearTimeout(navigateTimeout);
+    window.hideLoader();
+
+    // Auto-close offcanvas mobile menu when navigation triggers
+    const mobileSidebarEl = document.getElementById('mobileSidebar');
+    if (mobileSidebarEl) {
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileSidebarEl);
+        if (offcanvasInstance) {
+            offcanvasInstance.hide();
+        }
+    }
+});
 
 window.showLoader = function () {
     const loader = document.getElementById('global-loader');
     if (loader) {
-        loader.classList.remove('d-none');
-        loader.classList.add('d-flex');
+        loader.classList.add('active');
     }
 };
 
 window.hideLoader = function () {
     const loader = document.getElementById('global-loader');
     if (loader) {
-        loader.classList.remove('d-flex');
-        loader.classList.add('d-none');
+        loader.classList.remove('active');
     }
 };
 
