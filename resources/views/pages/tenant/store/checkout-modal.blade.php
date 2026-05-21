@@ -165,26 +165,52 @@
                         <div>
                             <template x-for="item in cart" :key="item.cartName">
                                 <div
-                                    class="flex justify-between items-start mb-6 pb-6 border-b border-zinc-50 last:border-0 animate-slide-up">
-                                    <div class="flex-1 pr-4">
-                                        <h4 class="font-bold text-sm text-zinc-900 leading-tight"
-                                            x-text="item.cartName"></h4>
-                                        <p class="text-xs font-medium text-[var(--primary-color)] mt-1"
+                                    class="flex justify-between items-start mb-6 pb-6 border-b border-zinc-50 last:border-0 animate-slide-up rounded-xl transition-all"
+                                    :class="item.unavailable ? 'bg-red-50/60 border border-red-100 px-3 pt-3 -mx-1' : ''"
+                                >
+                                    <div class="flex-1 pr-4 min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                                            <h4 class="font-bold text-sm leading-tight"
+                                                :class="item.unavailable ? 'text-zinc-400 line-through' : 'text-zinc-900'"
+                                                x-text="item.cartName"></h4>
+                                            <template x-if="item.unavailable">
+                                                <span class="inline-flex items-center gap-1 bg-red-100 text-red-500 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+                                                    Tidak Tersedia
+                                                </span>
+                                            </template>
+                                        </div>
+                                        <p class="text-xs font-medium mt-1"
+                                           :class="item.unavailable ? 'text-zinc-300' : 'text-[var(--primary-color)]'"
                                            x-text="formatPrice(item.price * item.qty)"></p>
                                     </div>
-                                    <div
-                                        class="flex items-center gap-3 bg-zinc-50 p-1 rounded-lg border border-zinc-100">
-                                        <button @click="updateQty(item.cartName, -1)"
-                                                class="w-7 h-7 rounded-md bg-white text-zinc-900 flex items-center justify-center shadow-sm hover:bg-zinc-100 font-bold text-lg leading-none">
-                                            -
+
+                                    {{-- Unavailable: hanya tombol hapus --}}
+                                    <template x-if="item.unavailable">
+                                        <button
+                                            @click="updateQty(item.cartName, -item.qty)"
+                                            class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-400 flex items-center justify-center hover:bg-red-100 transition-colors active:scale-90 shrink-0"
+                                            title="Hapus dari keranjang"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="m19 6-.867 12.142A2 2 0 0 1 16.138 20H7.862a2 2 0 0 1-1.995-1.858L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                                         </button>
-                                        <span class="font-black text-xs w-4 text-center tabular-nums"
-                                              x-text="item.qty"></span>
-                                        <button @click="updateQty(item.cartName, 1)"
-                                                class="w-7 h-7 rounded-md bg-zinc-900 text-white flex items-center justify-center shadow-sm hover:bg-zinc-800 font-bold text-lg leading-none">
-                                            +
-                                        </button>
-                                    </div>
+                                    </template>
+
+                                    {{-- Available: stepper normal --}}
+                                    <template x-if="!item.unavailable">
+                                        <div class="flex items-center gap-3 bg-zinc-50 p-1 rounded-lg border border-zinc-100">
+                                            <button @click="updateQty(item.cartName, -1)"
+                                                    class="w-7 h-7 rounded-md bg-white text-zinc-900 flex items-center justify-center shadow-sm hover:bg-zinc-100 font-bold text-lg leading-none">
+                                                -
+                                            </button>
+                                            <span class="font-black text-xs w-4 text-center tabular-nums"
+                                                  x-text="item.qty"></span>
+                                            <button @click="updateQty(item.cartName, 1)"
+                                                    class="w-7 h-7 rounded-md bg-zinc-900 text-white flex items-center justify-center shadow-sm hover:bg-zinc-800 font-bold text-lg leading-none">
+                                                +
+                                            </button>
+                                        </div>
+                                    </template>
                                 </div>
                             </template>
                         </div>
@@ -236,8 +262,7 @@
                             />
                         </div>
                     </div>
-
-                    {{-- Total & Submit --}}
+                {{-- Total & Submit --}}
                     <div class="flex items-center justify-between mb-3 px-1">
                         <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total</span>
                         <span class="text-lg font-black text-zinc-900" x-text="formatPrice(totalCart)"></span>
@@ -245,9 +270,9 @@
 
                     <button
                         @click="processOrder"
-                        :disabled="cart.length === 0 || checkoutLoading"
+                        :disabled="cart.length === 0 || checkoutLoading || cart.some(i => i.unavailable)"
                         class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed"
-                        :class="cart.length === 0 ? 'bg-zinc-200 text-zinc-500' : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-lg shadow-zinc-900/20'"
+                        :class="cart.length === 0 || cart.some(i => i.unavailable) ? 'bg-zinc-200 text-zinc-500' : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-lg shadow-zinc-900/20'"
                     >
                         <span x-show="!checkoutLoading" class="flex items-center gap-2">
                             <template x-if="cart.length === 0">
@@ -260,7 +285,13 @@
                                     Keranjang Kosong
                                 </span>
                             </template>
-                            <template x-if="cart.length > 0">
+                            <template x-if="cart.length > 0 && cart.some(i => i.unavailable)">
+                                <span class="flex items-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    Hapus item tidak tersedia dulu
+                                </span>
+                            </template>
+                            <template x-if="cart.length > 0 && !cart.some(i => i.unavailable)">
                                 <span class="flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

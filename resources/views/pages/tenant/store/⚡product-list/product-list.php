@@ -52,6 +52,7 @@ new class extends Component {
                 $this->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
             )
+            ->orderByRaw('is_active DESC') // produk aktif di atas, habis/nonaktif di bawah
             ->take($this->perPage)
             ->get()
             ->map(fn(Product $p) => [

@@ -294,6 +294,15 @@ document.addEventListener('alpine:init', () => {
                     this.customerName = '';
                     this.customerInfo = '';
                     this.showToast('Pesanan berhasil dikirim!');
+                } else if (res.status === 422 && data.unavailable_ids?.length) {
+                    // Tandai item di cart yang produknya tidak tersedia
+                    const ids = data.unavailable_ids.map(Number);
+                    this.cart = this.cart.map((item) => ({
+                        ...item,
+                        unavailable: ids.includes(Number(item.id))
+                    }));
+                    this.saveCart();
+                    this.showToast(data.message || 'Beberapa produk tidak tersedia.');
                 } else {
                     this.showToast(
                         data.message || 'Gagal mengirim pesanan. Coba lagi.'

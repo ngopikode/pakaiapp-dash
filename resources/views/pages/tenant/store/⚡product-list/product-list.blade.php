@@ -166,7 +166,7 @@
                             return i ? i.qty : 0;
                         },
                         get showStepper() {
-                            return !this.item.has_variants && this.qtyInCart > 0;
+                            return this.item.is_active && !this.item.has_variants && this.qtyInCart > 0;
                         }
                     }"
                     class="bg-white rounded-2xl border border-zinc-100/80 shadow-sm flex group overflow-hidden relative transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 animate-slide-up"

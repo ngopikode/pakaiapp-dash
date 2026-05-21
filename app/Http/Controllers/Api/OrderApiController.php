@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Product;
 use App\Traits\ApiResponserTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,17 @@ class OrderApiController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric',
         ]);
+
+        // Pastikan semua produk yang dipesan masih aktif
+        $productIds = collect($request->items)->pluck('product_id')->unique()->values();
+        $activeIds = Product::whereIn('id', $productIds)->where('is_active', true)->pluck('id');
+        $unavailableIds = $productIds->diff($activeIds)->values();
+        if ($unavailableIds->isNotEmpty()) {
+            return response()->json([
+                'message'         => 'Beberapa produk dalam pesanan sudah tidak tersedia atau habis. Silakan perbarui keranjang Anda.',
+                'unavailable_ids' => $unavailableIds,
+            ], 422);
+        }
 
         try {
             $order = DB::transaction(function () use ($request) {
