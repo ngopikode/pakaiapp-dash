@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Tenant;
 use App\Services\DuitkuService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Throwable;
 
 /**
@@ -47,6 +50,22 @@ class CentralDuitkuController extends Controller
             'resultCode' => $request->input('resultCode'),
         ]);
 
+        // Whitelist IP server Duitku jika diaktifkan di konfigurasi
+        if (config('duitku.ip_whitelist_enabled', false)) {
+            $clientIp = $request->ip();
+            $allowedIps = config('duitku.sandbox', true)
+                ? ['182.23.85.11', '182.23.85.12', '103.177.101.187', '103.177.101.188']
+                : ['182.23.85.8', '182.23.85.9', '182.23.85.10', '182.23.85.13', '182.23.85.14',
+                    '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
+
+            if (!in_array($clientIp, $allowedIps, true)) {
+                Log::warning('[Duitku Central] IP callback tidak terdaftar', [
+                    'ip' => $clientIp,
+                ]);
+                return response('INVALID_IP', 403);
+            }
+        }
+
         try {
             // Ambil merchantOrderId dari POST body (sebelum library validate)
             $rawMerchantOrderId = $request->input('merchantOrderId', '');
@@ -72,7 +91,7 @@ class CentralDuitkuController extends Controller
 
             // Execute dalam konteks tenant — switch ke database tenant
             $tenant->run(function () use ($invoiceCode, $request) {
-                $this->processCallback($invoiceCode, $request);
+                $this->processCallback($invoiceCode);
             });
 
             return response('OK', 200);
@@ -91,7 +110,7 @@ class CentralDuitkuController extends Controller
      *
      * Format merchantOrderId di query string: "{tenantId}~{invoiceCode}"
      */
-    public function return(Request $request): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
+    public function return(Request $request): RedirectResponse|View
     {
         $rawMerchantOrderId = $request->query('merchantOrderId', '');
 
@@ -117,7 +136,7 @@ class CentralDuitkuController extends Controller
                 $scheme = $request->secure() ? 'https' : 'http';
 
                 // Redirect langsung ke invoice di domain tenant
-                return redirect()->away("{$scheme}://{$domain}/invoice/{$invoiceCode}");
+                return redirect()->away("$scheme://$domain/invoice/$invoiceCode");
             }
         }
 
@@ -132,7 +151,7 @@ class CentralDuitkuController extends Controller
      *
      * Gunakan format lengkap untuk performa terbaik.
      */
-    public function status(string $invoiceCode): \Illuminate\Http\JsonResponse
+    public function status(string $invoiceCode): JsonResponse
     {
         // Validasi format
         if (!preg_match('/^[A-Za-z0-9\-~_]+$/', $invoiceCode)) {
@@ -207,7 +226,7 @@ class CentralDuitkuController extends Controller
      *
      * Method ini dipanggil oleh $tenant->run() sehingga sudah dalam DB tenant.
      */
-    private function processCallback(string $invoiceCode, Request $request): void
+    private function processCallback(string $invoiceCode): void
     {
         // Validasi format invoiceCode — only alphanumeric + dash
         if (!preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {

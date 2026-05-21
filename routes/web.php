@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CentralDuitkuController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
@@ -13,12 +14,10 @@ foreach (config('tenancy.central_domains') as $domain) {
         // Tidak ada auth/CSRF karena dipanggil server Duitku, bukan browser.
         // Validasi keamanan dilakukan via signature di DuitkuService::handleCallback().
         //
-        // TODO(security): Whitelist IP server Duitku di Nginx untuk keamanan extra.
-        //
         // Callback: POST dari server Duitku setiap ada update status transaksi
         Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
             ->name('duitku.callback')
-            ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+            ->withoutMiddleware([VerifyCsrfToken::class]);
 
         // Return: GET — customer diredirect kesini setelah bayar
         Route::get('/duitku/return', [CentralDuitkuController::class, 'return'])

@@ -80,4 +80,7 @@ return [
         'DA'    => 'DANA',
         'OV'    => 'OVO',
     ],
+
+    // Whitelist IP server Duitku callback (opsional, nonaktif secara default)
+    'ip_whitelist_enabled' => filter_var(env('DUITKU_IP_WHITELIST_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
 ];

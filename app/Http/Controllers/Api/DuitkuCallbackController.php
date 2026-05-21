@@ -39,6 +39,22 @@ class DuitkuCallbackController extends Controller
             // Jangan log amount atau data sensitif lainnya
         ]);
 
+        // Whitelist IP server Duitku jika diaktifkan di konfigurasi
+        if (config('duitku.ip_whitelist_enabled', false)) {
+            $clientIp = $request->ip();
+            $allowedIps = config('duitku.sandbox', true)
+                ? ['182.23.85.11', '182.23.85.12', '103.177.101.187', '103.177.101.188']
+                : ['182.23.85.8', '182.23.85.9', '182.23.85.10', '182.23.85.13', '182.23.85.14', 
+                   '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
+
+            if (! in_array($clientIp, $allowedIps, true)) {
+                Log::warning('[Duitku] IP callback tidak terdaftar', [
+                    'ip' => $clientIp,
+                ]);
+                return response('INVALID_IP', 403);
+            }
+        }
+
         try {
             $duitkuService = new DuitkuService();
             $notif         = $duitkuService->handleCallback();
@@ -51,16 +67,23 @@ class DuitkuCallbackController extends Controller
                 return response('INVALID', 400);
             }
 
+            // Extract invoice code if it is in multi-tenant format "{tenantId}~{invoiceCode}"
+            $realInvoiceCode = $merchantOrderId;
+            if (str_contains($merchantOrderId, '~')) {
+                $parts = explode('~', $merchantOrderId, 2);
+                $realInvoiceCode = $parts[1] ?? $merchantOrderId;
+            }
+
             // Cari order berdasarkan invoice_code (bukan id, sesuai yang kita kirim ke Duitku)
             // Validasi format untuk mencegah injection — invoice code hanya alfanumerik + dash
-            if (! preg_match('/^[A-Za-z0-9\-]+$/', $merchantOrderId)) {
-                Log::warning('[Duitku] Callback: format merchantOrderId tidak valid', [
-                    'merchantOrderId' => substr($merchantOrderId, 0, 50),
+            if (! preg_match('/^[A-Za-z0-9\-]+$/', $realInvoiceCode)) {
+                Log::warning('[Duitku] Callback: format realInvoiceCode tidak valid', [
+                    'realInvoiceCode' => substr($realInvoiceCode, 0, 50),
                 ]);
                 return response('INVALID', 400);
             }
 
-            $order = Order::where('invoice_code', $merchantOrderId)->first();
+            $order = Order::where('invoice_code', $realInvoiceCode)->first();
 
             if (! $order) {
                 Log::warning('[Duitku] Callback: order tidak ditemukan', [
