@@ -193,55 +193,57 @@
                             </div>
                         </div>
 
-                        <div class="row g-4 mt-2">
-                            <!-- Taxes & Service Charges Settings (F&B Only) -->
-                            <div class="col-12">
-                                <div class="bg-body-tertiary p-4 rounded-4">
-                                    <h6 class="fw-bold small text-muted mb-3 text-uppercase"><i class="bi bi-percent text-warning me-1"></i>Pajak & Biaya Layanan (Khusus F&B)</h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="card p-3 border shadow-none bg-body rounded-4 h-100" style="border-color: var(--bs-border-color-translucent) !important;">
-                                                <div class="setting-switch pb-2 mb-2 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--bs-border-color-translucent) !important;">
-                                                    <div>
-                                                        <div class="fw-bold">Pajak Restoran (PB1)</div>
-                                                        <div class="small text-muted">Aktifkan pajak PB1 bawaan (bawaan 10%)</div>
+                        @if($store_type === 'resto')
+                            <div class="row g-4 mt-2">
+                                <!-- Taxes & Service Charges Settings (F&B Only) -->
+                                <div class="col-12">
+                                    <div class="bg-body-tertiary p-4 rounded-4">
+                                        <h6 class="fw-bold small text-muted mb-3 text-uppercase"><i class="bi bi-percent text-warning me-1"></i>Pajak & Biaya Layanan (Khusus F&B)</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="card p-3 border shadow-none bg-body rounded-4 h-100" style="border-color: var(--bs-border-color-translucent) !important;">
+                                                    <div class="setting-switch pb-2 mb-2 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--bs-border-color-translucent) !important;">
+                                                        <div>
+                                                            <div class="fw-bold">Pajak Restoran (PB1)</div>
+                                                            <div class="small text-muted">Aktifkan pajak PB1 bawaan (bawaan 10%)</div>
+                                                        </div>
+                                                        <div class="form-check form-switch fs-5 mb-0">
+                                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                                   wire:model.live="is_tax_active">
+                                                        </div>
                                                     </div>
-                                                    <div class="form-check form-switch fs-5 mb-0">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                               wire:model.live="is_tax_active">
+                                                    <div class="form-floating" x-show="$wire.is_tax_active" x-transition>
+                                                        <input type="number" step="0.01" class="form-control rounded-3 border-0 bg-body-tertiary"
+                                                               id="taxRate" wire:model="tax_rate" placeholder="Persentase Pajak">
+                                                        <label for="taxRate" class="text-muted fw-medium">Persentase Pajak (%)</label>
                                                     </div>
-                                                </div>
-                                                <div class="form-floating" x-show="$wire.is_tax_active" x-transition>
-                                                    <input type="number" step="0.01" class="form-control rounded-3 border-0 bg-body-tertiary"
-                                                           id="taxRate" wire:model="tax_rate" placeholder="Persentase Pajak">
-                                                    <label for="taxRate" class="text-muted fw-medium">Persentase Pajak (%)</label>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-md-6">
-                                            <div class="card p-3 border shadow-none bg-body rounded-4 h-100" style="border-color: var(--bs-border-color-translucent) !important;">
-                                                <div class="setting-switch pb-2 mb-2 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--bs-border-color-translucent) !important;">
-                                                    <div>
-                                                        <div class="fw-bold">Biaya Layanan (Service Charge)</div>
-                                                        <div class="small text-muted">Biaya pelayanan resto (bawaan 5%)</div>
+                                            <div class="col-md-6">
+                                                <div class="card p-3 border shadow-none bg-body rounded-4 h-100" style="border-color: var(--bs-border-color-translucent) !important;">
+                                                    <div class="setting-switch pb-2 mb-2 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--bs-border-color-translucent) !important;">
+                                                        <div>
+                                                            <div class="fw-bold">Biaya Layanan (Service Charge)</div>
+                                                            <div class="small text-muted">Biaya pelayanan resto (bawaan 5%)</div>
+                                                        </div>
+                                                        <div class="form-check form-switch fs-5 mb-0">
+                                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                                   wire:model.live="is_service_charge_active">
+                                                        </div>
                                                     </div>
-                                                    <div class="form-check form-switch fs-5 mb-0">
-                                                        <input class="form-check-input" type="checkbox" role="switch"
-                                                               wire:model.live="is_service_charge_active">
+                                                    <div class="form-floating" x-show="$wire.is_service_charge_active" x-transition>
+                                                        <input type="number" step="0.01" class="form-control rounded-3 border-0 bg-body-tertiary"
+                                                               id="serviceChargeRate" wire:model="service_charge_rate" placeholder="Persentase Layanan">
+                                                        <label for="serviceChargeRate" class="text-muted fw-medium">Persentase Biaya Layanan (%)</label>
                                                     </div>
-                                                </div>
-                                                <div class="form-floating" x-show="$wire.is_service_charge_active" x-transition>
-                                                    <input type="number" step="0.01" class="form-control rounded-3 border-0 bg-body-tertiary"
-                                                           id="serviceChargeRate" wire:model="service_charge_rate" placeholder="Persentase Layanan">
-                                                    <label for="serviceChargeRate" class="text-muted fw-medium">Persentase Biaya Layanan (%)</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     <!-- TAB 2: HERO & NAVBAR -->
