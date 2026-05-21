@@ -1,155 +1,323 @@
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden bg-body text-body">
-            <div class="modal-header bg-body border-bottom-0 p-4 pb-3">
-                <h5 class="modal-title fw-bold">Proses Pembayaran</h5>
+<div class="modal fade modal-bottom-mobile" id="paymentModal" tabindex="-1" aria-hidden="true" wire:ignore.self
+     data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
+             style="border-radius: 1.5rem; max-height: 95vh; border-color: var(--bs-border-color-translucent) !important;">
+
+            {{-- Header (Sticky) --}}
+            <div class="modal-header border-bottom bg-body-tertiary px-4 py-3 flex-shrink-0"
+                 style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
+                <h5 class="fw-bold mb-0">Pembayaran</h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4 pt-2" x-data="{
-                method: $wire.entangle('paymentMethod'),
-                amount: $wire.entangle('paymentAmount'),
-                total: $wire.entangle('paymentTotal'),
-                init() {
-                    this.$watch('method', value => {
-                        if (value !== 'cash') {
-                            this.amount = this.total;
-                        }
-                    });
+
+            {{-- Body (Scrollable only if content overflows) --}}
+            <div class="modal-body p-3 p-md-4 bg-body overflow-y-auto" x-data="{
+                paymentMethod: $wire.entangle('paymentMethod'),
+                amountPaid: $wire.entangle('paymentAmount'),
+                payTotal: $wire.entangle('paymentTotal'),
+                duitkuMethod: $wire.entangle('duitkuMethod'),
+                duitkuCustomerEmail: $wire.entangle('duitkuCustomerEmail'),
+                duitkuPaymentMethods: $wire.entangle('duitkuPaymentMethods'),
+                isSubmitting: false,
+
+                formatRupiah(val) {
+                    return new Intl.NumberFormat('id-ID').format(val || 0);
                 },
                 appendNumber(n) {
-                    let current = String(this.amount || '');
-                    if(current === String(this.total)) current = '';
-                    if (current.length < 12) this.amount = parseInt(current + n);
+                    let current = String(this.amountPaid || '');
+                    if (current === String(this.payTotal)) current = '';
+                    if (current.length < 12) this.amountPaid = parseInt(current + n) || '';
                 },
                 deleteNumber() {
-                    let current = String(this.amount || '');
-                    if (current.length > 1) this.amount = parseInt(current.slice(0, -1));
-                    else this.amount = '';
+                    let current = String(this.amountPaid || '');
+                    if (current.length > 1) this.amountPaid = parseInt(current.slice(0, -1)) || '';
+                    else this.amountPaid = '';
+                },
+                get getChange() {
+                    return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
+                },
+                async submitPayment() {
+                    if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
+                        alert('Uang tidak cukup!');
+                        return;
+                    }
+                    if (this.paymentMethod === 'duitku') {
+                        if (!this.duitkuMethod) {
+                            alert('Pilih metode Duitku dulu!');
+                            return;
+                        }
+                        if (!this.duitkuCustomerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.duitkuCustomerEmail.trim())) {
+                            alert('Email customer tidak valid!');
+                            return;
+                        }
+                    }
+                    this.isSubmitting = true;
+                    await $wire.processPayment();
+                    this.isSubmitting = false;
                 }
             }">
-                <div class="mb-4 text-center">
-                    <span class="text-muted small fw-bold text-uppercase tracking-widest">Total Tagihan</span>
-                    <h2 class="fw-black mb-0" style="color: var(--brand-caramel, #b45309);">
-                        Rp {{ number_format($paymentTotal, 0, ',', '.') }}</h2>
-                </div>
+                <div class="row g-3 g-md-4">
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold small text-muted">Metode Pembayaran</label>
-                    <div class="row g-2">
-                        <div class="col-4">
-                            <label
-                                class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-bold text-body bg-body-tertiary border"
-                                :class="method === 'cash' ? 'active border-primary' : ''">
-                                <input type="radio" value="cash" x-model="method" class="d-none">
-                                <i class="bi bi-cash d-block mb-1 fs-4"></i> Cash
-                            </label>
+                    <!-- Kolom Total & Metode -->
+                    <div class="col-md-5 border-end pe-md-4"
+                         style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="p-3 bg-body-tertiary rounded-4 mb-3 text-center border"
+                             style="border-color: var(--bs-border-color-translucent) !important;">
+                            <h6 class="fw-bold text-muted mb-1 small">Total Tagihan</h6>
+                            <h2 class="fw-bolder mb-0 text-primary" x-text="'Rp ' + formatRupiah(payTotal)"></h2>
                         </div>
-                        <div class="col-4">
-                            <label
-                                class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-bold text-body bg-body-tertiary border"
-                                :class="method === 'qris' ? 'active border-primary' : ''">
-                                <input type="radio" value="qris" x-model="method" class="d-none">
-                                <i class="bi bi-qr-code-scan d-block mb-1 fs-4"></i> QRIS
-                            </label>
+
+                        <!-- Metode Pembayaran: Grid 3 kolom di HP, Stack vertikal di Desktop -->
+                        <div class="row g-2">
+                            <!-- Option 1: Cash -->
+                            <div class="col-4 col-md-12">
+                                <label
+                                    class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
+                                    :class="paymentMethod === 'cash' ? 'btn-primary shadow-sm text-white' : 'bg-body-tertiary'">
+                                    <input type="radio" x-model="paymentMethod" value="cash" class="d-none">
+                                    <i class="bi bi-cash-stack fs-5 fs-md-6"></i> <span
+                                        style="font-size: 0.8rem;">Tunai</span>
+                                </label>
+                            </div>
+                            <!-- Option 2: QRIS (statis/manual) -->
+                            <div class="col-4 col-md-12">
+                                <label
+                                    class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
+                                    :class="paymentMethod === 'qris' ? 'btn-primary shadow-sm text-white' : 'bg-body-tertiary'">
+                                    <input type="radio" x-model="paymentMethod" value="qris" class="d-none">
+                                    <i class="bi bi-qr-code-scan fs-5 fs-md-6"></i> <span style="font-size: 0.8rem;">QRIS</span>
+                                </label>
+                            </div>
+                            <!-- Option 3: Transfer manual -->
+                            <div class="col-4 col-md-12">
+                                <label
+                                    class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
+                                    :class="paymentMethod === 'transfer' ? 'btn-primary shadow-sm text-white' : 'bg-body-tertiary'">
+                                    <input type="radio" x-model="paymentMethod" value="transfer" class="d-none">
+                                    <i class="bi bi-bank fs-5 fs-md-6"></i> <span
+                                        style="font-size: 0.8rem;">Transfer</span>
+                                </label>
+                            </div>
+                            <!-- Option 4: Duitku Digital Payment -->
+                            @if(config('duitku.enabled'))
+                            <div class="col-12">
+                                <label
+                                    class="btn fw-bold w-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-row align-items-center justify-content-start gap-2 border text-body"
+                                    :class="paymentMethod === 'duitku' ? 'btn-warning shadow-sm text-dark' : 'bg-body-tertiary'">
+                                    <input type="radio" x-model="paymentMethod" value="duitku" class="d-none">
+                                    <i class="bi bi-lightning-charge-fill fs-6"></i>
+                                    <span style="font-size: 0.8rem;">Duitku
+                                        <span class="badge bg-warning text-dark ms-1 border border-dark border-opacity-10" style="font-size:0.6rem;">DIGITAL</span>
+                                    </span>
+                                </label>
+                            </div>
+                            @endif
                         </div>
-                        <div class="col-4">
-                            <label
-                                class="btn btn-outline-secondary w-100 rounded-3 py-2 fw-bold text-body bg-body-tertiary border"
-                                :class="method === 'transfer' ? 'active border-primary' : ''">
-                                <input type="radio" value="transfer" x-model="method" class="d-none">
-                                <i class="bi bi-bank d-block mb-1 fs-4"></i> Transfer
-                            </label>
-                        </div>
+
                     </div>
-                </div>
 
-                <!-- Numpad & Non-Tunai Display -->
-                <template x-if="method === 'cash'">
-                    <div>
-                        <div
-                            class="p-3 border bg-body-tertiary mb-3 d-flex justify-content-between align-items-center shadow-sm rounded-3"
-                            style="border-color: var(--bs-border-color) !important;">
-                            <span class="fw-bold">Diterima:</span>
-                            <h4 class="fw-bolder mb-0 text-primary"
-                                x-text="amount ? 'Rp ' + new Intl.NumberFormat('id-ID').format(amount) : 'Rp 0'"></h4>
-                        </div>
+                    <!-- Kolom Aksi / Numpad -->
+                    <div class="col-md-7">
 
-                        <div class="row g-2 mb-2">
-                            <div class="col-4">
-                                <button type="button" @click="amount = total"
-                                        class="btn btn-outline-primary w-100 fw-bold rounded-3 bg-body">Pas
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" @click="amount = 50000"
-                                        class="btn btn-outline-secondary w-100 fw-bold bg-body rounded-3">50k
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" @click="amount = 100000"
-                                        class="btn btn-outline-secondary w-100 fw-bold bg-body rounded-3">100k
-                                </button>
-                            </div>
-                        </div>
+                        <!-- Tampilan Duitku -->
+                        <template x-if="paymentMethod === 'duitku'">
+                            <div class="d-flex flex-column h-100 py-2">
+                                <style>
+                                    .border-translucent {
+                                        border-color: rgba(0, 0, 0, 0.08) !important;
+                                    }
+                                    .scale-active {
+                                        transform: scale(0.98);
+                                        border-width: 2px !important;
+                                        box-shadow: 0 4px 12px rgba(202, 138, 4, 0.15) !important;
+                                    }
+                                    .transition-all {
+                                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                                    }
+                                </style>
 
-                        <div class="row g-2 mb-3">
-                            <template x-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="n">
-                                <div class="col-4">
-                                    <button type="button" @click="appendNumber(n)"
-                                            class="btn btn-secondary border w-100 fs-5 fw-bold py-2 bg-body shadow-sm rounded-3 text-body"
-                                            x-text="n"></button>
+                                <!-- Banner Info Duitku -->
+                                <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-3 mb-3 text-center text-sm-start d-flex flex-column flex-sm-row align-items-center gap-3">
+                                    <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center p-2.5 flex-shrink-0" style="width: 48px; height: 48px;">
+                                        <i class="bi bi-lightning-charge-fill fs-4 animate-pulse"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.9rem;">Generate Link Pembayaran</h6>
+                                        <p class="text-secondary mb-0 small" style="font-size: 0.75rem; line-height: 1.4;">
+                                            Generate link pembayaran, lalu kirimkan ke customer. Status akan update otomatis setelah customer bayar.
+                                        </p>
+                                    </div>
                                 </div>
-                            </template>
-                            <div class="col-4">
-                                <button type="button" @click="appendNumber('000')"
-                                        class="btn btn-secondary border w-100 fs-5 fw-bold py-2 bg-body shadow-sm rounded-3 text-body">
-                                    000
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" @click="appendNumber('0')"
-                                        class="btn btn-secondary border w-100 fs-5 fw-bold py-2 bg-body shadow-sm rounded-3 text-body">
-                                    0
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button type="button" @click="deleteNumber()"
-                                        class="btn btn-secondary border w-100 fs-5 fw-bold py-2 text-danger bg-body shadow-sm d-flex justify-content-center align-items-center rounded-3"
-                                        style="height: 100%;"><i class="bi bi-backspace-fill"></i></button>
-                            </div>
-                        </div>
 
-                        <template x-if="amount && (amount - total) >= 0">
+                                <!-- Bagian 1: Pilih Metode Pembayaran (Grid Premium) -->
+                                <div class="mb-3 flex-grow-1">
+                                    <label class="form-label small fw-bold text-muted mb-2 text-uppercase tracking-wider" style="font-size: 0.65rem;">
+                                        1. Pilih Saluran Pembayaran Duitku <span class="text-danger">*</span>
+                                    </label>
+                                    
+                                    <!-- Dynamic Grid: 2 columns on mobile, 3 columns on desktop -->
+                                    <div class="row row-cols-2 row-cols-sm-3 g-2 overflow-y-auto" style="max-height: 240px; padding: 2px;">
+                                        <template x-for="method in duitkuPaymentMethods" :key="method.paymentMethod">
+                                            <div class="col">
+                                                <button
+                                                    @click="duitkuMethod = method.paymentMethod"
+                                                    type="button"
+                                                    class="btn w-100 h-100 p-2.5 rounded-3 border d-flex flex-column align-items-center justify-content-center gap-1.5 transition-all text-center"
+                                                    :class="duitkuMethod === method.paymentMethod 
+                                                        ? 'bg-warning bg-opacity-10 border-warning text-dark shadow-sm fw-bold scale-active' 
+                                                        : 'bg-body-tertiary text-body border-translucent hover:bg-body'"
+                                                    style="min-height: 72px;"
+                                                >
+                                                    <!-- Image Container -->
+                                                    <div class="bg-white rounded p-1 d-flex align-items-center justify-content-center border" style="width: 48px; height: 26px;">
+                                                        <img :src="method.paymentImage" class="img-fluid object-contain" :alt="method.paymentName" onerror="this.src='https://images.duitku.com/hotlink-ok/QRIS.PNG'">
+                                                    </div>
+                                                    <!-- Method Name -->
+                                                    <span x-text="method.paymentName" style="font-size: 0.68rem; line-height: 1.2;" class="text-truncate w-100"></span>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Bagian 2: Form Email Pelanggan -->
+                                <div class="mt-3">
+                                    <label class="form-label small fw-bold text-muted mb-1.5 text-uppercase tracking-wider" style="font-size: 0.65rem;">
+                                        2. Kirim Tagihan ke Email Customer <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="p-3 bg-light rounded-4 border">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-body-tertiary border border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
+                                            <input type="email"
+                                                   class="form-control bg-body border border-start-0 fw-bold py-2 text-dark"
+                                                   placeholder="contoh: customer@email.com"
+                                                   x-model="duitkuCustomerEmail" 
+                                                   style="font-size: 0.85rem;" />
+                                        </div>
+                                        <div class="d-flex align-items-center gap-1.5 text-muted mt-2" style="font-size: 0.68rem;">
+                                            <i class="bi bi-info-circle-fill text-warning"></i>
+                                            <span>Email wajib diisi untuk notifikasi & pengiriman kuitansi resmi Duitku.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Tampilan QRIS / Transfer manual -->
+                        <template x-if="paymentMethod !== 'cash' && paymentMethod !== 'duitku'">
                             <div
-                                class="d-flex justify-content-between align-items-center bg-success bg-opacity-10 border border-success border-opacity-25 shadow-sm rounded-3 p-3">
-                                <span class="fw-bold text-success small">Kembalian:</span>
-                                <h5 class="fw-bolder text-success mb-0"
-                                    x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(amount - total)"></h5>
+                                class="d-flex flex-column justify-content-center align-items-center h-100 py-4 py-md-5 text-center">
+                                <i class="bi text-primary mb-2"
+                                   :class="paymentMethod === 'qris' ? 'bi-qr-code-scan' : 'bi-bank'"
+                                   style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold"
+                                    x-text="paymentMethod === 'qris' ? 'Pembayaran QRIS' : 'Transfer Bank'"></h5>
+                                <p class="text-secondary small px-2 opacity-75">Pastikan pelanggan sudah berhasil
+                                    transfer sebelum menekan tombol proses.</p>
+                            </div>
+                        </template>
+
+
+                        <!-- Tampilan Numpad Cash -->
+                        <template x-if="paymentMethod === 'cash'">
+                            <div class="d-flex flex-column h-100 justify-content-end">
+                                <!-- Input Uang -->
+                                <div class="form-floating mb-2">
+                                    <input type="text"
+                                           class="form-control fw-bold text-primary bg-body-tertiary border-0"
+                                           readonly :value="amountPaid ? 'Rp ' + formatRupiah(amountPaid) : 'Rp 0'"
+                                           style="border-radius: 1rem; font-size: 1.25rem;">
+                                    <label class="fw-bold text-muted small">Uang Diterima</label>
+                                </div>
+
+                                <!-- Quick Amounts -->
+                                <div class="row g-2 mb-2">
+                                    <div class="col-4">
+                                        <button @click="amountPaid = payTotal"
+                                                class="btn btn-outline-primary w-100 fw-bold py-1 py-md-2 rounded-3 small bg-body">
+                                            Pas
+                                        </button>
+                                    </div>
+                                    <div class="col-4">
+                                        <button @click="amountPaid = 50000"
+                                                class="btn btn-secondary border w-100 fw-bold py-1 py-md-2 rounded-3 small bg-body text-body">
+                                            50k
+                                        </button>
+                                    </div>
+                                    <div class="col-4">
+                                        <button @click="amountPaid = 100000"
+                                                class="btn btn-secondary border w-100 fw-bold py-1 py-md-2 rounded-3 small bg-body text-body">
+                                            100k
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Numpad Grid -->
+                                <div class="row g-2 mb-2">
+                                    <template x-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="n">
+                                        <div class="col-4">
+                                            <button @click="appendNumber(n)"
+                                                    class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 bg-body text-body"
+                                                    x-text="n"></button>
+                                        </div>
+                                    </template>
+                                    <div class="col-4">
+                                        <button @click="appendNumber('000')"
+                                                class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 bg-body text-body">
+                                            000
+                                        </button>
+                                    </div>
+                                    <div class="col-4">
+                                        <button @click="appendNumber('0')"
+                                                class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 bg-body text-body">
+                                            0
+                                        </button>
+                                    </div>
+                                    <div class="col-4">
+                                        <button @click="deleteNumber()"
+                                                class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 text-danger bg-body">
+                                            <i class="bi bi-backspace-fill"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- Kembalian (Muncul HANYA jika ada kembalian) -->
+                                <template x-if="amountPaid && getChange >= 0">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center p-2 px-3 bg-success bg-opacity-10 rounded-3 border border-success border-opacity-25 mt-1">
+                                        <span class="text-success fw-bold small">Kembalian:</span>
+                                        <h5 class="fw-bolder text-success mb-0"
+                                            x-text="'Rp ' + formatRupiah(getChange)"></h5>
+                                    </div>
+                                </template>
                             </div>
                         </template>
                     </div>
-                </template>
-
-                <template x-if="method !== 'cash'">
-                    <div
-                        class="d-flex flex-column justify-content-center align-items-center h-100 text-center py-4 bg-body-tertiary rounded-4 shadow-sm border mb-3"
-                        style="border-color: var(--bs-border-color) !important;">
-                        <i class="bi bi-check-circle-fill text-success mb-3" style="font-size: 3rem;"></i>
-                        <h5 class="fw-bold mb-2">Pembayaran Non-Tunai</h5>
-                        <p class="text-secondary small mb-0 px-3 opacity-75">Pastikan saldo pelanggan sudah masuk atau
-                            bukti transfer telah diterima sebelum klik Konfirmasi.</p>
-                    </div>
-                </template>
+                </div>
             </div>
-            <div class="modal-footer border-top-0 p-4 pt-0">
-                <button type="button" class="btn btn-outline-secondary border bg-body text-body rounded-pill px-4"
-                        data-bs-dismiss="modal">Batal
-                </button>
-                <button type="button" wire:click="processPayment"
-                        class="btn btn-dark rounded-pill px-4 fw-bold text-white"
-                        style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
-                    Konfirmasi Lunas
-                </button>
+
+            {{-- Footer (Sticky) --}}
+            <div class="modal-footer bg-body-tertiary border-top p-3 flex-shrink-0"
+                 style="border-radius: 0 0 1.5rem 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
+                <div class="d-flex w-100 gap-2">
+                    <button type="button"
+                            class="btn btn-secondary border fw-bold flex-shrink-0 rounded-pill shadow-none bg-body text-body"
+                            data-bs-dismiss="modal">Batal
+                    </button>
+                    <button @click="submitPayment"
+                            class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white"
+                            style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
+                            :disabled="isSubmitting
+                                || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))
+                                || (paymentMethod === 'duitku' && (!duitkuMethod || !duitkuCustomerEmail))"
+                    >
+                        <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">
+                            <span x-show="paymentMethod !== 'duitku'">Selesaikan Transaksi</span>
+                            <span x-show="paymentMethod === 'duitku'">⚡ Generate Link Bayar</span>
+                        </span>
+                        <span x-show="isSubmitting" style="display: none;">Memproses...</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -173,6 +341,13 @@
         if (el) {
             const modal = bootstrap.Modal.getInstance(el);
             if (modal) modal.hide();
+        }
+    });
+
+    Livewire.on('open-duitku-link', (data) => {
+        const url = data.url || data[0]?.url;
+        if (url) {
+            window.open(url, '_blank');
         }
     });
 </script>

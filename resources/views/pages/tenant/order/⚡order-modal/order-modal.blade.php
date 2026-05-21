@@ -90,7 +90,7 @@
                                     <div class="p-3 rounded-3 mt-2 bg-body-tertiary border">
                                         <div class="d-flex justify-content-between mb-2 small">
                                             <span class="text-muted">Metode</span>
-                                            <span class="fw-bold text-uppercase">{{ $order->payment_method }}</span>
+                                            <span class="fw-bold text-uppercase">{{ $order->formatted_payment_method }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between mb-2 small">
                                             <span class="text-muted">Subtotal</span>

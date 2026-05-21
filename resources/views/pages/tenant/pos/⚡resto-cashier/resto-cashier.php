@@ -5,6 +5,7 @@ use App\Models\OrderItem;
 use App\Models\ProductVariant;
 use App\Models\StoreSetting;
 use App\Services\TenantWalletService;
+use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -239,6 +240,64 @@ new class extends Component {
                     'customer_phone' => $order->customer_phone,
                     'store_name' => $storeName,
                     'total_price' => $totalPrice,
+                ];
+            });
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Generate payment link Duitku untuk antrean pending.
+     */
+    public function generateDuitkuPayment($orderId, $paymentMethod, $customerEmail)
+    {
+        if (!config('duitku.enabled')) {
+            return ['success' => false, 'error' => 'Pembayaran digital Duitku sedang tidak aktif.'];
+        }
+
+        if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'error' => 'Email customer tidak valid.'];
+        }
+
+        try {
+            return DB::transaction(function () use ($orderId, $paymentMethod, $customerEmail) {
+                $order = Order::with('items')->lockForUpdate()->find($orderId);
+
+                if (!$order || $order->status !== 'pending') {
+                    throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
+                }
+
+                $customerDetail = [
+                    'firstName' => $order->customer_name ?: 'Pelanggan',
+                    'lastName' => '',
+                    'email' => $customerEmail,
+                    'phoneNumber' => $order->customer_phone ?: '',
+                    'address' => 'Indonesia',
+                    'city' => 'Jakarta',
+                    'postalCode' => '00000',
+                ];
+
+                $duitkuService = new DuitkuService();
+                $tenantId = tenant()->getTenantKey();
+
+                $duitkuResult = $duitkuService->createInvoice(
+                    $order,
+                    $customerDetail,
+                    $paymentMethod,
+                    $tenantId
+                );
+
+                $order->update([
+                    'duitku_reference' => $duitkuResult['reference'],
+                    'duitku_payment_url' => $duitkuResult['payment_url'],
+                    'duitku_va_number' => $duitkuResult['va_number'],
+                    'duitku_payment_method' => $paymentMethod,
+                ]);
+
+                return [
+                    'success' => true,
+                    'payment_url' => $duitkuResult['payment_url'],
                 ];
             });
         } catch (Exception $e) {

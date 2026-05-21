@@ -5,6 +5,7 @@ use App\Models\OrderItem;
 use App\Models\ProductVariant;
 use App\Models\StoreSetting;
 use App\Services\TenantWalletService;
+use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -156,6 +157,109 @@ new class extends Component {
             $this->dispatch('barcode-scanned', product: $formattedProduct, variant: $formattedVariant);
         } else {
             $this->dispatch('barcode-not-found', sku: $sku);
+        }
+    }
+
+    public function processPayment($orderId, $paymentMethod, $discount, $amountPaid)
+    {
+        try {
+            return DB::transaction(function () use ($orderId, $paymentMethod, $discount, $amountPaid) {
+                $order = Order::with('items')->lockForUpdate()->find($orderId);
+
+                if (!$order || $order->status !== 'pending') {
+                    throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
+                }
+
+                $discountAmount = (float)$discount;
+                $totalPrice = max(0, (isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal) - $discountAmount);
+                $paid = (float)$amountPaid ?: $totalPrice;
+                $change = max(0, $paid - $totalPrice);
+
+                $order->update([
+                    'payment_method' => $paymentMethod,
+                    'discount' => $discountAmount,
+                    'total_price' => $totalPrice,
+                    'amount_paid' => $paid,
+                    'change_amount' => $change,
+                    'status' => 'paid',
+                ]);
+
+                // --- POTONG SALDO WALLET ---
+                $feePerTransaction = 300;
+                app(TenantWalletService::class)->deductBalance(
+                    $feePerTransaction,
+                    $order,
+                    "Biaya pelunasan transaksi retail pending {$order->invoice_code}"
+                );
+
+                $storeName = StoreSetting::first()->name ?? 'Toko Kami';
+
+                return [
+                    'success' => true,
+                    'invoice_code' => $order->invoice_code,
+                    'customer_name' => $order->customer_name,
+                    'customer_phone' => $order->customer_phone,
+                    'store_name' => $storeName,
+                    'total_price' => $totalPrice,
+                ];
+            });
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    public function generateDuitkuPayment($orderId, $paymentMethod, $customerEmail)
+    {
+        if (!config('duitku.enabled')) {
+            return ['success' => false, 'error' => 'Pembayaran digital Duitku sedang tidak aktif.'];
+        }
+
+        if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'error' => 'Email customer tidak valid.'];
+        }
+
+        try {
+            return DB::transaction(function () use ($orderId, $paymentMethod, $customerEmail) {
+                $order = Order::with('items')->lockForUpdate()->find($orderId);
+
+                if (!$order || $order->status !== 'pending') {
+                    throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
+                }
+
+                $customerDetail = [
+                    'firstName' => $order->customer_name ?: 'Pelanggan',
+                    'lastName' => '',
+                    'email' => $customerEmail,
+                    'phoneNumber' => $order->customer_phone ?: '',
+                    'address' => 'Indonesia',
+                    'city' => 'Jakarta',
+                    'postalCode' => '00000',
+                ];
+
+                $duitkuService = new DuitkuService();
+                $tenantId = tenant()->getTenantKey();
+
+                $duitkuResult = $duitkuService->createInvoice(
+                    $order,
+                    $customerDetail,
+                    $paymentMethod,
+                    $tenantId
+                );
+
+                $order->update([
+                    'duitku_reference' => $duitkuResult['reference'],
+                    'duitku_payment_url' => $duitkuResult['payment_url'],
+                    'duitku_va_number' => $duitkuResult['va_number'],
+                    'duitku_payment_method' => $paymentMethod,
+                ]);
+
+                return [
+                    'success' => true,
+                    'payment_url' => $duitkuResult['payment_url'],
+                ];
+            });
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 

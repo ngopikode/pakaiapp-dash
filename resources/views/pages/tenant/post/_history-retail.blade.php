@@ -81,7 +81,11 @@
                                 {{ $order->created_at->diffForHumans() }} ({{ $order->created_at->format('H:i') }})
                             </small>
                         </div>
-                        @if($order->payment_method === 'cash')
+                        @if($order->status === 'pending')
+                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill fw-bold px-3 py-1.5" style="font-size: 0.75rem;">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Belum Bayar
+                            </span>
+                        @elseif($order->payment_method === 'cash')
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill fw-bold px-3 py-1.5" style="font-size: 0.75rem;">
                                 <i class="bi bi-cash-stack me-1"></i>Tunai
                             </span>
@@ -146,53 +150,61 @@
                             </div>
 
                             <div class="d-flex gap-2">
-                                <a href="{{ $strukUrl }}" target="_blank"
-                                   class="btn btn-sm btn-outline-secondary fw-bold bg-body border py-2 flex-grow-1 d-flex align-items-center justify-content-center gap-1"
-                                   style="border-radius: 0.75rem; font-size: 0.8rem;">
-                                    <i class="bi bi-printer"></i> Lihat Struk
-                                </a>
-
-                                @if($order->customer_phone)
-                                    <a href="{{ $waUrl }}" target="_blank"
-                                       class="btn btn-sm btn-success fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1 border-0"
-                                       style="border-radius: 0.75rem; font-size: 0.8rem; background-color: #25d366;">
-                                        <i class="bi bi-whatsapp"></i> Kirim WA
-                                    </a>
+                                @if($order->status === 'pending')
+                                    <button @click="openPayForOrder({{ json_encode($order) }})"
+                                            class="btn btn-sm btn-warning w-100 fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 border-0"
+                                            style="border-radius: 0.75rem; font-size: 0.85rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);">
+                                        <i class="bi bi-credit-card-2-front"></i> Bayar Sekarang
+                                    </button>
                                 @else
-                                    <div class="btn btn-sm btn-outline-success fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1 position-relative"
-                                            style="border-radius: 0.75rem; font-size: 0.8rem; cursor: pointer;"
-                                            x-data="{ showInput: false, phoneNum: '' }"
-                                            @click="showInput = !showInput"
-                                            :class="showInput ? 'active' : ''">
-                                        <i class="bi bi-whatsapp"></i> Struk WA
-                                        <div x-show="showInput" class="position-absolute bg-body p-3 border shadow-lg rounded-4 text-start text-body"
-                                             style="z-index: 100; bottom: 45px; right: 10px; width: 250px;"
-                                             @click.stop>
-                                            <label class="small fw-bold text-muted mb-1">Kirim ke nomor WA:</label>
-                                            <div class="input-group input-group-sm">
-                                                <input type="text" class="form-control bg-body-tertiary text-body border"
-                                                       x-model="phoneNum" placeholder="Contoh: 081234..."
-                                                       style="border-radius: 0.5rem 0 0 0.5rem;">
-                                                <button class="btn btn-success border-0" type="button"
-                                                        @click="
-                                                            if (phoneNum.length >= 9) {
-                                                                $wire.updateCustomerPhone('{{ $order->invoice_code }}', phoneNum);
-                                                                let cleanP = phoneNum.replace(/\D/g, '');
-                                                                let formattedP = cleanP.startsWith('0') ? '62' + cleanP.substring(1) : (cleanP.startsWith('62') ? cleanP : '62' + cleanP);
-                                                                let dynamicUrl = `https://wa.me/${formattedP}?text=${encodeURIComponent('Halo Kak,\n\nTerima kasih telah berbelanja!\nStruk digital: {{ $strukUrl }}\n\nTotal: Rp {{ number_format($order->total_price, 0, ',', '.') }}')}`;
-                                                                window.open(dynamicUrl, '_blank');
-                                                                showInput = false;
-                                                                phoneNum = '';
-                                                                location.reload();
-                                                            } else {
-                                                                showIslandToast('Nomor tidak valid!', 'warning');
-                                                            }
-                                                        ">
-                                                    Kirim
-                                                </button>
+                                    <a href="{{ $strukUrl }}" target="_blank"
+                                       class="btn btn-sm btn-outline-secondary fw-bold bg-body border py-2 flex-grow-1 d-flex align-items-center justify-content-center gap-1"
+                                       style="border-radius: 0.75rem; font-size: 0.8rem;">
+                                        <i class="bi bi-printer"></i> Lihat Struk
+                                    </a>
+
+                                    @if($order->customer_phone)
+                                        <a href="{{ $waUrl }}" target="_blank"
+                                           class="btn btn-sm btn-success fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1 border-0"
+                                           style="border-radius: 0.75rem; font-size: 0.8rem; background-color: #25d366;">
+                                            <i class="bi bi-whatsapp"></i> Kirim WA
+                                        </a>
+                                    @else
+                                        <div class="btn btn-sm btn-outline-success fw-bold py-2 px-3 d-flex align-items-center justify-content-center gap-1 position-relative"
+                                                style="border-radius: 0.75rem; font-size: 0.8rem; cursor: pointer;"
+                                                x-data="{ showInput: false, phoneNum: '' }"
+                                                @click="showInput = !showInput"
+                                                :class="showInput ? 'active' : ''">
+                                            <i class="bi bi-whatsapp"></i> Struk WA
+                                            <div x-show="showInput" class="position-absolute bg-body p-3 border shadow-lg rounded-4 text-start text-body"
+                                                 style="z-index: 100; bottom: 45px; right: 10px; width: 250px;"
+                                                 @click.stop>
+                                                <label class="small fw-bold text-muted mb-1">Kirim ke nomor WA:</label>
+                                                <div class="input-group input-group-sm">
+                                                    <input type="text" class="form-control bg-body-tertiary text-body border"
+                                                           x-model="phoneNum" placeholder="Contoh: 081234..."
+                                                           style="border-radius: 0.5rem 0 0 0.5rem;">
+                                                    <button class="btn btn-success border-0" type="button"
+                                                            @click="
+                                                                if (phoneNum.length >= 9) {
+                                                                    $wire.updateCustomerPhone('{{ $order->invoice_code }}', phoneNum);
+                                                                    let cleanP = phoneNum.replace(/\D/g, '');
+                                                                    let formattedP = cleanP.startsWith('0') ? '62' + cleanP.substring(1) : (cleanP.startsWith('62') ? cleanP : '62' + cleanP);
+                                                                    let dynamicUrl = `https://wa.me/${formattedP}?text=${encodeURIComponent('Halo Kak,\n\nTerima kasih telah berbelanja!\nStruk digital: {{ $strukUrl }}\n\nTotal: Rp {{ number_format($order->total_price, 0, ',', '.') }}')}`;
+                                                                    window.open(dynamicUrl, '_blank');
+                                                                    showInput = false;
+                                                                    phoneNum = '';
+                                                                    location.reload();
+                                                                } else {
+                                                                    showIslandToast('Nomor tidak valid!', 'warning');
+                                                                }
+                                                            ">
+                                                        Kirim
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>

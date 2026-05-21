@@ -161,6 +161,7 @@
     x-data="storeApp"
     data-default-order-type="{{ $orderTypes[0]['id'] }}"
     data-wa-number="{{ $waNumber }}"
+    data-duitku-enabled="{{ config('duitku.enabled') ? 1 : 0 }}"
     @show-toast.window="showToast($event.detail.message)"
     @open-options-modal.window="openOption($event.detail.product)"
     @open-checkout-modal.window="openCheckout()"

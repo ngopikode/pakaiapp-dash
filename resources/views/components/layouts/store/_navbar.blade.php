@@ -24,10 +24,30 @@
                 <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] mt-0.5">{{ $subtitle }}</p>
             </div>
         </div>
-        <button
-            @click="$dispatch('open-qr-modal')"
-            class="p-2.5 bg-zinc-50 hover:bg-[var(--primary-color)] transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-zinc-100 hover:border-[var(--primary-color)]">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
-        </button>
+        <div class="flex items-center gap-2">
+            {{-- Tombol Riwayat Pesanan --}}
+            <button
+                @click="historyOpen = true"
+                class="relative p-2.5 bg-zinc-50 hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-zinc-100 hover:border-[var(--primary-color)]"
+                title="Riwayat Pesanan"
+            >
+                <span
+                    x-show="historyCount > 0"
+                    x-text="historyCount"
+                    class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black h-4 w-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse"
+                    style="display: none;"
+                ></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900 group-hover:text-white transition-colors"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+            </button>
+
+            {{-- Tombol QR Code --}}
+            <button
+                @click="$dispatch('open-qr-modal')"
+                class="p-2.5 bg-zinc-50 hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-zinc-100 hover:border-[var(--primary-color)]"
+                title="Scan QR Menu"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900 group-hover:text-white transition-colors"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+            </button>
+        </div>
     </div>
 </nav>

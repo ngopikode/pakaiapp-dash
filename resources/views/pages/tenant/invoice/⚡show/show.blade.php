@@ -1,4 +1,9 @@
-<div class="py-4 py-md-5 px-3">
+<div @if($order->status === 'pending') wire:poll.5s="refreshOrder" @endif class="py-4 py-md-5 px-3">
+    <!-- Premium Copy Toast Notification -->
+    <div id="custom-toast" class="custom-toast bg-dark text-white rounded-3 shadow-lg px-4 py-2 text-center" style="display:none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; font-size: 0.85rem; font-weight: bold;">
+        Tersalin!
+    </div>
+
     <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
          style="max-width: 450px;">
         <button onclick="window.print()"
@@ -14,6 +19,87 @@
             <i class="bi bi-whatsapp"></i> Bagikan
         </a>
     </div>
+
+    <!-- Panel Selesaikan Pembayaran Dinamis (Duitku) -->
+    @if($order->status === 'pending' && ($order->duitku_va_number || $order->duitku_payment_url))
+        @php
+            $duitkuDetails = $this->getPaymentMethodDetails();
+            $instructions = $this->getPaymentInstructions();
+        @endphp
+        <div class="payment-instruction-container mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border no-print" style="max-width: 420px; border-radius: 16px !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="badge bg-warning text-dark fw-bold text-uppercase px-2.5 py-1.5 animate-pulse" style="font-size: 0.7rem; border-radius: 6px;">Menunggu Pembayaran</span>
+                <span class="small text-muted d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-clock-history"></i> Cek otomatis...
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 bg-light p-3 rounded-3 mb-4" style="border-radius: 12px !important;">
+                <img src="{{ $duitkuDetails['logo'] }}" alt="{{ $duitkuDetails['name'] }}" class="rounded shadow-sm bg-white" style="width: 55px; height: auto; padding: 2px;">
+                <div>
+                    <h6 class="fw-bold mb-0.5 text-dark" style="font-size: 0.9rem;">{{ $duitkuDetails['name'] }}</h6>
+                    <span class="text-muted small" style="font-size: 0.75rem;">Pembayaran digital via Duitku</span>
+                </div>
+            </div>
+
+            <!-- Nominal Pembayaran -->
+            <div class="mb-4 text-center py-3 bg-dark text-white rounded-3 position-relative overflow-hidden" style="border-radius: 12px !important;">
+                <span class="text-zinc-400 small text-uppercase tracking-wider fw-bold d-block mb-1" style="font-size: 0.7rem; color: #a1a1aa;">Total Tagihan</span>
+                <h3 class="fw-bolder mb-2 text-warning font-mono" style="font-size: 1.45rem;">Rp {{ number_format($order->total_price, 0, ',', '.') }}</h3>
+                <button onclick="copyToClipboard('{{ $order->total_price }}', 'Nominal Berhasil Disalin!')" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold border-zinc-700 hover:bg-zinc-800 text-xs" style="font-size: 0.7rem;">
+                    <i class="bi bi-clipboard me-1"></i> Salin Nominal
+                </button>
+            </div>
+
+            @if($order->duitku_va_number)
+                <!-- Virtual Account -->
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold text-uppercase tracking-wider mb-2" style="font-size: 0.7rem;">Nomor Virtual Account</label>
+                    <div class="d-flex align-items-center gap-2 p-3 bg-light border rounded-3 justify-content-between" style="border-radius: 12px !important;">
+                        <span class="fs-5 fw-bold font-mono text-dark" style="letter-spacing: 1px;">{{ $order->duitku_va_number }}</span>
+                        <button onclick="copyToClipboard('{{ $order->duitku_va_number }}', 'Nomor VA Berhasil Disalin!')" class="btn btn-primary btn-sm rounded-3 shadow-sm px-3 fw-bold flex-shrink-0 d-flex align-items-center gap-1.5" style="border-radius: 8px !important;">
+                            <i class="bi bi-clipboard"></i> Salin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Petunjuk Pembayaran -->
+                <div>
+                    <label class="form-label text-muted small fw-bold text-uppercase tracking-wider mb-2" style="font-size: 0.7rem;">Petunjuk Pembayaran</label>
+                    <div class="accordion" id="accordionInstructions">
+                        @foreach($instructions as $title => $steps)
+                            <div class="accordion-item border rounded-3 mb-2 overflow-hidden bg-white shadow-sm" style="border-radius: 10px !important;">
+                                <h2 class="accordion-header" id="heading{{ \Illuminate\Support\Str::slug($title) }}">
+                                    <button class="accordion-button collapsed fw-bold text-dark bg-white py-3 px-3 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ \Illuminate\Support\Str::slug($title) }}" aria-expanded="false" aria-controls="collapse{{ \Illuminate\Support\Str::slug($title) }}" style="font-size: 0.8rem;">
+                                        {{ $title }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ \Illuminate\Support\Str::slug($title) }}" class="accordion-collapse collapse" aria-labelledby="heading{{ \Illuminate\Support\Str::slug($title) }}" data-bs-parent="#accordionInstructions">
+                                    <div class="accordion-body bg-light text-muted small py-3 px-3" style="font-size: 0.75rem;">
+                                        <ol class="mb-0 ps-3">
+                                            @foreach($steps as $step)
+                                                <li class="mb-2">{!! $step !!}</li>
+                                            @endforeach
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @else
+                <!-- Non-VA (QRIS, E-Wallet, CC) -->
+                <div class="text-center py-2">
+                    <p class="text-muted small mb-4" style="font-size: 0.75rem; line-height: 1.5;">
+                        Silakan klik tombol di bawah ini untuk memproses pembayaran digital Anda via portal pembayaran aman Duitku.
+                    </p>
+                    <a href="{{ $order->duitku_payment_url }}" target="_blank" class="btn btn-dark w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 text-uppercase tracking-wider" style="font-size: 0.8rem; border-radius: 12px !important;">
+                        <i class="bi bi-wallet2"></i> Bayar Sekarang via Duitku
+                    </a>
+                </div>
+            @endif
+        </div>
+    @endif
 
     <div id="receipt-content" class="receipt-container p-4 p-md-5 mt-2">
         <div class="text-center mb-4">
@@ -144,7 +230,13 @@
         <div class="bg-light p-3 rounded-2 small mb-4 border payment-box">
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Metode Pembayaran</span>
-                <span class="fw-bold text-dark text-uppercase">{{ $order->payment_method }}</span>
+                <span class="fw-bold text-dark text-uppercase">
+                    @if($order->duitku_payment_method)
+                        {{ $this->getPaymentMethodDetails()['name'] }}
+                    @else
+                        {{ $order->formatted_payment_method }}
+                    @endif
+                </span>
             </div>
             @if($order->payment_method == 'cash')
                 <div class="d-flex justify-content-between mb-2 receipt-monospace" style="font-size: 0.85rem;">
@@ -271,6 +363,35 @@
             background-color: #fff !important;
         }
     }
+
+    /* Premium Custom Duitku UI Styles */
+    .payment-instruction-container {
+        max-width: 420px;
+        margin: 0 auto;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .custom-toast {
+        transition: opacity 0.3s ease;
+        background-color: #111827 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.5px;
+    }
+    .animate-pulse {
+        animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse-animation {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .5; }
+    }
+    .accordion-button:focus {
+        box-shadow: none !important;
+    }
+    .accordion-button:not(.collapsed) {
+        color: #111827 !important;
+        background-color: #f8fafc !important;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -296,6 +417,23 @@
             link.download = 'Invoice-{{ $order->invoice_code }}.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
+        });
+    }
+
+    function copyToClipboard(text, successMessage) {
+        navigator.clipboard.writeText(text).then(function() {
+            const toast = document.getElementById('custom-toast');
+            toast.textContent = successMessage;
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.style.display = 'none';
+                }, 300);
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Gagal menyalin: ', err);
         });
     }
 </script>

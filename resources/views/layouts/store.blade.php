@@ -97,12 +97,14 @@
         x-data="storeApp"
         data-default-order-type="{{ $orderTypes[0]['id'] }}"
         data-wa-number="{{ $waNumber }}"
+        data-duitku-enabled="{{ config('duitku.enabled') ? 1 : 0 }}"
         @open-qr-modal.window="qrOpen = true"
         @show-toast.window="showToast($event.detail.message)"
         @open-options-modal.window="openOption($event.detail.product)"
         @open-checkout-modal.window="openCheckout()"
         @keydown.escape.window="
-        if (checkoutOpen)    { closeCheckout(); }
+        if (historyOpen)     { historyOpen = false; }
+        else if (checkoutOpen)    { closeCheckout(); }
         else if (optionOpen) { closeOption(); }
         else if (qrOpen)     { qrOpen = false; }
     "
@@ -186,6 +188,9 @@
 
         {{-- ===== CHECKOUT MODAL (100% Client-Side) ===== --}}
         @include('pages.tenant.store.checkout-modal', ['orderTypes' => $orderTypes])
+
+        {{-- ===== RIWAYAT MODAL (100% Client-Side) ===== --}}
+        @include('pages.tenant.store.history-modal')
     </div>
 
     @livewireScripts
