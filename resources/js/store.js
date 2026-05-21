@@ -202,15 +202,15 @@ document.addEventListener('alpine:init', () => {
             let price;
             let variantLabel = '';
             if (!this.optionProduct.variants?.length) {
-                price = this.optionProduct.price;
+                price = parseFloat(this.optionProduct.price) || 0;
             } else if (this.isMulti) {
-                price = this.optionProduct.price;
+                price = parseFloat(this.optionProduct.price) || 0;
                 variantLabel = this.optionSelected.join(', ');
             } else {
                 const v = this.optionProduct.variants.find(
                     (v) => v.name === this.optionSelected[0]
                 );
-                price = v ? v.price : this.optionProduct.price;
+                price = v ? (parseFloat(v.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
                 variantLabel = this.optionSelected[0] || '';
             }
 
