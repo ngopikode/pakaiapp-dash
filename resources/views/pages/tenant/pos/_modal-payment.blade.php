@@ -37,7 +37,7 @@
                                         style="font-size: 0.8rem;">Tunai</span>
                                 </label>
                             </div>
-                            <!-- Option 2: QRIS -->
+                            <!-- Option 2: QRIS (statis/manual) -->
                             <div class="col-4 col-md-12">
                                 <label
                                     class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
@@ -46,7 +46,7 @@
                                     <i class="bi bi-qr-code-scan fs-5 fs-md-6"></i> <span style="font-size: 0.8rem;">QRIS</span>
                                 </label>
                             </div>
-                            <!-- Option 3: Transfer -->
+                            <!-- Option 3: Transfer manual -->
                             <div class="col-4 col-md-12">
                                 <label
                                     class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
@@ -56,14 +56,113 @@
                                         style="font-size: 0.8rem;">Transfer</span>
                                 </label>
                             </div>
+                            <!-- Option 4: Duitku Digital Payment -->
+                            @if(config('duitku.enabled'))
+                            <div class="col-12">
+                                <label
+                                    class="btn fw-bold w-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-row align-items-center justify-content-start gap-2 border text-body"
+                                    :class="paymentMethod === 'duitku' ? 'btn-warning shadow-sm text-dark' : 'bg-body-tertiary'">
+                                    <input type="radio" x-model="paymentMethod" value="duitku" class="d-none">
+                                    <i class="bi bi-lightning-charge-fill fs-6"></i>
+                                    <span style="font-size: 0.8rem;">Duitku
+                                        <span class="badge bg-warning text-dark ms-1 border border-dark border-opacity-10" style="font-size:0.6rem;">DIGITAL</span>
+                                    </span>
+                                </label>
+                            </div>
+                            @endif
                         </div>
+
                     </div>
 
                     <!-- Kolom Aksi / Numpad -->
                     <div class="col-md-7">
 
-                        <!-- Tampilan QRIS / Transfer -->
-                        <template x-if="paymentMethod !== 'cash'">
+                        <!-- Tampilan Duitku -->
+                        <template x-if="paymentMethod === 'duitku'">
+                            <div class="d-flex flex-column h-100 py-2">
+                                <style>
+                                    .border-translucent {
+                                        border-color: rgba(0, 0, 0, 0.08) !important;
+                                    }
+                                    .scale-active {
+                                        transform: scale(0.98);
+                                        border-width: 2px !important;
+                                        box-shadow: 0 4px 12px rgba(202, 138, 4, 0.15) !important;
+                                    }
+                                    .transition-all {
+                                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                                    }
+                                </style>
+
+                                <!-- Banner Info Duitku -->
+                                <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-3 mb-3 text-center text-sm-start d-flex flex-column flex-sm-row align-items-center gap-3">
+                                    <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center p-2.5 flex-shrink-0" style="width: 48px; height: 48px;">
+                                        <i class="bi bi-lightning-charge-fill fs-4 animate-pulse"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.9rem;">Generate Link Pembayaran</h6>
+                                        <p class="text-secondary mb-0 small" style="font-size: 0.75rem; line-height: 1.4;">
+                                            Generate link pembayaran, lalu kirimkan ke customer. Status akan update otomatis setelah customer bayar.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Bagian 1: Pilih Metode Pembayaran (Grid Premium) -->
+                                <div class="mb-3 flex-grow-1">
+                                    <label class="form-label small fw-bold text-muted mb-2 text-uppercase tracking-wider" style="font-size: 0.65rem;">
+                                        1. Pilih Saluran Pembayaran Duitku <span class="text-danger">*</span>
+                                    </label>
+                                    
+                                    <!-- Dynamic Grid: 2 columns on mobile, 3 columns on desktop -->
+                                    <div class="row row-cols-2 row-cols-sm-3 g-2 overflow-y-auto" style="max-height: 240px; padding: 2px;">
+                                        <template x-for="method in duitkuPaymentMethods" :key="method.paymentMethod">
+                                            <div class="col">
+                                                <button
+                                                    @click="duitkuMethod = method.paymentMethod"
+                                                    type="button"
+                                                    class="btn w-100 h-100 p-2.5 rounded-3 border d-flex flex-column align-items-center justify-content-center gap-1.5 transition-all text-center"
+                                                    :class="duitkuMethod === method.paymentMethod 
+                                                        ? 'bg-warning bg-opacity-10 border-warning text-dark shadow-sm fw-bold scale-active' 
+                                                        : 'bg-body-tertiary text-body border-translucent hover:bg-body'"
+                                                    style="min-height: 72px;"
+                                                >
+                                                    <!-- Image Container -->
+                                                    <div class="bg-white rounded p-1 d-flex align-items-center justify-content-center border" style="width: 48px; height: 26px;">
+                                                        <img :src="method.paymentImage" class="img-fluid object-contain" :alt="method.paymentName" onerror="this.src='https://images.duitku.com/hotlink-ok/QRIS.PNG'">
+                                                    </div>
+                                                    <!-- Method Name -->
+                                                    <span x-text="method.paymentName" style="font-size: 0.68rem; line-height: 1.2;" class="text-truncate w-100"></span>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Bagian 2: Form Email Pelanggan -->
+                                <div class="mt-3">
+                                    <label class="form-label small fw-bold text-muted mb-1.5 text-uppercase tracking-wider" style="font-size: 0.65rem;">
+                                        2. Kirim Tagihan ke Email Customer <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="p-3 bg-light rounded-4 border">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-body-tertiary border border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
+                                            <input type="email"
+                                                   class="form-control bg-body border border-start-0 fw-bold py-2 text-dark"
+                                                   placeholder="contoh: customer@email.com"
+                                                   x-model="duitkuCustomerEmail" 
+                                                   style="font-size: 0.85rem;" />
+                                        </div>
+                                        <div class="d-flex align-items-center gap-1.5 text-muted mt-2" style="font-size: 0.68rem;">
+                                            <i class="bi bi-info-circle-fill text-warning"></i>
+                                            <span>Email wajib diisi untuk notifikasi & pengiriman kuitansi resmi Duitku.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Tampilan QRIS / Transfer manual -->
+                        <template x-if="paymentMethod !== 'cash' && paymentMethod !== 'duitku'">
                             <div
                                 class="d-flex flex-column justify-content-center align-items-center h-100 py-4 py-md-5 text-center">
                                 <i class="bi text-primary mb-2"
@@ -75,6 +174,7 @@
                                     transfer sebelum menekan tombol proses.</p>
                             </div>
                         </template>
+
 
                         <!-- Tampilan Numpad Cash -->
                         <template x-if="paymentMethod === 'cash'">
@@ -158,14 +258,21 @@
                  style="border-radius: 0 0 1.5rem 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
                 <div class="d-flex w-100 gap-2">
                     <button type="button"
-                            class="btn btn-secondary border fw-bold flex-shrink-0 rounded-pill shadow-sm bg-body text-body"
+                            class="btn btn-secondary border fw-bold flex-shrink-0 rounded-pill shadow-none bg-body text-body"
                             data-bs-dismiss="modal">Batal
                     </button>
                     <button @click="submitPayment"
                             class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white"
                             style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
-                            :disabled="isSubmitting || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))">
-                        <span x-text="isSubmitting ? 'Memproses...' : 'Selesaikan Transaksi'"></span>
+                            :disabled="isSubmitting
+                                || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))
+                                || (paymentMethod === 'duitku' && (!duitkuMethod || !duitkuCustomerEmail))"
+                    >
+                        <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">
+                            <span x-show="paymentMethod !== 'duitku'">Selesaikan Transaksi</span>
+                            <span x-show="paymentMethod === 'duitku'">⚡ Generate Link Bayar</span>
+                        </span>
+                        <span x-show="isSubmitting" style="display: none;">Memproses...</span>
                     </button>
                 </div>
             </div>

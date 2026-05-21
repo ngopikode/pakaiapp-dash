@@ -33,6 +33,58 @@ document.addEventListener('alpine:init', () => {
         qrOpen: false,
         cart: JSON.parse(localStorage.getItem('ezmenu-cart') || '[]'),
 
+        /* ===== ORDER HISTORY ===== */
+        historyOpen: false,
+        orderHistory: [],
+
+        get historyCount() {
+            return this.orderHistory.length;
+        },
+
+        loadHistory() {
+            try {
+                this.orderHistory = JSON.parse(localStorage.getItem('pakaiapp_order_history') || '[]');
+            } catch (e) {
+                console.error('[History] Gagal memuat riwayat pesanan', e);
+                this.orderHistory = [];
+            }
+        },
+
+        saveHistory() {
+            try {
+                localStorage.setItem('pakaiapp_order_history', JSON.stringify(this.orderHistory));
+            } catch (e) {
+                console.error('[History] Gagal menyimpan riwayat pesanan', e);
+            }
+        },
+
+        addOrderToHistory(orderData) {
+            const order = {
+                invoiceCode: orderData.invoiceCode,
+                date: new Date().toISOString(),
+                total: this.formatPrice(orderData.totalRaw),
+                totalRaw: orderData.totalRaw,
+                orderType: orderData.orderType,
+                paymentMethod: orderData.paymentMethod,
+                paymentName: orderData.paymentName,
+                items: orderData.items.map(i => ({
+                    name: i.cartName || i.name,
+                    qty: i.qty,
+                    price: i.price
+                }))
+            };
+            this.orderHistory.unshift(order);
+            this.saveHistory();
+        },
+
+        clearHistory() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua riwayat pesanan?')) {
+                this.orderHistory = [];
+                localStorage.removeItem('pakaiapp_order_history');
+                this.showToast('Riwayat pesanan berhasil dibersihkan.');
+            }
+        },
+
         saveCart() {
             localStorage.setItem('ezmenu-cart', JSON.stringify(this.cart));
         },
@@ -59,6 +111,11 @@ document.addEventListener('alpine:init', () => {
                 this.cart = this.cart.filter((i) => i.cartName !== cartName);
             }
             this.saveCart();
+
+            // Jika modal checkout sedang terbuka, fetch ulang payment methods karena nominal berubah
+            if (this.checkoutOpen) {
+                this.fetchDuitkuMethods();
+            }
         },
 
         get totalQty() {
@@ -233,29 +290,81 @@ document.addEventListener('alpine:init', () => {
 
         /* ===== CHECKOUT MODAL ===== */
         checkoutOpen: false,
+        checkoutStep: 1,
         customerName: '',
+        customerEmail: '',
         customerInfo: '',
         orderType: '',
         checkoutLoading: false,
         orderSuccess: null,
+        // Default: 'cash' = non-Duitku.
+        selectedPaymentMethod: 'cash',
+        duitkuPaymentMethods: [],
+        duitkuEnabled: false,
+
+        get isDuitkuMethod() {
+            return this.selectedPaymentMethod !== 'cash';
+        },
+
+        async fetchDuitkuMethods() {
+            if (!this.duitkuEnabled) {
+                this.duitkuPaymentMethods = [];
+                return;
+            }
+            if (this.totalCart <= 0) return;
+            try {
+                const res = await fetch(`/api/duitku/payment-methods?amount=${this.totalCart}`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data)) {
+                    this.duitkuPaymentMethods = data.data;
+                }
+            } catch (e) {
+                console.error('[Duitku] Gagal mengambil metode pembayaran dinamis', e);
+            }
+        },
 
         init() {
             const root = this.$el;
             this.orderType = root.dataset.defaultOrderType || 'takeaway';
             this._waNumber = root.dataset.waNumber || '6281234567890';
+            this.duitkuEnabled = root.dataset.duitkuEnabled === '1';
+            this.loadHistory();
         },
 
         openCheckout() {
             this.orderSuccess = null;
+            this.checkoutStep = 1; // Reset to step 1
             this.checkoutOpen = true;
             document.body.style.overflow = 'hidden';
+            this.selectedPaymentMethod = 'cash'; // Default ke cash
+            this.fetchDuitkuMethods().then(() => {
+                // Set default selectedPaymentMethod ke QRIS jika ada, agar user-friendly
+                if (this.duitkuPaymentMethods.length > 0) {
+                    const hasQris = this.duitkuPaymentMethods.find(m => ['NQ', 'SP', 'QRIS', 'QRISC'].includes(m.paymentMethod));
+                    if (hasQris) {
+                        this.selectedPaymentMethod = hasQris.paymentMethod;
+                    }
+                }
+            });
         },
         closeCheckout() {
             this.checkoutOpen = false;
             setTimeout(() => {
                 this.orderSuccess = null;
+                this.checkoutStep = 1;
                 document.body.style.overflow = '';
             }, 300);
+        },
+        nextStep() {
+            if (this.cart.length === 0) {
+                this.showToast('Keranjang Anda kosong!');
+                return;
+            }
+            if (this.cart.some(i => i.unavailable)) {
+                this.showToast('Hapus item tidak tersedia dulu!');
+                return;
+            }
+            this.checkoutStep = 2;
         },
 
         async processOrder() {
@@ -267,14 +376,28 @@ document.addEventListener('alpine:init', () => {
                 this.showToast('Masukkan nama pemesan dulu ya!');
                 return;
             }
+            // Validasi email wajib jika metode Duitku
+            if (this.isDuitkuMethod && !this.customerEmail.trim()) {
+                this.showToast('Email wajib diisi untuk pembayaran digital!');
+                return;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (this.isDuitkuMethod && !emailRegex.test(this.customerEmail.trim())) {
+                this.showToast('Format email tidak valid!');
+                return;
+            }
 
             this.checkoutLoading = true;
 
             const payload = {
                 customer_name: this.customerName.trim(),
+                // Email — wajib untuk Duitku, optional untuk cash
+                customer_email: this.customerEmail.trim() || null,
                 order_type: this.orderType,
                 order_info: this.customerInfo.trim() || null,
                 total_price: this.totalCart,
+                // Kirim kode Duitku jika bukan cash, undefined jika cash
+                payment_method: this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash',
                 items: this.cart.map((item) => ({
                     product_id: item.id,
                     name: item.cartName,
@@ -300,8 +423,34 @@ document.addEventListener('alpine:init', () => {
 
                 if (res.ok) {
                     const invoiceCode = data.data?.invoice_code || 'OK';
+                    const paymentUrl = data.data?.payment_url || null;
 
-                    // 1. Bikin format WA LENGKAP persis kayak punya lu
+                    // Jika Duitku: arahkan langsung ke halaman invoice untuk menampilkan instruksi pembayaran premium
+                    if (this.isDuitkuMethod) {
+                        // Simpan ke riwayat belanja lokal
+                        this.addOrderToHistory({
+                            invoiceCode: invoiceCode,
+                            totalRaw: this.totalCart,
+                            orderType: this.orderType,
+                            paymentMethod: this.selectedPaymentMethod,
+                            paymentName: this.duitkuPaymentMethods.find(m => m.paymentMethod === this.selectedPaymentMethod)?.paymentName || this.selectedPaymentMethod,
+                            items: this.cart
+                        });
+
+                        this.cart = [];
+                        this.saveCart();
+                        this.customerName = '';
+                        this.customerEmail = '';
+                        this.customerInfo = '';
+                        this.selectedPaymentMethod = 'cash'; // reset ke default
+                        this.showToast('Order berhasil dibuat! Membuka halaman pembayaran...');
+                        setTimeout(() => {
+                            window.location.href = `/invoice/${invoiceCode}`;
+                        }, 800);
+                        return;
+                    }
+
+                    // Fallback / cash: kirim WA seperti biasa
                     const waText = [
                         'Halo admin, pesanan baru nih!',
                         `*Invoice:* ${invoiceCode}`,
@@ -330,6 +479,16 @@ document.addEventListener('alpine:init', () => {
                         waUrl: finalWaUrl
                     };
 
+                    // Simpan ke riwayat belanja lokal
+                    this.addOrderToHistory({
+                        invoiceCode: invoiceCode,
+                        totalRaw: this.totalCart,
+                        orderType: this.orderType,
+                        paymentMethod: 'cash',
+                        paymentName: 'Bayar Manual / Di Kasir',
+                        items: this.cart
+                    });
+
                     // 4. BUKA OTOMATIS KE WA (Persis kayak fitur asli lu)
                     window.open(finalWaUrl, '_blank');
 
@@ -337,7 +496,9 @@ document.addEventListener('alpine:init', () => {
                     this.cart = [];
                     this.saveCart();
                     this.customerName = '';
+                    this.customerEmail = '';
                     this.customerInfo = '';
+                    this.selectedPaymentMethod = 'cash'; // reset ke default
                     this.showToast('Pesanan berhasil dikirim!');
                 } else if (res.status === 422 && data.unavailable_ids?.length) {
                     // Tandai item di cart yang produknya tidak tersedia

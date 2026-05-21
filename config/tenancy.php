@@ -31,6 +31,7 @@ return [
         'www.pakaiapp.dep',
         'pakaiapp.online',
         'www.pakaiapp.online',
+        'api.pakaiapp.online', // Central domain khusus untuk Duitku callback & API gateway
     ],
 
     /**

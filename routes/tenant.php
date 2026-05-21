@@ -72,6 +72,25 @@ Route::middleware([
         Route::get('/products', [ProductApiController::class, 'index']);
         Route::get('/products/{productId}', [ProductApiController::class, 'show']);
         Route::post('/orders', [OrderApiController::class, 'store']);
+
+        // ─── Duitku — callback/return/status sudah pindah ke central domain ────
+        // Lihat routes/web.php untuk endpoint api.pakaiapp.online/duitku/*
+        //
+        // Payment methods: tetap di tenant karena butuh context tenant untuk amount
+        Route::get('/duitku/payment-methods', function (\Illuminate\Http\Request $request) {
+            if (!config('duitku.enabled')) {
+                abort(403, 'Duitku payment gateway is disabled.');
+            }
+            $request->validate(['amount' => 'required|numeric|min:1']);
+            try {
+                $service  = new \App\Services\DuitkuService();
+                $methods  = $service->getPaymentMethods((int) $request->amount);
+                return response()->json(['success' => true, 'data' => $methods]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('[Duitku] getPaymentMethods error', ['error' => $e->getMessage()]);
+                return response()->json(['success' => false, 'message' => 'Gagal mengambil metode pembayaran.'], 500);
+            }
+        })->name('duitku.payment-methods');
     });
 
     require __DIR__ . '/auth.php';

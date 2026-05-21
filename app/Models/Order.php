@@ -28,6 +28,11 @@ class Order extends Model
         'status',
         'user_id',
         'cancellation_note',
+        // Duitku Payment Gateway fields
+        'duitku_reference',
+        'duitku_payment_url',
+        'duitku_va_number',
+        'duitku_payment_method',
         'created_at',
         'updated_at'
     ];
@@ -41,5 +46,44 @@ class Order extends Model
     public function cashier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the formatted and user-friendly payment method name.
+     */
+    public function getFormattedPaymentMethodAttribute(): string
+    {
+        if ($this->duitku_payment_method) {
+            $code = strtoupper($this->duitku_payment_method);
+            $fallbackMethods = [
+                'BC' => 'BCA Virtual Account',
+                'M2' => 'Mandiri Virtual Account',
+                'I1' => 'BNI Virtual Account',
+                'BR' => 'BRI Virtual Account',
+                'BT' => 'Permata Virtual Account',
+                'B1' => 'CIMB Niaga Virtual Account',
+                'VA' => 'Maybank Virtual Account',
+                'DN' => 'Danamon Virtual Account',
+                'HN' => 'Hana Bank Virtual Account',
+                'NC' => 'Neo Commerce Virtual Account',
+                'SP' => 'ShopeePay',
+                'DA' => 'DANA',
+                'OV' => 'OVO',
+                'LA' => 'LinkAja',
+                'NQ' => 'QRIS (ShopeePay/DANA/OVO/LinkAja)',
+            ];
+            return $fallbackMethods[$code] ?? $this->duitku_payment_method;
+        }
+
+        switch (strtolower($this->payment_method ?? '')) {
+            case 'cash':
+                return 'Tunai';
+            case 'qris':
+                return 'QRIS';
+            case 'transfer':
+                return 'Transfer Bank';
+            default:
+                return $this->payment_method ?: '-';
+        }
     }
 }
