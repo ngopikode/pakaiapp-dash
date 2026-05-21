@@ -412,9 +412,11 @@
                     Livewire.dispatch('stock-updated');
                     setTimeout(() => this.successModalInstance.show(), 300);
                 } else if (result && result.error) {
+                    this.paymentModalInstance.hide();
                     showIslandToast(result.error, 'danger');
                 }
             } catch (e) {
+                this.paymentModalInstance.hide();
                 showIslandToast('Kesalahan sistem.', 'danger');
             }
             this.isSubmitting = false;
