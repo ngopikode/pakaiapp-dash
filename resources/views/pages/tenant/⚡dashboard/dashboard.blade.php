@@ -204,7 +204,13 @@
                             <h2 class="fw-black mb-1 display-6 text-white-fixed" style="font-family: var(--font-serif), sans-serif; letter-spacing: -1px;">
                                 Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}</h2>
                             <p class="text-white-fixed-75 small fw-bold mb-0">Dari {{ $stats['orders_today'] }}
-                                Transaksi Sukses</p>
+                                Transaksi Sukses
+                                @if($stats['revenue_trend_today'] != 0)
+                                    <span class="ms-2 px-2 py-0.5 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}" style="font-size: 0.65rem;">
+                                        <i class="bi {{ $stats['revenue_trend_today'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_today']) }}%
+                                    </span>
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -226,7 +232,13 @@
                         <div>
                             <h2 class="fw-black mb-1 display-6 text-white-fixed" style="font-family: var(--font-serif), sans-serif; letter-spacing: -1px;">
                                 Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}</h2>
-                            <p class="text-white-fixed-75 small fw-bold mb-0">Total Pendapatan Bulanan</p>
+                            <p class="text-white-fixed-75 small fw-bold mb-0">Total Pendapatan Bulanan
+                                @if($stats['revenue_trend_month'] != 0)
+                                    <span class="ms-2 px-2 py-0.5 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}" style="font-size: 0.65rem;">
+                                        <i class="bi {{ $stats['revenue_trend_month'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_month']) }}%
+                                    </span>
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -257,6 +269,19 @@
                                 {{ $stats['pending_orders'] }}</h2>
                             <p class="text-secondary small fw-bold mb-0 opacity-75">Pesanan Menunggu Diproses</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dash-card bg-body border" style="border-color: var(--bs-border-color-translucent) !important;">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h5 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;"><i class="bi bi-graph-up text-primary me-2"></i>Trend Pendapatan (7 Hari)</h5>
+                    </div>
+                    <div class="card-body p-4 pt-2" wire:ignore>
+                        <div id="revenueChart" style="min-height: 250px;"></div>
                     </div>
                 </div>
             </div>
@@ -490,6 +515,7 @@
 </div>
 
 @assets
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <style>
 /* Custom Fixed Contrast Utilities (Overrides bootstrap dark-mode text-white inversion) */
 .text-white-fixed {
@@ -802,3 +828,81 @@
 }
 </style>
 @endassets
+
+@script
+<script>
+    setTimeout(() => {
+        const chartDataRaw = @json($chartData ?? '[]');
+        let chartData = [];
+        try {
+            chartData = JSON.parse(chartDataRaw);
+        } catch(e) {}
+
+        if (chartData.length > 0 && document.querySelector("#revenueChart")) {
+            const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const textColor = isDarkMode ? '#9ca3af' : '#6c757d';
+            const gridColor = isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+            const options = {
+                series: [{
+                    name: 'Pendapatan',
+                    data: chartData.map(item => item.revenue)
+                }],
+                chart: {
+                    type: 'area',
+                    height: 250,
+                    toolbar: { show: false },
+                    fontFamily: 'inherit',
+                    parentHeightOffset: 0,
+                    background: 'transparent'
+                },
+                colors: ['#b45309'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.05,
+                        stops: [0, 90, 100]
+                    }
+                },
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: {
+                    categories: chartData.map(item => item.date),
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
+                    labels: { style: { colors: textColor } }
+                },
+                yaxis: {
+                    labels: {
+                        style: { colors: textColor },
+                        formatter: function (val) {
+                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: gridColor,
+                    strokeDashArray: 4,
+                    yaxis: { lines: { show: true } }
+                },
+                theme: {
+                    mode: isDarkMode ? 'dark' : 'light'
+                },
+                tooltip: {
+                    theme: isDarkMode ? 'dark' : 'light',
+                    y: {
+                        formatter: function (val) {
+                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#revenueChart"), options);
+            chart.render();
+        }
+    }, 100);
+</script>
+@endscript
