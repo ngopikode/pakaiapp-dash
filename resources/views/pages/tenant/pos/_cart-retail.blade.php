@@ -1,7 +1,7 @@
 {{-- ===== CART PANEL: RETAIL MODE ===== --}}
 {{-- Fitur: Diskon per-item, Stok ketat, Langsung bayar --}}
 
-<div class="card d-flex flex-column h-100 border-0 shadow-sm bg-body text-body"
+<div class="card d-flex flex-column h-100 border shadow-sm bg-body text-body"
      style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
 
     {{-- Header --}}
@@ -108,14 +108,20 @@
         {{-- Customer Info --}}
         <div class="row g-2 mb-3">
             <div class="col-6">
-                <input type="text" class="form-control bg-body-tertiary text-body border" x-model="customerName"
-                       placeholder="Nama Pelanggan"
-                       style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
+                <div class="position-relative">
+                    <i class="bi bi-person position-absolute text-secondary" style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 1.1rem;"></i>
+                    <input type="text" class="form-control bg-body-tertiary text-body border" x-model="customerName"
+                           placeholder="Nama Pelanggan"
+                           style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important; padding-left: 2.25rem;">
+                </div>
             </div>
             <div class="col-6">
-                <input type="text" class="form-control bg-body-tertiary text-body border" x-model="customerPhone"
-                       placeholder="No WA Pelanggan"
-                       style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
+                <div class="position-relative">
+                    <i class="bi bi-whatsapp position-absolute text-success" style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 1.1rem;"></i>
+                    <input type="text" class="form-control bg-body-tertiary text-body border" x-model="customerPhone"
+                           placeholder="No WA Pelanggan"
+                           style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important; padding-left: 2.25rem;">
+                </div>
             </div>
         </div>
 

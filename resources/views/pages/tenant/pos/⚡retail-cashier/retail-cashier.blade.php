@@ -3,7 +3,33 @@
      @add-product.window="handleProductClick($event.detail.product)"
      x-cloak>
 
-    <div class="row g-3 g-lg-4 flex-grow-1 mx-0 pt-3" style="min-height: 0;">
+    {{-- Tab Navigation (Safe Context Colors) --}}
+    <div class="d-flex gap-2 mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
+        <button wire:click="changeTab('cashier')"
+                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
+                style="border-radius: 1rem;">
+            <i class="bi bi-plus-circle"></i> Kasir Baru
+        </button>
+        <button wire:click="changeTab('history')"
+                class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
+                :class="currentTab === 'history' ? 'btn-success shadow text-white' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
+                style="border-radius: 1rem;">
+            <i class="bi bi-clock-history"></i>
+            <span>Riwayat Transaksi</span>
+
+            @if($todayOrders->count() > 0)
+                <small class="bg-light text-success fw-bold d-flex align-items-center justify-content-center px-2"
+                       style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
+                    {{ $todayOrders->count() }}
+                </small>
+            @endif
+        </button>
+    </div>
+
+    {{-- ===== TAB 1: KASIR BARU ===== --}}
+    <div x-show="currentTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
+         x-transition.opacity.duration.150ms>
 
         <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
         <div class="col-lg-7 col-xl-8 flex-column h-100 px-2 px-lg-3"
@@ -18,8 +44,14 @@
         </div>
     </div>
 
+    {{-- ===== TAB 2: RIWAYAT TRANSAKSI ===== --}}
+    <div x-show="currentTab === 'history'" class="flex-grow-1 overflow-y-auto bg-transparent" style="min-height: 0;"
+         x-transition.opacity.duration.150ms>
+        @include('pages.tenant.post._history-retail')
+    </div>
+
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
-    <template x-if="!isMobileCartOpen && cart.length > 0">
+    <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
@@ -41,6 +73,8 @@
     Alpine.data('retailPos', () => ({
         cart: [],
         isMobileCartOpen: false,
+
+        currentTab: $wire.entangle('activeTab').live,
 
         selectedProduct: null,
         variantModalInstance: null,

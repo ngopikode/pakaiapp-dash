@@ -12,6 +12,13 @@ use Livewire\Component;
 
 new class extends Component {
 
+    public string $activeTab = 'cashier';
+
+    public function changeTab($tab): void
+    {
+        $this->activeTab = $tab;
+    }
+
     /**
      * Proses checkout retail: langsung bayar, support diskon per-item.
      */
@@ -122,5 +129,18 @@ new class extends Component {
     public function updateCustomerPhone($invoiceCode, $phone): void
     {
         Order::where('invoice_code', $invoiceCode)->update(['customer_phone' => $phone]);
+    }
+
+    public function with(): array
+    {
+        $todayOrders = Order::with('items')
+            ->where('order_type', 'retail')
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        return [
+            'todayOrders' => $todayOrders,
+        ];
     }
 };
