@@ -6,6 +6,12 @@
 
     <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
          style="max-width: 450px;">
+        @if(($store->store_type ?? 'resto') === 'resto')
+            <a href="{{ url('/') }}"
+               class="btn btn-outline-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2">
+                <i class="bi bi-house-door"></i> Kembali ke Menu Utama
+            </a>
+        @endif
         <button onclick="window.print()"
                 class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2">
             <i class="bi bi-printer"></i> Cetak
