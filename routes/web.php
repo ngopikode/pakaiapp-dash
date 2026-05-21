@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\CentralDuitkuController;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
@@ -16,8 +15,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         //
         // Callback: POST dari server Duitku setiap ada update status transaksi
         Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
-            ->name('duitku.callback')
-            ->withoutMiddleware([VerifyCsrfToken::class]);
+            ->name('duitku.callback');
 
         // Return: GET — customer diredirect kesini setelah bayar
         Route::get('/duitku/return', [CentralDuitkuController::class, 'return'])

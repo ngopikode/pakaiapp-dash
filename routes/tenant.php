@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\RestaurantApiController;
 use App\Http\Controllers\MenuController;
 use App\Http\Middleware\FileUrlMiddleware;
 use App\Models\Product;
+use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -83,10 +84,10 @@ Route::middleware([
             }
             $request->validate(['amount' => 'required|numeric|min:1']);
             try {
-                $service  = new \App\Services\DuitkuService();
-                $methods  = $service->getPaymentMethods((int) $request->amount);
+                $service = new DuitkuService();
+                $methods = $service->getPaymentMethods((int)$request->amount);
                 return response()->json(['success' => true, 'data' => $methods]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('[Duitku] getPaymentMethods error', ['error' => $e->getMessage()]);
                 return response()->json(['success' => false, 'message' => 'Gagal mengambil metode pembayaran.'], 500);
             }
