@@ -126,6 +126,39 @@ new class extends Component {
         }
     }
 
+    public function scanBarcode($sku)
+    {
+        $variant = ProductVariant::with(['product.variants', 'product.extras'])->where('sku', $sku)->first();
+        if ($variant) {
+            $p = $variant->product;
+            $formattedProduct = [
+                'id' => $p->id,
+                'name' => $p->name,
+                'category_id' => $p->category_id,
+                'has_variants' => (bool)$p->has_variants,
+                'price' => (float)$p->variants->min('price'),
+                'stock' => (int)$p->variants->sum('stock'),
+                'variants' => $p->variants->map(fn($v) => [
+                    'id' => $v->id,
+                    'name' => $v->name,
+                    'price' => (float)$v->price,
+                    'stock' => (int)$v->stock,
+                ])->toArray(),
+            ];
+
+            $formattedVariant = [
+                'id' => $variant->id,
+                'name' => $variant->name,
+                'price' => (float)$variant->price,
+                'stock' => (int)$variant->stock,
+            ];
+
+            $this->dispatch('barcode-scanned', product: $formattedProduct, variant: $formattedVariant);
+        } else {
+            $this->dispatch('barcode-not-found', sku: $sku);
+        }
+    }
+
     public function updateCustomerPhone($invoiceCode, $phone): void
     {
         Order::where('invoice_code', $invoiceCode)->update(['customer_phone' => $phone]);

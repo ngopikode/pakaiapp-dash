@@ -1,6 +1,9 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative"
      x-data="retailPos()"
      @add-product.window="handleProductClick($event.detail.product)"
+     @barcode-scanned.window="handleBarcodeScan($event.detail.product, $event.detail.variant)"
+     @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
+     @keydown.window="handleKeydown($event)"
      x-cloak>
 
     {{-- Premium Glassmorphism Loading Screen --}}
@@ -80,6 +83,7 @@
     @include('pages.tenant.pos._modal-payment')
     @include('pages.tenant.pos._modal-variant')
     @include('pages.tenant.pos._modal-success')
+    @include('pages.tenant.pos._modal-held-orders')
 
 </div>
 
@@ -95,6 +99,7 @@
         variantModalInstance: null,
         paymentModalInstance: null,
         successModalInstance: null,
+        heldOrdersModalInstance: null,
 
         customerName: '',
         customerPhone: '',
@@ -106,11 +111,89 @@
         stockError: '',
         lastOrder: {},
 
+        heldOrders: JSON.parse(localStorage.getItem('posHeldOrders') || '[]'),
+        barcodeBuffer: '',
+        barcodeTimeout: null,
+
         init() {
             this.variantModalInstance = new bootstrap.Modal(document.getElementById('variantModal'));
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
+            this.heldOrdersModalInstance = new bootstrap.Modal(document.getElementById('heldOrdersModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
+            this.$watch('heldOrders', (val) => localStorage.setItem('posHeldOrders', JSON.stringify(val)), {deep: true});
+        },
+
+        // === Barcode & Keyboard ===
+        handleKeydown(e) {
+            if (e.key === 'F2') { e.preventDefault(); this.openPaymentModal(); return; }
+            if (e.key === 'F4') { e.preventDefault(); this.clearCart(); return; }
+            if (e.key === 'F8') { 
+                e.preventDefault(); 
+                if (this.cart.length > 0) this.holdOrder(); 
+                else this.openHeldOrdersModal();
+                return; 
+            }
+
+            if (e.key === 'Enter' && document.getElementById('paymentModal').classList.contains('show')) {
+                e.preventDefault();
+                this.submitPayment();
+                return;
+            }
+
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.key === 'Enter') {
+                if (this.barcodeBuffer.length > 2) {
+                    $wire.scanBarcode(this.barcodeBuffer);
+                }
+                this.barcodeBuffer = '';
+                return;
+            }
+
+            if (e.key.length === 1) {
+                this.barcodeBuffer += e.key;
+                clearTimeout(this.barcodeTimeout);
+                this.barcodeTimeout = setTimeout(() => {
+                    this.barcodeBuffer = '';
+                }, 50);
+            }
+        },
+        handleBarcodeScan(product, variant) {
+            showIslandToast('Barcode dipindai: ' + variant.name, 'success');
+            this.addToCart(product, variant);
+        },
+
+        // === Hold Orders ===
+        holdOrder() {
+            if (this.cart.length === 0) return;
+            this.heldOrders.push({
+                cart: JSON.parse(JSON.stringify(this.cart)),
+                customerName: this.customerName,
+                customerPhone: this.customerPhone,
+                globalDiscount: this.globalDiscount,
+                subTotal: this.subTotal,
+                grandTotal: this.grandTotal,
+                time: new Date().toISOString()
+            });
+            this.clearCart();
+            showIslandToast('Pesanan disimpan sementara (Hold)', 'warning');
+        },
+        openHeldOrdersModal() {
+            this.heldOrdersModalInstance.show();
+        },
+        recallOrder(index) {
+            let order = this.heldOrders[index];
+            this.cart = order.cart;
+            this.customerName = order.customerName;
+            this.customerPhone = order.customerPhone;
+            this.globalDiscount = order.globalDiscount;
+            this.heldOrders.splice(index, 1);
+            this.heldOrdersModalInstance.hide();
+            showIslandToast('Pesanan dilanjutkan', 'info');
+        },
+        removeHeldOrder(index) {
+            this.heldOrders.splice(index, 1);
         },
 
         // === Totals (with per-item discount) ===

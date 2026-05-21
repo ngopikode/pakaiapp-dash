@@ -39,7 +39,10 @@ new class extends Component {
     {
         $query = Product::with(['variants:id,product_id,name,cost,price,stock', 'extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
-            ->when($this->search, fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
+            ->when($this->search, fn($q) => $q->where(function($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhereHas('variants', fn($v) => $v->where('sku', 'like', '%' . $this->search . '%'));
+            }))
             ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
 
         $totalCount = (clone $query)->count();

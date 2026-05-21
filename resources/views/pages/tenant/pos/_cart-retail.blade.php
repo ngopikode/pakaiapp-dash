@@ -17,10 +17,20 @@
             <h5 class="fw-bold mb-0"><i class="bi bi-shop-window text-primary me-2 d-none d-lg-inline-block"></i>Pesanan
                 Baru</h5>
         </div>
-        <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 bg-body"
-                x-show="cart.length > 0">
-            <i class="bi bi-trash3 d-lg-none"></i> <span class="d-none d-lg-inline">Bersihkan</span>
-        </button>
+        <div class="d-flex gap-2">
+            <button @click="holdOrder" class="btn btn-sm btn-outline-warning fw-bold rounded-pill px-3 bg-body"
+                    x-show="cart.length > 0" title="Simpan Sementara (F8)">
+                <i class="bi bi-pause-circle"></i> <span class="d-none d-lg-inline">Tunda</span>
+            </button>
+            <button @click="openHeldOrdersModal" class="btn btn-sm btn-outline-info fw-bold rounded-pill px-3 bg-body position-relative" title="Daftar Tunda">
+                <i class="bi bi-card-list"></i> <span class="d-none d-lg-inline">Daftar</span>
+                <span x-show="heldOrders.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;" x-text="heldOrders.length"></span>
+            </button>
+            <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 bg-body"
+                    x-show="cart.length > 0" title="Bersihkan (F4)">
+                <i class="bi bi-trash3 d-lg-none"></i> <span class="d-none d-lg-inline">Batal</span>
+            </button>
+        </div>
     </div>
 
     {{-- Cart Items --}}
