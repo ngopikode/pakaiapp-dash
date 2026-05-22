@@ -29,13 +29,20 @@ class Order extends Model
         'status',
         'user_id',
         'cancellation_note',
+
         // Duitku Payment Gateway fields
         'duitku_reference',
         'duitku_payment_url',
         'duitku_va_number',
         'duitku_payment_method',
+
+        // Midtrans Payment Gateway fields
+        'midtrans_snap_token',
+        'midtrans_transaction_id',
+        'midtrans_payment_type',
+
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public function items(): HasMany
@@ -76,15 +83,11 @@ class Order extends Model
             return $fallbackMethods[$code] ?? $this->duitku_payment_method;
         }
 
-        switch (strtolower($this->payment_method ?? '')) {
-            case 'cash':
-                return 'Tunai';
-            case 'qris':
-                return 'QRIS';
-            case 'transfer':
-                return 'Transfer Bank';
-            default:
-                return $this->payment_method ?: '-';
-        }
+        return match (strtolower($this->payment_method ?? '')) {
+            'cash' => 'Tunai',
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer Bank',
+            default => $this->payment_method ?: '-',
+        };
     }
 }

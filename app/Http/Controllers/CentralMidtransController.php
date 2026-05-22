@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -20,10 +21,10 @@ class CentralMidtransController extends Controller
 
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
-        
+
         try {
             $notif = new Notification();
-            
+
             $transaction = $notif->transaction_status;
             $type = $notif->payment_type;
             $order_id = $notif->order_id;
@@ -56,7 +57,7 @@ class CentralMidtransController extends Controller
             }
 
             // Cari order di DB tenant
-            $order = \App\Models\Order::where('invoice_code', $invoiceCode)->first();
+            $order = Order::where('invoice_code', $invoiceCode)->first();
 
             if (!$order) {
                 Log::warning('[Midtrans] Order tidak ditemukan di tenant', [

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use App\Models\TenantUser;
 use App\Services\DuitkuService;
 use App\Services\MidtransService;
 use App\Traits\ApiResponserTrait;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -89,18 +91,18 @@ class OrderApiController extends Controller
         $requiresEmail = $gateway['type'] !== 'manual';
 
         $request->validate([
-            'customer_name'      => 'required|string|max:255',
-            'customer_email'     => $requiresEmail ? 'required|email|max:255' : 'nullable|email|max:255',
-            'customer_phone'     => 'nullable|string|max:20',
-            'order_type'         => 'nullable|string',
-            'order_info'         => 'nullable|string|max:100',
-            'total_price'        => 'required|numeric|min:1',
-            'payment_method'     => 'nullable|string|max:20',
-            'items'              => 'required|array|min:1',
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => $requiresEmail ? 'required|email|max:255' : 'nullable|email|max:255',
+            'customer_phone' => 'nullable|string|max:20',
+            'order_type' => 'nullable|string',
+            'order_info' => 'nullable|string|max:100',
+            'total_price' => 'required|numeric|min:1',
+            'payment_method' => 'nullable|string|max:20',
+            'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|integer',
-            'items.*.name'       => 'required|string|max:255',
-            'items.*.quantity'   => 'required|integer|min:1',
-            'items.*.price'      => 'required|numeric|min:0',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
         ]);
     }
 
@@ -125,10 +127,10 @@ class OrderApiController extends Controller
     {
         return DB::transaction(function () use ($request, $gateway) {
             $invoiceCode = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-            $mappedOrderType = in_array($request->order_type, ['retail', 'dinein', 'takeaway', 'online', 'delivery']) 
-                               ? $request->order_type : 'retail';
+            $mappedOrderType = in_array($request->order_type, ['retail', 'dinein', 'takeaway', 'online', 'delivery'])
+                ? $request->order_type : 'retail';
 
-            $storeSetting = \App\Models\StoreSetting::first();
+            $storeSetting = StoreSetting::first();
             $taxRate = $storeSetting && $storeSetting->is_tax_active ? (float)$storeSetting->tax_rate : 0.00;
             $serviceRate = $storeSetting && $storeSetting->is_service_charge_active ? (float)$storeSetting->service_charge_rate : 0.00;
 
@@ -184,7 +186,7 @@ class OrderApiController extends Controller
             }
 
             return $this->processDuitku($order, $customerDetail, $gateway['duitku_method']);
-            
+
         } catch (Throwable $e) {
             $order->update(['status' => 'cancelled', 'cancellation_note' => ucfirst($gateway['type']) . ' payment initialization failed.']);
             Log::error("[{$gateway['type']}] Payment init failed", [
@@ -218,6 +220,9 @@ class OrderApiController extends Controller
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     private function processMidtrans(Order $order, array $customerDetail): JsonResponse
     {
         $service = new MidtransService();
