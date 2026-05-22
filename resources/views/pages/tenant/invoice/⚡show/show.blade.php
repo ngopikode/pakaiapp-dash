@@ -145,6 +145,56 @@
         </div>
     @endif
 
+    <!-- Panel Selesaikan Pembayaran Dinamis (Midtrans) -->
+    @if($order->status === 'pending' && $order->midtrans_snap_token)
+        <div class="payment-instruction-container mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border no-print"
+             style="max-width: 420px; border-radius: 16px !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="badge bg-warning text-dark fw-bold text-uppercase px-2.5 py-1.5 animate-pulse"
+                      style="font-size: 0.7rem; border-radius: 6px;">Menunggu Pembayaran</span>
+                <span class="small text-muted d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-clock-history"></i> Cek otomatis...
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 bg-light p-3 rounded-3 mb-4"
+                 style="border-radius: 12px !important;">
+                <div class="rounded shadow-sm bg-white d-flex align-items-center justify-content-center" style="width: 55px; height: 40px; padding: 2px;">
+                    <i class="bi bi-wallet2 fs-4 text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0.5 text-dark" style="font-size: 0.9rem;">Pembayaran Digital</h6>
+                    <span class="text-muted small" style="font-size: 0.75rem;">Midtrans (QRIS, VA, E-Wallet)</span>
+                </div>
+            </div>
+
+            <!-- Nominal Pembayaran -->
+            <div class="mb-4 text-center py-3 bg-dark text-white rounded-3 position-relative overflow-hidden"
+                 style="border-radius: 12px !important;">
+                <span class="text-zinc-400 small text-uppercase tracking-wider fw-bold d-block mb-1"
+                      style="font-size: 0.7rem; color: #a1a1aa;">Total Tagihan</span>
+                <h3 class="fw-bolder mb-2 text-warning font-mono" style="font-size: 1.45rem;">
+                    Rp {{ number_format($order->total_price, 0, ',', '.') }}</h3>
+                <button onclick="copyToClipboard('{{ $order->total_price }}', 'Nominal Berhasil Disalin!')"
+                        class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold border-zinc-700 hover:bg-zinc-800 text-xs"
+                        style="font-size: 0.7rem;">
+                    <i class="bi bi-clipboard me-1"></i> Salin Nominal
+                </button>
+            </div>
+
+            <div class="text-center py-2">
+                <p class="text-muted small mb-4" style="font-size: 0.75rem; line-height: 1.5;">
+                    Jika popup pembayaran sebelumnya tertutup, Anda dapat melanjutkannya dengan menekan tombol di bawah.
+                </p>
+                <button onclick="window.snap.pay('{{ $order->midtrans_snap_token }}', { onSuccess: function(){ location.reload() } })"
+                   class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 text-uppercase tracking-wider"
+                   style="font-size: 0.8rem; border-radius: 12px !important;">
+                    <i class="bi bi-credit-card"></i> Lanjutkan Pembayaran
+                </button>
+            </div>
+        </div>
+    @endif
+
     {{-- Tombol Kembali ke Menu (hanya tampil di halaman standalone, BUKAN dalam iframe/modal) --}}
     @if(($store->store_type ?? 'resto') === 'resto')
         <div id="back-to-menu-btn" class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"

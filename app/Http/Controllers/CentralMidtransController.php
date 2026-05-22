@@ -34,6 +34,17 @@ class CentralMidtransController extends Controller
                 return response()->json(['message' => 'INVALID_ORDER_ID'], 400);
             }
 
+            // Validasi Signature Key untuk memastikan webhook asli dari Midtrans
+            $serverKey = config('midtrans.server_key');
+            $signatureKey = hash('sha512', $notif->order_id . $notif->status_code . $notif->gross_amount . $serverKey);
+
+            if ($signatureKey !== $notif->signature_key) {
+                Log::warning('[Midtrans] Invalid signature key on webhook', [
+                    'order_id' => $notif->order_id,
+                ]);
+                return response()->json(['message' => 'INVALID_SIGNATURE'], 403);
+            }
+
             // Extract tenant ID dan real invoice code
             // Format: "{tenantId}~{invoiceCode}"
             if (!str_contains($order_id, '~')) {
@@ -66,6 +77,16 @@ class CentralMidtransController extends Controller
                 ]);
                 tenancy()->end();
                 return response()->json(['message' => 'ORDER_NOT_FOUND'], 200); // 200 agar midtrans berhenti retry
+            }
+
+            // Cek idempotency: jika order sudah berstatus akhir, abaikan webhook
+            if (in_array($order->status, ['paid', 'completed', 'cancelled'])) {
+                Log::info('[Midtrans] Webhook diabaikan karena status order sudah final', [
+                    'invoice_code' => $invoiceCode,
+                    'current_status' => $order->status
+                ]);
+                tenancy()->end();
+                return response()->json(['message' => 'ALREADY_PROCESSED'], 200);
             }
 
             $status = 'pending';
