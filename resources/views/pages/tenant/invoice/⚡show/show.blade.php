@@ -199,15 +199,40 @@
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Tipe Pesanan</span>
-                <span class="fw-bold text-dark text-uppercase">{{ $order->order_type }}
+                <span class="fw-bold text-dark text-uppercase">
+                    @if($order->is_online)
+                        <span class="badge bg-success me-1" style="font-size: 0.65rem;"><i class="bi bi-globe2"></i> ONLINE</span>
+                    @endif
+                    {{ $order->order_type }}
                     @if($order->table_number)
                         <span class="badge bg-dark ms-1">Meja: {{ $order->table_number }}</span>
                     @endif
                 </span>
             </div>
             <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Status Pesanan</span>
+                <span class="fw-bold text-dark">
+                    @if($order->status == 'pending')
+                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Menunggu Pembayaran</span>
+                    @elseif($order->status == 'paid')
+                        <span class="badge bg-info text-dark" style="font-size: 0.7rem;">Menunggu Disiapkan</span>
+                    @elseif($order->status == 'progress')
+                        <span class="badge bg-primary" style="font-size: 0.7rem;">Sedang Diproses</span>
+                    @elseif($order->status == 'completed')
+                        <span class="badge bg-success" style="font-size: 0.7rem;">Selesai</span>
+                    @else
+                        <span class="badge bg-secondary text-uppercase" style="font-size: 0.7rem;">{{ $order->status }}</span>
+                    @endif
+                </span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Pelanggan</span>
-                <span class="fw-bold text-dark">{{ $order->customer_name }}</span>
+                <div class="text-end fw-bold text-dark">
+                    {{ $order->customer_name ?? 'Guest' }}
+                    @if($order->customer_phone)
+                        <br><span class="text-muted small fw-normal">{{ $order->customer_phone }}</span>
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -315,10 +340,10 @@
                 </div>
             @endif
 
-            @if($order->status == 'paid' || $order->status == 'completed')
+            @if(in_array($order->status, ['paid', 'progress', 'completed']))
                 <div class="status-stamp stamp-paid">LUNAS</div>
             @else
-                <div class="status-stamp stamp-unpaid text-uppercase">{{ $order->status }}</div>
+                <div class="status-stamp stamp-unpaid text-uppercase">BELUM LUNAS</div>
             @endif
         </div>
 

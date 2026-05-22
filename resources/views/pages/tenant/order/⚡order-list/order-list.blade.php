@@ -15,7 +15,9 @@
                 $filters = [
                     ['id' => 'all', 'label' => 'Semua', 'count' => $allCount],
                     ['id' => 'pending', 'label' => 'Menunggu', 'count' => $pendingCount],
-                    ['id' => 'paid', 'label' => 'Selesai', 'count' => $paidCount],
+                    ['id' => 'paid', 'label' => 'Baru Masuk', 'count' => $paidCount],
+                    ['id' => 'progress', 'label' => 'Diproses', 'count' => $progressCount],
+                    ['id' => 'completed', 'label' => 'Selesai', 'count' => $completedCount],
                     ['id' => 'cancelled', 'label' => 'Batal', 'count' => $cancelledCount]
                 ];
             @endphp
@@ -114,6 +116,10 @@
                                             @endif
                                         </div>
                                         <div class="d-flex flex-wrap align-items-center gap-2 small text-muted">
+                                            @if($order->is_online)
+                                                <span class="badge bg-success fw-bold" style="font-size: 0.65rem;"><i class="bi bi-globe2"></i> ONLINE</span>
+                                                <span>&bull;</span>
+                                            @endif
                                             <span class="fw-bold text-secondary">#{{ $order->invoice_code }}</span>
                                             <span>&bull;</span>
                                             <span class="text-capitalize fw-medium">{{ $order->order_type }}</span>
@@ -133,11 +139,13 @@
                                         @if($order->status == 'pending')
                                             <span class="badge badge-soft-warning rounded-pill px-2 py-1">Menunggu Pembayaran</span>
                                         @elseif($order->status == 'paid')
-                                            <span class="badge badge-soft-success rounded-pill px-2 py-1"><i
-                                                    class="bi bi-check2"></i> Selesai</span>
+                                            <span class="badge badge-soft-info rounded-pill px-2 py-1">Menunggu Diproses</span>
+                                        @elseif($order->status == 'progress')
+                                            <span class="badge badge-soft-primary rounded-pill px-2 py-1"><i class="bi bi-arrow-repeat"></i> Sedang Diproses</span>
+                                        @elseif($order->status == 'completed')
+                                            <span class="badge badge-soft-success rounded-pill px-2 py-1"><i class="bi bi-check2"></i> Selesai</span>
                                         @elseif($order->status == 'cancelled')
-                                            <span
-                                                class="badge badge-soft-danger rounded-pill px-2 py-1">Dibatalkan</span>
+                                            <span class="badge badge-soft-danger rounded-pill px-2 py-1">Dibatalkan</span>
                                         @endif
                                     </div>
                                 </div>
@@ -155,6 +163,16 @@
                                         <button
                                             wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
                                             class="btn btn-primary fw-bold rounded-3 py-2 btn-sm">Bayar
+                                        </button>
+                                    @elseif($order->status == 'paid')
+                                        <button wire:click="updateStatus({{ $order->id }}, 'progress')"
+                                                class="btn btn-info text-white fw-bold rounded-3 py-2 btn-sm mobile-action-full mt-2">
+                                            <i class="bi bi-play-fill"></i> Proses Pesanan
+                                        </button>
+                                    @elseif($order->status == 'progress')
+                                        <button wire:click="updateStatus({{ $order->id }}, 'completed')"
+                                                class="btn btn-success fw-bold rounded-3 py-2 btn-sm mobile-action-full mt-2">
+                                            <i class="bi bi-check-lg"></i> Selesaikan
                                         </button>
                                     @endif
                                 </div>
@@ -186,6 +204,22 @@
                                                 title="Batalkan Pesanan"
                                                 style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(220, 53, 69, 0.05);">
                                             <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    @elseif($order->status == 'paid')
+                                        {{-- Tombol Proses Pesanan --}}
+                                        <button wire:click="updateStatus({{ $order->id }}, 'progress')"
+                                                class="btn btn-info text-white rounded-circle shadow-sm"
+                                                title="Proses Pesanan"
+                                                style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-play-fill"></i>
+                                        </button>
+                                    @elseif($order->status == 'progress')
+                                        {{-- Tombol Selesaikan --}}
+                                        <button wire:click="updateStatus({{ $order->id }}, 'completed')"
+                                                class="btn btn-success rounded-circle shadow-sm"
+                                                title="Selesaikan Pesanan"
+                                                style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-check-lg"></i>
                                         </button>
                                     @endif
                                 </div>

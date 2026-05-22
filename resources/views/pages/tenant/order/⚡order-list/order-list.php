@@ -94,6 +94,8 @@ new class extends Component {
             'allCount' => Order::count(),
             'pendingCount' => Order::where('status', 'pending')->count(),
             'paidCount' => Order::where('status', 'paid')->count(),
+            'progressCount' => Order::where('status', 'progress')->count(),
+            'completedCount' => Order::where('status', 'completed')->count(),
             'cancelledCount' => Order::where('status', 'cancelled')->count(),
         ];
     }
