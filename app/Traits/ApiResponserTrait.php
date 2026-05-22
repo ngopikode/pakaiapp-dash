@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 use Throwable;
 
@@ -50,6 +51,33 @@ trait ApiResponserTrait
         Request $request = null
     ): JsonResponse
     {
+        $logContext = [
+            'code' => $code,
+        ];
+
+        // Gather request context if available
+        $currentRequest = $request ?? (function_exists('request') ? request() : null);
+        if ($currentRequest instanceof Request) {
+            $logContext['url'] = $currentRequest->fullUrl();
+            $logContext['method'] = $currentRequest->method();
+            $logContext['ip'] = $currentRequest->ip();
+            $logContext['input'] = $currentRequest->except(['password', 'password_confirmation', 'credential', 'token']);
+        }
+
+        // Log the error with appropriate exception detail
+        if ($errors instanceof Throwable) {
+            Log::error("API Error: {$message} - " . $errors->getMessage(), array_merge($logContext, [
+                'exception' => get_class($errors),
+                'file' => $errors->getFile(),
+                'line' => $errors->getLine(),
+                'trace' => $errors->getTraceAsString(),
+            ]));
+        } else {
+            Log::error("API Error: {$message}", array_merge($logContext, [
+                'errors' => $errors,
+            ]));
+        }
+
         $response = [
             'success' => false,
             'status' => 'error',
