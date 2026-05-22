@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\OrderApiController;
+use App\Http\Controllers\Api\OrderHistoryApiController;
 use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\RestaurantApiController;
 use App\Http\Controllers\MenuController;
@@ -74,6 +75,7 @@ Route::middleware([
         Route::get('/products', [ProductApiController::class, 'index']);
         Route::get('/products/{productId}', [ProductApiController::class, 'show']);
         Route::post('/orders', [OrderApiController::class, 'store']);
+        Route::post('/orders/history', [OrderHistoryApiController::class, 'index']);
 
         // ─── Duitku — callback/return/status sudah pindah ke central domain ────
         // Lihat routes/web.php untuk endpoint api.pakaiapp.online/duitku/*

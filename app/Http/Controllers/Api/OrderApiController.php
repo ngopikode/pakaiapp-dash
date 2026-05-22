@@ -34,9 +34,9 @@ class OrderApiController extends Controller
             ], 403);
         }
 
-        // Toko online = order_type 'online' — email wajib sebagai bukti pembayaran.
-        // Kasir (retail/dinein/takeaway) — email opsional, kasir nggak perlu nanya email customer.
-        $isOnlineOrder = strtolower($request->input('order_type', '')) === 'online';
+        // Karena ini OrderApiController, semua order berasal dari toko online.
+        // Email wajib jika pakai payment gateway.
+        $isOnlineOrder = true;
 
         $request->validate([
             'customer_name'      => 'required|string|max:255',
@@ -84,15 +84,16 @@ class OrderApiController extends Controller
                 // Generate Invoice Code — unik per hari + random suffix
                 $invoiceCode = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
-                $mappedOrderType = in_array($request->order_type, ['retail', 'dinein', 'takeaway', 'online'])
+                $mappedOrderType = in_array($request->order_type, ['retail', 'dinein', 'takeaway', 'online', 'delivery'])
                     ? $request->order_type
-                    : 'online';
+                    : 'retail'; // Fallback order_type jika invalid
 
                 $order = Order::create([
                     'invoice_code' => $invoiceCode,
                     'customer_name' => $request->customer_name,
                     'customer_phone' => $request->customer_phone,
                     'order_type' => $mappedOrderType,
+                    'is_online' => true,
                     'table_number' => $request->order_info,
                     'subtotal' => $request->total_price,
                     'total_price' => $request->total_price,

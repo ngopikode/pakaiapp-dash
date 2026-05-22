@@ -35,10 +35,46 @@ document.addEventListener('alpine:init', () => {
 
         /* ===== ORDER HISTORY ===== */
         historyOpen: false,
+        historyLoading: false,
         orderHistory: [],
 
         get historyCount() {
             return this.orderHistory.length;
+        },
+
+        async fetchHistoryFromServer() {
+            try {
+                const localHistory = JSON.parse(localStorage.getItem('pakaiapp_order_history') || '[]');
+                const invoiceCodes = localHistory.map(h => h.invoiceCode);
+                
+                if (invoiceCodes.length === 0) {
+                    this.orderHistory = [];
+                    return;
+                }
+                
+                this.historyLoading = true;
+                
+                const res = await fetch('/api/orders/history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                    },
+                    body: JSON.stringify({ invoices: invoiceCodes })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    this.orderHistory = data.data;
+                    this.saveHistory();
+                }
+            } catch (e) {
+                console.error('[History] Gagal fetch history server', e);
+                this.loadHistory();
+            } finally {
+                this.historyLoading = false;
+            }
         },
 
         loadHistory() {
@@ -329,6 +365,12 @@ document.addEventListener('alpine:init', () => {
             this._waNumber = root.dataset.waNumber || '6281234567890';
             this.duitkuEnabled = root.dataset.duitkuEnabled === '1';
             this.loadHistory();
+            
+            this.$watch('historyOpen', (val) => {
+                if (val) {
+                    this.fetchHistoryFromServer();
+                }
+            });
         },
 
         openCheckout() {

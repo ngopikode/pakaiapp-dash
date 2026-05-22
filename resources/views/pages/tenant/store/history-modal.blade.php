@@ -46,7 +46,7 @@
         <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             
             {{-- CASE 1: Empty State (Belum ada riwayat pesanan) --}}
-            <template x-if="orderHistory.length === 0">
+            <template x-if="orderHistory.length === 0 && !historyLoading">
                 <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
                     <div class="w-20 h-20 rounded-[2rem] bg-zinc-100 border border-zinc-200/40 flex items-center justify-center mb-5 rotate-6 hover:rotate-0 transition-transform duration-300 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400">
@@ -67,8 +67,16 @@
                 </div>
             </template>
 
+            {{-- Loading State --}}
+            <template x-if="historyLoading">
+                <div class="py-12 text-center flex flex-col items-center justify-center">
+                    <svg class="animate-spin w-8 h-8 text-[var(--primary-color)] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Memuat Terbaru...</p>
+                </div>
+            </template>
+
             {{-- CASE 2: Ada Riwayat Pesanan --}}
-            <template x-if="orderHistory.length > 0">
+            <template x-if="orderHistory.length > 0 && !historyLoading">
                 <div class="space-y-4 pr-0.5">
                     <template x-for="order in orderHistory" :key="order.invoiceCode">
                         <div class="bg-white rounded-2xl p-4 border border-zinc-100 shadow-sm shadow-zinc-100/40 hover:shadow-md hover:border-[var(--primary-color)]/30 hover:scale-[1.01] transition-all duration-300 flex flex-col gap-3 group">
@@ -79,17 +87,31 @@
                                     <span class="text-xs font-black tracking-tight text-zinc-900 uppercase block" x-text="order.invoiceCode"></span>
                                     <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wide mt-1 block" x-text="new Date(order.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}).replace('.', ':')"></span>
                                 </div>
-                                <div class="flex flex-col gap-1 items-end shrink-0">
-                                    {{-- Badge Tipe Order --}}
+                                <div class="flex flex-col gap-1.5 items-end shrink-0">
+                                    {{-- Status Badge --}}
                                     <span 
-                                        class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider"
+                                        class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow-sm"
                                         :class="{
-                                            'bg-amber-50 text-amber-600 border border-amber-100/50': order.orderType === 'takeaway',
-                                            'bg-blue-50 text-blue-600 border border-blue-100/50': order.orderType === 'dinein',
-                                            'bg-emerald-50 text-emerald-600 border border-emerald-100/50': order.orderType === 'delivery',
+                                            'bg-zinc-100 text-zinc-600 border border-zinc-200': !order.status || order.status === 'pending',
+                                            'bg-emerald-50 text-emerald-600 border border-emerald-200': order.status === 'paid',
+                                            'bg-blue-50 text-blue-600 border border-blue-200': order.status === 'progress',
+                                            'bg-purple-50 text-purple-600 border border-purple-200': order.status === 'completed',
+                                            'bg-red-50 text-red-600 border border-red-200': order.status === 'cancelled',
                                         }"
-                                        x-text="order.orderType === 'takeaway' ? 'Bungkus' : (order.orderType === 'dinein' ? 'Makan Sini' : 'Diantar')"
+                                        x-text="order.status === 'progress' ? 'Diproses' : (order.status === 'completed' ? 'Selesai' : (order.status === 'paid' ? 'Lunas' : (order.status === 'cancelled' ? 'Batal' : 'Belum Bayar')))"
                                     ></span>
+                                    <div class="flex items-center gap-1">
+                                        {{-- Badge Tipe Order --}}
+                                        <span 
+                                            class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider"
+                                            :class="{
+                                                'bg-amber-50 text-amber-600 border border-amber-100/50': order.orderType === 'takeaway',
+                                                'bg-blue-50 text-blue-600 border border-blue-100/50': order.orderType === 'dinein',
+                                                'bg-emerald-50 text-emerald-600 border border-emerald-100/50': order.orderType === 'delivery',
+                                            }"
+                                            x-text="order.orderType === 'takeaway' ? 'Bungkus' : (order.orderType === 'dinein' ? 'Makan Sini' : (order.orderType === 'delivery' ? 'Diantar' : 'Online'))"
+                                        ></span>
+                                    </div>
                                     {{-- Kode Pembayaran mini --}}
                                     <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest" x-text="order.paymentName"></span>
                                 </div>

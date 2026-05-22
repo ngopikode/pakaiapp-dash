@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/store.css": {
-    "file": "assets/store-zaKW5vso.css",
+    "file": "assets/store-ynEECxim.css",
     "name": "store",
     "names": [
       "store.css"
@@ -23,7 +23,7 @@
     "isEntry": true
   },
   "resources/js/store.js": {
-    "file": "assets/store-CkAeuH5L.js",
+    "file": "assets/store-D20HtO-F.js",
     "name": "store",
     "src": "resources/js/store.js",
     "isEntry": true
