@@ -381,54 +381,86 @@
                             <!-- 2. Digital / Duitku Online Payment Methods (Responsive Scrollable Grid) -->
                             <div class="mt-4" x-show="duitkuPaymentMethods.length > 0">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pembayaran Instan (Duitku)</p>
-                                    <span class="inline-flex items-center gap-1 bg-amber-500/10 text-[9px] text-amber-700 font-black px-2 py-0.5 rounded-full uppercase tracking-wider scale-90 shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                        Proses Otomatis
-                                    </span>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Metode Pembayaran Lainnya (Duitku)</p>
                                 </div>
 
-                                @if(config('duitku.sandbox'))
-                                <div class="mb-3.5 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-2xl flex gap-2.5 items-start text-left"
-                                     x-show="selectedPaymentMethod !== 'cash'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-                                    <div>
-                                        <h6 class="text-[11px] font-black text-amber-900 leading-tight mb-0.5">Mode Uji Coba (Sandbox)</h6>
-                                        <p class="text-[10px] text-amber-800 leading-normal font-semibold">
-                                            Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
-                                        </p>
+                                <div class="pt-2">
+                                    @if(config('duitku.sandbox'))
+                                    <div class="mb-3.5 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-2xl flex gap-2.5 items-start text-left"
+                                         x-show="isDuitkuMethod">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                                        <div>
+                                            <h6 class="text-[11px] font-black text-amber-900 leading-tight mb-0.5">Mode Uji Coba (Sandbox)</h6>
+                                            <p class="text-[10px] text-amber-800 leading-normal font-semibold">
+                                                Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                @endif
-                                
-                                <!-- Compact list in an elegant scrollable box -->
-                                <div class="max-h-[160px] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">
-                                    <div class="grid grid-cols-2 gap-2 pb-1">
-                                        <template x-for="method in duitkuPaymentMethods" :key="method.paymentMethod">
-                                            <div
-                                                @click="selectedPaymentMethod = method.paymentMethod"
-                                                class="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50 hover:bg-zinc-100/80 border-2 rounded-2xl transition-all duration-200 cursor-pointer select-none text-center active:scale-[0.97]"
-                                                :class="selectedPaymentMethod === method.paymentMethod ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] ring-1 ring-[var(--primary-color)]/25' : 'border-transparent hover:border-zinc-200/80'"
-                                            >
-                                                <!-- Checkmark corner badge -->
-                                                <div class="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[var(--primary-color)] text-black flex items-center justify-center shadow-sm shrink-0 transition-transform duration-200 scale-0"
-                                                     :class="selectedPaymentMethod === method.paymentMethod ? 'scale-100' : 'scale-0'">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                                                </div>
+                                    @endif
+                                    
+                                    <!-- Compact list in an elegant scrollable box -->
+                                    <div class="max-h-[160px] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">
+                                        <div class="grid grid-cols-2 gap-2 pb-1">
+                                            <template x-for="method in duitkuPaymentMethods" :key="method.paymentMethod">
+                                                <div
+                                                    @click="selectedPaymentMethod = method.paymentMethod"
+                                                    class="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50 hover:bg-zinc-100/80 border-2 rounded-2xl transition-all duration-200 cursor-pointer select-none text-center active:scale-[0.97]"
+                                                    :class="selectedPaymentMethod === method.paymentMethod ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] ring-1 ring-[var(--primary-color)]/25' : 'border-transparent hover:border-zinc-200/80'"
+                                                >
+                                                    <!-- Checkmark corner badge -->
+                                                    <div class="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[var(--primary-color)] text-black flex items-center justify-center shadow-sm shrink-0 transition-transform duration-200 scale-0"
+                                                         :class="selectedPaymentMethod === method.paymentMethod ? 'scale-100' : 'scale-0'">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                                    </div>
 
-                                                <!-- White frame for Logo -->
-                                                <div class="w-12 h-6 bg-white p-0.5 rounded-lg border border-zinc-100 flex items-center justify-center mb-1.5 shadow-sm shrink-0">
-                                                    <img :src="method.paymentImage" class="max-w-full max-h-full object-contain" :alt="method.paymentName" onerror="this.style.display='none'">
-                                                </div>
+                                                    <!-- White frame for Logo -->
+                                                    <div class="w-12 h-6 bg-white p-0.5 rounded-lg border border-zinc-100 flex items-center justify-center mb-1.5 shadow-sm shrink-0">
+                                                        <img :src="method.paymentImage" class="max-w-full max-h-full object-contain" :alt="method.paymentName" onerror="this.style.display='none'">
+                                                    </div>
 
-                                                <!-- Method Name -->
-                                                <span class="text-[9px] font-black text-zinc-700 tracking-tight block truncate w-full max-w-[95%]" x-text="method.paymentName"></span>
-                                            </div>
-                                        </template>
+                                                    <!-- Method Name -->
+                                                    <span class="text-[9px] font-black text-zinc-700 tracking-tight block truncate w-full max-w-[95%]" x-text="method.paymentName"></span>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             @endif
+
+                            <!-- 2. Digital / Midtrans Online Payment Methods -->
+                            <div class="mt-4" x-show="midtransEnabled">
+                                <div class="flex items-center justify-between mb-2">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pembayaran Instan (Otomatis)</p>
+                                    <span class="inline-flex items-center gap-1 bg-amber-500/10 text-[9px] text-amber-700 font-black px-2 py-0.5 rounded-full uppercase tracking-wider scale-90 shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                        Proses Cepat
+                                    </span>
+                                </div>
+
+                                <div 
+                                    @click="selectedPaymentMethod = 'digital'"
+                                    class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
+                                    :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <!-- Online Icon Box -->
+                                        <div class="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">QRIS, Transfer Bank, E-Wallet</h4>
+                                            <p class="text-[9px] text-zinc-400 font-semibold">Bayar online dengan metode pilihanmu secara aman</p>
+                                        </div>
+                                    </div>
+                                    <!-- Styled Radio Circle -->
+                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
+                                         :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
+                                        <div class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
+                                             :class="selectedPaymentMethod === 'digital' ? 'scale-100' : 'scale-0'"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -470,13 +502,13 @@
                                     <span x-show="selectedPaymentMethod === 'cash'" class="flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                                     </span>
-                                    <!-- Digital/Duitku Icon -->
+                                    <!-- Digital Icon -->
                                     <span x-show="selectedPaymentMethod !== 'cash'" class="flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
                                     </span>
                                     
-                                    <!-- Dynamic Button text (renders flawlessly) -->
-                                    <span x-text="selectedPaymentMethod === 'cash' ? 'Pesan & Bayar di Kasir' : '⚡ Bayar via ' + (duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital')"></span>
+                                    <!-- Dynamic Button text -->
+                                    <span x-text="selectedPaymentMethod === 'cash' ? 'Pesan & Bayar di Kasir' : (selectedPaymentMethod === 'digital' ? '⚡ Bayar via Digital' : '⚡ Bayar via ' + (duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital'))"></span>
                                 </span>
                             </span>
                             

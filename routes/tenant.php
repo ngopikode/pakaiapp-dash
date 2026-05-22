@@ -78,8 +78,6 @@ Route::middleware([
         Route::post('/orders/history', [OrderHistoryApiController::class, 'index']);
 
         // ─── Duitku — callback/return/status sudah pindah ke central domain ────
-        // Lihat routes/web.php untuk endpoint api.pakaiapp.online/duitku/*
-        //
         // Payment methods: tetap di tenant karena butuh context tenant untuk amount
         Route::get('/duitku/payment-methods', function (\Illuminate\Http\Request $request) {
             if (!config('duitku.enabled')) {
@@ -87,7 +85,7 @@ Route::middleware([
             }
             $request->validate(['amount' => 'required|numeric|min:1']);
             try {
-                $service = new DuitkuService();
+                $service = new \App\Services\DuitkuService();
                 $methods = $service->getPaymentMethods((int)$request->amount);
                 return response()->json(['success' => true, 'data' => $methods]);
             } catch (Throwable $e) {

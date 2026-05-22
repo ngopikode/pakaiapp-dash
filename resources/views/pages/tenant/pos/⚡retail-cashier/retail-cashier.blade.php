@@ -137,6 +137,12 @@
 
 </div>
 
+@if(config('midtrans.client_key'))
+    @push('scripts')
+        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endpush
+@endif
+
 @script
 <script>
     Alpine.data('retailPos', () => ({
@@ -427,47 +433,75 @@
                     return;
                 }
             }
-
             this.isSubmitting = true;
             try {
                 let result;
                 let isDirect = !this.payingOrder;
-
-                // Duitku: gunakan Livewire action jika payingOrder (menghindari duplikasi order), 
-                // atau gunakan OrderApiController jika pesanan baru
-                if (this.paymentMethod === 'duitku') {
+                // Duitku & Midtrans: gunakan Livewire action jika payingOrder (menghindari duplikasi order), 
+                // atau gunakan OrderApiController via /api/orders jika pesanan baru
+                if (this.paymentMethod === 'duitku' || this.paymentMethod === 'digital') {
+                    const custEmail = this.duitkuCustomerEmail ? this.duitkuCustomerEmail.trim() : '';
                     if (this.payingOrder) {
-                        result = await $wire.generateDuitkuPayment(
-                            this.payingOrder.id, this.duitkuMethod, this.duitkuCustomerEmail.trim()
-                        );
-                        if (result && result.success && result.payment_url) {
-                            this.paymentModalInstance.hide();
-                            window.open(result.payment_url, '_blank');
-                            showIslandToast(`Link Duitku dibuka! Invoice: ${this.payingOrder.invoice_code}`, 'success');
-                            this.payingOrder = null;
-                            this.duitkuMethod = null;
-                            this.duitkuCustomerEmail = '';
-                        } else {
-                            showIslandToast(result?.error || 'Gagal membuat invoice Duitku.', 'danger');
+                        // Bayar pesanan yang ada (antrean) tanpa duplikasi
+                        if (this.paymentMethod === 'duitku') {
+                            result = await $wire.generateDuitkuPayment(
+                                this.payingOrder.id, this.duitkuMethod, custEmail
+                            );
+                            if (result && result.success && result.payment_url) {
+                                this.paymentModalInstance.hide();
+                                window.open(result.payment_url, '_blank');
+                                showIslandToast(`Link Duitku dibuka! Invoice: ${this.payingOrder.invoice_code}`, 'success');
+                                this.payingOrder = null;
+                                this.duitkuMethod = null;
+                                this.duitkuCustomerEmail = '';
+                            } else {
+                                showIslandToast(result?.error || 'Gagal membuat invoice Duitku.', 'danger');
+                            }
+                            this.isSubmitting = false;
+                            return;
+                        } else if (this.paymentMethod === 'digital') {
+                            result = await $wire.generateMidtransPayment(
+                                this.payingOrder.id, custEmail
+                            );
+                            if (result && result.success && result.snap_token) {
+                                this.paymentModalInstance.hide();
+                                window.snap.pay(result.snap_token, {
+                                    onSuccess: (res) => {
+                                        showIslandToast(`Pembayaran berhasil!`, 'success');
+                                        this.payingOrder = null;
+                                    },
+                                    onPending: (res) => {
+                                        showIslandToast(`Menunggu pembayaran...`, 'warning');
+                                    },
+                                    onError: (res) => {
+                                        showIslandToast(`Pembayaran gagal.`, 'danger');
+                                    },
+                                    onClose: () => {
+                                        showIslandToast(`Popup ditutup sebelum pembayaran selesai.`, 'warning');
+                                    }
+                                });
+                            } else {
+                                showIslandToast(result?.error || 'Gagal membuat token Midtrans.', 'danger');
+                            }
+                            this.isSubmitting = false;
+                            return;
                         }
-                        this.isSubmitting = false;
-                        return;
                     }
 
                     // Pesanan Baru (Direct)
                     const cartItems = this.cart.map(i => ({
                         product_id: i.id,
-                        name:       i.name + (i.variant_name ? ` (${i.variant_name})` : ''),
-                        quantity:   i.quantity,
-                        price:      parseFloat(i.price)
+                        name: i.name + (i.variant_name ? ` (${i.variant_name})` : ''),
+                        quantity: i.quantity,
+                        price: parseFloat(i.price)
                     }));
 
                     const payload = {
-                        customer_name:  this.customerName || 'Pelanggan POS',
-                        customer_email: this.duitkuCustomerEmail.trim(),
+                        customer_name:  (this.customerName || '').trim() || 'Pelanggan POS',
+                        customer_email: custEmail || 'noreply@pakaiapp.online',
                         total_price:    this.payTotal,
-                        payment_method: this.duitkuMethod,
-                        order_type:     'retail',
+                        payment_method: this.paymentMethod === 'digital' ? 'digital' : this.duitkuMethod,
+                        order_type:     this.orderType || 'retail',
                         items:          cartItems,
                     };
 
@@ -486,14 +520,37 @@
                         this.paymentModalInstance.hide();
                         window.open(data.data.payment_url, '_blank');
                         showIslandToast(`Link Duitku dibuka! Invoice: ${data.data.invoice_code}`, 'success');
-                        this.clearCart();
-                        this.customerName = '';
-                        this.customerPhone = '';
-                        this.globalDiscount = '';
+                        if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                        this.duitkuMethod = null;
+                        this.duitkuCustomerEmail = '';
+                    } else if (res.ok && data.data?.snap_token) {
+                        this.paymentModalInstance.hide();
+                        window.snap.pay(data.data.snap_token, {
+                            onSuccess: (res) => {
+                                showIslandToast(`Pembayaran berhasil!`, 'success');
+                                if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                            },
+                            onPending: (res) => {
+                                showIslandToast(`Menunggu pembayaran...`, 'warning');
+                                if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                            },
+                            onError: (res) => {
+                                showIslandToast(`Pembayaran gagal.`, 'danger');
+                            },
+                            onClose: () => {
+                                showIslandToast(`Popup ditutup sebelum pembayaran selesai.`, 'warning');
+                                if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                            }
+                        });
                         this.duitkuMethod = null;
                         this.duitkuCustomerEmail = '';
                     } else {
-                        showIslandToast(data.message || 'Gagal membuat invoice Duitku.', 'danger');
+                        let errorMsg = data.message || 'Gagal membuat invoice online.';
+                        if (data.errors) {
+                            errorMsg = Object.values(data.errors).flat().join(', ');
+                        }
+                        showIslandToast(errorMsg, 'danger');
+                        console.error("API Order Error:", data);
                     }
                     this.isSubmitting = false;
                     return;
@@ -530,7 +587,8 @@
                 }
             } catch (e) {
                 this.paymentModalInstance.hide();
-                showIslandToast('Kesalahan sistem.', 'danger');
+                console.error("Kasir Sistem Error:", e);
+                showIslandToast('Sistem Error: ' + e.message, 'danger');
             }
             this.isSubmitting = false;
         },

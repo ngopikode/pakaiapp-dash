@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CentralDuitkuController;
+use App\Http\Controllers\CentralMidtransController;
 use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
@@ -57,22 +58,16 @@ foreach (config('tenancy.central_domains') as $domain) {
         })->name('api.send-lead');
 
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
-        // Semua callback/return Duitku masuk ke sini via api.pakaiapp.online.
-        // Tidak ada auth/CSRF karena dipanggil server Duitku, bukan browser.
-        // Validasi keamanan dilakukan via signature di DuitkuService::handleCallback().
-        //
-        // Callback: POST dari server Duitku setiap ada update status transaksi
         Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
             ->name('duitku.callback');
-
-        // Return: GET — customer diredirect kesini setelah bayar
         Route::get('/duitku/return', [CentralDuitkuController::class, 'return'])
             ->name('duitku.return');
-
-        // Status: GET — polling status dari frontend/kasir
-        // Format invoiceCode: "{tenantId}~{invoiceCode}"
         Route::get('/duitku/status/{invoiceCode}', [CentralDuitkuController::class, 'status'])
             ->name('duitku.status')
             ->where('invoiceCode', '[A-Za-z0-9\-~_]+');
+
+        // ─── Midtrans Payment Gateway — Central Callbacks ───────────────────────
+        Route::post('/midtrans/notification', [CentralMidtransController::class, 'notification'])
+            ->name('midtrans.notification');
     });
 }

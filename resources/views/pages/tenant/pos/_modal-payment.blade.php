@@ -70,6 +70,21 @@
                                 </label>
                             </div>
                             @endif
+
+                            <!-- Option 5: Midtrans Digital Payment -->
+                            @if(config('midtrans.server_key'))
+                            <div class="col-12 mt-1">
+                                <label
+                                    class="btn fw-bold w-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-row align-items-center justify-content-start gap-2 border text-body"
+                                    :class="paymentMethod === 'digital' ? 'btn-info shadow-sm text-dark' : 'bg-body-tertiary'">
+                                    <input type="radio" x-model="paymentMethod" value="digital" class="d-none">
+                                    <i class="bi bi-credit-card-2-front-fill fs-6 text-info"></i>
+                                    <span style="font-size: 0.8rem;">Midtrans
+                                        <span class="badge bg-info text-dark ms-1 border border-dark border-opacity-10" style="font-size:0.6rem;">DIGITAL</span>
+                                    </span>
+                                </label>
+                            </div>
+                            @endif
                         </div>
 
                     </div>
@@ -175,7 +190,7 @@
                         </template>
 
                         <!-- Tampilan QRIS / Transfer manual -->
-                        <template x-if="paymentMethod !== 'cash' && paymentMethod !== 'duitku'">
+                        <template x-if="paymentMethod !== 'cash' && paymentMethod !== 'duitku' && paymentMethod !== 'digital'">
                             <div
                                 class="d-flex flex-column justify-content-center align-items-center h-100 py-4 py-md-5 text-center">
                                 <i class="bi text-primary mb-2"
@@ -185,6 +200,17 @@
                                     x-text="paymentMethod === 'qris' ? 'Pembayaran QRIS' : 'Transfer Bank'"></h5>
                                 <p class="text-secondary small px-2 opacity-75">Pastikan pelanggan sudah berhasil
                                     transfer sebelum menekan tombol proses.</p>
+                            </div>
+                        </template>
+
+                        <!-- Tampilan Midtrans -->
+                        <template x-if="paymentMethod === 'digital'">
+                            <div class="d-flex flex-column justify-content-center align-items-center h-100 py-4 py-md-5 text-center">
+                                <i class="bi bi-phone-vibrate text-info mb-2" style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold">Pembayaran Midtrans</h5>
+                                <p class="text-secondary small px-2 opacity-75">
+                                    Pilih opsi ini untuk memunculkan QRIS Dinamis atau pop-up pembayaran di layar pelanggan/kasir.
+                                </p>
                             </div>
                         </template>
 
@@ -282,8 +308,8 @@
                                 || (paymentMethod === 'duitku' && !duitkuMethod)"
                     >
                         <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">
-                            <span x-show="paymentMethod !== 'duitku'">Selesaikan Transaksi</span>
-                            <span x-show="paymentMethod === 'duitku'">⚡ Generate Link Bayar</span>
+                            <span x-show="paymentMethod !== 'duitku' && paymentMethod !== 'digital'">Selesaikan Transaksi</span>
+                            <span x-show="paymentMethod === 'duitku' || paymentMethod === 'digital'">⚡ Proses Pembayaran Online</span>
                         </span>
                         <span x-show="isSubmitting" style="display: none;">Memproses...</span>
                     </button>

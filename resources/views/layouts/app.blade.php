@@ -16,6 +16,11 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     @livewireStyles
+
+    @if(config('midtrans.server_key'))
+        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+                data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endif
 </head>
 <body>
 

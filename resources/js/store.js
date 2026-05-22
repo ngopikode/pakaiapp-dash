@@ -29,7 +29,7 @@ document.addEventListener('alpine:init', () => {
     // -------------------------------------------------------------------------
     Alpine.data('storeApp', () => ({
         /* ===== CART ===== */
-        toast: {show: false, message: ''},
+        toast: { show: false, message: '' },
         qrOpen: false,
         cart: JSON.parse(localStorage.getItem('ezmenu-cart') || '[]'),
 
@@ -46,14 +46,14 @@ document.addEventListener('alpine:init', () => {
             try {
                 const localHistory = JSON.parse(localStorage.getItem('pakaiapp_order_history') || '[]');
                 const invoiceCodes = localHistory.map(h => h.invoiceCode);
-                
+
                 if (invoiceCodes.length === 0) {
                     this.orderHistory = [];
                     return;
                 }
-                
+
                 this.historyLoading = true;
-                
+
                 const res = await fetch('/api/orders/history', {
                     method: 'POST',
                     headers: {
@@ -63,7 +63,7 @@ document.addEventListener('alpine:init', () => {
                     },
                     body: JSON.stringify({ invoices: invoiceCodes })
                 });
-                
+
                 const data = await res.json();
                 if (data.success) {
                     this.orderHistory = data.data;
@@ -133,7 +133,7 @@ document.addEventListener('alpine:init', () => {
             if (existing) {
                 existing.qty += quantity;
             } else {
-                this.cart.push({...item, cartName, qty: quantity});
+                this.cart.push({ ...item, cartName, qty: quantity });
             }
             this.saveCart();
             this.showToast('Berhasil ditambahkan ke keranjang!');
@@ -148,8 +148,11 @@ document.addEventListener('alpine:init', () => {
             }
             this.saveCart();
 
-            // Jika modal checkout sedang terbuka, fetch ulang payment methods karena nominal berubah
-            if (this.checkoutOpen) {
+            // Jika modal checkout sedang terbuka, recalculate (tidak perlu fetch duitku)
+            if (this.checkoutOpen && this.midtransEnabled) {
+                // midtrans recalculation if needed
+            }
+            if (this.checkoutOpen && this.duitkuEnabled) {
                 this.fetchDuitkuMethods();
             }
         },
@@ -175,7 +178,7 @@ document.addEventListener('alpine:init', () => {
 
         /* ===== TOAST ===== */
         showToast(msg, duration = 3000) {
-            this.toast = {show: true, message: msg};
+            this.toast = { show: true, message: msg };
             clearTimeout(this._toastTimer);
             this._toastTimer = setTimeout(
                 () => (this.toast.show = false),
@@ -317,7 +320,7 @@ document.addEventListener('alpine:init', () => {
             const selectedLabel = [variantLabel, extrasLabel].filter(Boolean).join(' + ');
 
             this.addToCart(
-                {...this.optionProduct, price},
+                { ...this.optionProduct, price },
                 selectedLabel,
                 this.optionQty
             );
@@ -333,10 +336,11 @@ document.addEventListener('alpine:init', () => {
         orderType: '',
         checkoutLoading: false,
         orderSuccess: null,
-        // Default: 'cash' = non-Duitku.
+        // Default: 'cash'
         selectedPaymentMethod: 'cash',
-        duitkuPaymentMethods: [],
+        midtransEnabled: false,
         duitkuEnabled: false,
+        duitkuPaymentMethods: [],
 
         // Tax & Service Charge Settings
         isTaxActive: false,
@@ -358,8 +362,12 @@ document.addEventListener('alpine:init', () => {
             return this.totalCart + this.serviceChargeAmount + this.taxAmount;
         },
 
+        get isDigitalMethod() {
+            return this.selectedPaymentMethod === 'digital';
+        },
+
         get isDuitkuMethod() {
-            return this.selectedPaymentMethod !== 'cash';
+            return this.selectedPaymentMethod !== 'cash' && this.selectedPaymentMethod !== 'digital';
         },
 
         async fetchDuitkuMethods() {
@@ -382,7 +390,8 @@ document.addEventListener('alpine:init', () => {
         init() {
             const root = this.$el;
             this.orderType = root.dataset.defaultOrderType || 'takeaway';
-            this._waNumber = root.dataset.waNumber || '6281234567890';
+            this.waNumber = root.dataset.waNumber || '';
+            this.midtransEnabled = root.dataset.midtransEnabled === '1';
             this.duitkuEnabled = root.dataset.duitkuEnabled === '1';
 
             // Parse settings
@@ -392,7 +401,7 @@ document.addEventListener('alpine:init', () => {
             this.serviceRate = parseFloat(root.dataset.serviceRate) || 0;
 
             this.loadHistory();
-            
+
             this.$watch('historyOpen', (val) => {
                 if (val) {
                     this.fetchHistoryFromServer();
@@ -424,15 +433,7 @@ document.addEventListener('alpine:init', () => {
 
             // Fetch latest settings dynamically in background to prevent stale configuration bugs!
             this.fetchLatestSettings().then(() => {
-                this.fetchDuitkuMethods().then(() => {
-                    // Set default selectedPaymentMethod ke QRIS jika ada, agar user-friendly
-                    if (this.duitkuPaymentMethods.length > 0) {
-                        const hasQris = this.duitkuPaymentMethods.find(m => ['NQ', 'SP', 'QRIS', 'QRISC'].includes(m.paymentMethod));
-                        if (hasQris) {
-                            this.selectedPaymentMethod = hasQris.paymentMethod;
-                        }
-                    }
-                });
+                this.fetchDuitkuMethods();
             });
         },
         closeCheckout() {
@@ -464,13 +465,13 @@ document.addEventListener('alpine:init', () => {
                 this.showToast('Masukkan nama pemesan dulu ya!');
                 return;
             }
-            // Validasi email wajib jika metode Duitku
-            if (this.isDuitkuMethod && !this.customerEmail.trim()) {
+            // Validasi email wajib jika metode Digital
+            if ((this.isDigitalMethod || this.isDuitkuMethod) && !this.customerEmail.trim()) {
                 this.showToast('Email wajib diisi untuk pembayaran digital!');
                 return;
             }
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (this.isDuitkuMethod && !emailRegex.test(this.customerEmail.trim())) {
+            if ((this.isDigitalMethod || this.isDuitkuMethod) && !emailRegex.test(this.customerEmail.trim())) {
                 this.showToast('Format email tidak valid!');
                 return;
             }
@@ -479,13 +480,11 @@ document.addEventListener('alpine:init', () => {
 
             const payload = {
                 customer_name: this.customerName.trim(),
-                // Email — wajib untuk Duitku, optional untuk cash
                 customer_email: this.customerEmail.trim() || null,
                 order_type: this.orderType,
                 order_info: this.customerInfo.trim() || null,
                 total_price: this.totalOrderPrice,
-                // Kirim kode Duitku jika bukan cash, undefined jika cash
-                payment_method: this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash',
+                payment_method: this.isDigitalMethod ? 'digital' : (this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash'),
                 items: this.cart.map((item) => ({
                     product_id: item.id,
                     name: item.cartName,
@@ -511,11 +510,11 @@ document.addEventListener('alpine:init', () => {
 
                 if (res.ok) {
                     const invoiceCode = data.data?.invoice_code || 'OK';
+                    const snapToken = data.data?.snap_token || null;
                     const paymentUrl = data.data?.payment_url || null;
 
-                    // Jika Duitku: arahkan langsung ke halaman invoice untuk menampilkan instruksi pembayaran premium
-                    if (this.isDuitkuMethod) {
-                        // Simpan ke riwayat belanja lokal
+                    // Jika Duitku
+                    if (this.isDuitkuMethod && paymentUrl) {
                         this.addOrderToHistory({
                             invoiceCode: invoiceCode,
                             totalRaw: this.totalOrderPrice,
@@ -530,11 +529,51 @@ document.addEventListener('alpine:init', () => {
                         this.customerName = '';
                         this.customerEmail = '';
                         this.customerInfo = '';
-                        this.selectedPaymentMethod = 'cash'; // reset ke default
+                        this.selectedPaymentMethod = 'cash';
                         this.showToast('Order berhasil dibuat! Membuka halaman pembayaran...');
                         setTimeout(() => {
                             window.location.href = `/invoice/${invoiceCode}`;
                         }, 800);
+                        return;
+                    }
+
+                    // Jika Midtrans
+                    if (this.isDigitalMethod && snapToken) {
+                        this.addOrderToHistory({
+                            invoiceCode: invoiceCode,
+                            totalRaw: this.totalOrderPrice,
+                            orderType: this.orderType,
+                            paymentMethod: 'digital',
+                            paymentName: 'Online Payment',
+                            items: this.cart
+                        });
+
+                        this.cart = [];
+                        this.saveCart();
+                        this.customerName = '';
+                        this.customerEmail = '';
+                        this.customerInfo = '';
+                        this.selectedPaymentMethod = 'cash';
+
+                        this.showToast('Membuka halaman pembayaran aman...');
+
+                        this.checkoutLoading = false;
+
+                        window.snap.pay(snapToken, {
+                            onSuccess: function (result) {
+                                window.location.href = `/invoice/${invoiceCode}`;
+                            },
+                            onPending: function (result) {
+                                window.location.href = `/invoice/${invoiceCode}`;
+                            },
+                            onError: function (result) {
+                                alert("Pembayaran gagal!");
+                            },
+                            onClose: function () {
+                                // Jika user tutup modal sebelum bayar
+                                window.location.href = `/invoice/${invoiceCode}`;
+                            }
+                        });
                         return;
                     }
 

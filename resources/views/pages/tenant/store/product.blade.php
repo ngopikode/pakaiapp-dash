@@ -149,6 +149,9 @@
 
     @vite(['resources/css/store.css', 'resources/js/app.js', 'resources/js/store.js'])
     @livewireStyles
+    @if(config('midtrans.client_key'))
+        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endif
 </head>
 
 <body>
@@ -162,6 +165,7 @@
     data-default-order-type="{{ $orderTypes[0]['id'] }}"
     data-wa-number="{{ $waNumber }}"
     data-duitku-enabled="{{ config('duitku.enabled') ? 1 : 0 }}"
+    data-midtrans-enabled="{{ config('midtrans.server_key') ? 1 : 0 }}"
     data-tax-active="{{ $setting?->is_tax_active ? 1 : 0 }}"
     data-tax-rate="{{ $setting?->tax_rate ?? 10.00 }}"
     data-service-active="{{ $setting?->is_service_charge_active ? 1 : 0 }}"
