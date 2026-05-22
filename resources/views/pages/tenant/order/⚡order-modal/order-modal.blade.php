@@ -9,7 +9,7 @@
                     <div class="modal-header bg-body border-bottom px-4 py-3 gap-3" style="flex-shrink:0;">
                         <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 flex-grow-1 min-w-0">
                             <div class="min-w-0">
-                                <h5 class="fw-black mb-0 text-truncate" style="color: var(--brand-caramel, #b45309); letter-spacing: -0.3px;">
+                                <h5 class="fw-black mb-0 text-truncate text-primary" style="letter-spacing: -0.3px;">
                                     #{{ $order->invoice_code }}
                                 </h5>
                                 <div class="text-muted small mt-1 d-flex flex-wrap gap-2 align-items-center">
@@ -29,8 +29,16 @@
                                     <i class="bi bi-hourglass-split me-1"></i>Menunggu
                                 </span>
                             @elseif($order->status == 'paid')
+                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(13,202,240,0.12); color: #0dcaf0; font-size:0.8rem;">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Baru Masuk
+                                </span>
+                            @elseif($order->status == 'progress')
+                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(13,110,253,0.12); color: #0d6efd; font-size:0.8rem;">
+                                    <i class="bi bi-arrow-repeat me-1"></i>Diproses
+                                </span>
+                            @elseif($order->status == 'completed')
                                 <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(22,163,74,0.12); color: #16a34a; font-size:0.8rem;">
-                                    <i class="bi bi-check-circle-fill me-1"></i>Lunas
+                                    <i class="bi bi-check2-circle me-1"></i>Selesai
                                 </span>
                             @elseif($order->status == 'cancelled')
                                 <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(220,53,69,0.1); color: #dc2626; font-size:0.8rem;">
@@ -53,8 +61,8 @@
                                 <div class="mb-4">
                                     <p class="text-uppercase fw-bold text-muted mb-2" style="font-size:0.68rem; letter-spacing:1.2px;">Pelanggan</p>
                                     <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-body-tertiary border">
-                                        <div class="rounded-circle bg-body border d-flex align-items-center justify-content-center flex-shrink-0 fw-black"
-                                             style="width:40px;height:40px;font-size:1.1rem;color:var(--brand-caramel,#b45309);">
+                                        <div class="rounded-circle bg-body border d-flex align-items-center justify-content-center flex-shrink-0 fw-black text-primary"
+                                             style="width:40px;height:40px;font-size:1.1rem;">
                                             {{ strtoupper(substr($order->customer_name, 0, 1)) }}
                                         </div>
                                         <div class="min-w-0">
@@ -105,8 +113,8 @@
                                                     </tr>
                                                 @endif
                                                 <tr class="border-top">
-                                                    <td class="fw-black ps-3 py-2 text-dark">TOTAL</td>
-                                                    <td class="fw-black text-end pe-3 py-2" style="color:var(--brand-caramel,#b45309); font-size:1rem;">
+                                                    <td class="fw-black ps-3 py-2 text-body">TOTAL</td>
+                                                    <td class="fw-black text-end pe-3 py-2 text-primary" style="font-size:1rem;">
                                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                                     </td>
                                                 </tr>
@@ -131,7 +139,7 @@
                                                 </div>
                                                 <div class="d-flex justify-content-between small">
                                                     <span class="text-muted">Kembalian</span>
-                                                    <span class="fw-bold" style="color:var(--brand-caramel,#b45309);">Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
+                                                    <span class="fw-bold text-primary">Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -139,40 +147,21 @@
                                 @endif
 
                                 @if($order->status == 'cancelled' && $order->cancellation_note)
-                                    <div class="mt-3 p-3 rounded-3 border" style="background: rgba(220,53,69,0.05); border-color: rgba(220,53,69,0.2) !important;">
-                                        <p class="text-uppercase fw-bold mb-1" style="font-size:0.68rem; letter-spacing:1.2px; color:#dc2626;">Alasan Pembatalan</p>
-                                        <p class="small text-danger mb-0 fw-medium">{{ $order->cancellation_note }}</p>
+                                    <div class="mt-3 p-3 rounded-3 border border-danger-subtle bg-danger-subtle bg-opacity-10">
+                                        <p class="text-uppercase fw-bold mb-1 text-danger-emphasis" style="font-size:0.68rem; letter-spacing:1.2px;">Alasan Pembatalan</p>
+                                        <p class="small text-danger-emphasis mb-0 fw-medium">{{ $order->cancellation_note }}</p>
                                     </div>
                                 @endif
                             </div>
 
-                            {{-- ── KOLOM KANAN: Tab Item + Invoice ──────────────── --}}
-                            <div class="col-lg-8 d-flex flex-column bg-body" x-data="{ tab: 'items' }">
-
-                                {{-- Tab Switcher --}}
-                                <div class="px-4 pt-4 pb-0 flex-shrink-0">
-                                    <div class="nav nav-pills p-1 bg-body-tertiary rounded-pill border shadow-sm d-flex mb-4">
-                                        <button @click="tab = 'items'"
-                                                :class="tab === 'items' ? 'btn-primary text-white shadow-sm' : 'bg-transparent text-secondary'"
-                                                class="nav-link rounded-pill fw-bold px-4 py-2 border-0 flex-grow-1 transition-all"
-                                                type="button">
-                                            <i class="bi bi-bag-check me-1"></i>
-                                            Item <span class="badge rounded-pill ms-1" :class="tab === 'items' ? 'bg-white text-primary' : 'bg-body-secondary text-secondary'">{{ $order->items->count() }}</span>
-                                        </button>
-                                        <button @click="tab = 'invoice'"
-                                                :class="tab === 'invoice' ? 'btn-primary text-white shadow-sm' : 'bg-transparent text-secondary'"
-                                                class="nav-link rounded-pill fw-bold px-4 py-2 border-0 flex-grow-1 transition-all"
-                                                type="button">
-                                            <i class="bi bi-receipt me-1"></i> Struk
-                                        </button>
-                                    </div>
+                            {{-- ── KOLOM KANAN: Daftar Item ────────────────────── --}}
+                            <div class="col-lg-8 d-flex flex-column bg-body">
+                                <div class="px-4 pt-4 pb-2 flex-shrink-0">
+                                    <p class="text-uppercase fw-bold text-muted mb-0" style="font-size:0.68rem; letter-spacing:1.2px;">Daftar Item ({{ $order->items->count() }})</p>
                                 </div>
 
-                                {{-- Tab Content --}}
-                                <div class="px-4 pb-2 flex-grow-1 overflow-auto" style="min-height: 0;">
-
-                                    {{-- Tab: Daftar Item --}}
-                                    <div x-show="tab === 'items'" x-cloak class="d-flex flex-column gap-2 pb-2">
+                                <div class="px-4 pb-4 flex-grow-1 overflow-auto" style="min-height: 0; max-height: 500px;">
+                                    <div class="d-flex flex-column gap-2">
                                         @foreach($order->items as $item)
                                             <div class="d-flex align-items-start gap-3 p-3 border rounded-3 bg-body-tertiary">
                                                 <div class="badge bg-body border text-body fw-black rounded-2 px-2 py-2 flex-shrink-0" style="font-size:0.9rem; min-width: 36px; text-align:center;">
@@ -184,7 +173,7 @@
                                                         <div class="small text-muted"><i class="bi bi-tag me-1"></i>{{ $item->variant_name }}</div>
                                                     @endif
                                                     @if($item->note)
-                                                        <div class="small mt-1 px-2 py-1 rounded-2 fw-medium" style="background:rgba(234,179,8,0.1); color:#92400e;">
+                                                        <div class="small mt-1 px-2 py-1 rounded-2 fw-medium bg-warning-subtle text-warning-emphasis border border-warning-subtle">
                                                             <i class="bi bi-chat-quote me-1"></i>"{{ $item->note }}"
                                                         </div>
                                                     @endif
@@ -201,25 +190,6 @@
                                                 </div>
                                             </div>
                                         @endforeach
-                                    </div>
-
-                                    {{-- Tab: Invoice / Struk --}}
-                                    <div x-show="tab === 'invoice'" x-cloak style="height: 480px;">
-                                        <div class="w-100 h-100 rounded-3 border overflow-hidden d-flex flex-column">
-                                            <div class="border-bottom px-3 py-2 d-flex justify-content-between align-items-center bg-body-tertiary flex-shrink-0">
-                                                <span class="small fw-bold text-muted"><i class="bi bi-receipt me-1"></i>Preview Struk</span>
-                                                <a href="{{ url('/invoice/' . $order->invoice_code) }}"
-                                                   target="_blank"
-                                                   class="btn btn-sm btn-outline-secondary rounded-pill fw-bold"
-                                                   style="font-size:0.75rem;">
-                                                    Buka Tab Baru <i class="bi bi-box-arrow-up-right ms-1"></i>
-                                                </a>
-                                            </div>
-                                            <iframe src="{{ url('/invoice/' . $order->invoice_code) }}"
-                                                    class="w-100 flex-grow-1 border-0"
-                                                    style="background: transparent;">
-                                            </iframe>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -246,9 +216,9 @@
 
                                 {{-- Konfirmasi Batal --}}
                                 <template x-if="confirmCancel">
-                                    <div class="d-flex align-items-center gap-2 flex-grow-1 p-2 rounded-3 border" style="background:rgba(220,53,69,0.05); border-color:rgba(220,53,69,0.2) !important;">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1 p-2 rounded-3 border border-danger-subtle bg-danger-subtle bg-opacity-10">
                                         <i class="bi bi-exclamation-triangle-fill text-danger flex-shrink-0"></i>
-                                        <span class="small fw-medium text-danger flex-grow-1">Yakin batalkan pesanan ini?</span>
+                                        <span class="small fw-medium text-danger-emphasis flex-grow-1">Yakin batalkan pesanan ini?</span>
                                         <button @click="confirmCancel = false" class="btn btn-sm btn-outline-secondary rounded-3 fw-bold">Tidak</button>
                                         <button wire:click="updateStatus('cancelled')" wire:loading.attr="disabled"
                                                 class="btn btn-sm btn-danger rounded-3 fw-bold">
@@ -269,14 +239,35 @@
                                 </button>
                             </div>
                         @else
-                            <div class="d-flex gap-2 w-100 justify-content-between">
+                            <div class="d-flex gap-2 w-100 justify-content-between align-items-center">
                                 <a href="{{ url('/invoice/' . $order->invoice_code) }}" target="_blank"
                                    class="btn btn-outline-secondary fw-bold rounded-3 px-4">
                                     <i class="bi bi-receipt me-1"></i>Lihat Struk
                                 </a>
-                                <button type="button" class="btn btn-dark fw-bold rounded-3 px-5" data-bs-dismiss="modal">
-                                    Tutup
-                                </button>
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-secondary fw-bold rounded-3 px-4" data-bs-dismiss="modal">
+                                        Tutup
+                                    </button>
+
+                                    @if($order->status == 'paid')
+                                        <button wire:click="updateStatus('progress')" wire:loading.attr="disabled"
+                                                class="btn btn-info text-white fw-bold rounded-3 px-4">
+                                            <span wire:loading.remove wire:target="updateStatus('progress')">
+                                                <i class="bi bi-play-fill me-1"></i>Proses Pesanan
+                                            </span>
+                                            <span wire:loading wire:target="updateStatus('progress')" class="spinner-border spinner-border-sm me-1"></span>
+                                        </button>
+                                    @elseif($order->status == 'progress')
+                                        <button wire:click="updateStatus('completed')" wire:loading.attr="disabled"
+                                                class="btn btn-success fw-bold rounded-3 px-4">
+                                            <span wire:loading.remove wire:target="updateStatus('completed')">
+                                                <i class="bi bi-check-lg me-1"></i>Selesaikan
+                                            </span>
+                                            <span wire:loading wire:target="updateStatus('completed')" class="spinner-border spinner-border-sm me-1"></span>
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                         @endif
                     </div>

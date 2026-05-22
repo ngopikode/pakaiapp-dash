@@ -30,21 +30,85 @@
     border-radius: 2rem;
     font-weight: 600;
     font-size: 0.875rem;
-    border: 1px solid transparent;
+    border: 1px solid var(--bs-border-color);
     transition: all 0.2s;
     white-space: nowrap;
     color: var(--bs-secondary-color);
-    background: transparent;
+    background: var(--bs-body-bg);
 }
 
 .filter-btn:hover {
     background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color-translucent);
 }
 
-.filter-btn.active {
-    background: var(--bs-link-color, #212529);
-    color: var(--bs-body-bg);
-    border-color: var(--bs-link-color, #212529);
+/* Active filter states with optimized WCAG contrast */
+.filter-btn.active.active-all {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: #fff !important;
+}
+.filter-btn.active.active-all .badge {
+    background-color: #fff !important;
+    color: var(--bs-primary) !important;
+}
+
+.filter-btn.active.active-pending {
+    background-color: var(--bs-warning) !important;
+    border-color: var(--bs-warning) !important;
+    color: #000 !important;
+}
+.filter-btn.active.active-pending .badge {
+    background-color: #000 !important;
+    color: var(--bs-warning) !important;
+}
+
+.filter-btn.active.active-paid {
+    background-color: var(--bs-info) !important;
+    border-color: var(--bs-info) !important;
+    color: #000 !important;
+}
+.filter-btn.active.active-paid .badge {
+    background-color: #000 !important;
+    color: var(--bs-info) !important;
+}
+
+.filter-btn.active.active-progress {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: #fff !important;
+}
+.filter-btn.active.active-progress .badge {
+    background-color: #fff !important;
+    color: var(--bs-primary) !important;
+}
+
+.filter-btn.active.active-completed {
+    background-color: var(--bs-success) !important;
+    border-color: var(--bs-success) !important;
+    color: #fff !important;
+}
+.filter-btn.active.active-completed .badge {
+    background-color: #fff !important;
+    color: var(--bs-success) !important;
+}
+
+.filter-btn.active.active-cancelled {
+    background-color: var(--bs-danger) !important;
+    border-color: var(--bs-danger) !important;
+    color: #fff !important;
+}
+.filter-btn.active.active-cancelled .badge {
+    background-color: #fff !important;
+    color: var(--bs-danger) !important;
+}
+
+.filter-btn.active i {
+    color: inherit !important;
+}
+
+.filter-btn.active .badge {
+    border-color: transparent !important;
 }
 
 .order-row {
@@ -130,3 +194,69 @@
         transform: translateX(100%);
     }
 }
+
+/* Custom slow spin animation for processing icon */
+.spin-slow {
+    animation: spin-slow-key 4s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin-slow-key {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Premium Interactive Stats Cards */
+.stats-card {
+    background: var(--bs-body-tertiary-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: 1.25rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: transparent;
+    transition: background-color 0.25s ease;
+}
+
+.stats-card.card-paid::before { background-color: var(--bs-info); }
+.stats-card.card-progress::before { background-color: var(--bs-primary); }
+.stats-card.card-completed::before { background-color: var(--bs-success); }
+.stats-card.card-pending::before { background-color: var(--bs-warning); }
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    background: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+}
+
+.stats-card.active {
+    background: var(--bs-body-bg);
+    border-color: var(--bs-primary-border-subtle);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.stats-icon-bg {
+    width: 48px;
+    height: 48px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.stats-card:hover .stats-icon-bg {
+    transform: scale(1.05);
+}
+

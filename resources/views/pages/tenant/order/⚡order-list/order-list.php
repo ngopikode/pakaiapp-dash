@@ -89,7 +89,7 @@ new class extends Component {
             });
 
         return [
-            'orders' => $query->latest()->paginate($this->perPage),
+            'orders' => $query->with('items')->latest()->paginate($this->perPage),
 
             'allCount' => Order::count(),
             'pendingCount' => Order::where('status', 'pending')->count(),
