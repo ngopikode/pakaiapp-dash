@@ -9,7 +9,7 @@
             inst.show();
         }
     }
-}" class="pb-5">
+}" wire:poll.15s class="pb-5">
 
     {{-- Header Section --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pt-2">
