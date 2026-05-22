@@ -338,6 +338,26 @@ document.addEventListener('alpine:init', () => {
         duitkuPaymentMethods: [],
         duitkuEnabled: false,
 
+        // Tax & Service Charge Settings
+        isTaxActive: false,
+        taxRate: 0,
+        isServiceActive: false,
+        serviceRate: 0,
+
+        get serviceChargeAmount() {
+            if (!this.isServiceActive) return 0;
+            return Math.round((this.serviceRate / 100) * this.totalCart);
+        },
+
+        get taxAmount() {
+            if (!this.isTaxActive) return 0;
+            return Math.round((this.taxRate / 100) * (this.totalCart + this.serviceChargeAmount));
+        },
+
+        get totalOrderPrice() {
+            return this.totalCart + this.serviceChargeAmount + this.taxAmount;
+        },
+
         get isDuitkuMethod() {
             return this.selectedPaymentMethod !== 'cash';
         },
@@ -347,9 +367,9 @@ document.addEventListener('alpine:init', () => {
                 this.duitkuPaymentMethods = [];
                 return;
             }
-            if (this.totalCart <= 0) return;
+            if (this.totalOrderPrice <= 0) return;
             try {
-                const res = await fetch(`/api/duitku/payment-methods?amount=${this.totalCart}`);
+                const res = await fetch(`/api/duitku/payment-methods?amount=${this.totalOrderPrice}`);
                 const data = await res.json();
                 if (data.success && Array.isArray(data.data)) {
                     this.duitkuPaymentMethods = data.data;
@@ -364,6 +384,13 @@ document.addEventListener('alpine:init', () => {
             this.orderType = root.dataset.defaultOrderType || 'takeaway';
             this._waNumber = root.dataset.waNumber || '6281234567890';
             this.duitkuEnabled = root.dataset.duitkuEnabled === '1';
+
+            // Parse settings
+            this.isTaxActive = root.dataset.taxActive === '1';
+            this.taxRate = parseFloat(root.dataset.taxRate) || 0;
+            this.isServiceActive = root.dataset.serviceActive === '1';
+            this.serviceRate = parseFloat(root.dataset.serviceRate) || 0;
+
             this.loadHistory();
             
             this.$watch('historyOpen', (val) => {
@@ -437,7 +464,7 @@ document.addEventListener('alpine:init', () => {
                 customer_email: this.customerEmail.trim() || null,
                 order_type: this.orderType,
                 order_info: this.customerInfo.trim() || null,
-                total_price: this.totalCart,
+                total_price: this.totalOrderPrice,
                 // Kirim kode Duitku jika bukan cash, undefined jika cash
                 payment_method: this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash',
                 items: this.cart.map((item) => ({
@@ -472,7 +499,7 @@ document.addEventListener('alpine:init', () => {
                         // Simpan ke riwayat belanja lokal
                         this.addOrderToHistory({
                             invoiceCode: invoiceCode,
-                            totalRaw: this.totalCart,
+                            totalRaw: this.totalOrderPrice,
                             orderType: this.orderType,
                             paymentMethod: this.selectedPaymentMethod,
                             paymentName: this.duitkuPaymentMethods.find(m => m.paymentMethod === this.selectedPaymentMethod)?.paymentName || this.selectedPaymentMethod,
@@ -493,7 +520,7 @@ document.addEventListener('alpine:init', () => {
                     }
 
                     // Fallback / cash: kirim WA seperti biasa
-                    const waText = [
+                    const waLines = [
                         'Halo admin, pesanan baru nih!',
                         `*Invoice:* ${invoiceCode}`,
                         `*Nama:* ${this.customerName.trim()}`,
@@ -506,10 +533,20 @@ document.addEventListener('alpine:init', () => {
                         '*Daftar Pesanan:*',
                         ...this.cart.map((i) => `- ${i.qty}x ${i.cartName}`),
                         '',
-                        `*Total Tagihan:* ${this.formatPrice(this.totalCart)}`
-                    ]
-                        .filter((l) => l !== null)
-                        .join('\n');
+                        `*Subtotal:* ${this.formatPrice(this.totalCart)}`
+                    ];
+
+                    if (this.isServiceActive && this.serviceChargeAmount > 0) {
+                        waLines.push(`*Biaya Layanan (${this.serviceRate}%):* ${this.formatPrice(this.serviceChargeAmount)}`);
+                    }
+
+                    if (this.isTaxActive && this.taxAmount > 0) {
+                        waLines.push(`*Pajak PB1 (${this.taxRate}%):* ${this.formatPrice(this.taxAmount)}`);
+                    }
+
+                    waLines.push(`*Total Tagihan:* ${this.formatPrice(this.totalOrderPrice)}`);
+
+                    const waText = waLines.filter((l) => l !== null).join('\n');
 
                     // 2. Bikin URL WA-nya
                     const finalWaUrl = `https://wa.me/${this._waNumber}?text=${encodeURIComponent(waText)}`;
@@ -517,14 +554,14 @@ document.addEventListener('alpine:init', () => {
                     // 3. Simpan URL-nya ke state orderSuccess (biar tombol di HTML bisa pake link ini buat RESEND)
                     this.orderSuccess = {
                         invoiceCode: invoiceCode,
-                        total: this.formatPrice(this.totalCart),
+                        total: this.formatPrice(this.totalOrderPrice),
                         waUrl: finalWaUrl
                     };
 
                     // Simpan ke riwayat belanja lokal
                     this.addOrderToHistory({
                         invoiceCode: invoiceCode,
-                        totalRaw: this.totalCart,
+                        totalRaw: this.totalOrderPrice,
                         orderType: this.orderType,
                         paymentMethod: 'cash',
                         paymentName: 'Bayar Manual / Di Kasir',

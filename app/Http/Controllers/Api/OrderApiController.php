@@ -88,6 +88,21 @@ class OrderApiController extends Controller
                     ? $request->order_type
                     : 'retail'; // Fallback order_type jika invalid
 
+                // Load configured Tax & Service Charge settings from database securely!
+                $storeSetting = \App\Models\StoreSetting::first();
+                $taxRate = $storeSetting && $storeSetting->is_tax_active ? (float)$storeSetting->tax_rate : 0.00;
+                $serviceRate = $storeSetting && $storeSetting->is_service_charge_active ? (float)$storeSetting->service_charge_rate : 0.00;
+
+                // Securely calculate subtotal by summing actual price * quantity of order items
+                $subtotal = collect($request->items)->sum(function ($item) {
+                    return (float)$item['price'] * (int)$item['quantity'];
+                });
+
+                // Apply calculations precisely matching the POS cashier's implementation
+                $serviceChargeAmount = round(($serviceRate / 100) * $subtotal);
+                $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
+                $totalPrice = $subtotal + $serviceChargeAmount + $taxAmount;
+
                 $order = Order::create([
                     'invoice_code' => $invoiceCode,
                     'customer_name' => $request->customer_name,
@@ -95,8 +110,12 @@ class OrderApiController extends Controller
                     'order_type' => $mappedOrderType,
                     'is_online' => true,
                     'table_number' => $request->order_info,
-                    'subtotal' => $request->total_price,
-                    'total_price' => $request->total_price,
+                    'subtotal' => $subtotal,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'tax_percentage' => $taxRate,
+                    'service_charge_percentage' => $serviceRate,
+                    'total_price' => $totalPrice,
                     'status' => 'pending',
                     'payment_method' => $dbPaymentMethod,
                     // Simpan kode metode Duitku yang dipilih jika ada

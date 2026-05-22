@@ -434,9 +434,26 @@
 
                     {{-- Total & Submit --}}
                     <div class="shrink-0 p-6 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                        <!-- Breakdown Box -->
+                        <div class="space-y-2 mb-4 px-1 text-xs font-semibold text-zinc-500">
+                            <div class="flex items-center justify-between">
+                                <span>Subtotal</span>
+                                <span class="text-zinc-900 font-black" x-text="formatPrice(totalCart)"></span>
+                            </div>
+                            <div class="flex items-center justify-between" x-show="isServiceActive && serviceChargeAmount > 0" style="display: none;">
+                                <span>Biaya Layanan (<span x-text="serviceRate"></span>%)</span>
+                                <span class="text-zinc-900 font-black" x-text="formatPrice(serviceChargeAmount)"></span>
+                            </div>
+                            <div class="flex items-center justify-between" x-show="isTaxActive && taxAmount > 0" style="display: none;">
+                                <span>Pajak PB1 (<span x-text="taxRate"></span>%)</span>
+                                <span class="text-zinc-900 font-black" x-text="formatPrice(taxAmount)"></span>
+                            </div>
+                            <hr class="border-zinc-100 my-1">
+                        </div>
+
                         <div class="flex items-center justify-between mb-3 px-1">
-                            <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Tagihan</span>
-                            <span class="text-lg font-black text-zinc-900" x-text="formatPrice(totalCart)"></span>
+                            <span class="text-xs font-black text-zinc-900 uppercase tracking-wider">Total Tagihan</span>
+                            <span class="text-lg font-black text-zinc-900" x-text="formatPrice(totalOrderPrice)"></span>
                         </div>
 
                         <button

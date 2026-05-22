@@ -25,23 +25,23 @@
                         {{-- Status Pill --}}
                         <div class="flex-shrink-0">
                             @if($order->status == 'pending')
-                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(234,179,8,0.12); color: #ca8a04; font-size:0.8rem;">
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-2 fw-bold" style="font-size:0.8rem;">
                                     <i class="bi bi-hourglass-split me-1"></i>Menunggu
                                 </span>
                             @elseif($order->status == 'paid')
-                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(13,202,240,0.12); color: #0dcaf0; font-size:0.8rem;">
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-2 fw-bold" style="font-size:0.8rem;">
                                     <i class="bi bi-check-circle-fill me-1"></i>Baru Masuk
                                 </span>
                             @elseif($order->status == 'progress')
-                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(13,110,253,0.12); color: #0d6efd; font-size:0.8rem;">
+                                <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle rounded-pill px-3 py-2 fw-bold" style="font-size:0.8rem;">
                                     <i class="bi bi-arrow-repeat me-1"></i>Diproses
                                 </span>
                             @elseif($order->status == 'completed')
-                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(22,163,74,0.12); color: #16a34a; font-size:0.8rem;">
+                                <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill px-3 py-2 fw-bold" style="font-size:0.8rem;">
                                     <i class="bi bi-check2-circle me-1"></i>Selesai
                                 </span>
                             @elseif($order->status == 'cancelled')
-                                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(220,53,69,0.1); color: #dc2626; font-size:0.8rem;">
+                                <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle rounded-pill px-3 py-2 fw-bold" style="font-size:0.8rem;">
                                     <i class="bi bi-x-circle-fill me-1"></i>Dibatalkan
                                 </span>
                             @endif

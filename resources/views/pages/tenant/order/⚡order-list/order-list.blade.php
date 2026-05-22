@@ -29,72 +29,6 @@
         </div>
     </div>
 
-    {{-- Premium Stats Grid --}}
-    <div class="row g-3 mb-4">
-        <!-- 1. Baru Masuk (Paid) -->
-        <div class="col-6 col-md-3">
-            <div @click="activeFilter = 'paid'"
-                 :class="activeFilter === 'paid' ? 'active' : ''"
-                 class="stats-card card-paid p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="stats-icon-bg bg-info-subtle text-info-emphasis">
-                    <i class="bi bi-bag-plus-fill fs-4"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-body-secondary small fw-bold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Baru Masuk</span>
-                    <h3 class="fw-bolder mb-0 text-body">{{ $paidCount }}</h3>
-                    <span class="text-secondary small" style="font-size: 0.7rem;">Siap diproses</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. Sedang Diproses (Progress) -->
-        <div class="col-6 col-md-3">
-            <div @click="activeFilter = 'progress'"
-                 :class="activeFilter === 'progress' ? 'active' : ''"
-                 class="stats-card card-progress p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="stats-icon-bg bg-primary-subtle text-primary-emphasis">
-                    <i class="bi bi-arrow-repeat fs-4 spin-slow"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-body-secondary small fw-bold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Diproses</span>
-                    <h3 class="fw-bolder mb-0 text-body">{{ $progressCount }}</h3>
-                    <span class="text-secondary small" style="font-size: 0.7rem;">Sedang disiapkan</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Selesai (Completed) -->
-        <div class="col-6 col-md-3">
-            <div @click="activeFilter = 'completed'"
-                 :class="activeFilter === 'completed' ? 'active' : ''"
-                 class="stats-card card-completed p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="stats-icon-bg bg-success-subtle text-success-emphasis">
-                    <i class="bi bi-check-circle-fill fs-4"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-body-secondary small fw-bold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Selesai</span>
-                    <h3 class="fw-bolder mb-0 text-body">{{ $completedCount }}</h3>
-                    <span class="text-secondary small" style="font-size: 0.7rem;">Selesai hari ini</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Menunggu Bayar (Pending) -->
-        <div class="col-6 col-md-3">
-            <div @click="activeFilter = 'pending'"
-                 :class="activeFilter === 'pending' ? 'active' : ''"
-                 class="stats-card card-pending p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="stats-icon-bg bg-warning-subtle text-warning-emphasis">
-                    <i class="bi bi-hourglass-split fs-4"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-body-secondary small fw-bold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Menunggu</span>
-                    <h3 class="fw-bolder mb-0 text-body">{{ $pendingCount }}</h3>
-                    <span class="text-secondary small" style="font-size: 0.7rem;">Belum lunas</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- Controls: Search & Filters --}}
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
@@ -206,41 +140,32 @@
                                     <div class="min-w-0 flex-grow-1">
                                         {{-- Customer Name & Table Number --}}
                                         <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                                            <h6 class="fw-bold mb-0 text-truncate text-body-emphasis" style="font-size: 1rem;">{{ $order->customer_name }}</h6>
+                                            <h6 class="fw-bold mb-0 text-truncate text-body-emphasis" style="font-size: 0.95rem;">{{ $order->customer_name }}</h6>
                                             @if($order->table_number)
                                                 <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle fw-bold px-2 py-0.5"
-                                                      style="font-size: 0.75rem;">
-                                                    <i class="bi bi-hash me-0.5"></i>Meja {{ $order->table_number }}
+                                                      style="font-size: 0.7rem;">
+                                                    Meja {{ $order->table_number }}
                                                 </span>
                                             @endif
                                         </div>
 
-                                        {{-- Order Metatags --}}
-                                        <div class="d-flex flex-wrap align-items-center gap-2 small text-body-secondary">
+                                        {{-- Clean Bulleted Metadata Line --}}
+                                        <div class="d-flex flex-wrap align-items-center gap-1.5 small text-body-secondary mb-1">
+                                            <span class="fw-bold text-primary" style="font-size: 0.8rem;">#{{ $order->invoice_code }}</span>
+                                            <span class="text-muted opacity-50">•</span>
+                                            
                                             @if($order->is_online)
-                                                <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill fw-bold" style="font-size: 0.65rem;">
-                                                    <i class="bi bi-globe2 me-1"></i>ONLINE
-                                                </span>
+                                                <span class="text-success fw-bold"><i class="bi bi-globe2 me-1"></i>Online</span>
                                             @else
-                                                <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle rounded-pill fw-bold" style="font-size: 0.65rem;">
-                                                    <i class="bi bi-pc-display me-1"></i>POS KASIR
-                                                </span>
+                                                <span class="text-secondary fw-semibold"><i class="bi bi-pc-display me-1"></i>POS Kasir</span>
                                             @endif
-                                            <span>&bull;</span>
-                                            <span class="fw-bold text-primary" style="letter-spacing: 0.3px;">#{{ $order->invoice_code }}</span>
-                                            <span>&bull;</span>
-                                            <span class="badge {{ $typeInfo['class'] }} rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.65rem;">
-                                                <i class="{{ $typeInfo['icon'] }} me-1"></i>{{ $typeInfo['label'] }}
-                                            </span>
+                                            <span class="text-muted opacity-50">•</span>
+                                            
+                                            <span class="fw-semibold"><i class="{{ $typeInfo['icon'] }} me-1"></i>{{ $typeInfo['label'] }}</span>
+                                            
                                             @if($order->payment_method)
-                                                <span>&bull;</span>
+                                                <span class="text-muted opacity-50">•</span>
                                                 @php
-                                                    $paymentClass = match(strtolower($order->payment_method)) {
-                                                        'cash' => 'bg-success-subtle text-success-emphasis border border-success-subtle',
-                                                        'qris' => 'bg-primary-subtle text-primary-emphasis border border-primary-subtle',
-                                                        'transfer' => 'bg-info-subtle text-info-emphasis border border-info-subtle',
-                                                        default => 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle'
-                                                    };
                                                     $paymentIcon = match(strtolower($order->payment_method)) {
                                                         'cash' => 'bi-cash-coin',
                                                         'qris' => 'bi-qr-code-scan',
@@ -248,29 +173,24 @@
                                                         default => 'bi-credit-card'
                                                     };
                                                 @endphp
-                                                <span class="badge {{ $paymentClass }} rounded-pill px-2 py-0.5 fw-bold text-uppercase" style="font-size: 0.65rem;">
-                                                    <i class="bi {{ $paymentIcon }} me-1"></i>{{ $order->payment_method }}
-                                                </span>
+                                                <span class="text-uppercase"><i class="bi {{ $paymentIcon }} me-1"></i>{{ $order->payment_method }}</span>
                                             @endif
-                                            <span>&bull;</span>
-                                            <span class="text-secondary fw-medium"><i class="bi bi-clock me-1"></i>{{ $order->created_at->format('H:i') }}</span>
+                                            
+                                            <span class="text-muted opacity-50">•</span>
+                                            <span><i class="bi bi-clock me-1"></i>{{ $order->created_at->format('H:i') }}</span>
                                         </div>
 
-                                        {{-- Ordered Items Summary (Highly Informative) --}}
+                                        {{-- Compact Ordered Items Line (No Heavy Containers) --}}
                                         @if($order->items->isNotEmpty())
                                             @php
                                                 $summary = $order->items->map(function($item) {
                                                     return $item->product_name . ($item->variant_name ? ' (' . $item->variant_name . ')' : '') . ($item->quantity > 1 ? ' (x' . $item->quantity . ')' : '');
                                                 })->join(', ');
                                             @endphp
-                                            <div class="mt-2 p-2 rounded-3 bg-body-tertiary border border-dashed border-secondary border-opacity-25 d-flex align-items-center gap-2" style="max-width: 580px;">
-                                                <div class="bg-primary-subtle text-primary-emphasis rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 24px; height: 24px;">
-                                                    <i class="bi bi-box-seam" style="font-size: 0.75rem;"></i>
-                                                </div>
-                                                <div class="min-w-0 flex-grow-1 text-truncate" style="font-size: 0.78rem;" title="{{ $summary }}">
-                                                    <span class="fw-bold text-body-secondary me-1">{{ $order->items->sum('quantity') }} Item:</span>
-                                                    <span class="text-secondary">{{ $summary }}</span>
-                                                </div>
+                                            <div class="small text-secondary text-truncate mt-1" style="font-size: 0.78rem; max-width: 580px;" title="{{ $summary }}">
+                                                <i class="bi bi-box-seam me-1 text-primary-emphasis" style="font-size: 0.8rem;"></i>
+                                                <span class="fw-bold text-body-secondary">{{ $order->items->sum('quantity') }} Item:</span>
+                                                <span>{{ $summary }}</span>
                                             </div>
                                         @endif
                                     </div>
@@ -279,28 +199,28 @@
                                 {{-- Middle: Status & Price --}}
                                 <div class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between w-100 w-md-auto mt-2 mt-md-0 px-1 px-md-0"
                                      style="min-width: 160px;">
-                                    <div class="fw-bold text-body-emphasis mb-md-2" style="font-size: 1.15rem; letter-spacing: -0.3px;">
+                                    <div class="fw-bold text-body-emphasis mb-md-1" style="font-size: 1.1rem; letter-spacing: -0.3px;">
                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                     </div>
                                     <div>
                                         @if($order->status == 'pending')
-                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">
-                                                <i class="bi bi-hourglass-split me-1"></i>Menunggu Pembayaran
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.72rem;">
+                                                <i class="bi bi-hourglass-split me-1"></i>Menunggu
                                             </span>
                                         @elseif($order->status == 'paid')
-                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.72rem;">
                                                 <i class="bi bi-bag-plus me-1"></i>Baru Masuk
                                             </span>
                                         @elseif($order->status == 'progress')
-                                            <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">
+                                            <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.72rem;">
                                                 <i class="bi bi-arrow-repeat spin-slow me-1"></i>Diproses
                                             </span>
                                         @elseif($order->status == 'completed')
-                                            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">
+                                            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.72rem;">
                                                 <i class="bi bi-check-circle me-1"></i>Selesai
                                             </span>
                                         @elseif($order->status == 'cancelled')
-                                            <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">
+                                            <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.72rem;">
                                                 <i class="bi bi-x-circle me-1"></i>Batal
                                             </span>
                                         @endif
@@ -339,7 +259,7 @@
                                 <div class="d-none d-md-flex gap-2 ms-md-3">
                                     {{-- Detail Button --}}
                                     <button wire:click="$dispatch('openModal', { orderId: {{ $order->id }} })"
-                                            class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm"
+                                            class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
                                             title="Lihat Detail Pesanan">
                                         <i class="bi bi-eye me-1"></i> Detail
                                     </button>
@@ -347,25 +267,25 @@
                                     {{-- Contextual Process Action Buttons --}}
                                     @if($order->status == 'pending')
                                         <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
-                                                class="btn btn-sm btn-success text-white rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm"
+                                                class="btn btn-sm btn-success text-white rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
                                                 title="Bayar Pesanan">
                                             <i class="bi bi-cash me-1"></i> Bayar
                                         </button>
 
                                         <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
-                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm"
+                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
                                                 title="Batalkan Pesanan">
                                             <i class="bi bi-x-lg me-1"></i> Batal
                                         </button>
                                     @elseif($order->status == 'paid')
                                         <button wire:click="updateStatus({{ $order->id }}, 'progress')"
-                                                class="btn btn-sm btn-primary text-white rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm"
+                                                class="btn btn-sm btn-primary text-white rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
                                                 title="Mulai Proses Pembuatan">
                                             <i class="bi bi-play-fill me-1"></i> Proses
                                         </button>
                                     @elseif($order->status == 'progress')
                                         <button wire:click="updateStatus({{ $order->id }}, 'completed')"
-                                                class="btn btn-sm btn-success text-white rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 shadow-sm"
+                                                class="btn btn-sm btn-success text-white rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1 shadow-sm"
                                                 title="Selesaikan Pesanan">
                                             <i class="bi bi-check-lg me-1"></i> Selesai
                                         </button>

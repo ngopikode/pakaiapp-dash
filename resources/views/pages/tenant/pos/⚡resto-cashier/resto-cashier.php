@@ -119,6 +119,7 @@ new class extends Component {
                 }
 
                 $storeSetting = StoreSetting::first();
+                $storeName = $storeSetting?->name ?? 'Resto Kami';
                 $taxRate = $isTaxActive ? (isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00) : 0.00;
                 $serviceRate = $isServiceActive ? (isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00) : 0.00;
 
