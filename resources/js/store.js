@@ -400,20 +400,39 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
+        async fetchLatestSettings() {
+            try {
+                const res = await fetch('/api/restaurant');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    this.isTaxActive = !!data.data.is_tax_active;
+                    this.taxRate = parseFloat(data.data.tax_rate) || 0;
+                    this.isServiceActive = !!data.data.is_service_charge_active;
+                    this.serviceRate = parseFloat(data.data.service_charge_rate) || 0;
+                }
+            } catch (e) {
+                console.error('[Settings] Gagal mengambil pengaturan terbaru', e);
+            }
+        },
+
         openCheckout() {
             this.orderSuccess = null;
             this.checkoutStep = 1; // Reset to step 1
             this.checkoutOpen = true;
             document.body.style.overflow = 'hidden';
             this.selectedPaymentMethod = 'cash'; // Default ke cash
-            this.fetchDuitkuMethods().then(() => {
-                // Set default selectedPaymentMethod ke QRIS jika ada, agar user-friendly
-                if (this.duitkuPaymentMethods.length > 0) {
-                    const hasQris = this.duitkuPaymentMethods.find(m => ['NQ', 'SP', 'QRIS', 'QRISC'].includes(m.paymentMethod));
-                    if (hasQris) {
-                        this.selectedPaymentMethod = hasQris.paymentMethod;
+
+            // Fetch latest settings dynamically in background to prevent stale configuration bugs!
+            this.fetchLatestSettings().then(() => {
+                this.fetchDuitkuMethods().then(() => {
+                    // Set default selectedPaymentMethod ke QRIS jika ada, agar user-friendly
+                    if (this.duitkuPaymentMethods.length > 0) {
+                        const hasQris = this.duitkuPaymentMethods.find(m => ['NQ', 'SP', 'QRIS', 'QRISC'].includes(m.paymentMethod));
+                        if (hasQris) {
+                            this.selectedPaymentMethod = hasQris.paymentMethod;
+                        }
                     }
-                }
+                });
             });
         },
         closeCheckout() {

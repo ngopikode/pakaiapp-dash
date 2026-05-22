@@ -28,6 +28,10 @@ class RestaurantApiController extends Controller
             'theme_color' => $setting->theme_color,
             'whatsapp_number' => $setting->whatsapp_number,
             'address' => $setting->address,
+            'is_tax_active' => (bool)$setting->is_tax_active,
+            'tax_rate' => (float)$setting->tax_rate,
+            'is_service_charge_active' => (bool)$setting->is_service_charge_active,
+            'service_charge_rate' => (float)$setting->service_charge_rate,
             'hero' => [
                 'promo_text' => $setting->hero_promo_text,
                 'status_text' => $setting->hero_status_text,
