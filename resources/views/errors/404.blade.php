@@ -16,13 +16,13 @@
             <path d="M12 17h.01"/>
         </svg>
     </div>
-    
+
     <h2 class="text-lg font-black text-zinc-900 mb-1">Halaman Tidak Ditemukan</h2>
     <p class="text-sm text-zinc-400 mb-6 max-w-xs mx-auto">
         {{ $exception->getMessage() ?: 'Halaman atau Toko yang Anda tuju tidak dapat ditemukan.' }}
     </p>
-    
-    <button onclick="window.location.href='https://pakaiapp.online'"
+
+    <button onclick="window.location.href='https://www.pakaiapp.online'"
             class="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors active:scale-95">
         Kembali ke Pakaiapp
     </button>
