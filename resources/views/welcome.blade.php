@@ -735,7 +735,7 @@
     </div>
 </section>
 
-<!-- PRICING SECTION (Starter -> Uji Coba Gratis) -->
+<!-- PRICING SECTION -->
 <section id="pricing" class="py-huge bg-tertiary-bg border-top border-color">
     <div class="container">
         <div class="text-center mb-4 mb-md-5 pb-0 pb-md-3" data-aos="fade-up">
@@ -752,15 +752,17 @@
                     <h1 class="font-serif fw-bolder mb-3 mb-md-4 display-5 display-md-4"
                         style="color: var(--brand-caramel);">Gratis</h1>
                     <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 200px;">
+                        style="max-width: 220px;">
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Gratis Saldo
+                            <strong>50 Trx</strong></li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
+                            / trx
+                        </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <strong>50</strong> Transaksi Awal
+                            <strong>50</strong> Slot Produk
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Rp 0 / trx
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Akses Semua
-                            Fitur
-                        </li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tambah Slot:
+                            <strong>Rp 10rb/50</strong></li>
                     </ul>
                     <button
                         class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
@@ -779,16 +781,18 @@
                     <h4 class="font-serif fw-bold text-white mt-3 mb-2">Rame</h4>
                     <h1 class="font-serif fw-bolder text-white mb-3 mb-md-4 display-5 display-md-4">Rp 50k</h1>
                     <ul class="list-unstyled text-white text-opacity-75 text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 200px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> <strong
+                        style="max-width: 220px;">
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Saldo <strong
                                 class="text-white">166</strong> Transaksi
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Rp 300 / trx
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Tarif Rp 300
+                            / trx
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Saldo Abadi
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i>
+                            <strong>50</strong> Slot Produk
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Prioritas WA
-                        </li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Tambah Slot:
+                            <strong>Rp 10rb/50</strong></li>
                     </ul>
                     <button class="btn w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
                             style="background: var(--brand-caramel); color: #fff; border: none;" data-paket="Rame"
@@ -803,16 +807,18 @@
                     <h4 class="font-serif fw-bold text-body mb-2">Enterprise</h4>
                     <h1 class="font-serif fw-bolder text-body mb-3 mb-md-4 display-5 display-md-4">Rp 100k</h1>
                     <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 200px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                        style="max-width: 220px;">
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo
                             <strong>333</strong> Transaksi
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Rp 300 / trx
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
+                            / trx
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo Abadi
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>50</strong> Slot Produk
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Multi-Outlet
-                        </li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tambah Slot:
+                            <strong>Rp 10rb/50</strong></li>
                     </ul>
                     <button
                         class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
