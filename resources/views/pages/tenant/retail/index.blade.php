@@ -27,9 +27,9 @@
     <h2 class="text-lg font-black text-zinc-900 mb-1">Toko Sedang Dalam Pembangunan</h2>
     <p class="text-sm text-zinc-500 mb-6 max-w-xs">Helm proyek sedang dipakai! Fitur toko ini masih dalam tahap
         perakitan agar siap digunakan.</p>
-    <button onclick="window.location.reload()"
+    <button onclick="window.location.href='https://www.pakaiapp.online'"
             class="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors active:scale-95">
-        Coba Lagi
+        Kembali ke Halaman Utama
     </button>
 </div>
 </body>

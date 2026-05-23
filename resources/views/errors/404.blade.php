@@ -6,7 +6,7 @@
     <title>404 - Tidak Ditemukan</title>
     <link rel="icon" type="image/png" href="/logo.png">
     <link rel="apple-touch-icon" href="/logo.png">
-    
+
     @vite(['resources/css/store.css'])
 </head>
 <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6">
@@ -25,9 +25,9 @@
         {{ 'Halaman atau Toko yang Anda tuju tidak dapat ditemukan.' }}
     </p>
 
-    <button onclick="window.location.href='https://www.pakaiapp.online'"
+    <button onclick="window.location.href='/'"
             class="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors active:scale-95">
-        Kembali ke {{ config('app.name', 'EzMenu Enterprise') }}
+        Kembali ke Halaman Utama
     </button>
 </div>
 </body>
