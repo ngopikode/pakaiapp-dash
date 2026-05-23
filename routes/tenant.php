@@ -34,8 +34,8 @@ Route::middleware([
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
 
     Route::get('/', function () {
-        if (tenant('store_type') === 'retail') return view('pages.tenant.index-online');
-        return view('pages.tenant.index');
+        if (tenant('store_type') === 'retail') return view('pages.tenant.retail.index');
+        return view('pages.tenant.store.resto.index');
     })->name('index');
 
     // routes/web.php

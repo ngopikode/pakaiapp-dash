@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+{{--<x-layouts::retail>--}}
+{{--    <livewire:pages::tenant.retail.product-list/>--}}
+{{--</x-layouts::retail>--}}
+{{-- todo: not yet implemented --}}
+
+    <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -19,8 +24,9 @@
             <path d="M12 17h.01"/>
         </svg>
     </div>
-    <h2 class="text-lg font-black text-zinc-900 mb-1">Toko Tutup Sementara</h2>
-    <p class="text-sm text-zinc-400 mb-6 max-w-xs">Toko ini sedang dinonaktifkan sementara oleh pemiliknya.</p>
+    <h2 class="text-lg font-black text-zinc-900 mb-1">Toko Sedang Dalam Pembangunan</h2>
+    <p class="text-sm text-zinc-500 mb-6 max-w-xs">Helm proyek sedang dipakai! Fitur toko ini masih dalam tahap
+        perakitan agar siap digunakan.</p>
     <button onclick="window.location.reload()"
             class="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors active:scale-95">
         Coba Lagi
