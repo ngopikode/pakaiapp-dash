@@ -27,13 +27,13 @@ class OrderApiController extends Controller
         $gateway = $this->determineGateway($request->input('payment_method', 'CASH'));
 
         if ($error = $this->validateGateway($gateway)) {
-            return response()->json($error, 403);
+            return $this->failResponse([], 403, $error['message']);
         }
 
         $this->validateOrderRequest($request, $gateway);
 
         if ($error = $this->checkProductAvailability($request->items)) {
-            return response()->json($error, 422);
+            return $this->failResponse(['unavailable_ids' => $error['unavailable_ids']], 422, $error['message']);
         }
 
         try {
@@ -194,10 +194,7 @@ class OrderApiController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memproses pembayaran. Silakan coba lagi.',
-            ], 502);
+            return $this->errorResponse([], 'Gagal memproses pembayaran. Silakan coba lagi.', 502);
         }
     }
 
@@ -230,15 +227,11 @@ class OrderApiController extends Controller
 
         $order->update(['midtrans_snap_token' => $snapToken]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order berhasil dibuat.',
-            'data' => [
-                'order_id' => $order->id,
-                'invoice_code' => $order->invoice_code,
-                'snap_token' => $snapToken,
-            ],
-        ], 201);
+        return $this->successResponse([
+            'order_id' => $order->id,
+            'invoice_code' => $order->invoice_code,
+            'snap_token' => $snapToken,
+        ], 'Order berhasil dibuat.', 201);
     }
 
     private function processDuitku(Order $order, array $customerDetail, string $method): JsonResponse
@@ -252,16 +245,12 @@ class OrderApiController extends Controller
             'duitku_va_number' => $result['va_number'],
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order berhasil dibuat.',
-            'data' => [
-                'order_id' => $order->id,
-                'invoice_code' => $order->invoice_code,
-                'payment_url' => $result['payment_url'],
-                'va_number' => $result['va_number'],
-                'reference' => $result['reference'],
-            ],
-        ], 201);
+        return $this->successResponse([
+            'order_id' => $order->id,
+            'invoice_code' => $order->invoice_code,
+            'payment_url' => $result['payment_url'],
+            'va_number' => $result['va_number'],
+            'reference' => $result['reference'],
+        ], 'Order berhasil dibuat.', 201);
     }
 }
