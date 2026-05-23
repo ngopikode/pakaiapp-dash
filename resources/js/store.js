@@ -737,3 +737,15 @@ document.addEventListener('alpine:init', () => {
 
     });
 });
+
+// Explicitly show the loader via Javascript when Livewire starts navigating
+document.addEventListener('livewire:navigating', () => {
+    const loader = document.getElementById('app-loader');
+    if (loader) {
+        loader.style.display = 'flex';
+        // If it's controlled by Alpine, we can also dispatch the event or manually show it
+        if (loader.__x !== undefined) {
+            loader.__x.$data.show = true;
+        }
+    }
+});

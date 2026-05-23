@@ -10,6 +10,7 @@
     prevent this from hiding.
 --}}
 <div
+    id="app-loader"
     x-data="{ show: true }"
     x-show="show"
     x-transition:leave="transition-opacity ease-in duration-300"
