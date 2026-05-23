@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\OrderHistoryApiController;
-use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\Api\RestaurantApiController;
 use App\Http\Controllers\MenuController;
 use App\Http\Middleware\FileUrlMiddleware;
 use App\Models\Product;
-use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -36,12 +33,15 @@ Route::middleware([
 
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
 
-    Route::view('/', 'pages.tenant.index')->name('index');
+    Route::get('/', function () {
+        if (tenant('store_type') === 'retail') return view('pages.tenant.index-online');
+        return view('pages.tenant.index');
+    })->name('index');
 
     // routes/web.php
 
     Route::get('/menu/{product}',
-        fn(Product $product) => view('pages.tenant.store.product', compact('product'))
+        fn(Product $product) => view('pages.tenant.store.resto.product', compact('product'))
             ->with('product', $product->load(['variants', 'extras']))
     )->name('product.show');
 

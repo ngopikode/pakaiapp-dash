@@ -150,14 +150,16 @@
     @vite(['resources/css/store.css', 'resources/js/store.js'])
     @livewireStyles
     @if(config('midtrans.client_key'))
-        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+        <script
+            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+            data-client-key="{{ config('midtrans.client_key') }}"></script>
     @endif
 </head>
 
 <body>
 
 {{-- ===== PAGE LOADER — OUTSIDE x-data so Alpine errors can NEVER block it ===== --}}
-@include('pages.tenant.store._loader')
+@include('pages.tenant.store.resto._loader')
 
 <div
     class="bg-zinc-100 min-h-screen text-zinc-900 font-sans antialiased relative selection:bg-[var(--primary-color)] selection:text-black"
@@ -287,7 +289,8 @@
         >
             <div class="flex items-center gap-2 text-zinc-500 pb-3">
                 <template x-if="isRefreshing">
-                    <div class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
+                    <div
+                        class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
                 </template>
                 <template x-if="!isRefreshing">
                     <div class="w-5 h-5 flex items-center justify-center transition-transform"
@@ -410,9 +413,11 @@
                         </h3>
                         <div class="flex flex-wrap gap-2">
                             @foreach($activeExtras as $extra)
-                                <span class="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600">
+                                <span
+                                    class="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600">
                                     {{ $extra->name }}
-                                    <span class="text-[var(--primary-color)] ml-1">+Rp {{ number_format($extra->price, 0, ',', '.') }}</span>
+                                    <span
+                                        class="text-[var(--primary-color)] ml-1">+Rp {{ number_format($extra->price, 0, ',', '.') }}</span>
                                 </span>
                             @endforeach
                         </div>
@@ -427,7 +432,8 @@
             <div class="max-w-xl mx-auto flex flex-col gap-2.5">
 
                 {{-- Stepper (non-variant, non-extra item already in cart) --}}
-                <template x-if="qtyInCart > 0 && !product.has_variants && !(product.extras && product.extras.length > 0)">
+                <template
+                    x-if="qtyInCart > 0 && !product.has_variants && !(product.extras && product.extras.length > 0)">
                     <div class="flex items-center justify-between rounded-2xl p-1.5 w-full bg-zinc-900 shadow-xl">
                         <button @click="updateQty(product.name, -1)"
                                 class="w-12 h-12 flex items-center justify-center rounded-xl text-white hover:bg-zinc-700 transition-all active:scale-90">
@@ -451,7 +457,8 @@
                 </template>
 
                 {{-- Add / Variant / Extra button --}}
-                <template x-if="qtyInCart === 0 || product.has_variants || (product.extras && product.extras.length > 0)">
+                <template
+                    x-if="qtyInCart === 0 || product.has_variants || (product.extras && product.extras.length > 0)">
                     <button
                         @click="(product.has_variants || (product.extras && product.extras.length > 0)) ? openOption(product) : addToCart(product)"
                         :disabled="!product.is_active"
@@ -470,15 +477,19 @@
                                 Pilih Opsi Varian
                             </span>
                         </template>
-                        <template x-if="product.is_active && !product.has_variants && product.extras && product.extras.length > 0">
+                        <template
+                            x-if="product.is_active && !product.has_variants && product.extras && product.extras.length > 0">
                             <span class="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="text-[var(--primary-color)]"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+                                     stroke-linejoin="round" class="text-[var(--primary-color)]"><circle cx="12" cy="12"
+                                                                                                         r="10"/><line
+                                        x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
                                 Pilih Add-On &bull; {{ $product->formatted_price }}
                             </span>
                         </template>
-                        <template x-if="product.is_active && !product.has_variants && !(product.extras && product.extras.length > 0)">
+                        <template
+                            x-if="product.is_active && !product.has_variants && !(product.extras && product.extras.length > 0)">
                             <span class="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -542,10 +553,10 @@
     </div>
 
     {{-- Variant Option Modal --}}
-    @include('pages.tenant.store.option-modal')
+    @include('pages.tenant.store.resto.option-modal')
 
     {{-- Checkout Modal --}}
-    @include('pages.tenant.store.checkout-modal', ['orderTypes' => $orderTypes])
+    @include('pages.tenant.store.resto.checkout-modal', ['orderTypes' => $orderTypes])
 
 </div>
 

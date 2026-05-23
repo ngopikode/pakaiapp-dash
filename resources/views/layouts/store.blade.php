@@ -98,7 +98,7 @@
     <body>
 
     {{-- ===== PAGE LOADER — OUTSIDE x-data so Alpine errors can NEVER block it ===== --}}
-    @include('pages.tenant.store._loader')
+    @include('pages.tenant.store.resto._loader')
 
     <div
         class="bg-zinc-50 min-h-screen text-zinc-900 pb-28 font-sans antialiased relative selection:bg-[var(--primary-color)] selection:text-black"
@@ -126,7 +126,7 @@
         @include('components.layouts.store._navbar', ['setting' => $setting])
 
         {{-- ===== HERO (Pure Blade — zero extra DB query) ===== --}}
-        @include('pages.tenant.store._hero', ['setting' => $setting])
+        @include('pages.tenant.store.resto._hero', ['setting' => $setting])
 
         {{-- ===== PAGE CONTENT (product-list is the only Livewire component) ===== --}}
         {{ $slot }}
@@ -197,13 +197,13 @@
         </div>
 
         {{-- ===== OPTION MODAL (100% Client-Side) ===== --}}
-        @include('pages.tenant.store.option-modal')
+        @include('pages.tenant.store.resto.option-modal')
 
         {{-- ===== CHECKOUT MODAL (100% Client-Side) ===== --}}
-        @include('pages.tenant.store.checkout-modal', ['orderTypes' => $orderTypes])
+        @include('pages.tenant.store.resto.checkout-modal', ['orderTypes' => $orderTypes])
 
         {{-- ===== RIWAYAT MODAL (100% Client-Side) ===== --}}
-        @include('pages.tenant.store.history-modal')
+        @include('pages.tenant.store.resto.history-modal')
     </div>
 
     @livewireScripts
