@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>404 - Tidak Ditemukan</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
+    
     @vite(['resources/css/store.css'])
 </head>
 <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6">
