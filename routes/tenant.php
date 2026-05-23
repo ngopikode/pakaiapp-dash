@@ -71,11 +71,8 @@ Route::middleware([
 
     Route::prefix('api')->middleware(['api'])->group(function () {
         Route::get('/restaurant', RestaurantApiController::class);
-        Route::get('/categories', CategoryApiController::class);
-        Route::get('/products', [ProductApiController::class, 'index']);
-        Route::get('/products/{productId}', [ProductApiController::class, 'show']);
-        Route::post('/orders', [OrderApiController::class, 'store']);
-        Route::post('/orders/history', [OrderHistoryApiController::class, 'index']);
+        Route::post('/orders', [OrderApiController::class, 'store'])->middleware('throttle:orders');
+        Route::post('/orders/history', [OrderHistoryApiController::class, 'index'])->middleware('throttle:30,1');
 
         // ─── Duitku — callback/return/status sudah pindah ke central domain ────
         // Payment methods: tetap di tenant karena butuh context tenant untuk amount

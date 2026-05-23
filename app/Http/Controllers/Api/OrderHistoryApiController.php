@@ -27,9 +27,20 @@ class OrderHistoryApiController extends Controller
             return response()->json(['success' => true, 'data' => []]);
         }
 
+        // Limit maximum invoices to prevent payload spam/DoS
+        $invoiceCodes = array_slice($invoiceCodes, 0, 50);
+
+        // Sanitize to only string values to prevent injection
+        $invoiceCodes = array_filter($invoiceCodes, 'is_string');
+
+        if (empty($invoiceCodes)) {
+            return response()->json(['success' => true, 'data' => []]);
+        }
+
         $orders = Order::with('items')
             ->whereIn('invoice_code', $invoiceCodes)
             ->orderBy('created_at', 'desc')
+            ->limit(50) // Double protection on DB query
             ->get()
             ->map(function ($order) {
                 return [

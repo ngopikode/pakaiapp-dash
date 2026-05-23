@@ -118,6 +118,9 @@ document.addEventListener('alpine:init', () => {
                 }))
             };
             this.orderHistory.unshift(order);
+            if (this.orderHistory.length > 50) {
+                this.orderHistory = this.orderHistory.slice(0, 50);
+            }
             this.saveHistory();
         },
 

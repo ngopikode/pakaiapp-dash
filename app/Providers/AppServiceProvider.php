@@ -29,9 +29,16 @@ class AppServiceProvider extends ServiceProvider
         if (!app()->runningInConsole()) {
 
             if (app()->environment('production')) {
-                URL::forceScheme('https');
+                \Illuminate\Support\Facades\URL::forceScheme('https');
             }
         }
+
+        // Define rate limiter for order creation
+        \Illuminate\Support\Facades\RateLimiter::for('orders', function (\Illuminate\Http\Request $request) {
+            return $request->user()
+                ? \Illuminate\Cache\RateLimiting\Limit::none()
+                : \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
+        });
     }
 
     /**
