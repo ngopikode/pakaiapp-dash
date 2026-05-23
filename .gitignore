@@ -22,4 +22,4 @@ yarn-error.log
 /.vscode
 /.zed
 /storage/tenant*/
-/public/tenant_*/
+/public/tenant_*
