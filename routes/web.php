@@ -59,7 +59,8 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
         Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
-            ->name('duitku.callback');
+            ->name('duitku.callback')
+            ->middleware(\App\Http\Middleware\DuitkuIpWhitelist::class);
         Route::get('/duitku/return', [CentralDuitkuController::class, 'return'])
             ->name('duitku.return');
         Route::get('/duitku/status/{invoiceCode}', [CentralDuitkuController::class, 'status'])
@@ -68,6 +69,7 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         // ─── Midtrans Payment Gateway — Central Callbacks ───────────────────────
         Route::post('/midtrans/notification', [CentralMidtransController::class, 'notification'])
-            ->name('midtrans.notification');
+            ->name('midtrans.notification')
+            ->middleware(\App\Http\Middleware\MidtransIpWhitelist::class);
     });
 }
