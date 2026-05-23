@@ -147,6 +147,12 @@
                                                     Meja {{ $order->table_number }}
                                                 </span>
                                             @endif
+                                            @if($order->notes)
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold px-2 py-0.5 text-truncate"
+                                                      style="font-size: 0.7rem; max-width: 150px;" title="Catatan: {{ $order->notes }}">
+                                                    <i class="bi bi-card-text me-1"></i>{{ $order->notes }}
+                                                </span>
+                                            @endif
                                         </div>
 
                                         {{-- Clean Bulleted Metadata Line --}}

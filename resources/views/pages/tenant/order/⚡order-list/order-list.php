@@ -82,7 +82,8 @@ new class extends Component {
             ->when($this->search, function ($q) {
                 $q->where('customer_name', 'like', '%' . $this->search . '%')
                     ->orWhere('invoice_code', 'like', '%' . $this->search . '%')
-                    ->orWhere('table_number', 'like', '%' . $this->search . '%');
+                    ->orWhere('table_number', 'like', '%' . $this->search . '%')
+                    ->orWhere('notes', 'like', '%' . $this->search . '%');
             })
             ->when($this->statusFilter !== 'all', function ($q) {
                 $q->where('status', $this->statusFilter);

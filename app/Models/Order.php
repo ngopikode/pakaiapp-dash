@@ -12,6 +12,7 @@ class Order extends Model
         'id',
         'invoice_code',
         'table_number',
+        'notes',
         'customer_name',
         'customer_phone',
         'order_type',

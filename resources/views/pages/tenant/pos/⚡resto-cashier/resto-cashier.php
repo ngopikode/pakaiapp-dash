@@ -58,6 +58,7 @@ new class extends Component {
                 $order = Order::create([
                     'invoice_code' => $invoiceCode,
                     'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
                     'customer_name' => $customerName ?: 'Pelanggan Umum',
                     'order_type' => $orderType,
                     'payment_method' => 'cash',
@@ -136,6 +137,7 @@ new class extends Component {
                 $order = Order::create([
                     'invoice_code' => $invoiceCode,
                     'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
                     'customer_name' => $customerName ?: 'Pelanggan Umum',
                     'order_type' => $orderType,
                     'payment_method' => $paymentMethod,

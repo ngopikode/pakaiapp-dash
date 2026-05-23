@@ -17,6 +17,11 @@
                                     @if($order->table_number)
                                         <span class="badge bg-body-secondary text-secondary border">Meja {{ $order->table_number }}</span>
                                     @endif
+                                    @if($order->notes)
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" title="Catatan">
+                                            <i class="bi bi-card-text me-1"></i>{{ $order->notes }}
+                                        </span>
+                                    @endif
                                     <span><i class="bi bi-clock me-1"></i>{{ $order->created_at->format('d M Y, H:i') }}</span>
                                 </div>
                             </div>

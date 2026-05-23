@@ -262,6 +262,12 @@
                     @endif
                 </span>
             </div>
+            @if($order->notes)
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Catatan</span>
+                <span class="fw-bold text-dark text-end" style="max-width: 60%;">{{ $order->notes }}</span>
+            </div>
+            @endif
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Status Pesanan</span>
                 <span class="fw-bold text-dark">

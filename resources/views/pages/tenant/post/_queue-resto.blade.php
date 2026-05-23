@@ -40,6 +40,12 @@
                                     <i class="bi bi-hash"></i>Meja {{ $order->table_number }}
                                 </span>
                             @endif
+                            @if($order->notes)
+                                <span
+                                    class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill fw-medium" title="Catatan: {{ $order->notes }}">
+                                    <i class="bi bi-card-text me-1"></i>Catatan
+                                </span>
+                            @endif
                             <span
                                 class="badge bg-body-tertiary text-secondary border rounded-pill text-capitalize fw-medium">
                                 {{ $order->order_type }}
