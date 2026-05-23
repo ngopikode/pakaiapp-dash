@@ -574,7 +574,7 @@ document.addEventListener('alpine:init', () => {
                                         errorMsg = `Gagal: ${result.status_message}`;
                                     }
                                     this.showToast(errorMsg);
-                                    
+
                                     setTimeout(() => {
                                         window.location.href = `/invoice/${invoiceCode}`;
                                     }, 2000);
@@ -738,14 +738,89 @@ document.addEventListener('alpine:init', () => {
     });
 });
 
-// Explicitly show the loader via Javascript when Livewire starts navigating
-document.addEventListener('livewire:navigating', () => {
-    const loader = document.getElementById('app-loader');
-    if (loader) {
-        loader.style.display = 'flex';
-        // If it's controlled by Alpine, we can also dispatch the event or manually show it
-        if (loader.__x !== undefined) {
-            loader.__x.$data.show = true;
-        }
+let storeNavLoaderHtml = `
+<div id="dynamic-nav-loader" class="fixed inset-0 z-[9999] bg-zinc-50/70 backdrop-blur-md flex flex-col items-center justify-center gap-6 pointer-events-auto" style="display: flex;">
+    <div class="relative">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 animate-bounce">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary-color,#f59e0b)]">
+                <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
+                <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.9.9 2.1 1.4 3.4 1.4H20v-3.5c0-1.3-.5-2.5-1.4-3.4z"/>
+                <path d="m2 22 7.5-7.5"/>
+            </svg>
+        </div>
+        <div class="absolute -inset-2 rounded-[2rem] border-2 border-dashed border-zinc-200 animate-spin" style="animation-duration:3s"></div>
+    </div>
+    <div class="text-center space-y-1.5">
+        <p class="text-zinc-800 text-sm font-black tracking-tight">Menyiapkan Menu</p>
+        <div class="flex items-center justify-center gap-1">
+            <div class="w-1.5 h-1.5 rounded-full bg-zinc-300 animate-bounce" style="animation-delay:0ms"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style="animation-delay:150ms"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style="animation-delay:300ms"></div>
+        </div>
+    </div>
+</div>
+`;
+
+let storeNavLoaderStartTime = 0;
+let storeNavShowTimeout = null;
+
+window.showStoreLoader = function () {
+    if (!document.getElementById('dynamic-nav-loader')) {
+        document.body.insertAdjacentHTML('beforeend', storeNavLoaderHtml);
+        storeNavLoaderStartTime = Date.now();
     }
+};
+
+window.hideStoreLoader = function () {
+    clearTimeout(storeNavShowTimeout); // Cancel if it hasn't shown yet
+    
+    const dynamicLoader = document.getElementById('dynamic-nav-loader');
+    
+    const removeLoaders = () => {
+        if (dynamicLoader) {
+            dynamicLoader.remove();
+        }
+        const initialLoader = document.getElementById('app-loader');
+        if (initialLoader) {
+            initialLoader.style.setProperty('display', 'none', 'important');
+        }
+    };
+
+    // If the dynamic loader was never injected (fast network), just clean up and exit
+    if (!dynamicLoader) {
+        removeLoaders();
+        return;
+    }
+
+    // If it WAS injected, enforce minimum display time so it doesn't flash awkwardly
+    const elapsedTime = Date.now() - storeNavLoaderStartTime;
+    const minDisplayTime = 400; // Force loader to show for at least 400ms once it appears
+
+    if (elapsedTime < minDisplayTime) {
+        setTimeout(removeLoaders, minDisplayTime - elapsedTime);
+    } else {
+        removeLoaders();
+    }
+};
+
+document.addEventListener('click', (e) => {
+    // Ignore right clicks or clicks with modifier keys (new tab/window)
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+    const link = e.target.closest('a');
+    if (link && Array.from(link.attributes).some(attr => attr.name.startsWith('wire:navigate'))) {
+        // Threshold: 150ms. If network is faster than this, NO loader will appear.
+        clearTimeout(storeNavShowTimeout);
+        storeNavShowTimeout = setTimeout(() => {
+            window.showStoreLoader();
+        }, 150);
+    }
+});
+
+document.addEventListener('livewire:navigated', () => {
+    window.hideStoreLoader();
+});
+
+document.addEventListener('livewire:initialized', () => {
+    window.hideStoreLoader();
 });

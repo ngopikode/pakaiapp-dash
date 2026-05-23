@@ -7,10 +7,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component {
+    public bool $lazy = false;
     public string $category = 'all';
     public int $perPage = 10;
     public array $categories = [];
-    
+
     public function mount(): void
     {
         $this->categories = Category::orderBy('order_column')
@@ -46,6 +47,7 @@ new class extends Component {
     #[Computed]
     public function products(): array
     {
+        if ($this->lazy) return [];
         return Product::query()
             ->with(['category', 'variants', 'extras'])
             ->when(

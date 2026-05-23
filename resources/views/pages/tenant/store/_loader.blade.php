@@ -9,18 +9,11 @@
     Placed OUTSIDE x-data="storeApp" so Alpine errors in storeApp can never
     prevent this from hiding.
 --}}
+@persist('app-loader')
 <div
     id="app-loader"
-    x-data="{ show: true }"
-    x-show="show"
-    x-transition:leave="transition-opacity ease-in duration-300"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    x-on:livewire:initialized.window="show = false"
-    x-on:livewire:navigating.window="show = true"
-    x-on:livewire:navigated.window="show = false"
-    class="fixed inset-0 z-[2000] bg-zinc-50 flex flex-col items-center justify-center gap-6"
-    style="display:flex"
+    class="fixed inset-0 z-[2000] bg-zinc-50/70 backdrop-blur-md flex flex-col items-center justify-center gap-6 transition-opacity duration-300 opacity-100 pointer-events-auto"
+    style="display: flex;"
 >
     <div class="relative">
         <div
@@ -49,3 +42,4 @@
         </div>
     </div>
 </div>
+@endpersist

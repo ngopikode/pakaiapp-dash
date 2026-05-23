@@ -1,5 +1,6 @@
 @php use App\Models\Product; @endphp
 <div
+    {{--    wire:init="$set('lazy', false)"--}}
     x-data="{
         viewMode: 'grid',
         isRefreshing: false,
@@ -109,7 +110,7 @@
     </div>
 
     {{-- Loading Skeleton (Pake class bg-skeleton dari store.css) --}}
-    <div wire:loading.class.remove="hidden" wire:target="setCategory" class="hidden">
+    <div wire:loading.class.remove="hidden" wire:target="setCategory,lazy" class="hidden">
         <main
             class="max-w-xl mx-auto px-5 mt-4"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"

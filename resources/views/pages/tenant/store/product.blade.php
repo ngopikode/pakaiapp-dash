@@ -72,7 +72,7 @@
     $imageVersion = $product->updated_at ? $product->updated_at->timestamp : time();
 @endphp
     <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-no-progress-bar>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -147,7 +147,7 @@
         }
     </script>
 
-    @vite(['resources/css/store.css', 'resources/js/app.js', 'resources/js/store.js'])
+    @vite(['resources/css/store.css', 'resources/js/store.js'])
     @livewireStyles
     @if(config('midtrans.client_key'))
         <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
