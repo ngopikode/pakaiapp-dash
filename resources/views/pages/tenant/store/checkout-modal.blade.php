@@ -1,6 +1,7 @@
 {{-- Checkout Modal (Save to DB) - 100% Client-Side, Uses Global Scope --}}
 <div
     x-show="checkoutOpen"
+    x-data="{ showPaymentSelector: false }"
     class="relative z-[150]"
     style="display: none;"
 >
@@ -32,9 +33,9 @@
         <div class="p-5 flex justify-between items-center border-b border-zinc-100 bg-white sticky top-0 z-10 pt-6">
             <div class="flex items-center gap-3">
                 <!-- Back Button (Step 2 Only) -->
-                <button 
+                <button
                     x-show="checkoutStep === 2"
-                    @click="checkoutStep = 1"
+                    @click="showPaymentSelector ? showPaymentSelector = false : checkoutStep = 1"
                     class="p-2 bg-zinc-50 rounded-full hover:bg-zinc-100 transition-all shrink-0 active:scale-90"
                     style="display: none;"
                 >
@@ -44,18 +45,22 @@
                         <path d="m15 18-6-6 6-6"/>
                     </svg>
                 </button>
-                
+
                 <div>
                     <!-- Step 1 Title -->
-                    <h2 x-show="checkoutStep === 1" class="text-lg font-black tracking-tight text-zinc-900 uppercase">Pesanan Kamu</h2>
-                    <p x-show="checkoutStep === 1" class="text-[10px] text-zinc-400 font-semibold">Pastikan pesanan sudah sesuai ya</p>
-                    
+                    <h2 x-show="checkoutStep === 1" class="text-lg font-black tracking-tight text-zinc-900 uppercase">
+                        Pesanan Kamu</h2>
+                    <p x-show="checkoutStep === 1" class="text-[10px] text-zinc-400 font-semibold">Pastikan pesanan
+                        sudah sesuai ya</p>
+
                     <!-- Step 2 Title -->
-                    <h2 x-show="checkoutStep === 2" class="text-lg font-black tracking-tight text-zinc-900 uppercase" style="display: none;">Pilih Pembayaran</h2>
-                    <p x-show="checkoutStep === 2" class="text-[10px] text-zinc-400 font-semibold" style="display: none;">Lengkapi info & metode pembayaran</p>
+                    <h2 x-show="checkoutStep === 2" class="text-lg font-black tracking-tight text-zinc-900 uppercase"
+                        style="display: none;" x-text="showPaymentSelector ? 'Pilih Metode Bayar' : 'Pilih Pembayaran'"></h2>
+                    <p x-show="checkoutStep === 2" class="text-[10px] text-zinc-400 font-semibold"
+                       style="display: none;" x-text="showPaymentSelector ? 'Pilih metode pembayaran yang kamu inginkan' : 'Lengkapi info & metode pembayaran'"></p>
                 </div>
             </div>
-            
+
             <button @click="closeCheckout" class="p-2 bg-zinc-50 rounded-full hover:bg-zinc-100 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -177,10 +182,10 @@
         {{-- ===== CART & FORM STATE ===== --}}
         <template x-if="!orderSuccess">
             <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
-                
+
                 {{-- STEP 1: Keranjang & Tipe Pesanan --}}
-                <div 
-                    x-show="checkoutStep === 1" 
+                <div
+                    x-show="checkoutStep === 1"
                     class="flex-1 min-h-0 flex flex-col overflow-hidden"
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 translate-x-4"
@@ -189,7 +194,8 @@
                     {{-- Cart Items --}}
                     <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 pb-4">
                         <template x-if="cart.length === 0">
-                            <div class="text-center py-10 text-zinc-400 text-sm font-bold">Keranjang masih kosong nih</div>
+                            <div class="text-center py-10 text-zinc-400 text-sm font-bold">Keranjang masih kosong nih
+                            </div>
                         </template>
 
                         <template x-if="cart.length > 0">
@@ -205,8 +211,15 @@
                                                     :class="item.unavailable ? 'text-zinc-400 line-through' : 'text-zinc-900'"
                                                     x-text="item.cartName"></h4>
                                                 <template x-if="item.unavailable">
-                                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-500 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+                                                    <span
+                                                        class="inline-flex items-center gap-1 bg-red-100 text-red-500 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9"
+                                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                             stroke-width="2.5" stroke-linecap="round"
+                                                             stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line
+                                                                x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15"
+                                                                                                     y1="9"
+                                                                                                     y2="15"/></svg>
                                                         Tidak Tersedia
                                                     </span>
                                                 </template>
@@ -223,13 +236,23 @@
                                                 class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-400 flex items-center justify-center hover:bg-red-100 transition-colors active:scale-90 shrink-0"
                                                 title="Hapus dari keranjang"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="m19 6-.867 12.142A2 2 0 0 1 16.138 20H7.862a2 2 0 0 1-1.995-1.858L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"/>
+                                                    <path
+                                                        d="m19 6-.867 12.142A2 2 0 0 1 16.138 20H7.862a2 2 0 0 1-1.995-1.858L5 6"/>
+                                                    <path d="M10 11v6"/>
+                                                    <path d="M14 11v6"/>
+                                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                                </svg>
                                             </button>
                                         </template>
 
                                         {{-- Available: stepper normal --}}
                                         <template x-if="!item.unavailable">
-                                            <div class="flex items-center gap-3 bg-zinc-50 p-1 rounded-lg border border-zinc-100">
+                                            <div
+                                                class="flex items-center gap-3 bg-zinc-50 p-1 rounded-lg border border-zinc-100">
                                                 <button @click="updateQty(item.cartName, -1)"
                                                         class="w-7 h-7 rounded-md bg-white text-zinc-900 flex items-center justify-center shadow-sm hover:bg-zinc-100 font-bold text-lg leading-none">
                                                     -
@@ -274,133 +297,372 @@
                             @click="nextStep"
                             :disabled="cart.length === 0 || cart.some(i => i.unavailable)"
                             class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-                            :class="cart.length === 0 || cart.some(i => i.unavailable) 
-                                ? 'bg-zinc-200 text-zinc-400' 
+                            :class="cart.length === 0 || cart.some(i => i.unavailable)
+                                ? 'bg-zinc-200 text-zinc-400'
                                 : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/10'"
                         >
                             <span>Lanjut ke Pembayaran</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M5 12h14"/>
+                                <path d="m12 5 7 7-7 7"/>
+                            </svg>
                         </button>
                     </div>
                 </div>
 
                 {{-- STEP 2: Kontak & Metode Pembayaran --}}
-                <div 
-                    x-show="checkoutStep === 2" 
+                <div
+                    x-show="checkoutStep === 2"
                     class="flex-1 min-h-0 flex flex-col overflow-hidden"
                     style="display: none;"
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 translate-x-4"
                     x-transition:enter-end="opacity-100 translate-x-0"
                 >
-                    {{-- Scrollable Area for Inputs & Payment Selector --}}
-                    <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 pb-4">
-                        
-                        {{-- Inputs --}}
-                        <div class="mb-5">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Informasi Pemesan</p>
-                            <div class="space-y-3">
-                                <div class="relative">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                        <circle cx="12" cy="7" r="4"/>
-                                    </svg>
-                                    <input
-                                        x-model="customerName"
-                                        type="text"
-                                        placeholder="Nama Pemesan"
-                                        class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
-                                    />
-                                </div>
+                    <!-- A. FORM VIEW (Inputs + Selected Method Card + Footer) -->
+                    <div x-show="!showPaymentSelector" class="flex-1 min-h-0 flex flex-col overflow-hidden">
+                        {{-- Scrollable Area for Inputs & Payment Selector --}}
+                        <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 pb-4">
 
-                                {{-- Email — wajib jika pilih Duitku (bukan cash) --}}
-                                <template x-if="selectedPaymentMethod !== 'cash'">
+                            {{-- Inputs --}}
+                            <div class="mb-5">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Informasi Pemesan</p>
+                                <div class="space-y-3">
+                                    <!-- Nama Pemesan -->
                                     <div class="relative">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                             stroke-linejoin="round"
+                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                        <input
+                                            x-model="customerName"
+                                            type="text"
+                                            placeholder="Nama Pemesan"
+                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
+                                        />
+                                    </div>
+
+                                    <!-- Email — Tampil jika pembayaran non-tunai (Digital) -->
+                                    <div x-show="selectedPaymentMethod !== 'cash'" class="relative" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             viewBox="0 0 24 24"
+                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                             stroke-linejoin="round"
+                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
                                             <rect width="20" height="16" x="2" y="4" rx="2"/>
                                             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                                         </svg>
                                         <input
                                             x-model="customerEmail"
                                             type="email"
-                                            placeholder="Email (wajib untuk pembayaran digital)"
+                                            placeholder="Email (wajib)"
                                             class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
                                         />
                                     </div>
-                                </template>
 
-                                <div class="relative">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                    </svg>
-                                    <input
-                                        x-model="customerInfo"
-                                        type="text"
-                                        :placeholder="orderType === 'dinein' ? 'Nomor Meja' : (orderType === 'takeaway' ? 'Catatan (misal: bungkus pisah)' : 'Alamat Lengkap Pengantaran')"
-                                        class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
-                                    />
+                                    <!-- Info Dinamis: Nomor Meja / Catatan / Alamat Lengkap -->
+                                    <div class="relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                             stroke-linejoin="round"
+                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                            <!-- Icon Meja (Dine In) -->
+                                            <path x-show="orderType === 'dinein'" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                            <!-- Icon Catatan (Takeaway) -->
+                                            <path x-show="orderType === 'takeaway'" d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                                            <rect x-show="orderType === 'takeaway'" x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                                            <!-- Icon Alamat (Delivery) -->
+                                            <path x-show="orderType === 'delivery'" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                            <polyline x-show="orderType === 'delivery'" points="9 22 9 12 15 12 15 22" />
+                                        </svg>
+                                        <input
+                                            x-model="customerInfo"
+                                            type="text"
+                                            :placeholder="orderType === 'dinein' ? 'Nomor Meja' : (orderType === 'takeaway' ? 'Catatan (misal: bungkus pisah)' : 'Alamat Lengkap Pengantaran')"
+                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Selected Payment Method Card --}}
+                            <div class="mb-4">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Metode Pembayaran</p>
+                                
+                                <div 
+                                    @click="showPaymentSelector = true"
+                                    class="p-4 bg-zinc-50 border border-zinc-100 rounded-2xl flex items-center justify-between hover:bg-zinc-100/50 hover:border-zinc-200 transition-all cursor-pointer active:scale-[0.99] select-none shadow-sm shadow-zinc-100/50"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <!-- Cash Option Selected -->
+                                        <template x-if="selectedPaymentMethod === 'cash'">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect width="20" height="14" x="2" y="5" rx="2"/>
+                                                        <path d="M2 10h20"/>
+                                                        <circle cx="12" cy="12" r="2"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="text-left">
+                                                    <h4 class="text-xs font-black text-zinc-950 uppercase tracking-wide leading-none mb-1">Bayar Manual di Kasir</h4>
+                                                    <p class="text-[9px] text-zinc-400 font-semibold">Bayar tunai/manual di kasir outlet</p>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Midtrans Digital Option Selected -->
+                                        <template x-if="selectedPaymentMethod === 'digital'">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect width="16" height="20" x="4" y="2" rx="2" ry="2"/>
+                                                        <line x1="12" x2="12.01" y1="18" y2="18"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="text-left">
+                                                    <h4 class="text-xs font-black text-zinc-950 uppercase tracking-wide leading-none mb-1">QRIS / Transfer / E-Wallet</h4>
+                                                    <p class="text-[9px] text-zinc-400 font-semibold">Bayar online otomatis & instan</p>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Duitku Specific Method Selected -->
+                                        <template x-if="selectedPaymentMethod !== 'cash' && selectedPaymentMethod !== 'digital'">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 bg-white p-1 rounded-xl border border-zinc-200/60 flex items-center justify-center shrink-0">
+                                                    <img 
+                                                        :src="duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentImage" 
+                                                        class="max-w-full max-h-full object-contain"
+                                                        onerror="this.style.display='none'"
+                                                    >
+                                                </div>
+                                                <div class="text-left">
+                                                    <h4 
+                                                        class="text-xs font-black text-zinc-950 uppercase tracking-wide leading-none mb-1"
+                                                        x-text="duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital Payment'"
+                                                    ></h4>
+                                                    <p class="text-[9px] text-zinc-400 font-semibold">Metode Pembayaran Digital Duitku</p>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Ubah Button & Chevron -->
+                                    <div class="flex items-center gap-2 text-zinc-500 hover:text-zinc-800 transition-colors">
+                                        <span class="text-[10px] font-black uppercase tracking-wider bg-zinc-200/50 text-zinc-600 px-2.5 py-1 rounded-lg">Ubah</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400">
+                                            <path d="m9 18 6-6-6-6"/>
+                                        </svg>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- ===== Payment Method Selector (Premium Categorised Layout) ===== --}}
-                        <div class="mb-4">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Metode Bayar</p>
-                            
-                            <!-- 1. Cash / Manual Payment (Full-Width Card) -->
-                            <div 
-                                @click="selectedPaymentMethod = 'cash'"
-                                class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none mb-3.5 flex items-center justify-between"
-                                :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
-                            >
-                                <div class="flex items-center gap-3">
-                                    <!-- Cash Icon Box -->
-                                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><circle cx="12" cy="12" r="2"/></svg>
-                                    </div>
-                                    <div class="text-left">
-                                        <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">Bayar Manual di Kasir</h4>
-                                        <p class="text-[9px] text-zinc-400 font-semibold">Pesan online, bayar tunai/manual di kasir outlet</p>
-                                    </div>
+                        {{-- Total & Submit --}}
+                        <div class="shrink-0 p-6 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            <!-- Breakdown Box -->
+                            <div class="space-y-2 mb-4 px-1 text-xs font-semibold text-zinc-500">
+                                <div class="flex items-center justify-between">
+                                    <span>Subtotal</span>
+                                    <span class="text-zinc-900 font-black" x-text="formatPrice(totalCart)"></span>
                                 </div>
-                                <!-- Styled Radio Circle -->
-                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
-                                     :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
-                                    <div class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
-                                         :class="selectedPaymentMethod === 'cash' ? 'scale-100' : 'scale-0'"></div>
+                                <div class="flex items-center justify-between"
+                                     x-show="isServiceActive && serviceChargeAmount > 0" style="display: none;">
+                                    <span>Biaya Layanan (<span x-text="serviceRate"></span>%)</span>
+                                    <span class="text-zinc-900 font-black" x-text="formatPrice(serviceChargeAmount)"></span>
+                                </div>
+                                <div class="flex items-center justify-between" x-show="isTaxActive && taxAmount > 0"
+                                     style="display: none;">
+                                    <span>Pajak PB1 (<span x-text="taxRate"></span>%)</span>
+                                    <span class="text-zinc-900 font-black" x-text="formatPrice(taxAmount)"></span>
+                                </div>
+                                <hr class="border-zinc-100 my-1">
+                            </div>
+
+                            <div class="flex items-center justify-between mb-3 px-1">
+                                <span class="text-xs font-black text-zinc-900 uppercase tracking-wider">Total Tagihan</span>
+                                <span class="text-lg font-black text-zinc-900" x-text="formatPrice(totalOrderPrice)"></span>
+                            </div>
+
+                            <button
+                                @click="processOrder"
+                                :disabled="cart.length === 0 || checkoutLoading || cart.some(i => i.unavailable)"
+                                class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                                :class="cart.length === 0 || cart.some(i => i.unavailable)
+                                    ? 'bg-zinc-200 text-zinc-400'
+                                    : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/10'"
+                            >
+                                <span x-show="!checkoutLoading" class="flex items-center gap-2">
+                                    <span class="flex items-center gap-2">
+                                        <!-- Cash Icon -->
+                                        <span x-show="selectedPaymentMethod === 'cash'" class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                 stroke-linecap="round" stroke-linejoin="round"><path
+                                                    d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path
+                                                    d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                        </span>
+                                        <!-- Digital Icon -->
+                                        <span x-show="selectedPaymentMethod !== 'cash'" class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                 stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5"
+                                                                                                      x="3" y="3" rx="1"/><rect
+                                                    width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5"
+                                                                                                    x="3" y="16" rx="1"/><path
+                                                    d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path
+                                                    d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path
+                                                    d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path
+                                                    d="M12 21v-1"/></svg>
+                                        </span>
+
+                                        <!-- Dynamic Button text -->
+                                        <span
+                                            x-text="selectedPaymentMethod === 'cash' ? 'Pesan & Bayar di Kasir' : (selectedPaymentMethod === 'digital' ? '⚡ Bayar via Digital' : '⚡ Bayar via ' + (duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital'))"></span>
+                                    </span>
+                                </span>
+
+                                <span x-show="checkoutLoading" class="flex items-center gap-2" style="display: none;">
+                                    <svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                     stroke="currentColor" stroke-width="4"></circle><path
+                                            class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    Memproses...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- B. PAYMENT SELECTOR VIEW (Sub-page list) -->
+                    <div 
+                        x-show="showPaymentSelector" 
+                        class="flex-1 flex flex-col min-h-0 overflow-hidden bg-white animate-fade-in"
+                        style="display: none;"
+                    >
+                        <!-- Selector List (Scrollable) -->
+                        <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 space-y-4">
+                            <!-- 1. Cash / Manual Payment -->
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Manual / Kasir</p>
+                                <div
+                                    @click="selectedPaymentMethod = 'cash'"
+                                    class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
+                                    :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect width="20" height="14" x="2" y="5" rx="2"/>
+                                                <path d="M2 10h20"/>
+                                                <circle cx="12" cy="12" r="2"/>
+                                            </svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">Bayar Manual di Kasir</h4>
+                                            <p class="text-[9px] text-zinc-400 font-semibold">Pesan online, bayar tunai/manual di kasir outlet</p>
+                                        </div>
+                                    </div>
+                                    <!-- Radio Circle -->
+                                    <div
+                                        class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
+                                        :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
+                                        <div
+                                            class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
+                                            :class="selectedPaymentMethod === 'cash' ? 'scale-100' : 'scale-0'"></div>
+                                    </div>
                                 </div>
                             </div>
 
-                            @if(config('duitku.enabled'))
-                            <!-- 2. Digital / Duitku Online Payment Methods (Responsive Scrollable Grid) -->
-                            <div class="mt-4" x-show="duitkuPaymentMethods.length > 0">
-                                <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Metode Pembayaran Lainnya (Duitku)</p>
-                                </div>
-
-                                <div class="pt-2">
-                                    @if(config('duitku.sandbox'))
-                                    <div class="mb-3.5 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-2xl flex gap-2.5 items-start text-left"
-                                         x-show="isDuitkuMethod">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                            <!-- 2. Midtrans payment method -->
+                            <div x-show="midtransEnabled" style="display: none;">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Pembayaran Instan (Midtrans)</p>
+                                
+                                @if(!config('midtrans.is_production'))
+                                    <!-- Sandbox Warning Midtrans -->
+                                    <div class="mb-3 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-2xl flex gap-2.5 items-start text-left">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                             class="text-amber-600 shrink-0 mt-0.5">
+                                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                                            <line x1="12" x2="12" y1="9" y2="13"/>
+                                            <line x1="12" x2="12.01" y1="17" y2="17"/>
+                                        </svg>
                                         <div>
-                                            <h6 class="text-[11px] font-black text-amber-900 leading-tight mb-0.5">Mode Uji Coba (Sandbox)</h6>
+                                            <h6 class="text-[11px] font-black text-amber-900 leading-tight mb-0.5">Mode Uji Coba (Sandbox Midtrans)</h6>
                                             <p class="text-[10px] text-amber-800 leading-normal font-semibold">
-                                                Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
+                                                Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.
                                             </p>
                                         </div>
                                     </div>
+                                @endif
+
+                                <div
+                                    @click="selectedPaymentMethod = 'digital'"
+                                    class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
+                                    :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect width="16" height="20" x="4" y="2" rx="2" ry="2"/>
+                                                <line x1="12" x2="12.01" y1="18" y2="18"/>
+                                            </svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">QRIS, Transfer Bank, E-Wallet</h4>
+                                            <p class="text-[9px] text-zinc-400 font-semibold">Bayar online dengan metode pilihanmu secara aman</p>
+                                        </div>
+                                    </div>
+                                    <!-- Radio Circle -->
+                                    <div
+                                        class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
+                                        :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
+                                        <div
+                                            class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
+                                            :class="selectedPaymentMethod === 'digital' ? 'scale-100' : 'scale-0'"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Duitku payment methods -->
+                            @if(config('duitku.enabled'))
+                                <div x-show="duitkuPaymentMethods.length > 0" style="display: none;">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Transfer & E-Wallet Otomatis (Duitku)</p>
+                                    </div>
+
+                                    @if(config('duitku.sandbox'))
+                                        <!-- Sandbox Warning Duitku -->
+                                        <div class="mb-3 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-2xl flex gap-2.5 items-start text-left">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                                 class="text-amber-600 shrink-0 mt-0.5">
+                                                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                                                <line x1="12" x2="12" y1="9" y2="13"/>
+                                                <line x1="12" x2="12.01" y1="17" y2="17"/>
+                                            </svg>
+                                            <div>
+                                                <h6 class="text-[11px] font-black text-amber-900 leading-tight mb-0.5">Mode Uji Coba (Sandbox Duitku)</h6>
+                                                <p class="text-[10px] text-amber-800 leading-normal font-semibold">
+                                                    Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.
+                                                </p>
+                                            </div>
+                                        </div>
                                     @endif
-                                    
-                                    <!-- Compact list in an elegant scrollable box -->
-                                    <div class="max-h-[160px] overflow-y-auto pr-1 space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">
-                                        <div class="grid grid-cols-2 gap-2 pb-1">
+
+                                    <div class="pt-1">
+                                        <!-- Compact list in an elegant grid -->
+                                        <div class="grid grid-cols-2 gap-2">
                                             <template x-for="method in duitkuPaymentMethods" :key="method.paymentMethod">
                                                 <div
                                                     @click="selectedPaymentMethod = method.paymentMethod"
@@ -408,9 +670,12 @@
                                                     :class="selectedPaymentMethod === method.paymentMethod ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] ring-1 ring-[var(--primary-color)]/25' : 'border-transparent hover:border-zinc-200/80'"
                                                 >
                                                     <!-- Checkmark corner badge -->
-                                                    <div class="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[var(--primary-color)] text-black flex items-center justify-center shadow-sm shrink-0 transition-transform duration-200 scale-0"
-                                                         :class="selectedPaymentMethod === method.paymentMethod ? 'scale-100' : 'scale-0'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                                    <div
+                                                        class="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[var(--primary-color)] text-black flex items-center justify-center shadow-sm shrink-0 transition-transform duration-200 scale-0"
+                                                        :class="selectedPaymentMethod === method.paymentMethod ? 'scale-100' : 'scale-0'">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M20 6 9 17l-5-5"/>
+                                                        </svg>
                                                     </div>
 
                                                     <!-- White frame for Logo -->
@@ -425,102 +690,21 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             @endif
-
-                            <!-- 2. Digital / Midtrans Online Payment Methods -->
-                            <div class="mt-4" x-show="midtransEnabled">
-                                <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pembayaran Instan (Otomatis)</p>
-                                    <span class="inline-flex items-center gap-1 bg-amber-500/10 text-[9px] text-amber-700 font-black px-2 py-0.5 rounded-full uppercase tracking-wider scale-90 shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                        Proses Cepat
-                                    </span>
-                                </div>
-
-                                <div 
-                                    @click="selectedPaymentMethod = 'digital'"
-                                    class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
-                                    :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
-                                >
-                                    <div class="flex items-center gap-3">
-                                        <!-- Online Icon Box -->
-                                        <div class="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-                                        </div>
-                                        <div class="text-left">
-                                            <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">QRIS, Transfer Bank, E-Wallet</h4>
-                                            <p class="text-[9px] text-zinc-400 font-semibold">Bayar online dengan metode pilihanmu secara aman</p>
-                                        </div>
-                                    </div>
-                                    <!-- Styled Radio Circle -->
-                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
-                                         :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
-                                        <div class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
-                                             :class="selectedPaymentMethod === 'digital' ? 'scale-100' : 'scale-0'"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Total & Submit --}}
-                    <div class="shrink-0 p-6 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                        <!-- Breakdown Box -->
-                        <div class="space-y-2 mb-4 px-1 text-xs font-semibold text-zinc-500">
-                            <div class="flex items-center justify-between">
-                                <span>Subtotal</span>
-                                <span class="text-zinc-900 font-black" x-text="formatPrice(totalCart)"></span>
-                            </div>
-                            <div class="flex items-center justify-between" x-show="isServiceActive && serviceChargeAmount > 0" style="display: none;">
-                                <span>Biaya Layanan (<span x-text="serviceRate"></span>%)</span>
-                                <span class="text-zinc-900 font-black" x-text="formatPrice(serviceChargeAmount)"></span>
-                            </div>
-                            <div class="flex items-center justify-between" x-show="isTaxActive && taxAmount > 0" style="display: none;">
-                                <span>Pajak PB1 (<span x-text="taxRate"></span>%)</span>
-                                <span class="text-zinc-900 font-black" x-text="formatPrice(taxAmount)"></span>
-                            </div>
-                            <hr class="border-zinc-100 my-1">
                         </div>
 
-                        <div class="flex items-center justify-between mb-3 px-1">
-                            <span class="text-xs font-black text-zinc-900 uppercase tracking-wider">Total Tagihan</span>
-                            <span class="text-lg font-black text-zinc-900" x-text="formatPrice(totalOrderPrice)"></span>
+                        <!-- Sticky Footer with Confirm Button -->
+                        <div class="shrink-0 p-5 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            <button
+                                @click="showPaymentSelector = false"
+                                class="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-zinc-900/10"
+                            >
+                                <span>Konfirmasi Metode</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6 9 17l-5-5"/>
+                                </svg>
+                            </button>
                         </div>
-
-                        <button
-                            @click="processOrder"
-                            :disabled="cart.length === 0 || checkoutLoading || cart.some(i => i.unavailable)"
-                            class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-                            :class="cart.length === 0 || cart.some(i => i.unavailable) 
-                                ? 'bg-zinc-200 text-zinc-400' 
-                                : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/10'"
-                        >
-                            <span x-show="!checkoutLoading" class="flex items-center gap-2">
-                                <span class="flex items-center gap-2">
-                                    <!-- Cash Icon -->
-                                    <span x-show="selectedPaymentMethod === 'cash'" class="flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                                    </span>
-                                    <!-- Digital Icon -->
-                                    <span x-show="selectedPaymentMethod !== 'cash'" class="flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
-                                    </span>
-                                    
-                                    <!-- Dynamic Button text -->
-                                    <span x-text="selectedPaymentMethod === 'cash' ? 'Pesan & Bayar di Kasir' : (selectedPaymentMethod === 'digital' ? '⚡ Bayar via Digital' : '⚡ Bayar via ' + (duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital'))"></span>
-                                </span>
-                            </span>
-                            
-                            <span x-show="checkoutLoading" class="flex items-center gap-2" style="display: none;">
-                                <svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                     viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10"
-                                                                  stroke="currentColor" stroke-width="4"></circle><path
-                                         class="opacity-75" fill="currentColor"
-                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                                Memproses...
-                            </span>
-                        </button>
                     </div>
                 </div>
 
