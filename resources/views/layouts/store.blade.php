@@ -2,7 +2,7 @@
     use App\Models\StoreSetting;
     use Illuminate\Support\Facades\Storage;
 
-    $setting = StoreSetting::first();
+    $setting = StoreSetting::where('is_active', true)->first();
 
     if ($setting) {
         $waNumber = preg_replace('/\D/', '', $setting->whatsapp_number ?: '6281234567890');
@@ -29,6 +29,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Toko Tidak Ditemukan</title>
+
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
     @vite(['resources/css/store.css'])
 </head>
 <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6">
@@ -41,8 +44,8 @@
             <path d="M12 17h.01"/>
         </svg>
     </div>
-    <h2 class="text-lg font-black text-zinc-900 mb-1">Toko Tidak Ditemukan</h2>
-    <p class="text-sm text-zinc-400 mb-6 max-w-xs">Toko belum dikonfigurasi oleh pemilik.</p>
+    <h2 class="text-lg font-black text-zinc-900 mb-1">Toko Tutup Sementara</h2>
+    <p class="text-sm text-zinc-400 mb-6 max-w-xs">Toko ini sedang dinonaktifkan sementara oleh pemiliknya.</p>
     <button onclick="window.location.reload()"
             class="bg-zinc-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors active:scale-95">
         Coba Lagi

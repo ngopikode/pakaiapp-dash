@@ -30,6 +30,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $e, \Illuminate\Http\Request $request) {
-            throw new NotFoundHttpException('Toko atau Domain tidak ditemukan.');
+            throw new NotFoundHttpException('Halaman atau Toko yang Anda tuju tidak dapat ditemukan.');
         });
     })->create();

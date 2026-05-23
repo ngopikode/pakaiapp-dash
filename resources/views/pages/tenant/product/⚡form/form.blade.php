@@ -56,11 +56,13 @@
                                 @click="tab = 'pricing'">
                             <i class="bi bi-tags me-2"></i> Harga & Varian
                         </button>
-                        <button type="button" class="btn btn-tab text-start fw-bold p-3"
-                                :class="tab === 'extras' ? 'btn-primary shadow-sm' : ''"
-                                @click="tab = 'extras'">
-                            <i class="bi bi-plus-circle-dotted me-2"></i> Add-ons
-                        </button>
+                        @if(tenant('store_type') === 'resto')
+                            <button type="button" class="btn btn-tab text-start fw-bold p-3"
+                                    :class="tab === 'extras' ? 'btn-primary shadow-sm' : ''"
+                                    @click="tab = 'extras'">
+                                <i class="bi bi-plus-circle-dotted me-2"></i> Add-ons
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -307,62 +309,65 @@
                             @endif
                         </div>
 
-                        {{-- TAB 3: EXTRAS / ADD-ONS --}}
-                        <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
-                            <h5 class="fw-bold mb-4" style="color: var(--brand-caramel, #B67332);">
-                                <i class="bi bi-plus-circle me-2"></i>Add-ons / Ekstra
-                            </h5>
+                        @if($selectedCategoryType === 'resto')
+                            {{-- TAB 3: EXTRAS / ADD-ONS --}}
+                            <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
+                                <h5 class="fw-bold mb-4" style="color: var(--brand-caramel, #B67332);">
+                                    <i class="bi bi-plus-circle me-2"></i>Add-ons / Ekstra
+                                </h5>
 
-                            <div class="d-none d-md-flex row fw-bold text-secondary small px-3 mb-2">
-                                <div class="col-md-5">Nama Add-on (Ex: Ekstra Keju)</div>
-                                <div class="col-md-3">Modal (Rp)</div>
-                                <div class="col-md-3">Harga Jual (Rp)</div>
-                                <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
-                            </div>
+                                <div class="d-none d-md-flex row fw-bold text-secondary small px-3 mb-2">
+                                    <div class="col-md-5">Nama Add-on (Ex: Ekstra Keju)</div>
+                                    <div class="col-md-3">Modal (Rp)</div>
+                                    <div class="col-md-3">Harga Jual (Rp)</div>
+                                    <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
+                                </div>
 
-                            <div class="d-flex flex-column gap-2 mb-3">
-                                @foreach($extras as $index => $extra)
-                                    <div class="form-item-card">
-                                        <div class="row g-2 align-items-center">
-                                            <div class="col-12 col-md-5">
-                                                <label class="d-md-none small fw-bold text-secondary mb-1">Nama
-                                                    Add-on</label>
-                                                <input type="text"
-                                                       class="form-control shadow-sm"
-                                                       wire:model="extras.{{ $index }}.name"
-                                                       placeholder="Misal: Shot Espresso">
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <label class="d-md-none small fw-bold text-secondary mb-1">Modal</label>
-                                                <input type="number"
-                                                       class="form-control shadow-sm"
-                                                       wire:model="extras.{{ $index }}.cost" placeholder="0">
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <label class="d-md-none small fw-bold text-danger mb-1">Harga
-                                                    Jual</label>
-                                                <input type="number"
-                                                       class="form-control shadow-sm fw-bold text-primary"
-                                                       wire:model="extras.{{ $index }}.price" placeholder="0">
-                                            </div>
-                                            <div class="col-12 col-md-1 text-end text-md-center mt-2 mt-md-0">
-                                                <button type="button"
-                                                        class="btn btn-glass-danger shadow-sm d-inline-flex align-items-center justify-content-center"
-                                                        style="width: 38px; height: 38px; padding: 0;"
-                                                        wire:click="removeExtra({{ $index }})">
-                                                    <i class="bi bi-trash3"></i>
-                                                </button>
+                                <div class="d-flex flex-column gap-2 mb-3">
+                                    @foreach($extras as $index => $extra)
+                                        <div class="form-item-card">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-12 col-md-5">
+                                                    <label class="d-md-none small fw-bold text-secondary mb-1">Nama
+                                                        Add-on</label>
+                                                    <input type="text"
+                                                           class="form-control shadow-sm"
+                                                           wire:model="extras.{{ $index }}.name"
+                                                           placeholder="Misal: Shot Espresso">
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <label
+                                                        class="d-md-none small fw-bold text-secondary mb-1">Modal</label>
+                                                    <input type="number"
+                                                           class="form-control shadow-sm"
+                                                           wire:model="extras.{{ $index }}.cost" placeholder="0">
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <label class="d-md-none small fw-bold text-danger mb-1">Harga
+                                                        Jual</label>
+                                                    <input type="number"
+                                                           class="form-control shadow-sm fw-bold text-primary"
+                                                           wire:model="extras.{{ $index }}.price" placeholder="0">
+                                                </div>
+                                                <div class="col-12 col-md-1 text-end text-md-center mt-2 mt-md-0">
+                                                    <button type="button"
+                                                            class="btn btn-glass-danger shadow-sm d-inline-flex align-items-center justify-content-center"
+                                                            style="width: 38px; height: 38px; padding: 0;"
+                                                            wire:click="removeExtra({{ $index }})">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                </div>
+                                <button type="button"
+                                        class="btn btn-outline-brand fw-bold shadow-sm px-4 py-2 mt-2"
+                                        wire:click="addExtra">
+                                    <i class="bi bi-plus-circle-dotted me-1"></i> Tambah Add-on Baru
+                                </button>
                             </div>
-                            <button type="button"
-                                    class="btn btn-outline-brand fw-bold shadow-sm px-4 py-2 mt-2"
-                                    wire:click="addExtra">
-                                <i class="bi bi-plus-circle-dotted me-1"></i> Tambah Add-on Baru
-                            </button>
-                        </div>
+                        @endif
 
                     </div>
                 </div>

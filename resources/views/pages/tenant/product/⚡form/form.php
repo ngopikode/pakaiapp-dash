@@ -49,7 +49,7 @@ new class extends Component {
             $this->hasVariants = $product->has_variants;
             $this->selectionType = $product->selection_type ?? 'single';
             $this->maxSelections = $product->max_selections ?? 1;
-            
+
             if ($this->hasVariants) {
                 foreach ($product->variants as $variant) {
                     $this->variants[] = [
@@ -178,23 +178,25 @@ new class extends Component {
             }
             $product->variants()->whereNotIn('id', $variantIdsToKeep)->delete();
 
-            $extraIdsToKeep = [];
-            foreach ($this->extras as $extraData) {
-                if (!empty($extraData['name'])) {
-                    $extra = $product->extras()->updateOrCreate(
-                        ['id' => $extraData['id'] ?? null],
-                        [
-                            'name' => $extraData['name'],
-                            'cost' => $extraData['cost'] ?: 0,
-                            'price' => $extraData['price'] ?: 0,
-                            'is_active' => true,
-                        ]
-                    );
-                    $extraIdsToKeep[] = $extra->id;
+            if (tenant('store_type') === 'resto') {
+                $extraIdsToKeep = [];
+                foreach ($this->extras as $extraData) {
+                    if (!empty($extraData['name'])) {
+                        $extra = $product->extras()->updateOrCreate(
+                            ['id' => $extraData['id'] ?? null],
+                            [
+                                'name' => $extraData['name'],
+                                'cost' => $extraData['cost'] ?: 0,
+                                'price' => $extraData['price'] ?: 0,
+                                'is_active' => true,
+                            ]
+                        );
+                        $extraIdsToKeep[] = $extra->id;
+                    }
                 }
+                $product->extras()->whereNotIn('id', $extraIdsToKeep)->delete();
             }
-            $product->extras()->whereNotIn('id', $extraIdsToKeep)->delete();
-
+            
             DB::commit();
             session()->flash('success', 'Produk berhasil disimpan.');
             $this->redirectRoute('product', navigate: true);

@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Cetak Struk - {{ config('app.name', 'EzMenu Enterprise') }}</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,11 +67,11 @@
 </div>
 
 <div class="text-center mt-4 mb-5 no-print">
-    <p class="small text-muted mb-0 opacity-75">
-        &copy; {{ date('Y') }} ngopikode Enterprise. <br>
-        <span style="font-size: 0.75rem;">Authorized Personnel Only</span>
+    <p class="small text-muted mb-0 opacity-75" style="font-size: 0.75rem;">
+        {{ config('app.name', 'EzMenu Enterprise') }}
+        <span class="mx-1">&bull;</span>
+        Powered by &copy; {{ date('Y') }} ngopikode.
     </p>
 </div>
-
 </body>
 </html>

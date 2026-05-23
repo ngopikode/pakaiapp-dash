@@ -1,4 +1,4 @@
-<div x-data="{ 
+<div x-data="{
     activeFilter: $wire.entangle('statusFilter').live,
     showGuideModal() {
         localStorage.setItem('pakaiapp_order_guide_dismissed', 'true');
@@ -159,16 +159,16 @@
                                         <div class="d-flex flex-wrap align-items-center gap-1.5 small text-body-secondary mb-1">
                                             <span class="fw-bold text-primary" style="font-size: 0.8rem;">#{{ $order->invoice_code }}</span>
                                             <span class="text-muted opacity-50">•</span>
-                                            
+
                                             @if($order->is_online)
                                                 <span class="text-success fw-bold"><i class="bi bi-globe2 me-1"></i>Online</span>
                                             @else
                                                 <span class="text-secondary fw-semibold"><i class="bi bi-pc-display me-1"></i>POS Kasir</span>
                                             @endif
                                             <span class="text-muted opacity-50">•</span>
-                                            
+
                                             <span class="fw-semibold"><i class="{{ $typeInfo['icon'] }} me-1"></i>{{ $typeInfo['label'] }}</span>
-                                            
+
                                             @if($order->payment_method)
                                                 <span class="text-muted opacity-50">•</span>
                                                 @php
@@ -181,7 +181,7 @@
                                                 @endphp
                                                 <span class="text-uppercase"><i class="bi {{ $paymentIcon }} me-1"></i>{{ $order->payment_method }}</span>
                                             @endif
-                                            
+
                                             <span class="text-muted opacity-50">•</span>
                                             <span><i class="bi bi-clock me-1"></i>{{ $order->created_at->format('H:i') }}</span>
                                         </div>
@@ -314,7 +314,7 @@
         </div>
     @endif
     {{-- ===== PREMIUM TUTORIAL & HELP MODAL ===== --}}
-    <div class="modal fade" id="orderGuideModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="orderGuideModal" tabindex="-1" aria-hidden="true" wire:ignore>
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
                  style="border-radius: 1.5rem; max-height: 90vh; border-color: var(--bs-border-color-translucent) !important;">

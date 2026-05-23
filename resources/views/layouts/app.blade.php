@@ -7,6 +7,9 @@
 
     <title>{{ $title ?? config('app.name') }}</title>
 
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -18,8 +21,9 @@
     @livewireStyles
 
     @if(config('midtrans.server_key'))
-        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-                data-client-key="{{ config('midtrans.client_key') }}"></script>
+        <script
+            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+            data-client-key="{{ config('midtrans.client_key') }}"></script>
     @endif
 </head>
 <body>
