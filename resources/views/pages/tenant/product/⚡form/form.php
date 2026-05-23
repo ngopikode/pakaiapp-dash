@@ -71,13 +71,15 @@ new class extends Component {
                 }
             }
 
-            foreach ($product->extras as $extra) {
-                $this->extras[] = [
-                    'id' => $extra->id,
-                    'name' => $extra->name,
-                    'cost' => (float)$extra->cost,
-                    'price' => (float)$extra->price,
-                ];
+            if (tenant('store_type') === 'resto') {
+                foreach ($product->extras as $extra) {
+                    $this->extras[] = [
+                        'id' => $extra->id,
+                        'name' => $extra->name,
+                        'cost' => (float)$extra->cost,
+                        'price' => (float)$extra->price,
+                    ];
+                }
             }
         } else {
             $this->addVariant();
@@ -196,7 +198,7 @@ new class extends Component {
                 }
                 $product->extras()->whereNotIn('id', $extraIdsToKeep)->delete();
             }
-            
+
             DB::commit();
             session()->flash('success', 'Produk berhasil disimpan.');
             $this->redirectRoute('product', navigate: true);
