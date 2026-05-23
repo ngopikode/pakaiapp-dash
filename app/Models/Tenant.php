@@ -22,4 +22,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * Daftarkan kolom kustom di sini agar Tenancy tahu ini adalah kolom nyata
+     * di tabel database, bukan bagian dari kolom JSON 'data'.
+     */
+    public static function getCustomColumns(): array
+    {
+        return [
+            'id',
+            'store_type', // <-- Tambahkan baris ini
+        ];
+    }
 }

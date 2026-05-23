@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- ==============================================
            SEO ON-PAGE & META TAGS
       =============================================== -->
     <!-- Primary Meta Tags -->
     <title>Pakaiapp - Aplikasi Kasir Pintar UMKM Tanpa Biaya Bulanan</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
     <meta name="title" content="Pakaiapp - Aplikasi Kasir Pintar UMKM Tanpa Biaya Bulanan">
     <meta name="description"
           content="Tinggalkan biaya langganan! Pakaiapp adalah aplikasi kasir (POS) berbasis cloud untuk UMKM F&B dan Retail. Sistem adil, cuma bayar Rp 300 per transaksi sukses.">
@@ -28,7 +31,6 @@
     <meta property="og:description"
           content="Kasir sepi = Gratis. Kasir ramai = Tetap murah. Revolusi sistem kasir SaaS untuk F&B dan Retail dengan skema Rp 300/transaksi sukses.">
     <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
-    <!-- Pastikan bikin gambar banner ukuran 1200x630px -->
 
     <!-- Twitter / X -->
     <meta property="twitter:card" content="summary_large_image">
@@ -44,7 +46,7 @@
     <script type="application/ld+json">
         {
       "@@context": "https://schema.org",
-      "@@type": "SoftwareApplication",
+      "@type": "SoftwareApplication",
       "name": "Pakaiapp.online",
       "operatingSystem": "Web, Android, iOS (PWA)",
       "applicationCategory": "BusinessApplication",
@@ -57,758 +59,581 @@
         "description": "Pendaftaran gratis, biaya penggunaan hanya Rp 300 per transaksi sukses."
       },
       "creator": {
-        "@@type": "Organization",
+        "@type": "Organization",
         "name": "PT Sinergi Kode Kreatif (ngopikode)",
         "url": "https://www.ngopikode.com"
       }
     }
     </script>
 
-    <!-- External Libraries for OP Interactivity -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <!-- Vite Assets (Pastikan app.scss kamu sudah update sesuai yang sebelumnya) -->
+    <!-- Aset Utama Proyek Laravel (Vite SASS & JS) -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <style>
-        :root {
-            /* Premium Minimalist SaaS Theme Variables */
-            --bs-body-bg: #ffffff; /* Clean white background */
-            --bs-body-color: #334155; /* Slate 700 for readable content */
-            --bs-primary: #0f172a; /* Slate 900 for dark premium headings */
-            --bs-primary-rgb: 15, 23, 42;
-            --bs-secondary: #475569; /* Slate 600 */
-            --bs-warning: #d97706; /* Sophisticated Amber instead of raw yellow */
-            --bs-warning-rgb: 217, 119, 6;
-            --bs-border-color: rgba(15, 23, 42, 0.06); /* Super thin hairline border */
-            --bs-card-bg: #ffffff;
-            
-            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        /* CSS Kustom (Melengkapi app.scss Anda untuk feel yang lebih manusiawi & indie) */
+
+        /* Tipografi Ekstrem untuk Hierarki yang Jelas */
+        .display-hero {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
         }
 
-        [data-bs-theme="dark"] {
-            --bs-body-bg: #0b0f19; /* Sleek Deep Navy/Slate */
-            --bs-body-color: #cbd5e1; /* Slate 300 */
-            --bs-primary: #f8fafc; /* Slate 50 */
-            --bs-primary-rgb: 248, 250, 252;
-            --bs-secondary: #94a3b8; /* Slate 400 */
-            --bs-warning: #f59e0b; /* Amber */
-            --bs-warning-rgb: 245, 158, 11;
-            --bs-border-color: rgba(255, 255, 255, 0.07); /* Thin dark hairline border */
-            --bs-card-bg: #111827; /* Gray 900 card bg */
-            
-            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
-            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+        .section-title {
+            font-size: clamp(2rem, 3vw, 3rem);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
         }
 
-        body {
-            background-color: var(--bs-body-bg) !important;
-            color: var(--bs-body-color) !important;
-            transition: background-color 0.3s ease, color 0.3s ease;
+        /* Spasi Modern (Bukan mt-5/mb-5 standar Bootstrap) */
+        .py-huge {
+            padding-top: clamp(5rem, 10vw, 8rem);
+            padding-bottom: clamp(5rem, 10vw, 8rem);
         }
 
-        /* Typography & Modern Spacing */
-        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .display-4 {
-            color: var(--bs-primary) !important;
-            letter-spacing: -0.02em !important;
-            line-height: 1.2 !important;
-            font-weight: 800 !important;
-        }
-        
-        .lead {
-            color: var(--bs-secondary) !important;
-            line-height: 1.6;
+        /* Desain Card yang lebih "Clean" & Tipis */
+        .premium-card {
+            background-color: var(--bs-card-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Premium Minimalist Cards Override */
-        .glass-card, .feature-card, .card {
-            background-color: var(--bs-card-bg) !important;
-            border: 1px solid var(--bs-border-color) !important;
-            box-shadow: var(--card-shadow) !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border-radius: 16px !important;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        .premium-card:hover {
+            border-color: var(--brand-caramel);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(50, 30, 20, 0.08);
         }
 
-        .glass-card:hover, .feature-card:hover, .card:hover {
-            transform: translateY(-4px) !important;
-            box-shadow: var(--card-shadow-hover) !important;
-            border-color: rgba(var(--bs-warning-rgb), 0.2) !important;
+        [data-bs-theme="dark"] .premium-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* Sleek Intercom-like Chat Widget */
-        #chat-container {
-            background-color: var(--bs-card-bg) !important;
-            font-size: 0.875rem;
+        /* Aksen Warna Text */
+        .text-caramel {
+            color: var(--brand-caramel) !important;
+        }
+
+        .bg-caramel-soft {
+            background-color: rgba(182, 115, 50, 0.1) !important;
+        }
+
+        /* Slider Kustom Premium */
+        .slider-wrapper {
+            background: var(--bs-tertiary-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 100px;
+            padding: 24px 32px;
+        }
+
+        input[type=range].custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 10px;
+            background: var(--bs-border-color);
+            outline: none;
+        }
+
+        input[type=range].custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand-caramel);
+            cursor: pointer;
+            border: 4px solid var(--bs-card-bg);
+            box-shadow: 0 4px 12px rgba(182, 115, 50, 0.3);
+            transition: transform 0.2s;
+        }
+
+        input[type=range].custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Chatbot Modern (Lebih mirip widget asli, bukan kotak kaku) */
+        .chat-ui-container {
+            border: 1px solid var(--bs-border-color);
+            border-radius: 24px;
+            background: var(--bs-card-bg);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        [data-bs-theme="dark"] .chat-ui-container {
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
         }
 
         .chat-bubble-bot {
-            background-color: var(--bs-body-bg) !important;
-            color: var(--bs-body-color) !important;
-            border: 1px solid var(--bs-border-color) !important;
-            box-shadow: none !important;
-            border-radius: 14px 14px 14px 4px !important;
-            padding: 10px 14px !important;
-            max-width: 82% !important;
+            background-color: var(--bs-tertiary-bg);
+            color: var(--bs-body-color);
+            border-radius: 20px 20px 20px 4px;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            max-width: 85%;
+            border: 1px solid var(--bs-border-color);
         }
 
         .chat-bubble-user {
-            background-color: var(--bs-primary) !important;
-            color: var(--bs-card-bg) !important;
-            border: none !important;
-            box-shadow: none !important;
-            border-radius: 14px 14px 4px 14px !important;
-            padding: 10px 14px !important;
-            max-width: 82% !important;
+            background-color: var(--bs-primary);
+            color: var(--bs-body-bg); /* Balik warna untuk kontras */
+            border-radius: 20px 20px 4px 20px;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            max-width: 85%;
         }
 
-        /* Beautiful minimalist pill buttons for choices */
-        .chat-btn {
-            border: 1px solid var(--bs-border-color) !important;
-            background-color: var(--bs-card-bg) !important;
-            color: var(--bs-body-color) !important;
-            border-radius: 24px !important;
-            padding: 6px 14px !important;
-            font-size: 0.825rem !important;
-            font-weight: 600 !important;
-            transition: all 0.2s ease-in-out !important;
-            box-shadow: var(--card-shadow) !important;
+        .chat-action-btn {
+            background: transparent;
+            border: 1px solid var(--bs-border-color);
+            color: var(--bs-body-color);
+            border-radius: 100px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
-        .chat-btn:hover {
-            background-color: var(--bs-primary) !important;
-            color: var(--bs-card-bg) !important;
-            border-color: var(--bs-primary) !important;
-            transform: translateY(-1px) !important;
-            box-shadow: var(--card-shadow-hover) !important;
+        .chat-action-btn:hover {
+            border-color: var(--brand-caramel);
+            color: var(--brand-caramel);
+            background: rgba(182, 115, 50, 0.05);
         }
 
-        #register-form {
-            border: 1px solid var(--bs-border-color) !important;
-            background-color: var(--bs-card-bg) !important;
-            border-radius: 14px !important;
-        }
-
-        .typing-indicator span {
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            background-color: var(--bs-secondary);
-            border-radius: 50%;
-            margin: 0 1.5px;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .typing-indicator span:nth-child(1) {
-            animation-delay: -0.32s;
-        }
-
-        .typing-indicator span:nth-child(2) {
-            animation-delay: -0.16s;
-        }
-
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-            }
-            40% {
-                transform: scale(1);
-            }
-        }
-
-        /* Range Slider Styling */
-        input[type=range]::-webkit-slider-thumb {
-            background: var(--bs-warning);
-            cursor: pointer;
-        }
-
-        /* Premium Floating WhatsApp Button */
-        .floating-wa {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            width: 56px;
-            height: 56px;
-            background-color: #22c55e !important; /* Premium WhatsApp Green */
-            color: #ffffff !important;
-            border-radius: 50% !important;
-            display: flex;
+        /* Floating Badge */
+        .floating-badge {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3), 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-            z-index: 9999;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            text-decoration: none !important;
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid var(--bs-border-color);
+            background: var(--bs-card-bg);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--bs-body-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        .floating-wa:hover {
-            transform: translateY(-4px) scale(1.05) !important;
-            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4), 0 4px 8px rgba(0, 0, 0, 0.08) !important;
-            background-color: #16a34a !important; /* Slightly darker hover green */
+        /* Form Modal Kustom */
+        .premium-input {
+            background-color: var(--bs-tertiary-bg) !important;
+            border: 1px solid transparent !important;
+            border-radius: 12px !important;
+            padding: 14px 18px !important;
+            font-size: 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .premium-input:focus {
+            background-color: var(--bs-card-bg) !important;
+            border-color: var(--brand-caramel) !important;
+            box-shadow: 0 0 0 4px rgba(182, 115, 50, 0.1) !important;
         }
     </style>
 </head>
-<body class="bg-body position-relative" style="overflow-x: hidden;">
+<body class="bg-body font-sans text-body">
 
-<!-- Navbar dengan Toggle Dark Mode -->
-<nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 position-absolute w-100 z-3" data-aos="fade-down">
-    <div class="container d-flex justify-content-between">
-        <a class="navbar-brand fw-black fs-4 text-body" href="#">
-            <i class="bi bi-cup-hot-fill text-warning me-2"></i>pakaiapp<span class="text-secondary">.online</span>
+<nav class="navbar navbar-expand-lg py-4 position-absolute w-100 z-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-extrabold fs-4 font-serif text-body d-flex align-items-center gap-2" href="#">
+            <div class="bg-caramel-soft text-caramel rounded-circle d-flex align-items-center justify-content-center"
+                 style="width: 40px; height: 40px;">
+                <i class="bi bi-cup-hot-fill"></i>
+            </div>
+            <span>pakaiapp<span class="opacity-50 fw-normal">.online</span></span>
         </a>
-        <button id="themeToggle" class="btn btn-outline-secondary rounded-circle" title="Ganti Tema">
-            <i class="bi bi-moon-stars-fill"></i>
-        </button>
+        <div class="d-flex gap-3 align-items-center">
+            <a href="#pricing"
+               class="text-decoration-none fw-semibold text-body d-none d-md-block hover-caramel transition">Paket
+                Saldo</a>
+            <button id="themeToggle"
+                    class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 44px; height: 44px;" title="Ubah Tema">
+                <i class="bi bi-moon-stars-fill"></i>
+            </button>
+        </div>
     </div>
 </nav>
 
-<!-- HERO SECTION: Typed.js & Chat UI -->
-<section class="hero-section position-relative py-5 py-md-6 mt-4 overflow-hidden">
-    <div class="container position-relative z-1 mt-4">
-        <div class="row align-items-center">
+<section class="position-relative pt-5 pb-5 pt-md-7 pb-md-6 overflow-hidden">
+    <div class="container mt-5 pt-5">
+        <div class="row align-items-center gx-xl-5">
 
-            <!-- Teks Kiri -->
-            <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0" data-aos="fade-right">
-                <span
-                    class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 fw-bold border border-warning border-opacity-25 mb-3">
-                    <i class="bi bi-stars me-1"></i> Revolusi UMKM F&B
-                </span>
-                <h1 class="display-4 fw-black mb-3 text-body" style="letter-spacing: -0.02em; line-height: 1.2;">
-                    Kasir Pintar, <br>
-                    <span class="text-gradient" id="typed-text"></span>
+            <!-- Kolom Kiri: Copywriting Punchy -->
+            <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-up">
+                <div class="floating-badge mb-4">
+                    <span class="text-caramel me-2">✦</span> Revolusi Kasir UMKM
+                </div>
+                <h1 class="display-hero fw-extrabold font-serif mb-4 text-body">
+                    Toko lagi sepi? <br>
+                    <span class="text-secondary">Nggak perlu bayar langganan.</span>
                 </h1>
-                <p class="lead text-secondary opacity-75 mb-4">
-                    Sistem SaaS berbasis *Cloud* dengan arsitektur Varian Harga cerdas. Dirancang khusus oleh *Indie
-                    Programmer* agar UMKM bisa *Go Digital* tanpa dipalak biaya bulanan.
+                <p class="fs-5 text-secondary mb-5" style="line-height: 1.7; max-width: 500px;">
+                    Pakaiapp adalah sistem kasir (POS) cerdas. Kamu hanya ditarik biaya <strong class="text-body">Rp
+                        300</strong> ketika ada pesanan yang sukses dibayar. Adil, transparan, dan nggak bikin boncos.
                 </p>
-                <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
-                    <a href="#simulasi"
-                       class="btn btn-warning btn-lg rounded-pill px-4 fw-bold shadow-sm btn-hover-grow text-dark">
-                       <i class="bi bi-calculator me-2"></i>Hitung Untungmu
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#simulasi" class="btn btn-primary rounded-pill px-5 py-3 fw-bold fs-6 border-0">
+                        Hitung Penghematan
                     </a>
                 </div>
+
+                <div class="mt-5 d-flex align-items-center gap-3 text-secondary small fw-medium">
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle-fill text-caramel"></i> Tanpa Kontrak
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle-fill text-caramel"></i> Saldo Abadi
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle-fill text-caramel"></i> Support WA
+                    </div>
+                </div>
             </div>
 
-            <!-- Chat Kanan (Glassmorphism) -->
-            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
-                <div class="card glass-card overflow-hidden">
-                    <div class="bg-body-tertiary p-3 border-bottom d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center gap-3">
+            <!-- Kolom Kanan: Widget Chatbot Interaktif -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="150">
+                <div class="chat-ui-container mx-auto" style="max-width: 480px; height: 500px;">
+                    <!-- Header Chat -->
+                    <div class="p-3 border-bottom d-flex align-items-center gap-3 bg-body-tertiary">
+                        <div class="position-relative">
                             <div
-                                class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center position-relative"
-                                style="width: 40px; height: 40px;">
-                                <i class="bi bi-robot text-primary fs-5"></i>
-                                <span
-                                    class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
+                                class="bg-primary text-body-bg rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 48px; height: 48px;">
+                                <i class="bi bi-robot fs-5"></i>
                             </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold" style="font-size: 0.95rem;">Pakaiapp Assistant</h6>
-                                <small class="text-muted" style="font-size: 11px;">Aktif & Responsif</small>
-                            </div>
+                            <span
+                                class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"
+                                style="width: 14px; height: 14px;"></span>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 fw-semibold" style="font-size: 10px; letter-spacing: 0.05em;">ONLINE</span>
+                        <div>
+                            <h6 class="mb-0 fw-bold font-serif fs-6 text-body">Pakaiapp Assistant</h6>
+                            <span class="small text-secondary d-block" style="font-size: 0.8rem;">Siap membantu setup toko kamu</span>
                         </div>
                     </div>
+                    <!-- Body Chat -->
+                    <div class="p-4 overflow-auto flex-grow-1" id="chat-container">
+                        <!-- Konten diisi oleh JS -->
+                    </div>
+                </div>
+            </div>
 
-                    <div class="p-4 bg-body" id="chat-container"
-                         style="height: 380px; overflow-y: auto; scroll-behavior: smooth;">
-                        <!-- Chat mulai masuk via JS nanti -->
-                    </div>
+        </div>
+    </div>
+</section>
+
+<section id="simulasi" class="py-huge bg-body-tertiary border-top border-bottom">
+    <div class="container text-center">
+        <h2 class="section-title fw-extrabold font-serif mb-3 text-body" data-aos="fade-up">Simulasi Anti-Boncos</h2>
+        <p class="fs-5 text-secondary mb-5 mx-auto" style="max-width: 600px;" data-aos="fade-up" data-aos-delay="100">
+            Geser *slider* di bawah untuk melihat perbandingan biaya Pakaiapp dengan aplikasi kasir langganan bulanan
+            lainnya.
+        </p>
+
+        <div class="premium-card p-4 p-md-5 mx-auto text-start" style="max-width: 700px;" data-aos="fade-up"
+             data-aos-delay="200">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <span class="text-secondary fw-semibold small text-uppercase tracking-wider">Perkiraan Omzet</span>
+                    <h3 class="fw-bold font-serif mb-0 text-body">Pesanan per hari</h3>
+                </div>
+                <div class="text-end">
+                    <span class="display-5 fw-extrabold text-caramel font-serif" id="trxDisplay">20</span>
+                    <span class="text-secondary fw-medium ms-1">trx</span>
+                </div>
+            </div>
+
+            <div class="slider-wrapper mb-5">
+                <input type="range" class="custom-slider" id="trxSlider" min="0" max="100" value="20" step="1">
+                <div class="d-flex justify-content-between text-secondary mt-3 small fw-semibold">
+                    <span>Sepi (0)</span>
+                    <span>Rame Banget (100+)</span>
+                </div>
+            </div>
+
+            <div class="row g-4 rounded-4 bg-body p-4 border">
+                <div class="col-6 border-end">
+                    <span class="d-block text-secondary small fw-bold mb-1">Biaya Pakaiapp</span>
+                    <h4 class="fw-extrabold text-body font-serif mb-1" id="costPakaiapp">Rp 6.000</h4>
+                    <span
+                        class="badge bg-success bg-opacity-10 text-success rounded-pill fw-medium border border-success border-opacity-25">Dipotong dari Saldo</span>
+                </div>
+                <div class="col-6 ps-md-4">
+                    <span class="d-block text-secondary small fw-bold mb-1">Kasir Kompetitor</span>
+                    <h4 class="fw-extrabold text-danger font-serif mb-1">Rp 6.600<span
+                            class="fs-6 fw-normal text-secondary">/hr</span></h4>
+                    <span
+                        class="badge bg-danger bg-opacity-10 text-danger rounded-pill fw-medium border border-danger border-opacity-25">Wajib bayar bulanan</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- INTERACTIVE SIMULATOR (OP Feature!) -->
-<section id="simulasi" class="py-5 py-md-6 bg-body-tertiary border-top border-bottom position-relative">
-    <div class="container py-5 text-center">
-        <h2 class="fw-black text-body mb-2" data-aos="zoom-in">Simulasi Anti-Buntung</h2>
-        <p class="text-secondary mb-5" data-aos="zoom-in" data-aos-delay="100">Buktikan sendiri seberapa hemat pakai
-            sistem potong Rp 300 / transaksi sukses.</p>
-
-        <div class="card bg-body border-0 shadow-sm rounded-4 p-4 p-md-5 mx-auto" style="max-width: 800px;"
-             data-aos="fade-up">
-            <h5 class="fw-bold mb-4">Hari ini toko kamu dapat berapa pesanan?</h5>
-
-            <input type="range" class="form-range" id="trxSlider" min="0" max="100" value="15" step="1">
-            <div class="d-flex justify-content-between text-secondary small fw-bold mt-2">
-                <span>0 (Tutup/Sepi)</span>
-                <span>100+ (Rame Parah!)</span>
-            </div>
-
-            <div class="mt-5 text-center">
-                <h1 class="display-1 fw-black text-primary" id="trxDisplay">15</h1>
-                <p class="text-secondary fw-bold text-uppercase tracking-wider">Transaksi Sukses Hari Ini</p>
-            </div>
-
-            <hr class="my-4 text-secondary opacity-25">
-
-            <div class="row text-center g-4">
-                <div class="col-md-6 border-end">
-                    <p class="mb-1 text-secondary">Biaya Pakaiapp Hari Ini</p>
-                    <h3 class="fw-black text-success" id="costPakaiapp">Rp 4.500</h3>
-                    <small class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Adil sesuai omzet</small>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 text-secondary">Biaya App Langganan Bulanan</p>
-                    <h3 class="fw-black text-danger">Rp 6.600 <span class="fs-6 text-muted">/hari</span></h3>
-                    <small class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Toko sepi tetap bayar</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- FEATURES SECTION 3D (Vanilla Tilt) -->
-<section class="py-5 py-md-6 bg-body border-bottom">
+<section class="py-huge bg-body">
     <div class="container">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h2 class="fw-black text-body">Fitur Enterprise, Harga UMKM</h2>
-            <p class="text-secondary">Arsitektur *backend* yang matang, bukan sekadar CRUD biasa.</p>
+        <div class="row mb-5 align-items-end" data-aos="fade-up">
+            <div class="col-md-8">
+                <h2 class="section-title fw-extrabold font-serif mb-3 text-body">Bukan sekadar kasir.</h2>
+                <p class="fs-5 text-secondary mb-0">Arsitektur *backend* yang dirancang khusus untuk operasional cepat,
+                    rapi, dan transparan.</p>
+            </div>
         </div>
 
         <div class="row g-4">
-            <!-- 3D Card 1 -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 feature-card bg-body-tertiary" data-tilt
-                     data-tilt-glare data-tilt-max-glare="0.2" data-tilt-scale="1.05">
-                    <div class="text-primary mb-3 display-4"><i class="bi bi-diagram-3-fill"></i></div>
-                    <h4 class="fw-bold">Varian Dinamis</h4>
-                    <p class="text-secondary small mb-0">Manajemen harga berdasarkan *Size* atau Tipe. Relasi tabel
-                        bersih, tanpa duplikasi data menu. Sangat ringan saat dirender.</p>
+            <!-- Card 1 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="premium-card h-100 p-4 p-lg-5 d-flex flex-column">
+                    <div
+                        class="bg-caramel-soft text-caramel rounded-3 d-flex align-items-center justify-content-center mb-4"
+                        style="width: 56px; height: 56px;">
+                        <i class="bi bi-diagram-3-fill fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold font-serif text-body mb-3">Varian & Topping Dinamis</h4>
+                    <p class="text-secondary mb-0 mt-auto line-height-base">Atur relasi harga berdasarkan ukuran atau
+                        tambahan topping tanpa perlu menduplikasi menu. Database lebih bersih dan ringan.</p>
                 </div>
             </div>
-            <!-- 3D Card 2 -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 feature-card bg-body-tertiary" data-tilt
-                     data-tilt-glare data-tilt-max-glare="0.2" data-tilt-scale="1.05">
-                    <div class="text-warning mb-3 display-4"><i class="bi bi-qr-code-scan"></i></div>
-                    <h4 class="fw-bold">QR Self-Order</h4>
-                    <p class="text-secondary small mb-0">Cetak QR di tiap meja. Pelanggan scan, pesan, dan bisa langsung
-                        diarahkan ke *Payment Gateway*. Kasir tinggal pantau layar.</p>
+
+            <!-- Card 2 -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="premium-card h-100 p-4 p-lg-5 d-flex flex-column">
+                    <div
+                        class="bg-caramel-soft text-caramel rounded-3 d-flex align-items-center justify-content-center mb-4"
+                        style="width: 56px; height: 56px;">
+                        <i class="bi bi-qr-code-scan fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold font-serif text-body mb-3">QR Self-Order Meja</h4>
+                    <p class="text-secondary mb-0 mt-auto line-height-base">Ubah meja menjadi titik penjualan. Pelanggan
+                        scan QR, pesan sendiri, dan pesanan otomatis masuk ke layar kasir atau dapur.</p>
                 </div>
             </div>
-            <!-- 3D Card 3 -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 feature-card bg-body-tertiary" data-tilt
-                     data-tilt-glare data-tilt-max-glare="0.2" data-tilt-scale="1.05">
-                    <div class="text-success mb-3 display-4"><i class="bi bi-wallet2"></i></div>
-                    <h4 class="fw-bold">Top-up Fleksibel</h4>
-                    <p class="text-secondary small mb-0">Sistem dompet digital (*Wallet*). Top-up mulai Rp 15.000 saja
-                        sudah bisa untuk 50 transaksi. Uang tidak akan pernah hangus.</p>
+
+            <!-- Card 3 -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="premium-card h-100 p-4 p-lg-5 d-flex flex-column bg-body-tertiary border-0">
+                    <div
+                        class="bg-body text-body rounded-3 border d-flex align-items-center justify-content-center mb-4"
+                        style="width: 56px; height: 56px;">
+                        <i class="bi bi-wallet2 fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold font-serif text-body mb-3">Saldo Tanpa Masa Hangus</h4>
+                    <p class="text-secondary mb-0 mt-auto line-height-base">Uang yang kamu top-up adalah hak milikmu
+                        sepenuhnya. Tidak ada sistem kedaluwarsa atau hangus jika toko sedang libur panjang.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FAQ SECTION -->
-<section class="py-5 py-md-6 bg-body-tertiary">
-    <div class="container">
-        <h2 class="fw-black text-center mb-5" data-aos="fade-up">Pertanyaan Sering Muncul</h2>
-
-        <div class="accordion accordion-flush bg-body rounded-4 shadow-sm" id="faqAccordion" data-aos="fade-up"
-             data-aos-delay="100">
-            <div class="accordion-item rounded-top-4 border-0 border-bottom">
-                <h2 class="accordion-header">
-                    <button class="accordion-button fw-bold py-4 collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#faq1">
-                        Kalau toko tutup sebulan, saldo saya hilang nggak?
-                    </button>
-                </h2>
-                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body text-secondary">
-                        Tentu tidak! Tidak ada sistem *reset* atau langganan hangus. Uang yang kamu top-up menjadi
-                        kredit transaksi abadi.
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item border-0 border-bottom">
-                <h2 class="accordion-header">
-                    <button class="accordion-button fw-bold py-4 collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#faq2">
-                        Gimana kalau pesanan pelanggan dibatalkan?
-                    </button>
-                </h2>
-                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body text-secondary">
-                        Sistem kami sangat adil. Saldo Rp 300 hanya terpotong saat status pesanan berubah menjadi
-                        "Selesai/Dibayar". Jika batal, tidak ada potongan apapun.
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item rounded-bottom-4 border-0">
-                <h2 class="accordion-header">
-                    <button class="accordion-button fw-bold py-4 collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#faq3">
-                        Apakah aplikasinya harus di-download di Playstore?
-                    </button>
-                </h2>
-                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body text-secondary">
-                        Pakaiapp adalah aplikasi berbasis *Web SaaS (PWA)*. Cukup buka lewat *browser* di HP, Tablet,
-                        atau Laptop manapun, lalu "Add to Homescreen". Lebih ringan tanpa menuhin memori!
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- SECTION PILIHAN TOP-UP SALDO -->
-<section id="pricing" class="py-5 py-md-6 bg-body border-top">
+<section id="pricing" class="py-huge bg-body-tertiary border-top">
     <div class="container">
         <div class="text-center mb-5" data-aos="fade-up">
-            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 fw-bold border border-warning border-opacity-25 mb-3">
-                <i class="bi bi-tag-fill me-1"></i> Skema Pembelian
-            </span>
-            <h2 class="fw-black text-body mb-2">Pilihan Top-Up Saldo</h2>
-            <p class="text-secondary mx-auto" style="max-width: 600px;">Mulai transaksi dengan mudah. Top-up saldo wallet Pakaiapp tanpa khawatir masa hangus.</p>
+            <h2 class="section-title fw-extrabold font-serif mb-3 text-body">Mulai dari nominal kecil.</h2>
+            <p class="fs-5 text-secondary mx-auto" style="max-width: 600px;">Pilih kuota saldo yang sesuai dengan
+                kecepatan omzet toko kamu. Bebas *top-up* kapan saja.</p>
         </div>
 
-        <div class="row g-4 justify-content-center">
-            <!-- Paket Starter -->
+        <div class="row justify-content-center g-4">
+            <!-- Paket 1 -->
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 text-center glass-card position-relative overflow-hidden"
-                     data-tilt data-tilt-glare data-tilt-max-glare="0.1" data-tilt-scale="1.03">
-                    <div class="card-body d-flex flex-column justify-content-between p-0">
-                        <div>
-                            <div class="text-primary mb-3 display-6"><i class="bi bi-patch-check"></i></div>
-                            <h4 class="fw-bold mb-2">Paket Starter</h4>
-                            <h2 class="fw-black text-body mb-3">Rp 15.000</h2>
-                            <hr class="my-3 opacity-25">
-                            <ul class="list-unstyled text-secondary small text-start mb-4">
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>50</strong> Transaksi Sukses</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Rp 300 / Transaksi</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo Abadi Tanpa Hangus</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Fitur POS Lengkap</li>
-                            </ul>
-                        </div>
-                        <button onclick="triggerPayment('Paket Starter', 15000)" class="btn btn-outline-warning rounded-pill py-2 fw-bold text-dark w-100 mt-auto">
-                            Beli Sekarang
-                        </button>
+                <div class="premium-card p-4 p-xl-5 h-100 d-flex flex-column bg-body">
+                    <h5 class="fw-bold font-serif text-secondary mb-2">Paket Starter</h5>
+                    <div class="d-flex align-items-baseline mb-4">
+                        <span class="fs-4 fw-bold text-body me-1">Rp</span>
+                        <span class="display-5 fw-extrabold text-body font-serif"
+                              style="letter-spacing: -0.05em;">15<span class="fs-3">.000</span></span>
                     </div>
+                    <ul class="list-unstyled mb-5 d-flex flex-column gap-3 text-secondary">
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Mendapat <strong>50</strong> Kuota Transaksi</span>
+                        </li>
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Saldo Abadi (Tanpa Hangus)</span>
+                        </li>
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Akses Semua Fitur POS</span>
+                        </li>
+                    </ul>
+                    <button
+                        class="btn btn-outline-secondary rounded-pill w-100 py-3 fw-bold mt-auto border-2 hover-caramel"
+                        onclick="openCheckoutModal('Paket Starter', 15000, 50)">
+                        Pilih Starter
+                    </button>
                 </div>
             </div>
 
-            <!-- Paket Rame (Featured) -->
+            <!-- Paket 2 (Highlighted) -->
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="card h-100 shadow-lg p-4 rounded-4 text-center glass-card position-relative overflow-hidden"
-                     style="border: 2px solid var(--bs-warning) !important;"
-                     data-tilt data-tilt-glare data-tilt-max-glare="0.1" data-tilt-scale="1.03">
-                    <span class="position-absolute top-0 end-0 bg-warning text-dark px-3 py-1 fw-bold small rounded-bottom" style="border-bottom-left-radius: 12px; font-size: 11px;">TERPOPULER</span>
-                    <div class="card-body d-flex flex-column justify-content-between p-0">
-                        <div>
-                            <div class="text-warning mb-3 display-6"><i class="bi bi-rocket-takeoff-fill"></i></div>
-                            <h4 class="fw-bold mb-2">Paket Rame</h4>
-                            <h2 class="fw-black text-body mb-3">Rp 50.000</h2>
-                            <hr class="my-3 opacity-25">
-                            <ul class="list-unstyled text-secondary small text-start mb-4">
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>166</strong> Transaksi Sukses</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Rp 300 / Transaksi</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo Abadi Tanpa Hangus</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Dukungan Premium WA</li>
-                            </ul>
-                        </div>
-                        <button onclick="triggerPayment('Paket Rame', 50000)" class="btn btn-warning rounded-pill py-2 fw-bold text-dark w-100 mt-auto shadow-sm">
-                            Beli Sekarang
-                        </button>
+                <div class="premium-card p-4 p-xl-5 h-100 d-flex flex-column position-relative"
+                     style="border: 2px solid var(--brand-caramel);">
+                    <div
+                        class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-caramel-soft text-caramel border border-warning border-opacity-50 px-3 py-2 fw-bold font-serif">
+                        Paling Sering Dibeli
                     </div>
+                    <h5 class="fw-bold font-serif text-caramel mb-2 mt-2">Paket Rame</h5>
+                    <div class="d-flex align-items-baseline mb-4">
+                        <span class="fs-4 fw-bold text-body me-1">Rp</span>
+                        <span class="display-5 fw-extrabold text-body font-serif"
+                              style="letter-spacing: -0.05em;">50<span class="fs-3">.000</span></span>
+                    </div>
+                    <ul class="list-unstyled mb-5 d-flex flex-column gap-3 text-secondary">
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Mendapat <strong>166</strong> Kuota Transaksi</span>
+                        </li>
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Saldo Abadi (Tanpa Hangus)</span>
+                        </li>
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Prioritas Bantuan WhatsApp</span>
+                        </li>
+                    </ul>
+                    <button class="btn btn-primary rounded-pill w-100 py-3 fw-bold mt-auto border-0 shadow-sm"
+                            style="background-color: var(--brand-caramel); color: #fff;"
+                            onclick="openCheckoutModal('Paket Rame', 50000, 166)">
+                        Pilih Paket Rame
+                    </button>
                 </div>
             </div>
 
-            <!-- Paket Enterprise -->
+            <!-- Paket 3 -->
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 text-center glass-card position-relative overflow-hidden"
-                     data-tilt data-tilt-glare data-tilt-max-glare="0.1" data-tilt-scale="1.03">
-                    <div class="card-body d-flex flex-column justify-content-between p-0">
-                        <div>
-                            <div class="text-success mb-3 display-6"><i class="bi bi-building-fill-check"></i></div>
-                            <h4 class="fw-bold mb-2">Paket Enterprise</h4>
-                            <h2 class="fw-black text-body mb-3">Rp 100.000</h2>
-                            <hr class="my-3 opacity-25">
-                            <ul class="list-unstyled text-secondary small text-start mb-4">
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>333</strong> Transaksi Sukses</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Rp 300 / Transaksi</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo Abadi Tanpa Hangus</li>
-                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Skalabilitas Multi-Outlet</li>
-                            </ul>
-                        </div>
-                        <button onclick="triggerPayment('Paket Enterprise', 100000)" class="btn btn-outline-warning rounded-pill py-2 fw-bold text-dark w-100 mt-auto">
-                            Beli Sekarang
-                        </button>
+                <div class="premium-card p-4 p-xl-5 h-100 d-flex flex-column bg-body">
+                    <h5 class="fw-bold font-serif text-secondary mb-2">Paket Enterprise</h5>
+                    <div class="d-flex align-items-baseline mb-4">
+                        <span class="fs-4 fw-bold text-body me-1">Rp</span>
+                        <span class="display-5 fw-extrabold text-body font-serif"
+                              style="letter-spacing: -0.05em;">100<span class="fs-3">.000</span></span>
                     </div>
+                    <ul class="list-unstyled mb-5 d-flex flex-column gap-3 text-secondary">
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Mendapat <strong>333</strong> Kuota Transaksi</span>
+                        </li>
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Saldo Abadi (Tanpa Hangus)</span>
+                        </li>
+                        <li class="d-flex align-items-start gap-3"><i class="bi bi-check2 text-caramel fs-5"></i> <span>Skalabilitas Multi-Outlet</span>
+                        </li>
+                    </ul>
+                    <button
+                        class="btn btn-outline-secondary rounded-pill w-100 py-3 fw-bold mt-auto border-2 hover-caramel"
+                        onclick="openCheckoutModal('Paket Enterprise', 100000, 333)">
+                        Pilih Enterprise
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="bg-body py-5 py-md-6 border-top">
+<footer class="py-5 bg-body border-top">
     <div class="container text-center">
-        <div class="mb-4">
-            <a class="fw-black fs-4 text-body text-decoration-none" href="#">
-                <i class="bi bi-cup-hot-fill text-warning me-2"></i>pakaiapp<span class="text-secondary">.online</span>
-            </a>
-        </div>
-        
-        <!-- Informasi Kontak Bisnis -->
-        <div class="d-flex flex-wrap justify-content-center gap-3 mb-4 text-secondary small">
-            <a href="mailto:support@ngopikode.com" class="text-secondary text-decoration-none hover-primary">
-                <i class="bi bi-envelope-fill text-warning me-1"></i> support@ngopikode.com
-            </a>
-            <span class="text-muted d-none d-md-inline">|</span>
-            <a href="https://wa.me/6285172441544" target="_blank" class="text-secondary text-decoration-none hover-primary">
-                <i class="bi bi-whatsapp text-success me-1"></i> WhatsApp: 085172441544
-            </a>
-            <span class="text-muted d-none d-md-inline">|</span>
-            <span class="text-secondary">
-                <i class="bi bi-building text-warning me-1"></i> PT Sinergi Kode Kreatif
-            </span>
+        <a class="fw-extrabold fs-5 font-serif text-body text-decoration-none d-inline-flex align-items-center gap-2 mb-4"
+           href="#">
+            <i class="bi bi-cup-hot-fill text-caramel"></i> pakaiapp.online
+        </a>
+
+        <div class="d-flex flex-wrap justify-content-center gap-4 mb-4 text-secondary small fw-medium">
+            <a href="mailto:support@ngopikode.com" class="text-secondary text-decoration-none"><i
+                    class="bi bi-envelope me-1"></i> support@ngopikode.com</a>
+            <a href="https://wa.me/6285172441544" target="_blank" class="text-secondary text-decoration-none"><i
+                    class="bi bi-whatsapp me-1"></i> 085172441544</a>
+            <span><i class="bi bi-building me-1"></i> PT Sinergi Kode Kreatif</span>
         </div>
 
-        <!-- Tautan Legalitas Kepatuhan Layanan -->
-        <div class="d-flex flex-wrap justify-content-center gap-4 mb-4 small">
-            <a href="#" class="text-decoration-none text-secondary hover-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#tncModal">
-                Syarat & Ketentuan
-            </a>
-            <a href="#" class="text-decoration-none text-secondary hover-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#refundModal">
-                Kebijakan Pengembalian Dana
-            </a>
-        </div>
-
-        <p class="text-secondary small mb-0">&copy; {{ date('Y') }} pakaiapp.online. Solusi Digital dari <span
-                class="fw-bold text-primary">
-                <a href="https://www.ngopikode.com" target="_blank"
-                   class="text-decoration-none text-primary">ngopikode.</a>
-            </span>.</p>
+        <p class="text-secondary small opacity-75 mb-0">&copy; {{ date('Y') }} Hak Cipta Dilindungi. Dibuat dengan
+            presisi oleh <a href="https://www.ngopikode.com" target="_blank"
+                            class="text-body fw-bold text-decoration-none">ngopikode</a>.</p>
     </div>
 </footer>
 
-<!-- Floating WhatsApp Only -->
-<a href="https://wa.me/6285172441544" target="_blank" class="floating-wa shadow-lg" title="Tanya Admin">
-    <i class="bi bi-whatsapp"></i>
-</a>
-
-<!-- ==============================================
-     MODALS UNTUK KEPATUHAN LAYANAN
-=============================================== -->
-<!-- Modal Syarat & Ketentuan -->
-<div class="modal fade" id="tncModal" tabindex="-1" aria-labelledby="tncModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-            <div class="modal-header border-0 bg-body-tertiary px-4 py-3 d-flex align-items-center justify-content-between">
-                <h5 class="modal-title fw-black text-body mb-0" id="tncModalLabel" style="font-size: 1.15rem;">
-                    <i class="bi bi-shield-check text-warning me-2"></i>Syarat & Ketentuan Layanan
-                </h5>
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content premium-card border-0">
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-extrabold font-serif text-body mb-0 fs-4">Lengkapi Data Toko</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body px-4 py-4 text-secondary small">
-                <p class="mb-4">Selamat datang di <strong>pakaiapp.online</strong>. Harap membaca Syarat & Ketentuan ini dengan saksama sebelum mendaftar dan menggunakan platform kami. Dengan mengakses atau menggunakan layanan pakaiapp.online, Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui untuk terikat oleh seluruh ketentuan di bawah ini.</p>
-                
-                <div class="pe-1">
-                    <!-- Pasal 1 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">1. KETENTUAN UMUM & DEFINISI</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span><strong>pakaiapp.online</strong> adalah platform Software-as-a-Service (SaaS) aplikasi kasir pintar (Point of Sales) berbasis cloud yang dikembangkan oleh PT Sinergi Kode Kreatif.</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span><strong>Pengguna</strong> adalah pemilik usaha (merchant), beserta staf/admin yang ditunjuk, yang mendaftarkan diri dan menggunakan layanan pakaiapp.online untuk operasional bisnis mereka.</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span><strong>Layanan</strong> mencakup penyediaan sistem kasir, manajemen varian menu/produk, sistem pemesanan digital (QR self-order), serta fitur pelaporan yang tersedia di dalam platform.</span>
-                            </li>
-                        </ul>
+            <div class="modal-body p-4">
+                <!-- Info Paket Terpilih -->
+                <div
+                    class="bg-caramel-soft border border-warning border-opacity-25 rounded-4 p-3 mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="d-block text-secondary small fw-bold mb-1">Paket Terpilih</span>
+                        <h6 class="fw-bold font-serif text-body mb-0" id="modalPackageName">Paket Starter</h6>
                     </div>
-
-                    <!-- Pasal 2 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">2. PENDAFTARAN AKUN DAN KEAMANAN</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Pengguna wajib memberikan data informasi bisnis yang akurat, benar, dan terbaru pada saat proses pendaftaran layanan.</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Pengguna bertanggung jawab penuh atas keamanan kredensial akun (username dan password) masing-masing serta segala bentuk aktivitas transaksi yang terjadi di bawah akun tersebut.</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Pakaiapp tidak bertanggung jawab atas kerugian yang timbul akibat kelalaian Pengguna dalam menjaga kerahasiaan akun mereka.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pasal 3 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">3. MEKANISME PENGGUNAAN & SALDO KREDIT (WALLET)</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>pakaiapp.online menggunakan skema prabayar (prepaid) melalui sistem pengisian ulang saldo digital (Top-Up Wallet).</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Pendaftaran akun dan penggunaan dasar aplikasi tidak dikenakan biaya langganan bulanan (Gratis Biaya Bulanan).</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Saldo wallet Pengguna akan terpotong secara otomatis sebesar Rp 300 (Tiga Ratus Rupiah) untuk setiap transaksi penjualan yang berstatus sukses/selesai pada sistem kasir mereka. Jika transaksi dibatalkan, tidak akan ada pemotongan saldo.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pasal 4 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">4. KEBIJAKAN PENGEMBALIAN DANA (REFUND POLICY)</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh sistem bersifat final.</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Dana/saldo yang sudah masuk ke dalam sistem wallet pakaiapp.online tidak dapat dikembalikan, diuangkan kembali (non-refundable), atau ditransfer ke rekening bank pribadi maupun akun pengguna lain.</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Saldo wallet pakaiapp.online bersifat abadi dan tidak memiliki masa kedaluwarsa (tidak ada masa hangus). Saldo akan tetap utuh dan dapat digunakan kapan saja, meskipun toko atau operasional Pengguna tidak aktif dalam jangka waktu yang lama.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pasal 5 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">5. MATA UANG & PERUBAHAN HARGA</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Seluruh bentuk transaksi pengisian saldo (top-up) dan pemotongan biaya layanan wajib menggunakan nilai mata uang Rupiah (IDR).</span>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>pakaiapp.online berhak untuk melakukan penyesuaian nominal minimum top-up atau perubahan harga layanan di masa mendatang dengan pemberitahuan terlebih dahulu kepada Pengguna melalui platform resmi kami.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pasal 6 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">6. BATASAN TANGGUNG JAWAB (DISCLAIMER)</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>pakaiapp.online senantiasa berupaya menjaga performa platform agar dapat diakses 24 jam. Namun, kami tidak bertanggung jawab atas kerugian materiel atau inmateriel yang disebabkan oleh gangguan teknis, pemeliharaan sistem (maintenance), kegagalan jaringan internet Pengguna, atau gangguan eksternal pada sistem pihak ketiga (seperti gangguan dari kemitraan bank atau payment gateway).</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pasal 7 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">7. KEBIJAKAN PRIVASI DATA</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>pakaiapp.online berkomitmen penuh untuk melindungi data pribadi Pengguna serta data transaksi toko Anda. Informasi yang Anda kumpulkan hanya digunakan untuk kepentingan optimalisasi layanan akun Anda dan tidak akan pernah disalahgunakan, disebarluaskan, atau dijual kepada pihak ketiga mana pun tanpa persetujuan Anda.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pasal 8 -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">8. HUKUM YANG BERLAKU</h6>
-                        <ul class="list-unstyled ps-0 mb-0 d-flex flex-column gap-2 text-muted">
-                            <li class="d-flex align-items-start">
-                                <span class="me-2 text-warning">•</span>
-                                <span>Syarat & Ketentuan ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum dan peraturan perundang-undangan yang berlaku di negara Republik Indonesia.</span>
-                            </li>
-                        </ul>
+                    <div class="text-end">
+                        <span class="d-block fw-bold text-caramel" id="modalPackagePrice">Rp 15.000</span>
+                        <span class="small text-secondary" id="modalPackageQuota">50 trx</span>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer border-0 bg-body-tertiary px-4 py-3">
-                <button type="button" class="btn btn-warning rounded-pill fw-bold text-dark px-4 shadow-sm" data-bs-dismiss="modal">Saya Setuju</button>
+
+                <form id="formCheckout">
+                    <input type="hidden" id="checkoutPackageData" value="">
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary ms-1">Nama Usaha / Toko</label>
+                            <input type="text" class="form-control premium-input" id="coToko"
+                                   placeholder="Contoh: Kopi Sinergi" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary ms-1">Nama Pemilik / Pengelola</label>
+                            <input type="text" class="form-control premium-input" id="coNama"
+                                   placeholder="Nama lengkap Anda" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary ms-1">Nomor WhatsApp Aktif</label>
+                            <input type="number" class="form-control premium-input" id="coWa" placeholder="08xxxxxxxxxx"
+                                   required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary ms-1">Jenis Bisnis</label>
+                            <select class="form-select premium-input" id="coJenis" required>
+                                <option value="" selected disabled>Pilih...</option>
+                                <option value="F&B (Cafe/Resto)">F&B (Cafe/Resto)</option>
+                                <option value="Retail (Toko)">Retail (Toko)</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary ms-1">Jumlah Outlet</label>
+                            <select class="form-select premium-input" id="coCabang" required>
+                                <option value="" selected disabled>Pilih...</option>
+                                <option value="1 Outlet">1 Outlet</option>
+                                <option value="2-5 Outlet">2 - 5 Outlet</option>
+                                <option value="> 5 Outlet">Lebih dari 5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        <button type="submit"
+                                class="btn btn-primary rounded-pill w-100 py-3 fw-bold border-0 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                                id="btnProsesCheckout" style="background-color: var(--brand-caramel); color: #fff;">
+                            Proses Pendaftaran & Pembayaran <i class="bi bi-arrow-right"></i>
+                        </button>
+                        <p class="text-center text-secondary mt-3 mb-0" style="font-size: 0.75rem;">Dengan menekan
+                            tombol, Anda menyetujui Syarat & Ketentuan Pakaiapp.</p>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Kebijakan Pengembalian Dana -->
-<div class="modal fade" id="refundModal" tabindex="-1" aria-labelledby="refundModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-            <div class="modal-header border-0 bg-body-tertiary px-4 py-3 d-flex align-items-center justify-content-between">
-                <h5 class="modal-title fw-black text-body mb-0" id="refundModalLabel" style="font-size: 1.15rem;">
-                    <i class="bi bi-wallet2 text-warning me-2"></i>Kebijakan Pengembalian Dana (Refund Policy)
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body px-4 py-4 text-secondary small">
-                <p class="mb-4">Sebagai bagian dari kepatuhan operasional kami di <strong>pakaiapp.online</strong>, berikut adalah kebijakan resmi terkait pengembalian dana (refund) untuk layanan top-up saldo wallet digital Anda:</p>
-                
-                <div class="pe-1">
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">1. FINALITAS TRANSAKSI</h6>
-                        <p class="text-muted">Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh sistem bersifat final dan mengikat. Pengguna diharapkan melakukan konfirmasi nominal sebelum menyelesaikan transaksi pembayaran.</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">2. SIFAT SALDO (NON-REFUNDABLE)</h6>
-                        <p class="text-muted">Dana atau saldo yang sudah masuk ke dalam sistem wallet pakaiapp.online tidak dapat dikembalikan, diuangkan kembali (non-refundable), atau ditransfer ke rekening bank pribadi maupun akun pengguna lain.</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">3. SALDO ABADI (TANPA MASA KADALUWARSA)</h6>
-                        <p class="text-muted">Saldo wallet pakaiapp.online bersifat abadi dan tidak memiliki masa kedaluwarsa (tidak ada masa hangus). Saldo akan tetap utuh dan dapat digunakan kapan saja untuk memotong biaya Rp 300 per transaksi sukses, meskipun toko atau operasional Pengguna tidak aktif dalam jangka waktu yang lama.</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-primary mb-2">4. HUBUNGI KAMI</h6>
-                        <p class="text-muted mb-0">Jika Anda mengalami kendala teknis dalam proses top-up (seperti saldo tidak bertambah setelah transfer berhasil), silakan hubungi tim dukungan kami melalui WhatsApp di <a href="https://wa.me/6285172441544" target="_blank" class="fw-bold text-decoration-none text-primary">085172441544</a> atau email ke <a href="mailto:support@ngopikode.com" class="fw-bold text-decoration-none text-primary">support@ngopikode.com</a> dengan melampirkan bukti transfer.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 bg-body-tertiary px-4 py-3">
-                <button type="button" class="btn btn-warning rounded-pill fw-bold text-dark px-4 shadow-sm" data-bs-dismiss="modal">Saya Mengerti</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ==============================================
-     EXTERNAL LIBRARIES & OP SCRIPTS
-=============================================== -->
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Ensure Bootstrap JS is loaded for Modal -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // 1. Initialize Animasi Scroll (AOS)
-    AOS.init({once: true, offset: 50});
+    // 1. Inisialisasi AOS (Animasi Scroll Halus)
+    AOS.init({once: true, offset: 30, duration: 800, easing: 'ease-out-cubic'});
 
-    // 2. Initialize Typed.js (Efek Ngetik Keren)
-    new Typed('#typed-text', {
-        strings: ['Bayar Pas Ada Transaksi.', 'Tanpa Biaya Bulanan.', 'Solusi Adil Untuk UMKM.', 'Bikin Operasional Rapi.'],
-        typeSpeed: 50,
-        backSpeed: 30,
-        loop: true,
-        backDelay: 2000
-    });
-
-    // 3. Dark Mode Toggle Script
+    // 2. Logika Toggle Tema (Sesuai dengan SCSS Anda)
     const themeBtn = document.getElementById('themeToggle');
     const htmlRoot = document.getElementById('html-root');
     const icon = themeBtn.querySelector('i');
@@ -825,7 +650,7 @@
         }
     });
 
-    // 4. Kalkulator Interaktif Logic
+    // 3. Logika Simulator Range Slider
     const slider = document.getElementById('trxSlider');
     const trxDisplay = document.getElementById('trxDisplay');
     const costPakaiapp = document.getElementById('costPakaiapp');
@@ -833,208 +658,192 @@
     slider.addEventListener('input', function () {
         const trx = parseInt(this.value);
         trxDisplay.innerText = trx;
-
-        // Rp 300 / trx
         const cost = trx * 300;
 
         if (trx === 0) {
-            costPakaiapp.innerText = 'GRATIS!';
-            costPakaiapp.classList.replace('text-success', 'text-warning');
+            costPakaiapp.innerText = 'GRATIS';
+            costPakaiapp.classList.replace('text-body', 'text-success');
         } else {
             costPakaiapp.innerText = 'Rp ' + cost.toLocaleString('id-ID');
-            costPakaiapp.classList.replace('text-warning', 'text-success');
+            costPakaiapp.classList.replace('text-success', 'text-body');
         }
     });
 
-    // 5. Chat Bot UI & Logic (Lebih "Hidup")
-    let userData = {jenisBisnis: '', jumlahCabang: '', namaToko: '', namaOwner: '', noWa: ''};
+    // 4. Logika Chatbot Premium (Satu Alur)
     const chatContainer = document.getElementById('chat-container');
 
-    function showTypingIndicator() {
-        const id = 'typing-' + Date.now();
+    function appendBotMessage(text, delay = 600) {
+        return new Promise(resolve => {
+            const typingId = 'typing-' + Date.now();
+            const typingHTML = `
+                <div id="${typingId}" class="d-flex align-items-end gap-2 mb-3">
+                    <div class="chat-bubble-bot text-secondary small">Mengetik...</div>
+                </div>`;
+            chatContainer.insertAdjacentHTML('beforeend', typingHTML);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            setTimeout(() => {
+                document.getElementById(typingId).remove();
+                const html = `
+                    <div class="d-flex align-items-end gap-2 mb-3 fade-in-up">
+                        <div class="chat-bubble-bot">${text}</div>
+                    </div>`;
+                chatContainer.insertAdjacentHTML('beforeend', html);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                resolve();
+            }, delay);
+        });
+    }
+
+    function appendUserAction(text, actionName) {
+        const id = 'action-' + Date.now();
         const html = `
-            <div id="${id}" class="chat-bubble-bot mb-3 p-3 rounded-4 bg-body-tertiary border d-inline-block shadow-sm">
-                <div class="typing-indicator"><span></span><span></span><span></span></div>
-            </div><div class="w-100" id="clear-${id}"></div>`;
+            <div id="${id}" class="d-flex justify-content-end mb-3 fade-in-up">
+                <button class="chat-action-btn" onclick="executeChatAction('${id}', '${text}', '${actionName}')">${text}</button>
+            </div>`;
         chatContainer.insertAdjacentHTML('beforeend', html);
-        scrollToBottom();
-        return id;
-    }
-
-    function removeTypingIndicator(id) {
-        document.getElementById(id).remove();
-        document.getElementById('clear-' + id).remove();
-    }
-
-    function appendUserBubble(text) {
-        const html = `<div class="d-flex justify-content-end mb-4"><div class="chat-bubble-user p-3 rounded-4 bg-primary text-white shadow-sm">${text}</div></div>`;
-        chatContainer.insertAdjacentHTML('beforeend', html);
-        scrollToBottom();
-    }
-
-    function appendBotBubble(text, delay = 800) {
-        const typingId = showTypingIndicator();
-        setTimeout(() => {
-            removeTypingIndicator(typingId);
-            const html = `<div class="chat-bubble-bot mb-3 p-3 rounded-4 bg-body-tertiary border d-inline-block shadow-sm" style="max-width: 85%;">${text}</div><div class="w-100"></div>`;
-            chatContainer.insertAdjacentHTML('beforeend', html);
-            scrollToBottom();
-        }, delay);
-    }
-
-    function scrollToBottom() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Alur Chat Awal
+    window.executeChatAction = function (elementId, text, actionName) {
+        document.getElementById(elementId).remove();
+        const html = `
+            <div class="d-flex justify-content-end mb-3">
+                <div class="chat-bubble-user">${text}</div>
+            </div>`;
+        chatContainer.insertAdjacentHTML('beforeend', html);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        if (actionName === 'start') {
+            appendBotMessage('Pilihan yang tepat! Daripada bayar bulanan, lebih baik dana dialihkan ke stok barang kan? 😊', 800)
+                .then(() => appendBotMessage('Kira-kira, bisnis kamu bergerak di bidang apa?', 600))
+                .then(() => {
+                    appendUserAction('F&B (Cafe/Resto)', 'fnb');
+                    appendUserAction('Retail (Toko Kelontong)', 'retail');
+                });
+        } else if (actionName === 'fnb' || actionName === 'retail') {
+            appendBotMessage('Catat! Database Pakaiapp bisa menyesuaikan varian harga untuk bisnis kamu secara dinamis.', 800)
+                .then(() => appendBotMessage('Untuk mendaftar, langsung saja pilih paket di bagian bawah halaman ini ya! 👇', 1000));
+        }
+    };
+
+    // Inisialisasi percakapan pertama
     setTimeout(() => {
-        appendBotBubble('Halo! 👋 Saya asisten virtual dari Pakaiapp.');
-        setTimeout(() => {
-            appendBotBubble('Capek ya bayar sistem kasir bulanan padahal toko kadang sepi?');
-            setTimeout(() => {
-                const options = `
-                <div class="d-flex gap-2 flex-wrap mb-4" id="step1-options">
-                    <button class="btn btn-outline-primary rounded-pill fw-bold chat-btn" onclick="nextStep(1, 'F&B (Cafe/Resto)')">🍔 F&B (Cafe/Resto)</button>
-                    <button class="btn btn-outline-primary rounded-pill fw-bold chat-btn" onclick="nextStep(1, 'Retail (Toko/Kelontong)')">🛒 Retail (Toko/Kelontong)</button>
-                </div>`;
-                chatContainer.insertAdjacentHTML('beforeend', options);
-                scrollToBottom();
-            }, 1000);
-        }, 1200);
-    }, 500);
+        appendBotMessage('Halo! 👋 Selamat datang di Pakaiapp.')
+            .then(() => appendBotMessage('Lagi cari aplikasi kasir yang adil dan nggak mengikat tagihan bulanan?', 800))
+            .then(() => appendUserAction('Iya, betul banget!', 'start'));
+    }, 1000);
 
-    function nextStep(currentStep, value) {
-        if (currentStep === 1) {
-            userData.jenisBisnis = value;
-            document.getElementById('step1-options').remove();
-            appendUserBubble(value);
+    // 5. Logika Modal Checkout & Fetch API (/api/send-lead)
+    let checkoutModalInstance;
 
-            appendBotBubble(`Pilihan mantap! Bisnis ${value} emang butuh pencatatan varian yang rapi.`);
-            setTimeout(() => {
-                appendBotBubble(`Berapa banyak outlet yang kamu kelola sekarang?`);
-                const options = `
-                <div class="d-flex gap-2 flex-wrap mb-4 mt-2" id="step2-options">
-                    <button class="btn btn-outline-primary rounded-pill fw-bold chat-btn" onclick="nextStep(2, 'Baru 1 Outlet')">Baru 1 Outlet</button>
-                    <button class="btn btn-outline-primary rounded-pill fw-bold chat-btn" onclick="nextStep(2, '2 - 5 Outlet')">2 - 5 Outlet</button>
-                    <button class="btn btn-outline-primary rounded-pill fw-bold chat-btn" onclick="nextStep(2, 'Lebih dari 5')">Lebih dari 5</button>
-                </div>`;
-                setTimeout(() => {
-                    chatContainer.insertAdjacentHTML('beforeend', options);
-                    scrollToBottom();
-                }, 1200);
-            }, 1000);
-        } else if (currentStep === 2) {
-            userData.jumlahCabang = value;
-            document.getElementById('step2-options').remove();
-            appendUserBubble(value);
-
-            appendBotBubble(`Siap! Terakhir nih, biar Pakaiapp kamu bisa langsung dibuatin *database*-nya. Isi form mini ini ya! 🚀`);
-
-            setTimeout(() => {
-                const formHTML = `
-                <div class="card border-1 border-primary bg-body-tertiary rounded-4 p-3 mb-4 mt-2 shadow-sm glass-card" id="register-form">
-                    <div class="mb-3">
-                        <input type="text" id="inputToko" class="form-control form-control-sm rounded-3 bg-body" placeholder="Nama Toko (ex: Warung 3 Saudara)">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" id="inputNama" class="form-control form-control-sm rounded-3 bg-body" placeholder="Nama Kamu">
-                    </div>
-                    <div class="mb-3">
-                        <input type="number" id="inputWa" class="form-control form-control-sm rounded-3 bg-body" placeholder="No. WhatsApp (08xxxx)">
-                    </div>
-                    <button class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm chat-btn" onclick="submitToTelegram()" id="btnSubmit">
-                        <i class="bi bi-rocket-takeoff-fill me-2"></i>Kirim & Buat Akun!
-                    </button>
-                </div>`;
-                chatContainer.insertAdjacentHTML('beforeend', formHTML);
-                scrollToBottom();
-            }, 1200);
+    // Pastikan Bootstrap siap sebelum menginisialisasi modal
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEl = document.getElementById('checkoutModal');
+        if (modalEl) {
+            checkoutModalInstance = new bootstrap.Modal(modalEl);
         }
-    }
+    });
 
-    // 6. Submit Data pakai SweetAlert (Lebih Keren dari Alert Biasa!)
-    function submitToTelegram() {
-        userData.namaToko = document.getElementById('inputToko').value;
-        userData.namaOwner = document.getElementById('inputNama').value;
-        userData.noWa = document.getElementById('inputWa').value;
+    window.openCheckoutModal = function (packageName, price, quota) {
+        document.getElementById('modalPackageName').innerText = packageName;
+        document.getElementById('modalPackagePrice').innerText = 'Rp ' + price.toLocaleString('id-ID');
+        document.getElementById('modalPackageQuota').innerText = quota + ' trx';
+        document.getElementById('checkoutPackageData').value = packageName;
 
-        if (!userData.namaToko || !userData.namaOwner || !userData.noWa) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Eits, ada yang kosong',
-                text: 'Isi semua datanya dulu dong biar kami gampang hubunginya!',
-                confirmButtonColor: 'var(--bs-primary)'
-            });
-            return;
+        if (checkoutModalInstance) {
+            checkoutModalInstance.show();
         }
+    };
 
-        const btn = document.getElementById('btnSubmit');
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Menghubungi Server...`;
+    document.getElementById('formCheckout').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('btnProsesCheckout');
+        const originalBtnText = btn.innerHTML;
+
+        // Data yang dikumpulkan untuk API sesuai request Anda
+        const payload = {
+            paketPilihan: document.getElementById('checkoutPackageData').value,
+            namaToko: document.getElementById('coToko').value,
+            namaOwner: document.getElementById('coNama').value,
+            noWa: document.getElementById('coWa').value,
+            jenisBisnis: document.getElementById('coJenis').value,
+            jumlahCabang: document.getElementById('coCabang').value
+        };
+
+        // Loading State
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Memproses...`;
         btn.disabled = true;
 
+        // Fetch API
         fetch('/api/send-lead', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(payload)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal merespons dari server');
+                return response.json();
+            })
             .then(data => {
-                if (data.status === 'success') {
-                    document.getElementById('register-form').remove();
-                    appendUserBubble('Data sudah dikirim!');
+                // Tutup Modal
+                if (checkoutModalInstance) checkoutModalInstance.hide();
 
-                    // Sweet Alert Success 🎉
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Boom! Berhasil 🚀',
-                        text: `Data ${userData.namaToko} sudah masuk ke sistem kami.`,
-                        confirmButtonColor: 'var(--bs-success)',
-                        background: 'var(--bs-body-bg)',
-                        color: 'var(--bs-body-color)'
-                    });
+                // Tampilkan SweetAlert Sukses Ala Premium
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pendaftaran Berhasil!',
+                    html: `Terima kasih <b>${payload.namaOwner}</b>.<br>Tim kami akan segera menghubungi nomor WA Anda untuk serah terima akun <b>${payload.namaToko}</b> dan panduan pembayaran.`,
+                    confirmButtonColor: 'var(--brand-caramel)',
+                    confirmButtonText: 'Selesai',
+                    background: 'var(--bs-card-bg)',
+                    color: 'var(--bs-body-color)',
+                    customClass: {
+                        popup: 'premium-card'
+                    }
+                });
 
-                    appendBotBubble(`🎉 Asik! Data *${userData.namaToko}* sudah kami terima. Tim Pakaiapp (Ngopikode) akan segera nge-WA kamu untuk serah terima akun. *Stay tuned*!`, 1000);
-                } else {
-                    throw new Error('Gagal dari server');
-                }
+                // Reset Form
+                document.getElementById('formCheckout').reset();
             })
             .catch(error => {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Waduh Error 😭',
-                    text: 'Koneksi ke server gagal. Coba hubungi via tombol WhatsApp mengambang ya!',
-                    confirmButtonColor: 'var(--bs-danger)'
+                    title: 'Oops.. Terjadi Kesalahan',
+                    text: 'Koneksi ke server gagal. Pastikan API /api/send-lead tersedia atau hubungi kami via WhatsApp.',
+                    confirmButtonColor: 'var(--bs-primary)',
+                    background: 'var(--bs-card-bg)',
+                    color: 'var(--bs-body-color)'
                 });
-                btn.innerHTML = `<i class="bi bi-rocket-takeoff-fill me-2"></i>Coba Lagi`;
+            })
+            .finally(() => {
+                // Kembalikan tombol seperti semula
+                btn.innerHTML = originalBtnText;
                 btn.disabled = false;
             });
+    });
+</script>
+
+<style>
+    /* Utility Tambahan untuk Animasi JS */
+    .fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    // 7. Payment Simulation Trigger using SweetAlert2
-    function triggerPayment(packageName, price) {
-        Swal.fire({
-            icon: 'info',
-            title: 'Memproses Pembelian...',
-            text: `Menyiapkan invoice untuk ${packageName} (Rp ${price.toLocaleString('id-ID')})...`,
-            showConfirmButton: false,
-            timer: 1200,
-            background: 'var(--bs-body-bg)',
-            color: 'var(--bs-body-color)'
-        }).then(() => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Diarahkan ke Payment Gateway terintegrasi...',
-                text: 'Sistem pembayaran aman & otomatis terverifikasi.',
-                confirmButtonColor: 'var(--bs-warning)',
-                confirmButtonText: 'Saya Mengerti',
-                background: 'var(--bs-body-bg)',
-                color: 'var(--bs-body-color)'
-            });
-        });
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-</script>
+</style>
 </body>
 </html>
