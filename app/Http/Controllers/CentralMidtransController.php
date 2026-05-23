@@ -111,12 +111,14 @@ class CentralMidtransController extends Controller
                 $status = 'cancelled';
             }
 
+            $paymentMethodDb = in_array(strtolower($type), ['gopay', 'shopeepay', 'qris']) ? 'qris' : 'transfer';
+
             if ($status === 'paid') {
                 $order->update([
                     'status' => 'paid',
                     'midtrans_transaction_id' => $notif->transaction_id,
                     'midtrans_payment_type' => $type,
-                    'payment_method' => 'digital', // Atau parsing $type ke format enum di DB
+                    'payment_method' => $paymentMethodDb,
                     'amount_paid' => (int) $notif->gross_amount,
                 ]);
             } else if ($status === 'cancelled') {

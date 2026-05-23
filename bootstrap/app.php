@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('universal', []);
         $middleware->trustProxies(at: '*');
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
+            'role' => CheckRole::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'duitku/callback',
@@ -22,5 +25,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->dontReport([
+            TenantCouldNotBeIdentifiedOnDomainException::class,
+        ]);
+
+        $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $e, \Illuminate\Http\Request $request) {
+            throw new NotFoundHttpException('Toko atau Domain tidak ditemukan.');
+        });
     })->create();

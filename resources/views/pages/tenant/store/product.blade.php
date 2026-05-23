@@ -486,7 +486,7 @@
                 <path d="m9 11 3 3L22 4"/>
             </svg>
         </div>
-        <span class="text-xs font-bold tracking-wide text-center sm:text-left" x-text="toast.message"></span>
+        <span class="text-xs font-bold tracking-wide text-left flex-1 break-words" x-text="toast.message"></span>
     </div>
 
     {{-- Variant Option Modal --}}
