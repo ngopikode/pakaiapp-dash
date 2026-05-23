@@ -559,21 +559,32 @@ document.addEventListener('alpine:init', () => {
 
                         this.checkoutLoading = false;
 
-                        window.snap.pay(snapToken, {
-                            onSuccess: function (result) {
-                                window.location.href = `/invoice/${invoiceCode}`;
-                            },
-                            onPending: function (result) {
-                                window.location.href = `/invoice/${invoiceCode}`;
-                            },
-                            onError: function (result) {
-                                alert("Pembayaran gagal!");
-                            },
-                            onClose: function () {
-                                // Jika user tutup modal sebelum bayar
-                                window.location.href = `/invoice/${invoiceCode}`;
-                            }
-                        });
+                        setTimeout(() => {
+                            window.snap.pay(snapToken, {
+                                onSuccess: (result) => {
+                                    window.location.href = `/invoice/${invoiceCode}`;
+                                },
+                                onPending: (result) => {
+                                    window.location.href = `/invoice/${invoiceCode}`;
+                                },
+                                onError: (result) => {
+                                    console.error('Midtrans Error:', result);
+                                    let errorMsg = "Pembayaran gagal diproses.";
+                                    if (result && result.status_message) {
+                                        errorMsg = `Gagal: ${result.status_message}`;
+                                    }
+                                    this.showToast(errorMsg);
+                                    
+                                    setTimeout(() => {
+                                        window.location.href = `/invoice/${invoiceCode}`;
+                                    }, 2000);
+                                },
+                                onClose: () => {
+                                    // Jika user tutup modal sebelum bayar
+                                    window.location.href = `/invoice/${invoiceCode}`;
+                                }
+                            });
+                        }, 300);
                         return;
                     }
 

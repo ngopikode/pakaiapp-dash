@@ -147,6 +147,9 @@
 
     <!-- Panel Selesaikan Pembayaran Dinamis (Midtrans) -->
     @if($order->status === 'pending' && $order->midtrans_snap_token)
+        <!-- Load Midtrans Snap.js -->
+        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+
         <div class="payment-instruction-container mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border no-print"
              style="max-width: 420px; border-radius: 16px !important;">
             <div class="d-flex align-items-center justify-content-between mb-3">
