@@ -753,7 +753,7 @@
                         style="color: var(--brand-caramel);">Gratis</h1>
                     <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
                         style="max-width: 220px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Gratis Saldo
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo
                             <strong>50 Trx</strong></li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
                             / trx
@@ -761,8 +761,8 @@
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
                             <strong>50</strong> Slot Produk
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tambah Slot:
-                            <strong>Rp 10rb/50</strong></li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
+                            <strong>Rp 10rb/50Slot</strong></li>
                     </ul>
                     <button
                         class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
@@ -771,7 +771,7 @@
                 </div>
             </div>
 
-            <!-- Paket Rame (Featured) -->
+            <!-- Paket Rame -->
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="bento-card p-4 p-md-5 h-100 d-flex flex-column text-center position-relative"
                      style="background: var(--bs-primary); border-color: var(--bs-primary);">
@@ -783,16 +783,15 @@
                     <ul class="list-unstyled text-white text-opacity-75 text-start mb-4 mx-auto small fs-md-6"
                         style="max-width: 220px;">
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Saldo <strong
-                                class="text-white">166</strong> Transaksi
-                        </li>
+                                class="text-white">216</strong> Trx <small>(+50 Bonus)</small></li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Tarif Rp 300
                             / trx
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i>
                             <strong>50</strong> Slot Produk
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Tambah Slot:
-                            <strong>Rp 10rb/50</strong></li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Beli Slot:
+                            <strong>Rp 10rb/50Slot</strong></li>
                     </ul>
                     <button class="btn w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
                             style="background: var(--brand-caramel); color: #fff; border: none;" data-paket="Rame"
@@ -809,16 +808,15 @@
                     <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
                         style="max-width: 220px;">
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo
-                            <strong>333</strong> Transaksi
-                        </li>
+                            <strong>383</strong> Trx <small>(+50 Bonus)</small></li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
                             / trx
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
                             <strong>50</strong> Slot Produk
                         </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tambah Slot:
-                            <strong>Rp 10rb/50</strong></li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
+                            <strong>Rp 10rb/50Slot</strong></li>
                     </ul>
                     <button
                         class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
