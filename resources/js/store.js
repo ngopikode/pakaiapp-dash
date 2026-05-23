@@ -29,7 +29,7 @@ document.addEventListener('alpine:init', () => {
     // -------------------------------------------------------------------------
     Alpine.data('storeApp', () => ({
         /* ===== CART ===== */
-        toast: { show: false, message: '' },
+        toast: {show: false, message: ''},
         qrOpen: false,
         cart: JSON.parse(localStorage.getItem('ezmenu-cart') || '[]'),
 
@@ -61,7 +61,7 @@ document.addEventListener('alpine:init', () => {
                         Accept: 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
                     },
-                    body: JSON.stringify({ invoices: invoiceCodes })
+                    body: JSON.stringify({invoices: invoiceCodes})
                 });
 
                 const data = await res.json();
@@ -144,7 +144,7 @@ document.addEventListener('alpine:init', () => {
             if (existing) {
                 existing.qty += quantity;
             } else {
-                this.cart.push({ ...item, cartName, qty: quantity });
+                this.cart.push({...item, cartName, qty: quantity});
             }
             this.saveCart();
             this.showToast('Berhasil ditambahkan ke keranjang!');
@@ -189,7 +189,7 @@ document.addEventListener('alpine:init', () => {
 
         /* ===== TOAST ===== */
         showToast(msg, duration = 3000) {
-            this.toast = { show: true, message: msg };
+            this.toast = {show: true, message: msg};
             clearTimeout(this._toastTimer);
             this._toastTimer = setTimeout(
                 () => (this.toast.show = false),
@@ -331,7 +331,7 @@ document.addEventListener('alpine:init', () => {
             const selectedLabel = [variantLabel, extrasLabel].filter(Boolean).join(' + ');
 
             this.addToCart(
-                { ...this.optionProduct, price },
+                {...this.optionProduct, price},
                 selectedLabel,
                 this.optionQty
             );
@@ -580,7 +580,7 @@ document.addEventListener('alpine:init', () => {
                                 },
                                 onError: (result) => {
                                     console.error('Midtrans Error:', result);
-                                    let errorMsg = "Pembayaran gagal diproses.";
+                                    let errorMsg = 'Pembayaran gagal diproses.';
                                     if (result && result.status_message) {
                                         errorMsg = `Gagal: ${result.status_message}`;
                                     }
@@ -784,9 +784,9 @@ window.showStoreLoader = function () {
 
 window.hideStoreLoader = function () {
     clearTimeout(storeNavShowTimeout); // Cancel if it hasn't shown yet
-    
+
     const dynamicLoader = document.getElementById('dynamic-nav-loader');
-    
+
     const removeLoaders = () => {
         if (dynamicLoader) {
             dynamicLoader.remove();

@@ -38,18 +38,25 @@
                 @click="historyOpen = false"
                 class="p-2 bg-white hover:bg-zinc-100 border border-zinc-200/50 hover:border-zinc-300 text-zinc-500 hover:text-zinc-800 transition-all rounded-xl active:scale-90"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
             </button>
         </div>
 
         {{-- Modal Body --}}
         <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-            
+
             {{-- CASE 1: Empty State (Belum ada riwayat pesanan) --}}
             <template x-if="orderHistory.length === 0 && !historyLoading">
                 <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
-                    <div class="w-20 h-20 rounded-[2rem] bg-zinc-100 border border-zinc-200/40 flex items-center justify-center mb-5 rotate-6 hover:rotate-0 transition-transform duration-300 shadow-inner">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400">
+                    <div
+                        class="w-20 h-20 rounded-[2rem] bg-zinc-100 border border-zinc-200/40 flex items-center justify-center mb-5 rotate-6 hover:rotate-0 transition-transform duration-300 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                             class="text-zinc-400">
                             <circle cx="12" cy="12" r="10"/>
                             <polyline points="12 6 12 12 16 14"/>
                         </svg>
@@ -70,7 +77,13 @@
             {{-- Loading State --}}
             <template x-if="historyLoading">
                 <div class="py-12 text-center flex flex-col items-center justify-center">
-                    <svg class="animate-spin w-8 h-8 text-[var(--primary-color)] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    <svg class="animate-spin w-8 h-8 text-[var(--primary-color)] mb-4"
+                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
                     <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Memuat Terbaru...</p>
                 </div>
             </template>
@@ -79,17 +92,20 @@
             <template x-if="orderHistory.length > 0 && !historyLoading">
                 <div class="space-y-4 pr-0.5">
                     <template x-for="order in orderHistory" :key="order.invoiceCode">
-                        <div class="bg-white rounded-2xl p-4 border border-zinc-100 shadow-sm shadow-zinc-100/40 hover:shadow-md hover:border-[var(--primary-color)]/30 hover:scale-[1.01] transition-all duration-300 flex flex-col gap-3 group">
-                            
+                        <div
+                            class="bg-white rounded-2xl p-4 border border-zinc-100 shadow-sm shadow-zinc-100/40 hover:shadow-md hover:border-[var(--primary-color)]/30 hover:scale-[1.01] transition-all duration-300 flex flex-col gap-3 group">
+
                             {{-- Info Atas: Invoice, Tanggal & Tipe Pesanan --}}
                             <div class="flex items-start justify-between pb-3 border-b border-zinc-50">
                                 <div>
-                                    <span class="text-xs font-black tracking-tight text-zinc-900 uppercase block" x-text="order.invoiceCode"></span>
-                                    <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wide mt-1 block" x-text="new Date(order.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}).replace('.', ':')"></span>
+                                    <span class="text-xs font-black tracking-tight text-zinc-900 uppercase block"
+                                          x-text="order.invoiceCode"></span>
+                                    <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-wide mt-1 block"
+                                          x-text="new Date(order.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false}).replace('.', ':')"></span>
                                 </div>
                                 <div class="flex flex-col gap-1.5 items-end shrink-0">
                                     {{-- Status Badge --}}
-                                    <span 
+                                    <span
                                         class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow-sm"
                                         :class="{
                                             'bg-amber-50 text-amber-600 border border-amber-200/60': !order.status || order.status === 'pending',
@@ -102,7 +118,7 @@
                                     ></span>
                                     <div class="flex items-center gap-1">
                                         {{-- Badge Tipe Order --}}
-                                        <span 
+                                        <span
                                             class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider"
                                             :class="{
                                                 'bg-amber-50 text-amber-600 border border-amber-100/50': order.orderType === 'takeaway',
@@ -113,19 +129,22 @@
                                         ></span>
                                     </div>
                                     {{-- Kode Pembayaran mini --}}
-                                    <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest" x-text="order.paymentName"></span>
+                                    <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-widest"
+                                          x-text="order.paymentName"></span>
                                 </div>
                             </div>
 
                             {{-- Info Tengah: List Item ringkas --}}
                             <div class="space-y-1 py-1">
                                 <template x-for="item in order.items">
-                                    <div class="flex items-center justify-between text-[11px] font-semibold text-zinc-500">
+                                    <div
+                                        class="flex items-center justify-between text-[11px] font-semibold text-zinc-500">
                                         <div class="flex items-center gap-1.5 truncate max-w-[240px]">
                                             <span class="text-zinc-400 font-bold" x-text="item.qty + 'x'"></span>
                                             <span class="truncate" x-text="item.name"></span>
                                         </div>
-                                        <span class="text-zinc-600 shrink-0 font-bold" x-text="formatPrice(item.price * item.qty)"></span>
+                                        <span class="text-zinc-600 shrink-0 font-bold"
+                                              x-text="formatPrice(item.price * item.qty)"></span>
                                     </div>
                                 </template>
                             </div>
@@ -134,15 +153,22 @@
                             <div class="flex items-center justify-between pt-3 border-t border-zinc-50">
                                 <div>
                                     <span class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider block">Total Belanja</span>
-                                    <span class="text-sm font-extrabold text-zinc-900 tracking-tight" x-text="order.total"></span>
+                                    <span class="text-sm font-extrabold text-zinc-900 tracking-tight"
+                                          x-text="order.total"></span>
                                 </div>
                                 <a
                                     :href="'/invoice/' + order.invoiceCode"
-                                    wire:navigate
+                                    target="_blank"
                                     class="px-3.5 py-2 bg-zinc-50 group-hover:bg-[var(--primary-color)] text-zinc-800 group-hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider border border-zinc-100 group-hover:border-[var(--primary-color)] transition-all duration-300 flex items-center gap-1 active:scale-95 shadow-sm"
                                 >
                                     <span>Detail</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="transform group-hover:translate-x-0.5 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                                         stroke-linejoin="round"
+                                         class="transform group-hover:translate-x-0.5 transition-transform">
+                                        <path d="M5 12h14"/>
+                                        <path d="m12 5 7 7-7 7"/>
+                                    </svg>
                                 </a>
                             </div>
 
@@ -160,12 +186,19 @@
                     @click="clearHistory()"
                     class="py-2.5 px-3.5 bg-red-50/80 hover:bg-red-50 text-red-600 hover:text-red-700 transition-all rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1 border border-red-100/40"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"/>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                        <line x1="10" x2="10" y1="11" y2="17"/>
+                        <line x1="14" x2="14" y1="11" y2="17"/>
+                    </svg>
                     <span>Bersihkan</span>
                 </button>
             </template>
             <div x-show="orderHistory.length === 0"></div>
-            
+
             <button
                 @click="historyOpen = false"
                 class="py-3 px-6 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-zinc-950/15 active:scale-95 transition-all ml-auto"
