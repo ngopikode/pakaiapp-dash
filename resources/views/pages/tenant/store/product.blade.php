@@ -186,9 +186,42 @@
             get qtyInCart() {
                 const i = cart.find(x => x.cartName === this.product.name);
                 return i ? i.qty : 0;
+            },
+            isRefreshing: false,
+            pullY: 0,
+            pullStartY: 0,
+            handleTouchStart(e) {
+                if (window.scrollY === 0) this.pullStartY = e.touches[0].clientY;
+                else this.pullStartY = 0;
+            },
+            handleTouchMove(e) {
+                if (!this.pullStartY || this.isRefreshing) return;
+                const dist = e.touches[0].clientY - this.pullStartY;
+                if (dist > 0 && window.scrollY <= 0) {
+                    this.pullY = Math.min(dist, 100);
+                }
+            },
+            async handleTouchEnd() {
+                if (!this.pullStartY) return;
+                if (this.pullY > 60) {
+                    this.isRefreshing = true;
+                    this.pullY = 60;
+                    await new Promise(r => setTimeout(r, 400));
+                    if (typeof Livewire !== 'undefined') {
+                        Livewire.navigate(window.location.href);
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    this.pullY = 0;
+                }
+                this.pullStartY = 0;
             }
         }"
         @scroll.window="scrolled = window.scrollY > window.innerHeight * 0.25"
+        @touchstart="handleTouchStart($event)"
+        @touchmove="handleTouchMove($event)"
+        @touchend="handleTouchEnd()"
     >
         {{-- Floating header (transparent to solid on scroll) --}}
         <header
@@ -246,6 +279,25 @@
                 </button>
             </div>
         </header>
+
+        {{-- Pull-to-Refresh Indicator --}}
+        <div
+            class="w-full flex justify-center items-end overflow-hidden transition-all duration-200 ease-out relative z-[100]"
+            :style="`height: ${isRefreshing ? 60 : Math.min(pullY, 60)}px; opacity: ${isRefreshing ? 1 : Math.min(pullY / 60, 1)}`"
+        >
+            <div class="flex items-center gap-2 text-zinc-500 pb-3">
+                <template x-if="isRefreshing">
+                    <div class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
+                </template>
+                <template x-if="!isRefreshing">
+                    <div class="w-5 h-5 flex items-center justify-center transition-transform"
+                         :style="`transform: rotate(${pullY * 3}deg)`">↓
+                    </div>
+                </template>
+                <span class="text-xs font-bold"
+                      x-text="isRefreshing ? 'Memuat ulang produk...' : 'Tarik untuk refresh'"></span>
+            </div>
+        </div>
 
         {{-- Parallax Hero Image --}}
         <div class="sticky top-0 w-full h-[45vh] z-0 overflow-hidden">
