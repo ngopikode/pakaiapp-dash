@@ -215,6 +215,49 @@
         </script>
     @endif
 
+    <!-- Banner Status Pesanan Aktif (Bukan Pending) -->
+    @if($order->status !== 'pending')
+        <div class="mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border text-center no-print"
+             style="max-width: 420px; border-radius: 16px !important;">
+            
+            @if($order->status === 'paid')
+                <div class="d-inline-flex align-items-center justify-content-center bg-info-subtle text-info rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #e0f2fe !important; color: #0284c7 !important;">
+                    <i class="bi bi-check-circle-fill fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Menunggu Disiapkan</h5>
+                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">Pembayaran sukses! Pesanan kamu telah dikonfirmasi dan sedang menunggu disiapkan oleh outlet.</p>
+            @elseif($order->status === 'progress')
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3 p-3 animate-pulse" style="width: 60px; height: 60px; background-color: #eff6ff !important; color: #2563eb !important;">
+                    <i class="bi bi-clock-fill fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Sedang Diproses</h5>
+                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">Pesanan kamu sedang disiapkan dengan kasih sayang. Mohon ditunggu sebentar ya!</p>
+            @elseif($order->status === 'completed')
+                <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #f0fdf4 !important; color: #16a34a !important;">
+                    <i class="bi bi-bag-check-fill fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Pesanan Selesai</h5>
+                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">Terima kasih banyak telah berbelanja di outlet kami. Selamat menikmati!</p>
+            @elseif($order->status === 'cancelled')
+                <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #fef2f2 !important; color: #dc2626 !important;">
+                    <i class="bi bi-x-circle-fill fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Pesanan Dibatalkan</h5>
+                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">
+                    Pesanan ini telah dibatalkan.
+                    @if($order->cancellation_note)
+                        <br><span class="text-danger small mt-1 d-block fw-bold">Alasan: {{ $order->cancellation_note }}</span>
+                    @endif
+                </p>
+            @else
+                <div class="d-inline-flex align-items-center justify-content-center bg-secondary-subtle text-secondary rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #f4f4f5 !important; color: #71717a !important;">
+                    <i class="bi bi-info-circle-fill fs-3"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1 text-uppercase">{{ $order->status }}</h5>
+            @endif
+        </div>
+    @endif
+
     <div id="receipt-content" class="receipt-container p-4 p-md-5 mt-2">
         <div class="text-center mb-4">
             @if($store && $store->logo)

@@ -66,7 +66,10 @@ document.addEventListener('alpine:init', () => {
 
                 const data = await res.json();
                 if (data.success) {
-                    this.orderHistory = data.data;
+                    this.orderHistory = data.data.map(order => ({
+                        ...order,
+                        total: this.formatPrice(order.totalRaw)
+                    }));
                     this.saveHistory();
                 }
             } catch (e) {
@@ -79,7 +82,11 @@ document.addEventListener('alpine:init', () => {
 
         loadHistory() {
             try {
-                this.orderHistory = JSON.parse(localStorage.getItem('pakaiapp_order_history') || '[]');
+                const history = JSON.parse(localStorage.getItem('pakaiapp_order_history') || '[]');
+                this.orderHistory = history.map(order => ({
+                    ...order,
+                    total: order.total || this.formatPrice(order.totalRaw)
+                }));
             } catch (e) {
                 console.error('[History] Gagal memuat riwayat pesanan', e);
                 this.orderHistory = [];
@@ -103,6 +110,7 @@ document.addEventListener('alpine:init', () => {
                 orderType: orderData.orderType,
                 paymentMethod: orderData.paymentMethod,
                 paymentName: orderData.paymentName,
+                status: orderData.status || 'pending',
                 items: orderData.items.map(i => ({
                     name: i.cartName || i.name,
                     qty: i.qty,

@@ -92,13 +92,13 @@
                                     <span 
                                         class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow-sm"
                                         :class="{
-                                            'bg-zinc-100 text-zinc-600 border border-zinc-200': !order.status || order.status === 'pending',
-                                            'bg-emerald-50 text-emerald-600 border border-emerald-200': order.status === 'paid',
-                                            'bg-blue-50 text-blue-600 border border-blue-200': order.status === 'progress',
-                                            'bg-purple-50 text-purple-600 border border-purple-200': order.status === 'completed',
-                                            'bg-red-50 text-red-600 border border-red-200': order.status === 'cancelled',
+                                            'bg-amber-50 text-amber-600 border border-amber-200/60': !order.status || order.status === 'pending',
+                                            'bg-sky-50 text-sky-600 border border-sky-200/60': order.status === 'paid',
+                                            'bg-blue-50 text-blue-600 border border-blue-200/60': order.status === 'progress',
+                                            'bg-emerald-50 text-emerald-600 border border-emerald-200/60': order.status === 'completed',
+                                            'bg-rose-50 text-rose-600 border border-rose-200/60': order.status === 'cancelled',
                                         }"
-                                        x-text="order.status === 'progress' ? 'Diproses' : (order.status === 'completed' ? 'Selesai' : (order.status === 'paid' ? 'Lunas' : (order.status === 'cancelled' ? 'Batal' : 'Belum Bayar')))"
+                                        x-text="order.status === 'paid' ? 'Menunggu Disiapkan' : (order.status === 'progress' ? 'Sedang Diproses' : (order.status === 'completed' ? 'Selesai' : (order.status === 'cancelled' ? 'Batal' : 'Menunggu Pembayaran')))"
                                     ></span>
                                     <div class="flex items-center gap-1">
                                         {{-- Badge Tipe Order --}}
@@ -138,6 +138,7 @@
                                 </div>
                                 <a
                                     :href="'/invoice/' + order.invoiceCode"
+                                    wire:navigate
                                     class="px-3.5 py-2 bg-zinc-50 group-hover:bg-[var(--primary-color)] text-zinc-800 group-hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider border border-zinc-100 group-hover:border-[var(--primary-color)] transition-all duration-300 flex items-center gap-1 active:scale-95 shadow-sm"
                                 >
                                     <span>Detail</span>
