@@ -819,6 +819,21 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('livewire:navigated', () => {
     window.hideStoreLoader();
+
+    // Fix Midtrans Snap.js in Livewire SPA
+    // Livewire replaces the <body> during navigation, which destroys the hidden
+    // iframe container that snap.js creates on initial load. We must force snap.js
+    // to re-evaluate so it injects its container into the new <body>.
+    const snapScript = document.querySelector('script[src*="snap.js"]');
+    if (snapScript) {
+        const newScript = document.createElement('script');
+        newScript.src = snapScript.src;
+        if (snapScript.hasAttribute('data-client-key')) {
+            newScript.setAttribute('data-client-key', snapScript.getAttribute('data-client-key'));
+        }
+        snapScript.remove();
+        document.head.appendChild(newScript);
+    }
 });
 
 document.addEventListener('livewire:initialized', () => {
