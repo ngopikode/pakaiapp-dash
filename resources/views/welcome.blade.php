@@ -502,7 +502,7 @@
     </div>
 </section>
 
-<!-- SIMULASI SECTION (Dengan Guide Pulse) -->
+<!-- SIMULASI SECTION -->
 <section id="simulasi" class="py-huge bg-tertiary-bg border-bottom border-color">
     <div class="container text-center">
         <h2 class="font-serif fw-bolder text-body mb-2 mb-md-3" data-aos="zoom-in">Simulasi Anti-Buntung</h2>
@@ -514,7 +514,6 @@
         <div class="bento-card p-4 p-md-5 mx-auto bg-body" style="max-width: 800px;" data-aos="fade-up">
             <h5 class="fw-bold mb-4 text-body font-serif fs-6 fs-md-5">Hari ini toko kamu dapat berapa pesanan?</h5>
 
-            <!-- Animated Guide Hint -->
             <div class="mb-3">
                 <span class="badge bg-warning text-dark px-3 py-2 rounded-pill animate-guide shadow-sm">
                     <i class="bi bi-arrows-left-right me-2"></i>Coba geser bulatan di bawah ini
@@ -546,12 +545,13 @@
                         style="font-size: 0.75rem;"><i class="bi bi-check-circle-fill me-1"></i> Sesuai omzet</span>
                 </div>
                 <div class="col-6 px-2 px-md-3">
-                    <p class="mb-1 mb-md-2 text-secondary small">Biaya Langganan</p>
-                    <h3 class="fw-bolder text-body font-serif mb-2 fs-5 fs-md-2">Rp 6.600 <span
-                            class="fs-6 text-tertiary-color d-none d-sm-inline">/hari</span></h3>
+                    <p class="mb-1 mb-md-2 text-secondary small">Biaya App Langganan</p>
+                    <h3 class="fw-bolder text-body font-serif mb-2 fs-5 fs-md-2">Rp 198.000 <span
+                            class="fs-6 text-tertiary-color d-none d-sm-inline">/bulan</span></h3>
                     <span
                         class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1 px-md-3 py-md-2 d-inline-block text-wrap lh-sm"
-                        style="font-size: 0.75rem;"><i class="bi bi-x-circle-fill me-1"></i> Sepi tetap bayar</span>
+                        style="font-size: 0.75rem;"><i
+                            class="bi bi-x-circle-fill me-1"></i> Toko sepi tetap bayar</span>
                 </div>
             </div>
         </div>
