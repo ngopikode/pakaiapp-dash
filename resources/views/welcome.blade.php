@@ -759,7 +759,7 @@
                             / trx
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <strong>50</strong> Slot Produk
+                            <strong>12</strong> Slot Produk
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
                             <strong>Rp 10rb/50Slot</strong></li>
@@ -788,7 +788,7 @@
                             / trx
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i>
-                            <strong>50</strong> Slot Produk
+                            <strong>12</strong> Slot Produk
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Beli Slot:
                             <strong>Rp 10rb/50Slot</strong></li>
@@ -813,7 +813,7 @@
                             / trx
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <strong>50</strong> Slot Produk
+                            <strong>12</strong> Slot Produk
                         </li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
                             <strong>Rp 10rb/50Slot</strong></li>
