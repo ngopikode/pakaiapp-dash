@@ -10,7 +10,7 @@
 
         <div class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap w-100 w-md-auto">
             <!-- View Mode Toggles (Fully visible on all screens!) -->
-            <div class="p-1 rounded-pill view-mode-pill d-flex align-items-center shadow-sm">
+            <div id="tour-view-mode" class="p-1 rounded-pill view-mode-pill d-flex align-items-center shadow-sm">
                 <button @click="viewMode = 'grid'"
                         :class="viewMode === 'grid' ? 'view-mode-btn active shadow-sm' : 'view-mode-btn text-muted'"
                         class="btn btn-sm rounded-pill px-3 transition-all">
@@ -24,7 +24,7 @@
             </div>
 
             <!-- Action Buttons -->
-            <button wire:click="$dispatch('openModal', { type: 'category', mode: 'create' })"
+            <button id="tour-add-category" wire:click="$dispatch('openModal', { type: 'category', mode: 'create' })"
                     class="btn btn-outline-secondary fw-bold px-3 py-2.5 rounded-pill shadow-sm transition-all d-flex align-items-center justify-content-center gap-1.5 flex-grow-1 flex-md-grow-0"
                     style="border-color: var(--bs-border-color) !important; color: var(--bs-body-color); font-size: 0.9rem;">
                 <i class="bi bi-folder-plus text-warning"
@@ -32,7 +32,7 @@
                 <span>Kategori</span>
             </button>
 
-            <a href="{{ route('product.create') }}" wire:navigate
+            <a id="tour-add-product" href="{{ route('product.create') }}" wire:navigate
                class="btn brand-gradient-btn fw-bold px-4 py-2.5 rounded-pill shadow-sm flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-1.5"
                style="font-size: 0.9rem;">
                 <i class="bi bi-plus-lg"></i> <span>Tambah Produk</span>
@@ -41,7 +41,7 @@
     </div>
 
     {{-- Categories & Products List --}}
-    <div class="row">
+    <div id="tour-category-list" class="row">
         <div class="col-12">
             @forelse($categories as $category)
                 <div class="cat-accordion-item" wire:key="cat-{{ $category->id }}">
