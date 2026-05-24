@@ -1,53 +1,59 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data="restoPos()"
      @add-product.window="handleProductClick($event.detail.product)"
-     @keydown.window="handleKeydown($event)" x-cloak>
+     @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
+     @keydown.window="handleKeydown($event)"
+     @open-mobile-cart.window="isMobileCartOpen = true"
+     @close-mobile-cart.window="isMobileCartOpen = false"
+     x-cloak>
 
-<style>
-    @media (max-width: 767.98px) {
-        .mobile-help-fab {
-            position: fixed !important;
-            bottom: 24px !important;
-            right: 24px !important;
-            width: 48px !important;
-            height: 48px !important;
-            z-index: 1040 !important;
-            background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-mocha, #846A58)) !important;
-            color: #ffffff !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
-            margin: 0 !important;
-            display: flex !important;
-            transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s ease, box-shadow 0.2s ease !important;
-        }
-        
-        .mobile-help-fab.active-cart {
-            bottom: 96px !important; /* Raised to float above the bottom "View Cart" checkout button */
-        }
-        
-        .mobile-help-fab:hover, .mobile-help-fab:active {
-            transform: scale(1.08) !important;
-            box-shadow: 0 10px 28px rgba(0,0,0,0.25) !important;
-        }
+    <style>
+        @media (max-width: 767.98px) {
+            .mobile-help-fab {
+                position: fixed !important;
+                bottom: 24px !important;
+                right: 24px !important;
+                width: 48px !important;
+                height: 48px !important;
+                z-index: 1040 !important;
+                background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-mocha, #846A58)) !important;
+                color: #ffffff !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+                margin: 0 !important;
+                display: flex !important;
+                transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s ease, box-shadow 0.2s ease !important;
+            }
 
-        .mobile-help-fab i {
-            font-size: 1.3rem !important; /* Slightly larger icon for comfortable mobile tapping */
+            .mobile-help-fab.active-cart {
+                bottom: 96px !important; /* Raised to float above the bottom "View Cart" checkout button */
+            }
+
+            .mobile-help-fab:hover, .mobile-help-fab:active {
+                transform: scale(1.08) !important;
+                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25) !important;
+            }
+
+            .mobile-help-fab i {
+                font-size: 1.3rem !important; /* Slightly larger icon for comfortable mobile tapping */
+            }
         }
-    }
-</style>
+    </style>
 
     {{-- Premium Glassmorphism Loading Screen --}}
-    <div wire:loading wire:target="changeTab" 
+    <div wire:loading wire:target="changeTab"
          class="position-absolute top-0 start-0 w-100 h-100"
          style="z-index: 2000; background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(8px); border-radius: 1.5rem; transition: all 0.3s ease;">
-         <div class="w-100 h-100 d-flex justify-content-center align-items-center">
-             <div class="text-center bg-body p-4 rounded-4 shadow border" style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
-                 <div class="spinner-border text-warning mb-3" role="status" style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
-                     <span class="visually-hidden">Loading...</span>
-                 </div>
-                 <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
-                 <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
-             </div>
-         </div>
+        <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+            <div class="text-center bg-body p-4 rounded-4 shadow border"
+                 style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
+                <div class="spinner-border text-warning mb-3" role="status"
+                     style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
+                <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
+            </div>
+        </div>
     </div>
 
     {{-- Tab Navigation (Safe Context Colors) --}}
@@ -59,7 +65,7 @@
                     style="border-radius: 1rem;">
                 <i class="bi bi-plus-circle"></i> Kasir Baru
             </button>
-            <button wire:click="changeTab('queue')"
+            <button wire:click="changeTab('queue')" title="Daftar Antrean"
                     class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
                     :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
                     style="border-radius: 1rem;">
@@ -77,7 +83,7 @@
         </div>
 
         {{-- Premium Help Button (Dynamic FAB on Mobile, Standard Circle on Desktop) --}}
-        <button @click="showTutorialModal()"
+        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('start-pos-tour'))"
                 class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0 mobile-help-fab"
                 :class="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0 ? 'active-cart' : ''"
                 style="width: 40px; height: 40px; border-radius: 50% !important;"
@@ -110,7 +116,7 @@
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
-    <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
+    <template x-if="currentTab === 'cashier' && !isMobileCartOpen">
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
@@ -124,10 +130,10 @@
     @include('pages.tenant.pos._modal-payment')
     @include('pages.tenant.pos._modal-variant')
     @include('pages.tenant.pos._modal-success')
+    @include('pages.tenant.pos._pos-tour-guide', ['mode' => 'resto'])
 
     {{-- ===== OPTION MODAL ===== --}}
     @include('pages.tenant.pos._modal-option')
-    @include('pages.tenant.pos._modal-tutorial', ['mode' => 'resto'])
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -138,7 +144,9 @@
 
 @if(config('midtrans.client_key'))
     @push('scripts')
-        <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+        <script
+            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+            data-client-key="{{ config('midtrans.client_key') }}"></script>
     @endpush
 @endif
 
@@ -155,7 +163,6 @@
         paymentModalInstance: null,
         successModalInstance: null,
         optionModalInstance: null,
-        tutorialModalInstance: null,
 
         optionProduct: null,
         optionSelected: [],
@@ -176,7 +183,7 @@
 
         async fetchDuitkuMethods() {
             @if(!config('duitku.enabled'))
-            return;
+                return;
             @endif
             if (this.payTotal <= 0) return;
             try {
@@ -212,7 +219,6 @@
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
-            this.tutorialModalInstance = new bootstrap.Modal(document.getElementById('tutorialModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
         },
 
@@ -526,7 +532,7 @@
                 let result;
                 let isDirect = !this.payingOrder;
 
-                // Duitku & Midtrans: gunakan Livewire action jika payingOrder (menghindari duplikasi order), 
+                // Duitku & Midtrans: gunakan Livewire action jika payingOrder (menghindari duplikasi order),
                 // atau gunakan OrderApiController via /api/orders jika pesanan baru
                 if (this.paymentMethod === 'duitku' || this.paymentMethod === 'digital') {
                     const custEmail = this.duitkuCustomerEmail ? this.duitkuCustomerEmail.trim() : '';
@@ -586,15 +592,15 @@
                     }));
 
                     const payload = {
-                        customer_name:  (this.customerName || '').trim() || 'Pelanggan POS',
+                        customer_name: (this.customerName || '').trim() || 'Pelanggan POS',
                         customer_email: custEmail || 'noreply@pakaiapp.online',
-                        total_price:    this.payTotal,
+                        total_price: this.payTotal,
                         payment_method: this.paymentMethod === 'digital' ? 'digital' : this.duitkuMethod,
-                        order_type:     this.orderType || 'retail',
-                        items:          cartItems,
+                        order_type: this.orderType || 'retail',
+                        items: cartItems
                     };
 
-                    const res  = await fetch('/api/orders', {
+                    const res = await fetch('/api/orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -609,7 +615,11 @@
                         this.paymentModalInstance.hide();
                         window.open(data.data.payment_url, '_blank');
                         showIslandToast(`Link Duitku dibuka! Invoice: ${data.data.invoice_code}`, 'success');
-                        if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                        if (isDirect) {
+                            this.clearCart();
+                            this.customerName = '';
+                            this.tableNumber = '';
+                        }
                         this.duitkuMethod = null;
                         this.duitkuCustomerEmail = '';
                     } else if (res.ok && data.data?.snap_token) {
@@ -617,18 +627,30 @@
                         window.snap.pay(data.data.snap_token, {
                             onSuccess: (res) => {
                                 showIslandToast(`Pembayaran berhasil!`, 'success');
-                                if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                                if (isDirect) {
+                                    this.clearCart();
+                                    this.customerName = '';
+                                    this.tableNumber = '';
+                                }
                             },
                             onPending: (res) => {
                                 showIslandToast(`Menunggu pembayaran...`, 'warning');
-                                if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                                if (isDirect) {
+                                    this.clearCart();
+                                    this.customerName = '';
+                                    this.tableNumber = '';
+                                }
                             },
                             onError: (res) => {
                                 showIslandToast(`Pembayaran gagal.`, 'danger');
                             },
                             onClose: () => {
                                 showIslandToast(`Popup ditutup sebelum pembayaran selesai.`, 'warning');
-                                if (isDirect) { this.clearCart(); this.customerName = ''; this.tableNumber = ''; }
+                                if (isDirect) {
+                                    this.clearCart();
+                                    this.customerName = '';
+                                    this.tableNumber = '';
+                                }
                             }
                         });
                         this.duitkuMethod = null;
@@ -639,7 +661,7 @@
                             errorMsg = Object.values(data.errors).flat().join(', ');
                         }
                         showIslandToast(errorMsg, 'danger');
-                        console.error("API Order Error:", data);
+                        console.error('API Order Error:', data);
                     }
                     this.isSubmitting = false;
                     return;
@@ -673,33 +695,33 @@
                 }
             } catch (e) {
                 this.paymentModalInstance.hide();
-                console.error("Kasir Sistem Error:", e);
+                console.error('Kasir Sistem Error:', e);
                 showIslandToast('Sistem Error: ' + e.message, 'danger');
             }
             this.isSubmitting = false;
         },
 
         handleKeydown(e) {
-            if (e.key === 'F2') { 
-                e.preventDefault(); 
+            if (e.key === 'F2') {
+                e.preventDefault();
                 if (this.currentTab === 'cashier') {
-                    this.openDirectPaymentModal(); 
+                    this.openDirectPaymentModal();
                 }
-                return; 
+                return;
             }
-            if (e.key === 'F3') { 
-                e.preventDefault(); 
+            if (e.key === 'F3') {
+                e.preventDefault();
                 if (this.currentTab === 'cashier' && this.cart.length > 0 && !this.isSubmitting) {
-                    this.submitNewOrder(); 
+                    this.submitNewOrder();
                 }
-                return; 
+                return;
             }
-            if (e.key === 'F4') { 
-                e.preventDefault(); 
+            if (e.key === 'F4') {
+                e.preventDefault();
                 if (this.currentTab === 'cashier') {
-                    this.clearCart(); 
+                    this.clearCart();
                 }
-                return; 
+                return;
             }
             if (e.key === 'F8') {
                 e.preventDefault();
@@ -746,15 +768,13 @@
         },
         closeSuccessModal() {
             this.successModalInstance.hide();
-            this.payingOrder = null;
-            this.lastOrder = {};
+            this.clearCart();
+            this.customerName = '';
+            this.tableNumber = '';
             this.payDiscount = 0;
             this.amountPaid = '';
-        },
-        showTutorialModal() {
-            localStorage.setItem('pakaiapp_tutorial_dismissed', 'true');
-            window.dispatchEvent(new CustomEvent('tutorial-opened'));
-            this.tutorialModalInstance.show();
+            this.lastOrder = {};
+            this.payingOrder = null;
         }
     }));
 </script>

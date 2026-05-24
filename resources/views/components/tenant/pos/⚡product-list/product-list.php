@@ -37,11 +37,12 @@ new class extends Component {
 
     public function with(): array
     {
-        $query = Product::with(['variants:id,product_id,name,cost,price,stock', 'extras' => fn($q) => $q->where('is_active', true)])
+        $query = Product::with(['variants:id,product_id,name,cost,price,stock'])
+            ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
-            ->when($this->search, fn($q) => $q->where(function($query) {
+            ->when($this->search, fn($q) => $q->where(function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('variants', fn($v) => $v->where('sku', 'like', '%' . $this->search . '%'));
+                    ->orWhereHas('variants', fn($v) => $v->where('sku', 'like', '%' . $this->search . '%'));
             }))
             ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
 
@@ -73,14 +74,16 @@ new class extends Component {
                 })->toArray(),
 
                 // Kirim semua extra/add-on ke Frontend (Alpine)
-                'extras' => $p->extras->map(function ($e) {
-                    return [
-                        'id' => $e->id,
-                        'name' => $e->name,
-                        'price' => (float)$e->price,
-                        'is_active' => (bool)$e->is_active,
-                    ];
-                })->toArray()
+                'extras' => tenant('store_type') === 'resto'
+                    ? $p->extras->map(function ($e) {
+                        return [
+                            'id' => $e->id,
+                            'name' => $e->name,
+                            'price' => (float)$e->price,
+                            'is_active' => (bool)$e->is_active,
+                        ];
+                    })->toArray()
+                    : []
             ];
         });
 

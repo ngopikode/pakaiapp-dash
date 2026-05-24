@@ -5,7 +5,7 @@
         <div class="position-relative">
             <i class="bi bi-search position-absolute text-muted fs-5"
                style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
-            <input type="text" class="form-control form-control-lg glass-search ps-5 py-2.5"
+            <input type="text" id="tour-pos-search" class="form-control form-control-lg glass-search ps-5 py-2.5"
                    style="border-radius: 2rem; font-size: 0.95rem;"
                    wire:model.live.debounce.300ms="search" placeholder="Cari menu atau produk jualan...">
         </div>
@@ -26,7 +26,7 @@
     </div>
 
     {{-- 3. Product Grid Canvas --}}
-    <div class="product-grid pb-4">
+    <div id="tour-product-grid" class="product-grid pb-4">
 
         {{-- KONDISI LOADING: Layer Skeleton Muncul --}}
         <div wire:loading wire:target="search, categoryFilter" class="w-100">
@@ -52,7 +52,7 @@
         <div wire:loading.remove wire:target="search, categoryFilter" class="w-100">
             <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
                 @forelse($products as $product)
-                    <div class="col">
+                    <div class="col tour-product-item">
                         <div
                             class="card h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
                             style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;"

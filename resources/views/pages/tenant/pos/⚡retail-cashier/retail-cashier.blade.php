@@ -4,6 +4,8 @@
      @barcode-scanned.window="handleBarcodeScan($event.detail.product, $event.detail.variant)"
      @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
      @keydown.window="handleKeydown($event)"
+     @open-mobile-cart.window="isMobileCartOpen = true"
+     @close-mobile-cart.window="isMobileCartOpen = false"
      x-cloak>
 
 <style>
@@ -80,7 +82,7 @@
         </div>
 
         {{-- Premium Help Button (Dynamic FAB on Mobile, Standard Circle on Desktop) --}}
-        <button @click="showTutorialModal()"
+        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('start-pos-tour'))"
                 class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0 mobile-help-fab"
                 :class="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0 ? 'active-cart' : ''"
                 style="width: 40px; height: 40px; border-radius: 50% !important;"
@@ -128,7 +130,7 @@
     @include('pages.tenant.pos._modal-variant')
     @include('pages.tenant.pos._modal-success')
     @include('pages.tenant.pos._modal-held-orders')
-    @include('pages.tenant.pos._modal-tutorial', ['mode' => 'retail'])
+    @include('pages.tenant.pos._pos-tour-guide', ['mode' => 'retail'])
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -156,7 +158,6 @@
         paymentModalInstance: null,
         successModalInstance: null,
         heldOrdersModalInstance: null,
-        tutorialModalInstance: null,
 
         customerName: '',
         customerPhone: '',
@@ -208,7 +209,6 @@
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.heldOrdersModalInstance = new bootstrap.Modal(document.getElementById('heldOrdersModal'));
-            this.tutorialModalInstance = new bootstrap.Modal(document.getElementById('tutorialModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
             this.$watch('heldOrders', (val) => localStorage.setItem('posHeldOrders', JSON.stringify(val)), {deep: true});
         },
@@ -629,11 +629,6 @@
             this.globalDiscount = '';
             this.amountPaid = '';
             this.lastOrder = {};
-        },
-        showTutorialModal() {
-            localStorage.setItem('pakaiapp_tutorial_dismissed', 'true');
-            window.dispatchEvent(new CustomEvent('tutorial-opened'));
-            this.tutorialModalInstance.show();
         }
     }));
 </script>

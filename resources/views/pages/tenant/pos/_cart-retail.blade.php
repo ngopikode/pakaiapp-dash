@@ -34,7 +34,7 @@
     </div>
 
     {{-- Cart Items --}}
-    <div class="card-body p-3 overflow-y-auto flex-grow-1 bg-body-tertiary">
+    <div id="tour-cart-items" class="card-body p-3 overflow-y-auto flex-grow-1 bg-body-tertiary">
         <template x-if="cart.length === 0">
             <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50">
                 <i class="bi bi-bag-dash mb-3" style="font-size: 3.5rem;"></i>
@@ -150,7 +150,7 @@
 
         <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
 
-        <button @click="openPaymentModal"
+        <button id="tour-retail-pay" @click="openPaymentModal"
                 class="btn w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center py-3 text-white border-0"
                 :disabled="cart.length === 0 || stockError !== ''"
                 style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309);">

@@ -20,7 +20,7 @@
     </div>
 
     {{-- Cart Items --}}
-    <div class="card-body p-3 overflow-y-auto flex-grow-1 bg-body-tertiary">
+    <div id="tour-cart-items" class="card-body p-3 overflow-y-auto flex-grow-1 bg-body-tertiary">
         <template x-if="cart.length === 0">
             <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50">
                 <i class="bi bi-bag-dash mb-3" style="font-size: 3.5rem;"></i>
@@ -107,7 +107,7 @@
         <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
 
         {{-- Ringkasan Biaya & Pajak --}}
-        <div class="card p-3 border mb-3 bg-body-tertiary" style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;" x-show="cart.length > 0">
+        <div class="card p-3 border mb-3 bg-body-tertiary" style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-secondary small">Subtotal</span>
                 <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(subTotal)"></span>
@@ -143,14 +143,14 @@
 
         <div class="row g-2">
             <div class="col-12 col-xl-6">
-                <button @click="submitNewOrder"
+                <button id="tour-resto-save" @click="submitNewOrder"
                         class="btn btn-warning w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center text-dark py-3"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting" style="border-radius: 1rem;">
                     <span x-text="isSubmitting ? 'Memproses...' : 'Simpan Antrian'"></span>
                 </button>
             </div>
             <div class="col-12 col-xl-6">
-                <button @click="openDirectPaymentModal"
+                <button id="tour-resto-pay" @click="openDirectPaymentModal"
                         class="btn w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center py-3 text-white"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
                         style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
