@@ -73,12 +73,23 @@
 
                 startTour() {
                     if (this.isActive) return;
-                    this.currentStep = 0;
-                    this.isActive = true;
-                    this.isPositioned = false;
-                    document.body.style.overflow = 'hidden';
 
-                    this.updatePositions();
+                    let delay = 0;
+                    // Cari accordion yang sedang terbuka (tidak memiliki class collapsed)
+                    let openAccordionBtn = document.querySelector('.cat-accordion-btn:not(.collapsed)');
+                    if (openAccordionBtn) {
+                        openAccordionBtn.click(); // Klik untuk menutup
+                        delay = 600; // Tunggu sebentar sampai Livewire selesai render penutupan
+                    }
+
+                    setTimeout(() => {
+                        this.currentStep = 0;
+                        this.isActive = true;
+                        this.isPositioned = false;
+                        document.body.style.overflow = 'hidden';
+
+                        this.updatePositions();
+                    }, delay);
                 },
 
                 endTour() {

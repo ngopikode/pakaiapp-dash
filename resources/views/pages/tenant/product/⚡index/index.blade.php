@@ -65,12 +65,13 @@
                     {{-- Accordion Body --}}
                     @if($activeCategoryId == $category->id)
                         <div class="p-3 p-md-4" wire:loading.remove
-                             wire:target="loadProducts({{ $category->id }})">
+                             wire:target="loadProducts({{ $category->id }})"
+                             x-data x-init="setTimeout(() => window.dispatchEvent(new CustomEvent('start-accordion-tour', { detail: { force: false } })), 600)">
 
                             {{-- Category Actions --}}
                             <div class="d-flex justify-content-end mb-3 gap-2 border-bottom pb-3"
                                  style="border-color: var(--bs-border-color) !important;">
-                                <button
+                                <button id="tour-accordion-edit-category"
                                     wire:click="$dispatch('openModal', { type: 'category', mode: 'edit', id: {{ $category->id }} })"
                                     class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-3 transition-all d-flex align-items-center gap-1.5"
                                     style="border-color: var(--bs-border-color) !important; color: var(--bs-body-color); font-size: 0.8rem;">
@@ -158,7 +159,7 @@
                                                     </div>
 
                                                     {{-- Beautiful Clean Action Bar --}}
-                                                    <div class="card-action-bar mt-auto">
+                                                    <div class="card-action-bar mt-auto @if($loop->first) tour-accordion-product-actions @endif">
                                                         <a href="{{ route('product.edit', $product->id) }}"
                                                            wire:navigate
                                                            class="btn-action-primary">
@@ -239,7 +240,7 @@
                                             </div>
 
                                             <!-- Right side: Action buttons -->
-                                            <div class="list-product-actions d-flex gap-2">
+                                            <div class="list-product-actions d-flex gap-2 @if($loop->first) tour-accordion-product-actions @endif">
                                                 <button wire:click="toggleAvailability({{ $product->id }})"
                                                         class="btn btn-sm btn-action-secondary {{ $product->is_active ? 'text-success' : 'text-muted bg-danger bg-opacity-10 border-danger border-opacity-25' }}"
                                                         style="width: 36px; height: 36px;"
