@@ -131,6 +131,68 @@
         {{-- ===== PAGE CONTENT (product-list is the only Livewire component) ===== --}}
         {{ $slot }}
 
+        {{-- ===== CONTACT MODAL ===== --}}
+        <div
+            x-data="{ contactOpen: false }"
+            @open-contact-modal.window="contactOpen = true"
+            @keydown.escape.window="contactOpen = false"
+            x-show="contactOpen"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm z-[200] flex items-center justify-center p-6"
+            style="display:none"
+        >
+            <div @click.outside="contactOpen = false" class="bg-white w-full max-w-sm rounded-3xl p-6 text-center relative overflow-hidden shadow-2xl">
+                <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <h3 class="font-bold text-zinc-900 mb-1 text-lg">Hubungi Kami</h3>
+                <p class="text-zinc-500 text-sm mb-6">{{ $setting->name ?: 'Nama Toko' }}</p>
+
+                <div class="bg-zinc-50 rounded-2xl p-4 space-y-4 text-left">
+                    <div class="flex items-start gap-3">
+                        <div class="mt-0.5 text-zinc-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Telepon / WA</p>
+                            <p class="text-sm font-medium text-zinc-900">{{ $setting->whatsapp_number ?: '-' }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="mt-0.5 text-zinc-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Alamat</p>
+                            <p class="text-sm font-medium text-zinc-900">{{ $setting->address ?: '-' }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="mt-0.5 text-zinc-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> 
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Email Support</p>
+                            <a href="mailto:support@pakaiapp.online" class="text-sm font-medium text-[var(--primary-color)] hover:brightness-90 underline decoration-[var(--primary-color)]/30 underline-offset-2">support@pakaiapp.online</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-zinc-100">
+                    <p class="text-[10px] text-zinc-400">Platform dikembangkan oleh <span class="font-bold text-zinc-500">pakaiapp.online</span></p>
+                </div>
+                
+                <button @click="contactOpen = false" class="mt-6 w-full bg-zinc-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+
         {{-- ===== GLOBAL TOAST ===== --}}
         <div
             class="fixed top-4 left-4 right-4 z-[300] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-6 sm:w-auto sm:min-w-[280px] bg-zinc-900 text-white px-5 py-3.5 rounded-2xl sm:rounded-full shadow-2xl shadow-zinc-900/30 transition-all duration-500 ease-out flex items-center justify-center sm:justify-start gap-3 border border-white/5 backdrop-blur-xl pointer-events-none"

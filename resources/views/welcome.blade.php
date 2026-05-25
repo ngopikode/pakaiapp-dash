@@ -836,13 +836,18 @@
                 style="color: var(--bs-tertiary-color);">.online</span>
         </a>
 
-        <div
-            class="d-flex flex-column flex-md-row flex-wrap justify-content-center gap-3 gap-md-4 mb-4 text-secondary small">
-            <a href="mailto:support@ngopikode.com" class="text-secondary text-decoration-none"><i
-                    class="bi bi-envelope-fill me-1"></i> support@ngopikode.com</a>
-            <a href="https://wa.me/6285172441544" target="_blank" class="text-secondary text-decoration-none"><i
-                    class="bi bi-whatsapp me-1"></i> 085172441544</a>
-            <span><i class="bi bi-building me-1"></i> PT Sinergi Kode Kreatif</span>
+        <div class="mb-4">
+            <h6 class="font-serif fw-bold text-body mb-3">Hubungi Kami (Pakaiapp)</h6>
+            <div class="d-flex flex-column flex-md-row flex-wrap justify-content-center gap-3 gap-md-4 text-secondary small">
+                <span class="d-flex align-items-center justify-content-center gap-2"><i class="bi bi-whatsapp"></i> Telepon/WA: 0851-7244-1544</span>
+                <span class="d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-envelope-fill"></i> Email Support: 
+                    <a href="mailto:support@pakaiapp.online" class="text-decoration-none" style="color: var(--brand-caramel);">support@pakaiapp.online</a>
+                </span>
+            </div>
+            <div class="mt-4 pt-3 border-top border-color mx-auto" style="max-width: 300px;">
+                <p class="text-secondary small mb-0">Platform dikembangkan oleh pakaiapp.online</p>
+            </div>
         </div>
 
         <div
@@ -852,10 +857,6 @@
             <a href="#" class="text-decoration-none" style="color: var(--brand-caramel);" data-bs-toggle="modal"
                data-bs-target="#refundModal">Kebijakan Pengembalian Dana</a>
         </div>
-
-        <p class="text-secondary small mb-0">&copy; {{ date('Y') }} pakaiapp.online. Solusi Digital dari <a
-                href="https://www.ngopikode.com" target="_blank" class="fw-bold"
-                style="color: var(--brand-caramel); text-decoration: none;">ngopikode.</a></p>
     </div>
 </footer>
 

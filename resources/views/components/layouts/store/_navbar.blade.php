@@ -40,10 +40,19 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900 group-hover:text-white transition-colors"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
             </button>
 
+            {{-- Tombol Info / Hubungi Kami --}}
+            <button
+                @click="$dispatch('open-contact-modal')"
+                class="p-2 bg-zinc-50 hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-zinc-100 hover:border-[var(--primary-color)]"
+                title="Hubungi Kami"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900 group-hover:text-white transition-colors"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </button>
+
             {{-- Tombol QR Code --}}
             <button
                 @click="$dispatch('open-qr-modal')"
-                class="p-2.5 bg-zinc-50 hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-zinc-100 hover:border-[var(--primary-color)]"
+                class="p-2 bg-zinc-50 hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-zinc-100 hover:border-[var(--primary-color)]"
                 title="Scan QR Menu"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900 group-hover:text-white transition-colors"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
