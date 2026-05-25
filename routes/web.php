@@ -82,27 +82,27 @@ foreach (config('tenancy.central_domains') as $domain) {
                     });
 
                     $registration->update(['status' => 'created']);
-                    
+
                     // Send Welcome Email
                     $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                    $emailBody = "Halo {$registration->owner_name},\n\nSelamat bergabung di Pakaiapp! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan.\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
-                    
+                    $emailBody = "Halo {$registration->owner_name},\n\nSelamat bergabung di Pakaiapp! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan.\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+
                     \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                        new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/login")
+                        new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
                     );
 
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Toko berhasil dibuat! Anda akan dialihkan ke dashboard.',
-                        'redirect_url' => 'https://' . $domainUrl . '/login'
+                        'redirect_url' => 'https://' . $domainUrl . '/auth/login'
                     ]);
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error("Free registration failed: " . $e->getMessage());
-                    
+
                     // Send Failure Email
                     $emailTitle = "Pendaftaran Toko Gagal";
                     $emailBody = "Halo {$registration->owner_name},\n\nMohon maaf, terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menangani masalah ini.\n\nSilakan coba beberapa saat lagi atau hubungi support kami jika masalah berlanjut.\n\nSalam,\nTim Pakaiapp";
-                    
+
                     try {
                         \Illuminate\Support\Facades\Mail::to($registration->email)->send(
                             new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
@@ -118,14 +118,22 @@ foreach (config('tenancy.central_domains') as $domain) {
             // Jika Manual (WA)
             if ($validated['payment_method'] === 'manual') {
                 $text = "Halo Admin Pakaiapp, saya ingin mendaftar toko baru dengan rincian:\n"
-                      . "Nama Toko: {$registration->store_name}\n"
-                      . "Pemilik: {$registration->owner_name}\n"
-                      . "Email: {$registration->email}\n"
-                      . "Paket: " . ucfirst($registration->plan) . "\n"
-                      . "Mohon info rekening untuk pembayaran sebesar Rp " . number_format($amount, 0, ',', '.') . ". Terima kasih.";
-                      
+                    . "Nama Toko: {$registration->store_name}\n"
+                    . "Pemilik: {$registration->owner_name}\n"
+                    . "Email: {$registration->email}\n"
+                    . "Paket: " . ucfirst($registration->plan) . "\n"
+                    . "Mohon info rekening untuk pembayaran sebesar Rp " . number_format($amount, 0, ',', '.') . ". Terima kasih.";
+
                 $waUrl = "https://wa.me/6285172441544?text=" . urlencode($text);
-                
+
+                // Send Billing Invoice Email (Manual)
+                $emailTitle = "Menunggu Pembayaran (Manual)";
+                $emailBody = "Halo {$registration->owner_name},\n\nPendaftaran toko Anda ({$registration->store_name}) telah kami catat dengan Paket " . ucfirst($registration->plan) . ".\n\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\nMetode: Transfer Manual\n\nSilakan klik tombol di bawah ini untuk chat dengan Admin kami guna mengkonfirmasi pembayaran Anda. Setelah dikonfirmasi, toko Anda akan langsung kami aktifkan.\n\nTerima kasih,\nTim Pakaiapp";
+
+                \Illuminate\Support\Facades\Mail::to($registration->email)
+                    ->send((new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Konfirmasi via WA', $waUrl))
+                        ->from('billing@pakaiapp.online', 'Pakaiapp Billing'));
+
                 return response()->json([
                     'status' => 'manual',
                     'redirect_url' => $waUrl
@@ -139,6 +147,14 @@ foreach (config('tenancy.central_domains') as $domain) {
                     $snapToken = $midtransService->createRegistrationSnapToken($registration);
                     $registration->update(['snap_token' => $snapToken]);
 
+                    // Send Billing Invoice Email (Midtrans)
+                    $emailTitle = "Tagihan Pendaftaran Toko";
+                    $emailBody = "Halo {$registration->owner_name},\n\nPendaftaran toko Anda ({$registration->store_name}) untuk Paket " . ucfirst($registration->plan) . " tinggal satu langkah lagi.\n\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\n\nSistem kami mendeteksi Anda akan menggunakan E-Wallet/QRIS. Jika jendela pembayaran terlewat, Anda bisa kembali mendaftar atau melanjutkan di layar website Anda.\n\nTerima kasih,\nTim Pakaiapp";
+
+                    \Illuminate\Support\Facades\Mail::to($registration->email)
+                        ->send((new \App\Mail\SystemEmail($emailTitle, $emailBody))
+                            ->from('billing@pakaiapp.online', 'Pakaiapp Billing'));
+
                     return response()->json([
                         'status' => 'payment_required_midtrans',
                         'snap_token' => $snapToken,
@@ -148,16 +164,24 @@ foreach (config('tenancy.central_domains') as $domain) {
                     return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke layanan pembayaran Midtrans.']);
                 }
             }
-            
+
             // Jika berbayar via Duitku
             try {
                 $duitkuService = app(\App\Services\DuitkuService::class);
                 $duitkuInvoice = $duitkuService->createRegistrationInvoice($registration, $validated['payment_method']);
-                
+
                 $registration->update([
                     'duitku_payment_url' => $duitkuInvoice['payment_url'],
                     'duitku_reference' => $duitkuInvoice['reference']
                 ]);
+
+                // Send Billing Invoice Email (Duitku)
+                $emailTitle = "Tagihan Pendaftaran Toko";
+                $emailBody = "Halo {$registration->owner_name},\n\nPendaftaran toko Anda ({$registration->store_name}) untuk Paket " . ucfirst($registration->plan) . " telah diteruskan ke Payment Gateway.\n\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\n\nJika halaman pembayaran tidak terbuka otomatis atau tertutup, silakan klik tombol di bawah ini untuk melanjutkan pembayaran Anda.\n\nSetelah pembayaran berhasil, toko Anda akan otomatis disiapkan.\n\nTerima kasih,\nTim Pakaiapp";
+
+                \Illuminate\Support\Facades\Mail::to($registration->email)
+                    ->send((new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Lanjutkan Pembayaran', $duitkuInvoice['payment_url']))
+                        ->from('billing@pakaiapp.online', 'Pakaiapp Billing'));
 
                 return response()->json([
                     'status' => 'payment_required_duitku',

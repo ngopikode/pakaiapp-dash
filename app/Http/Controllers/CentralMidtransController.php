@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 use Midtrans\Config;
 use Midtrans\Notification;
+use Throwable;
 
 class CentralMidtransController extends Controller
 {
@@ -53,7 +53,7 @@ class CentralMidtransController extends Controller
             }
 
             $parts = explode('~', $order_id, 2);
-            
+
             // --- NEW: Handle Central Tenant Registration ---
             if ($parts[0] === 'REG') {
                 $registrationId = explode('~', $parts[1])[0] ?? null;
@@ -77,7 +77,7 @@ class CentralMidtransController extends Controller
 
                 if ($status === 'paid') {
                     $registration->update(['status' => 'paid']);
-                    
+
                     // Create Tenant
                     try {
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
@@ -101,13 +101,13 @@ class CentralMidtransController extends Controller
                         });
 
                         $registration->update(['status' => 'created']);
-                        
+
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
-                        
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+
                         \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/login")
+                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
                         );
 
                         Log::info('[Midtrans] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
@@ -117,7 +117,7 @@ class CentralMidtransController extends Controller
                         // Send Failure Email
                         $emailTitle = "Pendaftaran Toko Gagal";
                         $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
-                        
+
                         try {
                             \Illuminate\Support\Facades\Mail::to($registration->email)->send(
                                 new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
@@ -173,16 +173,16 @@ class CentralMidtransController extends Controller
             $status = 'pending';
 
             if ($transaction == 'capture') {
-                if ($type == 'credit_card'){
-                    if($fraud == 'challenge'){
+                if ($type == 'credit_card') {
+                    if ($fraud == 'challenge') {
                         $status = 'pending';
                     } else {
                         $status = 'paid';
                     }
                 }
-            } else if ($transaction == 'settlement'){
+            } else if ($transaction == 'settlement') {
                 $status = 'paid';
-            } else if ($transaction == 'pending'){
+            } else if ($transaction == 'pending') {
                 $status = 'pending';
             } else if ($transaction == 'deny') {
                 $status = 'cancelled';
@@ -200,7 +200,7 @@ class CentralMidtransController extends Controller
                     'midtrans_transaction_id' => $notif->transaction_id,
                     'midtrans_payment_type' => $type,
                     'payment_method' => $paymentMethodDb,
-                    'amount_paid' => (int) $notif->gross_amount,
+                    'amount_paid' => (int)$notif->gross_amount,
                 ]);
 
                 // --- POTONG SALDO WALLET (DYNAMIC PAYG CAPPING) ---

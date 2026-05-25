@@ -62,7 +62,7 @@ class CentralDuitkuController extends Controller
             // --- NEW: Handle Central Tenant Registration ---
             if ($tenantId === 'REG' && $invoiceCode) {
                 $registration = \App\Models\TenantRegistration::find($invoiceCode);
-                
+
                 if (!$registration) {
                     Log::warning('[Duitku Central] Registration not found', ['reg_id' => $invoiceCode]);
                     return response('REG_NOT_FOUND', 200);
@@ -76,10 +76,10 @@ class CentralDuitkuController extends Controller
                 $duitkuService = new DuitkuService();
                 $notif = $duitkuService->handleCallback();
                 $resultCode = $notif['resultCode'] ?? null;
-                
+
                 if ($resultCode === '00') {
                     $registration->update(['status' => 'paid']);
-                    
+
                     // Create Tenant
                     try {
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
@@ -103,13 +103,13 @@ class CentralDuitkuController extends Controller
                         });
 
                         $registration->update(['status' => 'created']);
-                        
+
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
-                        
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+
                         \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/login")
+                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
                         );
 
                         Log::info('[Duitku Central] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
@@ -119,7 +119,7 @@ class CentralDuitkuController extends Controller
                         // Send Failure Email
                         $emailTitle = "Pendaftaran Toko Gagal";
                         $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
-                        
+
                         try {
                             \Illuminate\Support\Facades\Mail::to($registration->email)->send(
                                 new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
@@ -335,10 +335,10 @@ class CentralDuitkuController extends Controller
                 $amountPaid = (int)($notif['amount'] ?? $order->total_price);
 
                 $order->update([
-                    'status'          => 'paid',
-                    'payment_method'  => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
-                    'duitku_reference'=> $notif['reference'] ?? $order->duitku_reference,
-                    'amount_paid'     => $amountPaid,
+                    'status' => 'paid',
+                    'payment_method' => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
+                    'duitku_reference' => $notif['reference'] ?? $order->duitku_reference,
+                    'amount_paid' => $amountPaid,
                 ]);
 
                 // ── KREDIT WALLET ──────────────────────────────────────────────
@@ -359,12 +359,12 @@ class CentralDuitkuController extends Controller
 
                 Log::info('[Duitku Central] Pembayaran berhasil, wallet dikreditkan', [
                     'invoiceCode' => $invoiceCode,
-                    'amountPaid'  => $amountPaid,
+                    'amountPaid' => $amountPaid,
                 ]);
 
             } elseif ($resultCode === '01') {
                 $order->update([
-                    'status'            => 'cancelled',
+                    'status' => 'cancelled',
                     'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
                 ]);
 
@@ -373,7 +373,7 @@ class CentralDuitkuController extends Controller
             } else {
                 Log::warning('[Duitku Central] resultCode tidak dikenal, tidak ada perubahan', [
                     'invoiceCode' => $invoiceCode,
-                    'resultCode'  => $resultCode,
+                    'resultCode' => $resultCode,
                 ]);
             }
         });
