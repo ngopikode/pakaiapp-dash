@@ -845,8 +845,8 @@
                     <a href="mailto:support@pakaiapp.online" class="text-decoration-none" style="color: var(--brand-caramel);">support@pakaiapp.online</a>
                 </span>
             </div>
-            <div class="mt-4 pt-3 border-top border-color mx-auto" style="max-width: 300px;">
-                <p class="text-secondary small mb-0">Platform dikembangkan oleh pakaiapp.online</p>
+            <div class="mt-4 pt-3 border-top border-color mx-auto" style="max-width: 400px;">
+                <p class="text-secondary small mb-0">&copy; {{ date('Y') }} pakaiapp.online. Solusi Digital dari <a href="https://www.ngopikode.com" target="_blank" class="fw-bold" style="color: var(--brand-caramel); text-decoration: none;">ngopikode.</a></p>
             </div>
         </div>
 
