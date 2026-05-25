@@ -5,6 +5,7 @@ use App\Models\OrderItem;
 use App\Models\ProductVariant;
 use App\Models\StoreSetting;
 use App\Services\TenantWalletService;
+use App\Services\BillingService;
 use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -172,11 +173,7 @@ new class extends Component {
                 }
 
                 // --- POTONG SALDO WALLET ---
-                app(TenantWalletService::class)->deductBalance(
-                    $this->feePerTransaction,
-                    $order,
-                    "Biaya transaksi langsung untuk pesanan $invoiceCode"
-                );
+                app(BillingService::class)->chargeTransactionFee($order);
 
                 return [
                     'success'       => true,
@@ -224,11 +221,7 @@ new class extends Component {
                 ]);
 
                 // --- POTONG SALDO WALLET ---
-                app(TenantWalletService::class)->deductBalance(
-                    $this->feePerTransaction,
-                    $order,
-                    "Biaya pelunasan pesanan antrean {$order->invoice_code}"
-                );
+                app(BillingService::class)->chargeTransactionFee($order);
 
                 $storeName = StoreSetting::first()->name ?? 'Resto Kami';
 
@@ -380,11 +373,18 @@ new class extends Component {
         $order = Order::with('items')->find($orderId);
         if (!$order) return;
 
-        if ($order->status !== 'pending') {
-            // Pesanan sudah dibayar atau sudah dibatalkan
+        if ($order->status === 'cancelled') {
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-            $this->js("window.showIslandToast('Pesanan sudah tidak bisa dibatalkan.', 'danger');");
+            $this->js("window.showIslandToast('Pesanan sudah dibatalkan sebelumnya.', 'danger');");
             return;
+        }
+
+        if ($order->status !== 'pending') {
+            if ($order->is_printed || \Carbon\Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
+                $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+                $this->js("window.showIslandToast('Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.', 'danger');");
+                return;
+            }
         }
 
         DB::transaction(function () use ($order, $note) {
@@ -398,6 +398,10 @@ new class extends Component {
                 $updateData['cancellation_note'] = $note;
             }
             $order->update($updateData);
+
+            if ($order->getOriginal('status') !== 'pending') {
+                app(BillingService::class)->processVoidPenalty($order);
+            }
         });
 
         // Dispatch sebagai window event agar cancel-modal component bisa dengar

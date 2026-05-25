@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Tenant;
+use App\Services\BillingService;
 use App\Services\DuitkuService;
 use App\Services\TenantWalletService;
 use Illuminate\Http\JsonResponse;
@@ -275,12 +276,9 @@ class CentralDuitkuController extends Controller
                     "Pendapatan Duitku masuk untuk pesanan {$order->invoice_code}"
                 );
 
-                // Potong biaya layanan pakaiapp Rp300 per transaksi sukses
-                $walletService->deductBalance(
-                    300,
-                    $order,
-                    "Biaya layanan pakaiapp untuk pesanan {$order->invoice_code}"
-                );
+                // Potong biaya layanan pakaiapp dengan sistem dinamis
+                $billingService = app(BillingService::class);
+                $billingService->chargeTransactionFee($order);
                 // ──────────────────────────────────────────────────────────────
 
                 Log::info('[Duitku Central] Pembayaran berhasil, wallet dikreditkan', [

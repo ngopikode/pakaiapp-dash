@@ -38,11 +38,18 @@ new class extends Component {
         $order = Order::with('items')->find($this->orderId);
         if (!$order) return;
 
-        // Hanya pesanan pending yang boleh di-cancel
-        if ($newStatus === 'cancelled' && $order->status !== 'pending') {
-            $this->dispatch('notify', message: 'Pesanan sudah ' . ($order->status === 'paid' ? 'lunas' : 'dibatalkan') . ', tidak bisa dibatalkan lagi.', type: 'error');
+        if ($newStatus === 'cancelled' && $order->status === 'cancelled') {
+            $this->dispatch('notify', message: 'Pesanan sudah dibatalkan sebelumnya.', type: 'error');
             $this->dispatch('hide-order-modal');
             return;
+        }
+
+        if ($newStatus === 'cancelled' && $order->status !== 'pending') {
+            if ($order->is_printed || \Carbon\Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
+                $this->dispatch('notify', message: 'Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.', type: 'error');
+                $this->dispatch('hide-order-modal');
+                return;
+            }
         }
 
         $updateData = ['status' => $newStatus];
@@ -61,6 +68,9 @@ new class extends Component {
                         \App\Models\ProductVariant::where('id', $item->variant_id)
                             ->increment('stock', $item->quantity);
                     }
+                }
+                if ($order->getOriginal('status') !== 'pending') {
+                    app(\App\Services\BillingService::class)->processVoidPenalty($order);
                 }
             }
         });

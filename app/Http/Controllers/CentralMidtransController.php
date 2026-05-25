@@ -121,6 +121,9 @@ class CentralMidtransController extends Controller
                     'payment_method' => $paymentMethodDb,
                     'amount_paid' => (int) $notif->gross_amount,
                 ]);
+
+                // --- POTONG SALDO WALLET (DYNAMIC PAYG CAPPING) ---
+                app(\App\Services\BillingService::class)->chargeTransactionFee($order);
             } else if ($status === 'cancelled') {
                 $order->update([
                     'status' => 'cancelled',

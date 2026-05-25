@@ -46,11 +46,18 @@ new class extends Component {
         $order = Order::with('items')->find($id);
         if (!$order) return;
 
-        // Hanya pesanan pending yang boleh di-cancel
-        if ($status === 'cancelled' && $order->status !== 'pending') {
-            $this->dispatch('notify', ['type' => 'error', 'message' => 'Pesanan sudah ' . ($order->status === 'paid' ? 'lunas' : 'dibatalkan') . ', tidak bisa dibatalkan.']);
+        if ($status === 'cancelled' && $order->status === 'cancelled') {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Pesanan sudah dibatalkan sebelumnya.']);
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
             return;
+        }
+
+        if ($status === 'cancelled' && $order->status !== 'pending') {
+            if ($order->is_printed || \Carbon\Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
+                $this->dispatch('notify', ['type' => 'error', 'message' => 'Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.']);
+                $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+                return;
+            }
         }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($order, $status, $cancellationNote) {
@@ -67,6 +74,9 @@ new class extends Component {
                         \App\Models\ProductVariant::where('id', $item->variant_id)
                             ->increment('stock', $item->quantity);
                     }
+                }
+                if ($order->getOriginal('status') !== 'pending') {
+                    app(\App\Services\BillingService::class)->processVoidPenalty($order);
                 }
             }
         });

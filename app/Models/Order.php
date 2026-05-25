@@ -42,6 +42,8 @@ class Order extends Model
         'midtrans_transaction_id',
         'midtrans_payment_type',
 
+        'is_printed',
+
         'created_at',
         'updated_at',
     ];

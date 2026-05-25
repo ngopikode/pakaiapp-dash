@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="/logo.png">
     <meta name="title" content="Pakaiapp - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
     <meta name="description"
-          content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM F&B dan Retail. Sistem adil, cuma bayar Rp 300 per transaksi sukses.">
+          content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp 300 per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp 150rb/bulan!">
     <meta name="keywords"
           content="aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
     <meta name="author" content="PT Sinergi Kode Kreatif">
@@ -26,7 +26,7 @@
     <meta property="og:url" content="https://pakaiapp.online/">
     <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
     <meta property="og:description"
-          content="Kasir sepi = Gratis. Kasir ramai = Tetap murah. Revolusi sistem kasir Web SaaS untuk F&B dan Retail dengan skema Rp 300/transaksi sukses.">
+          content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp150.000/bulan tercapai!">
     <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
 
     <meta property="twitter:card" content="summary_large_image">
@@ -43,7 +43,7 @@
       "name": "Pakaiapp.online",
       "operatingSystem": "Web, Android, iOS (PWA)",
       "applicationCategory": "BusinessApplication",
-      "description": "Sistem kasir pintar (POS) berbasis web cloud untuk UMKM F&B dan Retail tanpa biaya langganan bulanan. Menggunakan skema potong saldo Rp 300 per transaksi.",
+      "description": "Sistem kasir pintar (POS) berbasis web cloud untuk UMKM F&B dan Retail tanpa biaya langganan bulanan. Menggunakan skema potong saldo Rp 300 per transaksi dengan fitur Automatic Premium Upgrade (Maks Rp 150.000/bulan).",
       "url": "https://www.pakaiapp.online",
       "offers": {
         "@type": "Offer",
@@ -440,8 +440,7 @@
                 <p class="fs-6 fs-md-5 text-secondary mb-4 mb-md-5 mx-auto mx-lg-0"
                    style="line-height: 1.7; max-width: 500px;">
                     Ubah cara operasional toko Anda. <strong>Pakaiapp</strong> membebaskan UMKM dari biaya langganan
-                    bulanan. 100% berbasis Web, buka dari *browser* HP manapun, dan bayar cuma kalau ada transaksi
-                    sukses.
+                    bulanan yang mencekik. Bayar cuma kalau ada pesanan sukses, dan nikmati fitur <strong>Unlimited Gratis</strong> setelah tagihan menyentuh <strong>Rp 150.000/bulan!</strong>
                 </p>
                 <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
                     <a href="#simulasi" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow-sm">
@@ -512,7 +511,7 @@
         </p>
 
         <div class="bento-card p-4 p-md-5 mx-auto bg-body" style="max-width: 800px;" data-aos="fade-up">
-            <h5 class="fw-bold mb-4 text-body font-serif fs-6 fs-md-5">Hari ini toko kamu dapat berapa pesanan?</h5>
+            <h5 class="fw-bold mb-4 text-body font-serif fs-6 fs-md-5">Bulan ini toko kamu dapat berapa pesanan?</h5>
 
             <div class="mb-3">
                 <span class="badge bg-warning text-dark px-3 py-2 rounded-pill animate-guide shadow-sm">
@@ -521,10 +520,10 @@
             </div>
 
             <div class="px-2 px-md-3 mb-4 mt-2">
-                <input type="range" id="trxSlider" min="0" max="100" value="15" step="1">
+                <input type="range" id="trxSlider" min="0" max="2000" value="150" step="10">
                 <div class="d-flex justify-content-between text-tertiary-color small fw-bold mt-3">
                     <span>0 (Sepi)</span>
-                    <span>100+ (Rame)</span>
+                    <span>2000+ (Sangat Rame)</span>
                 </div>
             </div>
 
@@ -771,44 +770,15 @@
                 </div>
             </div>
 
-            <!-- Paket Rame -->
+            <!-- Paket Santai -->
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="bento-card p-4 p-md-5 h-100 d-flex flex-column text-center position-relative"
-                     style="background: var(--bs-primary); border-color: var(--bs-primary);">
-                    <span
-                        class="position-absolute top-0 start-50 translate-middle-x py-1 px-3 rounded-bottom-3 fw-bold text-white"
-                        style="background: var(--brand-caramel); font-size: 0.75rem;">TERPOPULER</span>
-                    <h4 class="font-serif fw-bold text-white mt-3 mb-2">Rame</h4>
-                    <h1 class="font-serif fw-bolder text-white mb-3 mb-md-4 display-5 display-md-4">Rp 50k</h1>
-                    <ul class="list-unstyled text-white text-opacity-75 text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 220px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Saldo <strong
-                                class="text-white">216</strong> Trx <small>(+50 Bonus)</small></li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Tarif Rp 300
-                            / trx
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i>
-                            <strong>12</strong> Slot Produk
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Beli Slot:
-                            <strong>Rp 10rb/50Slot</strong></li>
-                    </ul>
-                    <button class="btn w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
-                            style="background: var(--brand-caramel); color: #fff; border: none;" data-paket="Rame"
-                            data-harga="50000">Pilih Paket
-                    </button>
-                </div>
-            </div>
-
-            <!-- Paket Enterprise -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="bento-card p-4 p-md-5 h-100 bg-body d-flex flex-column text-center">
-                    <h4 class="font-serif fw-bold text-body mb-2">Enterprise</h4>
-                    <h1 class="font-serif fw-bolder text-body mb-3 mb-md-4 display-5 display-md-4">Rp 100k</h1>
+                    <h4 class="font-serif fw-bold text-body mb-2">Santai</h4>
+                    <h1 class="font-serif fw-bolder text-body mb-3 mb-md-4 display-5 display-md-4">Rp 50k</h1>
                     <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
                         style="max-width: 220px;">
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo
-                            <strong>383</strong> Trx <small>(+50 Bonus)</small></li>
+                            <strong>216</strong> Trx <small>(+50 Bonus)</small></li>
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
                             / trx
                         </li>
@@ -818,9 +788,33 @@
                         <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
                             <strong>Rp 10rb/50Slot</strong></li>
                     </ul>
-                    <button
-                        class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
-                        data-paket="Enterprise" data-harga="100000">Pilih Paket
+                    <button class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
+                            data-paket="Santai" data-harga="50000">Pilih Paket
+                    </button>
+                </div>
+            </div>
+
+            <!-- Paket Auto Premium -->
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="bento-card p-4 p-md-5 h-100 d-flex flex-column text-center position-relative"
+                     style="background: var(--bs-primary); border-color: var(--bs-primary);">
+                    <span class="position-absolute top-0 start-50 translate-middle-x py-1 px-3 rounded-bottom-3 fw-bold text-white"
+                        style="background: var(--brand-caramel); font-size: 0.75rem;">BEST DEAL</span>
+                    <h4 class="font-serif fw-bold text-white mt-3 mb-2">Auto Premium</h4>
+                    <h1 class="font-serif fw-bolder text-white mb-3 mb-md-4 display-5 display-md-4">Rp 150k</h1>
+                    <ul class="list-unstyled text-white text-opacity-75 text-start mb-4 mx-auto small fs-md-6"
+                        style="max-width: 220px;">
+                        <li class="mb-2 mb-md-3"><i class="bi bi-star-fill text-warning me-2"></i> <strong>UNLIMITED</strong> Trx (1 Bulan)</li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Cap Maksimal Tercapai
+                        </li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i>
+                            <strong>12</strong> Slot Produk
+                        </li>
+                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Bebas Biaya Void</li>
+                    </ul>
+                    <button class="btn w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
+                            style="background: var(--brand-caramel); color: #fff; border: none;" data-paket="Auto Premium"
+                            data-harga="150000">Pilih Paket
                     </button>
                 </div>
             </div>
@@ -1044,7 +1038,7 @@
     AOS.init({once: true, offset: 50, duration: 800});
 
     new Typed('#typed-text', {
-        strings: ['Bisnis Melesat.', 'Bayar Pas Ada Transaksi.', 'Bebas Biaya Bulanan.', 'Solusi Adil UMKM.'],
+        strings: ['Bisnis Melesat.', 'Bayar Pas Ada Transaksi.', 'Otomatis Gratis Setelah Rp 150rb.', 'Bebas Biaya Langganan.'],
         typeSpeed: 50, backSpeed: 30, loop: true, backDelay: 2000
     });
 
@@ -1073,11 +1067,21 @@
     slider.addEventListener('input', function () {
         const trx = parseInt(this.value);
         trxDisplay.innerText = trx;
-        const cost = trx * 300;
+        let cost = trx * 300;
+        let isUnlimited = false;
+
+        // Capping logic
+        if (cost >= 150000) {
+            cost = 150000;
+            isUnlimited = true;
+        }
 
         if (trx === 0) {
             costPakaiapp.innerText = 'GRATIS!';
             costPakaiapp.style.color = 'var(--brand-caramel)';
+        } else if (isUnlimited) {
+            costPakaiapp.innerHTML = 'Rp 150.000 <br><span class="badge bg-success bg-opacity-25 text-success rounded-pill mt-2 py-2 px-3 fw-bold fs-6" style="border: 1px solid rgba(25, 135, 84, 0.5);">🔥 UNLIMITED TRANSAKSI</span>';
+            costPakaiapp.style.color = '';
         } else {
             costPakaiapp.innerText = 'Rp ' + cost.toLocaleString('id-ID');
             costPakaiapp.style.color = '';
@@ -1129,9 +1133,10 @@
             appendBotBubble('Coba aja *scroll* ke bawah dan geser-geser bagian **Simulasi Anti-Buntung** buat lihat seberapa hemat biayanya! 👇🚀', 2500);
         } else {
             appendUserBubble('Terus biayanya gimana?');
-            appendBotBubble('Nah ini yang paling adil. Kita nggak pakai sistem langganan bulanan yang mencekik.', 1000);
-            appendBotBubble('Kamu cuma dipotong Rp 300 per transaksi yang SUKSES aja. Kalau toko lagi sepi atau tutup, ya GRATIS! 🤩', 2500);
-            appendBotBubble('Buktikan sendiri dengan menggeser bulatan di bagian **Simulasi Anti-Buntung** di bawah ya! 👇', 4000);
+            appendBotBubble('Nah ini yang paling adil. Kamu cuma bayar Rp 300 HANYA saat ada pesanan sukses. Kalau toko lagi sepi, ya GRATIS! 🤩', 1000);
+            appendBotBubble('Tapi kalau resto kamu RAME BANGET sampai tagihan menyentuh **Rp 150.000** dalam sebulan...', 2800);
+            appendBotBubble('Sisa transaksi di bulan itu jadi **GRATIS TANPA BATAS**! Sistem otomatis ubah jadi Premium! 🎉', 4500);
+            appendBotBubble('Coba geser bulatan di bagian **Simulasi Anti-Buntung** sampai ujung buat buktikan! 👇', 6000);
         }
     }
 
