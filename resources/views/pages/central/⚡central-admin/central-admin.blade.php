@@ -144,7 +144,15 @@
                                                 <option value="retail">Retail Store</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Paket Awal</label>
+                                            <select class="form-select" wire:model="subscriptionPlan">
+                                                <option value="free">Uji Coba (Gratis)</option>
+                                                <option value="santai">Paket Santai</option>
+                                                <option value="premium">Auto Premium</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
                                             <label class="form-label">Subdomain URL</label>
                                             <div class="input-group">
                                                 <input type="text" class="form-control" wire:model="tenantId"

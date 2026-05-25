@@ -890,10 +890,37 @@
                         <input type="text" class="form-control" id="inputCheckoutNama" required
                                placeholder="Nama lengkap Anda">
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label small fw-bold text-secondary">No. WhatsApp</label>
                         <input type="number" class="form-control" id="inputCheckoutWa" required
                                placeholder="08xxxxxxxx">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email</label>
+                        <input type="email" class="form-control" id="inputCheckoutEmail" required
+                               placeholder="email@anda.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Password Login</label>
+                        <input type="password" class="form-control" id="inputCheckoutPassword" required
+                               placeholder="Minimal 6 karakter" minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Jenis Bisnis</label>
+                        <select class="form-select" id="inputCheckoutBisnis" required>
+                            <option value="F&B (Resto/Cafe)">F&B (Resto/Cafe)</option>
+                            <option value="Retail Store">Retail Store</option>
+                        </select>
+                    </div>
+                    <div class="mb-4" id="paymentMethodContainer">
+                        <label class="form-label small fw-bold text-secondary">Metode Pembayaran</label>
+                        <select class="form-select" id="inputCheckoutPayment">
+                            <option value="midtrans">Semua Pembayaran Digital (Midtrans)</option>
+                            <option value="SP">ShopeePay (Duitku)</option>
+                            <option value="BC">BCA Virtual Account (Duitku)</option>
+                            <option value="M2">Mandiri Virtual Account (Duitku)</option>
+                            <option value="manual">Transfer Manual (Konfirmasi WA)</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 py-md-3 fw-bold"
                             id="btnSubmitCheckout">
@@ -1033,6 +1060,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@if(config('midtrans.is_production'))
+    <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@else
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@endif
+
 <script>
     // 1. Initializations
     AOS.init({once: true, offset: 50, duration: 800});
@@ -1155,6 +1188,14 @@
                 document.getElementById('checkoutPaketName').innerText = `${namaPaket} (Rp ${parseInt(hargaPaket).toLocaleString('id-ID')})`;
                 document.getElementById('inputPaketName').value = namaPaket;
 
+                if (parseInt(hargaPaket) > 0) {
+                    document.getElementById('paymentMethodContainer').style.display = 'block';
+                    document.getElementById('inputCheckoutPayment').required = true;
+                } else {
+                    document.getElementById('paymentMethodContainer').style.display = 'none';
+                    document.getElementById('inputCheckoutPayment').required = false;
+                }
+
                 modalCheckout.show();
             });
         });
@@ -1166,19 +1207,30 @@
         const btnSubmit = document.getElementById('btnSubmitCheckout');
         const originalText = btnSubmit.innerHTML;
 
+        // Determine the packet value based on original logic 
+        let rawPaket = document.getElementById('inputPaketName').value;
+        let finalPaket = 'free';
+        if (rawPaket.toLowerCase().includes('santai')) {
+            finalPaket = 'santai';
+        } else if (rawPaket.toLowerCase().includes('premium')) {
+            finalPaket = 'premium';
+        }
+
         const payload = {
             namaToko: document.getElementById('inputCheckoutToko').value,
             namaOwner: document.getElementById('inputCheckoutNama').value,
             noWa: document.getElementById('inputCheckoutWa').value,
-            paket: document.getElementById('inputPaketName').value,
-            jenisBisnis: 'Umum',
-            jumlahCabang: '1'
+            email: document.getElementById('inputCheckoutEmail').value,
+            password: document.getElementById('inputCheckoutPassword').value,
+            jenisBisnis: document.getElementById('inputCheckoutBisnis').value,
+            payment_method: document.getElementById('paymentMethodContainer').style.display === 'none' ? 'free' : document.getElementById('inputCheckoutPayment').value,
+            paket: finalPaket
         };
 
         btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
         btnSubmit.disabled = true;
 
-        fetch('/api/send-lead', {
+        fetch('/api/register-tenant', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1190,15 +1242,58 @@
             .then(data => {
                 modalCheckout.hide();
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pendaftaran Berhasil! 🚀',
-                    text: `Sistem kami sedang menyiapkan paket ${payload.paket} untuk ${payload.namaToko}. Tim Pakaiapp akan segera menghubungi via WhatsApp.`,
-                    confirmButtonColor: 'var(--brand-caramel)',
-                    background: 'var(--bs-card-bg)',
-                    color: 'var(--bs-body-color)',
-                    customClass: {popup: 'bento-card'}
-                });
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Toko Berhasil Dibuat! 🚀',
+                        text: data.message,
+                        confirmButtonColor: 'var(--brand-caramel)',
+                        background: 'var(--bs-card-bg)',
+                        color: 'var(--bs-body-color)'
+                    }).then(() => {
+                        window.location.href = data.redirect_url;
+                    });
+                } else if (data.status === 'manual') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Pendaftaran Dicatat',
+                        text: 'Silakan lanjutkan percakapan di WhatsApp untuk instruksi pembayaran manual.',
+                        confirmButtonText: 'Buka WhatsApp',
+                        confirmButtonColor: '#25D366'
+                    }).then(() => {
+                        window.open(data.redirect_url, '_blank');
+                    });
+                } else if (data.status === 'payment_required_duitku') {
+                    // Redirect ke payment url Duitku
+                    window.location.href = data.payment_url;
+                } else if (data.status === 'payment_required_midtrans' || data.status === 'payment_required') {
+                    // Buka Snap Midtrans
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: function (result) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Pembayaran Sukses!',
+                                text: 'Sistem sedang menyiapkan toko Anda. Silakan cek email Anda untuk informasi login.',
+                            });
+                        },
+                        onPending: function (result) {
+                            Swal.fire('Menunggu Pembayaran', 'Selesaikan pembayaran Anda segera.', 'info');
+                        },
+                        onError: function (result) {
+                            Swal.fire('Pembayaran Gagal', 'Silakan coba lagi.', 'error');
+                        },
+                        onClose: function () {
+                            Swal.fire('Dibatalkan', 'Anda menutup halaman pembayaran.', 'warning');
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.message || 'Terjadi kesalahan sistem.',
+                        confirmButtonColor: 'var(--bs-danger)'
+                    });
+                }
 
                 this.reset();
             })
@@ -1206,10 +1301,8 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Koneksi Terputus',
-                    text: 'Gagal menghubungi server. Silakan klik tombol WhatsApp di pojok kanan bawah untuk bantuan manual.',
-                    confirmButtonColor: 'var(--bs-danger)',
-                    background: 'var(--bs-card-bg)',
-                    color: 'var(--bs-body-color)'
+                    text: 'Gagal menghubungi server. Pastikan koneksi internet Anda stabil.',
+                    confirmButtonColor: 'var(--bs-danger)'
                 });
             })
             .finally(() => {

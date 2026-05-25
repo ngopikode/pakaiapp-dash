@@ -57,8 +57,84 @@ class CentralDuitkuController extends Controller
             // Ambil merchantOrderId dari POST body (sebelum library validate)
             $rawMerchantOrderId = $request->input('merchantOrderId', '');
 
-            // Parse tenantId dan invoiceCode dari format "{tenantId}~{invoiceCode}"
             [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
+
+            // --- NEW: Handle Central Tenant Registration ---
+            if ($tenantId === 'REG' && $invoiceCode) {
+                $registration = \App\Models\TenantRegistration::find($invoiceCode);
+                
+                if (!$registration) {
+                    Log::warning('[Duitku Central] Registration not found', ['reg_id' => $invoiceCode]);
+                    return response('REG_NOT_FOUND', 200);
+                }
+
+                if (in_array($registration->status, ['paid', 'created', 'failed'])) {
+                    return response('ALREADY_PROCESSED', 200);
+                }
+
+                // Verify signature using DuitkuService
+                $duitkuService = new DuitkuService();
+                $notif = $duitkuService->handleCallback();
+                $resultCode = $notif['resultCode'] ?? null;
+                
+                if ($resultCode === '00') {
+                    $registration->update(['status' => 'paid']);
+                    
+                    // Create Tenant
+                    try {
+                        $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
+                        \Illuminate\Support\Facades\Artisan::call('tenant:create', [
+                            'name' => $registration->store_name,
+                            '--type' => $registration->store_type,
+                            '--domain' => $domainUrl,
+                            '--plan' => $registration->plan,
+                        ]);
+
+                        $createdTenant = Tenant::find($registration->tenant_id);
+                        $createdTenant?->run(function () use ($registration) {
+                            \App\Models\User::firstOrCreate(
+                                ['email' => $registration->email],
+                                [
+                                    'name' => $registration->owner_name,
+                                    'password' => $registration->password,
+                                    'role' => 'manager'
+                                ]
+                            );
+                        });
+
+                        $registration->update(['status' => 'created']);
+                        
+                        // Send Welcome Email
+                        $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        
+                        \Illuminate\Support\Facades\Mail::to($registration->email)->send(
+                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/login")
+                        );
+
+                        Log::info('[Duitku Central] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
+                    } catch (\Exception $e) {
+                        Log::error('[Duitku Central] Failed to create tenant after payment', ['error' => $e->getMessage()]);
+
+                        // Send Failure Email
+                        $emailTitle = "Pendaftaran Toko Gagal";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
+                        
+                        try {
+                            \Illuminate\Support\Facades\Mail::to($registration->email)->send(
+                                new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                            );
+                        } catch (\Exception $mailEx) {
+                            Log::error('[Duitku Central] Failed to send failure email: ' . $mailEx->getMessage());
+                        }
+                    }
+                } elseif ($resultCode === '01') {
+                    $registration->update(['status' => 'failed']);
+                }
+
+                return response('OK', 200);
+            }
+            // --- END NEW ---
 
             if (!$tenantId || !$invoiceCode) {
                 Log::warning('[Duitku Central] Format merchantOrderId tidak valid', [

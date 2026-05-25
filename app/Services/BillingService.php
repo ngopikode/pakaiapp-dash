@@ -49,12 +49,19 @@ class BillingService
                 ]);
             }
 
-            $feeToCharge = 300;
+            $currentTenant = tenant();
+            $settingService = app(\App\Services\SettingService::class);
+            
+            $trxFee = $settingService->get('trx_fee', $currentTenant, 300);
+            $fupLimit = $settingService->get('fup_limit', $currentTenant, 5000);
+            $cappingLimit = $settingService->get('capping_limit', $currentTenant, 150000);
 
-            // FUP limit check (5000)
-            if ($monthlyTransactionCount >= 5000) {
-                $feeToCharge = 300; // Charge small fee again after FUP
-            } else if ($monthlyFeePaid >= 150000) {
+            $feeToCharge = $trxFee;
+
+            // FUP limit check
+            if ($monthlyTransactionCount >= $fupLimit) {
+                $feeToCharge = $trxFee; // Charge small fee again after FUP
+            } else if ($monthlyFeePaid >= $cappingLimit) {
                 // Capping hit! Free transaction.
                 $feeToCharge = 0;
             }
@@ -111,12 +118,19 @@ class BillingService
 
             $monthlyVoidCount++;
             
-            // Allow 5% voids, minimum of 10 free voids
-            $allowedVoids = max(10, $monthlyTransactionCount * 0.05);
+            $currentTenant = tenant();
+            $settingService = app(\App\Services\SettingService::class);
+            
+            $voidAllowance = $settingService->get('void_allowance_percentage', $currentTenant, 0.05);
+            $minFreeVoids = $settingService->get('min_free_voids', $currentTenant, 10);
+            $voidPenaltyFee = $settingService->get('void_penalty_fee', $currentTenant, 300);
+
+            // Allow % voids, minimum of X free voids
+            $allowedVoids = max($minFreeVoids, $monthlyTransactionCount * $voidAllowance);
 
             if ($monthlyVoidCount > $allowedVoids) {
                 $this->walletService->deductBalance(
-                    300,
+                    $voidPenaltyFee,
                     $order,
                     "Penalti void berlebih untuk pesanan {$order->invoice_code}"
                 );

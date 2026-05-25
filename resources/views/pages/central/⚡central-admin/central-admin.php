@@ -27,6 +27,7 @@ class extends Component {
     public ?string $storeName = '';
     public string $storeType = 'resto';
     public ?string $tenantId = '';
+    public string $subscriptionPlan = 'free';
 
     // Form: Topup
     public string $selectedTenant = '';
@@ -69,6 +70,7 @@ class extends Component {
             'password' => 'required|min:6',
             'storeName' => 'required|string|max:255',
             'storeType' => 'required|in:resto,retail',
+            'subscriptionPlan' => 'required|in:free,santai,premium',
             'tenantId' => 'required|string|unique:tenants,id|alpha_dash',
         ]);
 
@@ -78,6 +80,7 @@ class extends Component {
             'name' => $this->storeName,
             '--type' => $this->storeType,
             '--domain' => $domainUrl,
+            '--plan' => $this->subscriptionPlan,
         ]);
 
         if ($exitCode !== 0) {

@@ -189,6 +189,128 @@ class DuitkuService
     }
 
     /**
+     * Buat invoice pembayaran ke Duitku untuk Registrasi Tenant.
+     *
+     * @param \App\Models\TenantRegistration $registration Registration entry
+     * @param string $paymentMethod Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
+     * @return array { payment_url, reference, va_number }
+     *
+     * @throws RuntimeException|ConnectionException jika Duitku API error
+     */
+    public function createRegistrationInvoice(\App\Models\TenantRegistration $registration, string $paymentMethod): array
+    {
+        $expiryPeriod = (int)config('duitku.expiry_period', 60);
+        $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');
+
+        // Central URLs
+        $callbackUrl = $callbackBaseUrl . '/duitku/callback';
+        $returnUrl = $callbackBaseUrl . '/duitku/return';
+
+        // merchantOrderId = "REG~{registration_id}"
+        $merchantOrderId = 'REG~' . $registration->id;
+
+        $firstName = substr(strip_tags($registration->owner_name), 0, 50);
+        $lastName = ''; // We only collect one name field
+        $phoneNumber = preg_replace('/[^0-9+]/', '', $registration->whatsapp ?? '');
+        $email = filter_var($registration->email, FILTER_VALIDATE_EMAIL) ? $registration->email : 'noreply@pakaiapp.online';
+
+        $address = [
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'address' => 'Indonesia',
+            'city' => 'Jakarta',
+            'postalCode' => '00000',
+            'phone' => $phoneNumber,
+            'countryCode' => 'ID',
+        ];
+
+        $customerDetailParam = [
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'email' => $email,
+            'phoneNumber' => $phoneNumber,
+            'billingAddress' => $address,
+            'shippingAddress' => $address,
+        ];
+
+        $itemDetails = [[
+            'name' => 'Registrasi Pakaiapp Paket ' . ucfirst($registration->plan),
+            'price' => (int)$registration->amount,
+            'quantity' => 1,
+        ]];
+
+        $paymentAmount = (int)$registration->amount;
+        $stringToSign = $this->merchantCode . $merchantOrderId . $paymentAmount;
+        $signature = hash_hmac('sha256', $stringToSign, $this->merchantKey);
+
+        $params = [
+            'merchantCode' => $this->merchantCode,
+            'paymentAmount' => $paymentAmount,
+            'paymentMethod' => $paymentMethod,
+            'merchantOrderId' => $merchantOrderId,
+            'productDetails' => 'Registrasi Pakaiapp Paket ' . ucfirst($registration->plan),
+            'additionalParam' => 'REG',
+            'merchantUserInfo' => 'REG',
+            'customerVaName' => trim($firstName . ' ' . $lastName),
+            'email' => $email,
+            'phoneNumber' => $phoneNumber,
+            'itemDetails' => $itemDetails,
+            'customerDetail' => $customerDetailParam,
+            'callbackUrl' => $callbackUrl,
+            'returnUrl' => $returnUrl . '?merchantOrderId=' . urlencode($merchantOrderId),
+            'signature' => $signature,
+            'expiryPeriod' => $expiryPeriod,
+        ];
+
+        Log::info('[Duitku] createRegistrationInvoice request', [
+            'merchantOrderId' => $merchantOrderId,
+            'payment_method' => $paymentMethod,
+            'amount' => $paymentAmount,
+        ]);
+
+        $url = $this->getApiUrl() . '/webapi/api/merchant/v2/inquiry';
+        $response = Http::timeout(15)
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post($url, $params);
+
+        if (!$response->successful()) {
+            Log::error('[Duitku] createRegistrationInvoice HTTP error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+            throw new RuntimeException('Koneksi ke server Duitku bermasalah (HTTP ' . $response->status() . ').');
+        }
+
+        $data = $response->json();
+
+        if (empty($data) || !is_array($data)) {
+            Log::error('[Duitku] createRegistrationInvoice response not JSON', ['body' => $response->body()]);
+            throw new RuntimeException('Response dari Duitku tidak valid.');
+        }
+
+        if (($data['statusCode'] ?? '') !== '00') {
+            Log::error('[Duitku] createRegistrationInvoice gagal', ['response' => $data]);
+            throw new RuntimeException('Gagal membuat invoice Duitku: ' . ($data['statusMessage'] ?? 'Unknown error'));
+        }
+
+        if (!isset($data['paymentUrl'])) {
+            Log::error('[Duitku] createRegistrationInvoice tidak mengembalikan paymentUrl', ['response' => $data]);
+            throw new RuntimeException('Gagal membuat invoice Duitku: paymentUrl tidak ditemukan.');
+        }
+
+        Log::info('[Duitku] createRegistrationInvoice berhasil', [
+            'merchantOrderId' => $merchantOrderId,
+            'reference' => $data['reference'] ?? null,
+        ]);
+
+        return [
+            'payment_url' => $data['paymentUrl'],
+            'reference' => $data['reference'] ?? null,
+            'va_number' => $data['vaNumber'] ?? null,
+        ];
+    }
+
+    /**
      * Cek status transaksi ke Duitku.
      *
      * @param string $merchantOrderId Format: "{tenantId}~{invoiceCode}"

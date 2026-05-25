@@ -83,4 +83,45 @@ class MidtransService
             throw $e;
         }
     }
+
+    /**
+     * Membuat transaksi Snap Token khusus untuk pendaftaran/registrasi tenant di Central.
+     *
+     * @param \App\Models\TenantRegistration $registration
+     * @return string $snapToken
+     */
+    public function createRegistrationSnapToken(\App\Models\TenantRegistration $registration): string
+    {
+        $merchantOrderId = 'REG~' . $registration->id . '~' . time();
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $merchantOrderId,
+                'gross_amount' => (int) $registration->amount,
+            ],
+            'customer_details' => [
+                'first_name' => mb_strimwidth($registration->owner_name, 0, 50, ''),
+                'email' => $registration->email,
+                'phone' => $registration->whatsapp,
+            ],
+            'item_details' => [
+                [
+                    'id' => 'PLAN_' . strtoupper($registration->plan),
+                    'price' => (int) $registration->amount,
+                    'quantity' => 1,
+                    'name' => 'Pendaftaran Pakaiapp - Paket ' . ucfirst($registration->plan),
+                ]
+            ]
+        ];
+
+        try {
+            return Snap::getSnapToken($params);
+        } catch (\Exception $e) {
+            Log::error('[Midtrans] Gagal membuat Snap Token Registrasi', [
+                'order_id' => $merchantOrderId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
 }

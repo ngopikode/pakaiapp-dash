@@ -53,6 +53,87 @@ class CentralMidtransController extends Controller
             }
 
             $parts = explode('~', $order_id, 2);
+            
+            // --- NEW: Handle Central Tenant Registration ---
+            if ($parts[0] === 'REG') {
+                $registrationId = explode('~', $parts[1])[0] ?? null;
+                $registration = \App\Models\TenantRegistration::find($registrationId);
+
+                if (!$registration) {
+                    Log::warning('[Midtrans] Registration not found', ['reg_id' => $registrationId]);
+                    return response()->json(['message' => 'REG_NOT_FOUND'], 200);
+                }
+
+                if (in_array($registration->status, ['paid', 'created', 'failed'])) {
+                    return response()->json(['message' => 'ALREADY_PROCESSED'], 200);
+                }
+
+                $status = 'pending';
+                if ($transaction == 'capture' || $transaction == 'settlement') {
+                    $status = 'paid';
+                } else if (in_array($transaction, ['deny', 'expire', 'cancel'])) {
+                    $status = 'failed';
+                }
+
+                if ($status === 'paid') {
+                    $registration->update(['status' => 'paid']);
+                    
+                    // Create Tenant
+                    try {
+                        $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
+                        \Illuminate\Support\Facades\Artisan::call('tenant:create', [
+                            'name' => $registration->store_name,
+                            '--type' => $registration->store_type,
+                            '--domain' => $domainUrl,
+                            '--plan' => $registration->plan,
+                        ]);
+
+                        $tenant = \App\Models\Tenant::find($registration->tenant_id);
+                        $tenant?->run(function () use ($registration) {
+                            \App\Models\User::firstOrCreate(
+                                ['email' => $registration->email],
+                                [
+                                    'name' => $registration->owner_name,
+                                    'password' => $registration->password,
+                                    'role' => 'manager'
+                                ]
+                            );
+                        });
+
+                        $registration->update(['status' => 'created']);
+                        
+                        // Send Welcome Email
+                        $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        
+                        \Illuminate\Support\Facades\Mail::to($registration->email)->send(
+                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/login")
+                        );
+
+                        Log::info('[Midtrans] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
+                    } catch (\Exception $e) {
+                        Log::error('[Midtrans] Failed to create tenant after payment', ['error' => $e->getMessage()]);
+
+                        // Send Failure Email
+                        $emailTitle = "Pendaftaran Toko Gagal";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
+                        
+                        try {
+                            \Illuminate\Support\Facades\Mail::to($registration->email)->send(
+                                new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                            );
+                        } catch (\Exception $mailEx) {
+                            Log::error('[Midtrans] Failed to send failure email: ' . $mailEx->getMessage());
+                        }
+                    }
+                } else if ($status === 'failed') {
+                    $registration->update(['status' => 'failed']);
+                }
+
+                return response()->json(['message' => 'OK'], 200);
+            }
+            // --- END NEW ---
+
             $tenantId = $parts[0];
             $invoiceCode = $parts[1];
 

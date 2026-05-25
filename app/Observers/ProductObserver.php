@@ -14,9 +14,9 @@ class ProductObserver
      */
     public function creating(Product $product): void
     {
-        $quota = Quota::firstOrCreate(
+        $quota = \App\Models\Quota::firstOrCreate(
             ['type' => 'PRODUCT_SLOT'],
-            ['total_slots' => 12, 'used_slots' => 0]
+            ['total_slots' => app(\App\Services\SettingService::class)->get('product_slots', tenant(), 12), 'used_slots' => 0]
         );
 
         if ($quota->used_slots >= $quota->total_slots) {
@@ -31,7 +31,7 @@ class ProductObserver
     {
         $quota = Quota::firstOrCreate(
             ['type' => 'PRODUCT_SLOT'],
-            ['total_slots' => 12, 'used_slots' => 0]
+            ['total_slots' => app(\App\Services\SettingService::class)->get('product_slots', tenant(), 12), 'used_slots' => 0]
         );
 
         $quota->increment('used_slots');
