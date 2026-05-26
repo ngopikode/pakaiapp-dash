@@ -78,23 +78,28 @@ class CentralMidtransController extends Controller
                             '--plan' => $registration->plan,
                         ]);
 
+                        $plainPassword = $registration->password; // Retrieve plain password
                         $tenant = \App\Models\Tenant::find($registration->tenant_id);
-                        $tenant?->run(function () use ($registration) {
+                        $tenant?->run(function () use ($registration, $plainPassword) {
                             \App\Models\User::firstOrCreate(
                                 ['email' => $registration->email],
                                 [
                                     'name' => $registration->owner_name,
-                                    'password' => $registration->password,
+                                    'password' => $plainPassword, // Set plain password (Laravel casts handles the hashing)
                                     'role' => 'manager'
                                 ]
                             );
                         });
 
-                        $registration->update(['status' => 'created']);
+                        // Securely hash the password inside the central DB now that store is ready
+                        $registration->update([
+                            'status' => 'created',
+                            'password' => Hash::make($plainPassword)
+                        ]);
 
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\nPassword: {$plainPassword}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
                         \Illuminate\Support\Facades\Mail::to($registration->email)->send(
                             new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
@@ -166,23 +171,28 @@ class CentralMidtransController extends Controller
                             '--plan' => $registration->plan,
                         ]);
 
+                        $plainPassword = $registration->password; // Retrieve plain password
                         $tenant = \App\Models\Tenant::find($registration->tenant_id);
-                        $tenant?->run(function () use ($registration) {
+                        $tenant?->run(function () use ($registration, $plainPassword) {
                             \App\Models\User::firstOrCreate(
                                 ['email' => $registration->email],
                                 [
                                     'name' => $registration->owner_name,
-                                    'password' => $registration->password,
+                                    'password' => $plainPassword, // Set plain password (Laravel casts handles the hashing)
                                     'role' => 'manager'
                                 ]
                             );
                         });
 
-                        $registration->update(['status' => 'created']);
+                        // Securely hash the password inside the central DB now that store is ready
+                        $registration->update([
+                            'status' => 'created',
+                            'password' => Hash::make($plainPassword)
+                        ]);
 
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\nPassword: {$plainPassword}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
                         \Illuminate\Support\Facades\Mail::to($registration->email)->send(
                             new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
