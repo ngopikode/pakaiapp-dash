@@ -2148,3 +2148,70 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
     transform: translateY(0);
 }
 
+.payment-card-option.selected {
+    border-color: var(--accent) !important;
+    background: rgba(249, 115, 22, 0.05) !important;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+}
+
+[data-bs-theme="light"] .payment-card-option.selected {
+    background: rgba(249, 115, 22, 0.02) !important;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+}
+
+.duitku-method-card.selected {
+    border-color: var(--accent) !important;
+    background: rgba(249, 115, 22, 0.08) !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+}
+
+/* Confirm Payment Button */
+.btn-confirm-payment-container {
+    width: 100%;
+    max-width: 540px;
+    margin: 20px auto 0 auto;
+    display: none;
+    justify-content: center;
+    animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.btn-confirm-payment {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+}
+
+.btn-confirm-payment:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+    color: #fff;
+}
+
+.btn-confirm-payment:active {
+    transform: translateY(0);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

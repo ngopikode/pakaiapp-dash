@@ -385,6 +385,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let isProcessing = false;
         let toastTimeout;
         let modalCallback = null;
+        let selectedPaymentMethod = '';
 
         // Sequence of steps
         const steps = [
@@ -438,6 +439,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (index < 0) return;
             const step = steps[index];
             currentStepIndex = index;
+
+            selectedPaymentMethod = '';
+            const btnContainer = document.getElementById('confirmPaymentContainer');
+            if (btnContainer) {
+                btnContainer.style.display = 'none';
+                btnContainer.innerHTML = '';
+            }
             
             // Fade out
             questionArea.classList.add('fade-out');
@@ -450,15 +458,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Update text
             aiQuestion.innerText = step.q;
             aiSubQuestion.innerText = step.sub;
-            chatInput.value = '';
-
-            if (step.type === 'choice') {
+               if (step.type === 'choice') {
                 if (step.id === 'TanyaPayment') {
                     choicesContainer.innerHTML = `
                         <div class="payment-methods-panel" style="width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 10px; max-width: 540px; margin-left: auto; margin-right: auto; text-align: left;">
                             
                             <!-- Opsi 1: Manual -->
-                            <div class="payment-card-option manual-opt" onclick="handleChoiceClick('manual')">
+                            <div class="payment-card-option manual-opt" onclick="selectPaymentOption(event, 'manual', 'manual-opt')">
                                 <div class="payment-card-header">
                                     <div class="payment-card-icon wa-icon">
                                         <i class="bi bi-whatsapp"></i>
@@ -471,7 +477,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
 
                             <!-- Opsi 2: Midtrans -->
-                            <div class="payment-card-option midtrans-opt" onclick="handleChoiceClick('midtrans')">
+                            <div class="payment-card-option midtrans-opt" onclick="selectPaymentOption(event, 'midtrans', 'midtrans-opt')">
                                 <div class="payment-card-header">
                                     <div class="payment-card-icon midtrans-icon">
                                         <i class="bi bi-credit-card-2-front"></i>
@@ -734,7 +740,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 if (data.success && data.data && data.data.length > 0) {
                     grid.innerHTML = data.data.map(m => `
-                        <div class="duitku-method-card" onclick="selectDuitkuMethod(event, '${m.paymentMethod}')">
+                        <div class="duitku-method-card" onclick="selectDuitkuMethodOption(event, '${m.paymentMethod}', this)">
                             ${m.paymentImage ? `<img src="${m.paymentImage}" alt="${m.paymentName}">` : ''}
                             <div style="font-size: 0.72rem; font-weight: 700; color: var(--text); line-height: 1.2;">${m.paymentName}</div>
                             <div style="font-size: 0.62rem; color: var(--text-muted); font-weight: 500;">+Rp ${parseInt(m.fee).toLocaleString('id-ID')}</div>
@@ -749,9 +755,84 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
-        window.selectDuitkuMethod = function(event, code) {
+        window.selectPaymentOption = function(event, value, cardClass) {
+            if (isProcessing) return;
             event.stopPropagation();
-            handleChoiceClick(code);
+
+            // Clear all selected classes
+            document.querySelectorAll('.payment-card-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.duitku-method-card').forEach(el => el.classList.remove('selected'));
+
+            // Highlight the selected main card
+            const clickedCard = document.querySelector('.' + cardClass);
+            if (clickedCard) {
+                clickedCard.classList.add('selected');
+            }
+
+            selectedPaymentMethod = value;
+
+            // Render/Update Confirm Button
+            renderConfirmPaymentButton();
+        };
+
+        window.selectDuitkuMethodOption = function(event, value, cardElement) {
+            if (isProcessing) return;
+            event.stopPropagation();
+
+            // Clear all selected classes
+            document.querySelectorAll('.payment-card-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.duitku-method-card').forEach(el => el.classList.remove('selected'));
+
+            // Highlight Duitku main card
+            const clickedCard = document.getElementById('optionDuitkuCard');
+            if (clickedCard) {
+                clickedCard.classList.add('selected');
+            }
+
+            // Highlight Duitku sub-card
+            cardElement.classList.add('selected');
+
+            selectedPaymentMethod = value;
+
+            // Render/Update Confirm Button
+            renderConfirmPaymentButton();
+        };
+
+        function renderConfirmPaymentButton() {
+            let btnContainer = document.getElementById('confirmPaymentContainer');
+            if (!btnContainer) {
+                btnContainer = document.createElement('div');
+                btnContainer.id = 'confirmPaymentContainer';
+                btnContainer.className = 'btn-confirm-payment-container';
+                choicesContainer.appendChild(btnContainer);
+            }
+            btnContainer.style.display = 'flex';
+
+            let btnText = 'Lanjutkan & Buat Toko';
+            let iconClass = 'bi-arrow-right-short';
+
+            if (selectedPaymentMethod === 'manual') {
+                btnText = 'Hubungi Admin via WhatsApp';
+                iconClass = 'bi-whatsapp';
+            } else if (selectedPaymentMethod === 'midtrans') {
+                btnText = 'Bayar Instan (Midtrans Sandbox)';
+                iconClass = 'bi-credit-card-2-front';
+            } else {
+                btnText = 'Bayar Otomatis (Duitku Sandbox)';
+                iconClass = 'bi-wallet2';
+            }
+
+            btnContainer.innerHTML = `
+                <button class="btn-confirm-payment" onclick="confirmPaymentChoice()">
+                    <i class="bi ${iconClass}"></i> ${btnText}
+                </button>
+            `;
+        }
+
+        window.confirmPaymentChoice = function() {
+            if (!selectedPaymentMethod || isProcessing) return;
+            formData.payment_method = selectedPaymentMethod;
+            finalizeRegistration();
         };
 
         // Initialize First Step
