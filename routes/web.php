@@ -25,6 +25,22 @@ foreach (config('tenancy.central_domains') as $domain) {
         // Self-Serve Tenant Registration Handler
         Route::post('/api/register-tenant', [\App\Http\Controllers\CentralAuthController::class, 'registerTenant']);
 
+        // Fetch Duitku Payment Methods for Onboarding
+        Route::get('/api/duitku/payment-methods', function (\Illuminate\Http\Request $request) {
+            if (!config('duitku.enabled')) {
+                return response()->json(['success' => false, 'message' => 'Duitku payment gateway is disabled.'], 403);
+            }
+            $request->validate(['amount' => 'required|numeric|min:1']);
+            try {
+                $service = new \App\Services\DuitkuService();
+                $methods = $service->getPaymentMethods((int)$request->amount);
+                return response()->json(['success' => true, 'data' => $methods]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('[Duitku Central] getPaymentMethods error', ['error' => $e->getMessage()]);
+                return response()->json(['success' => false, 'message' => 'Gagal mengambil metode pembayaran.'], 500);
+            }
+        });
+
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
         Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
             ->name('duitku.callback')

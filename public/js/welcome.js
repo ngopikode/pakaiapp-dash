@@ -454,11 +454,84 @@ document.addEventListener('DOMContentLoaded', async () => {
             chatInput.value = '';
 
             if (step.type === 'choice') {
-                choicesContainer.innerHTML = step.choices.map(c => `
-                    <button class="btn-choice-pill" onclick="handleChoiceClick('${c.v}')">
-                        ${c.l}
-                    </button>
-                `).join('');
+                if (step.id === 'TanyaPayment') {
+                    choicesContainer.innerHTML = `
+                        <div class="payment-methods-panel" style="width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 10px; max-width: 540px; margin-left: auto; margin-right: auto; text-align: left;">
+                            
+                            <!-- Opsi 1: Manual -->
+                            <div class="payment-card-option manual-opt" onclick="handleChoiceClick('manual')">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon wa-icon">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </div>
+                                    <div class="payment-card-content">
+                                        <h4 class="payment-card-title">Transfer Manual (Bantuan WA Admin)</h4>
+                                        <p class="payment-card-desc">Konfirmasi pembayaran manual secara personal. Admin aktif 5-10 menit.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opsi 2: Midtrans -->
+                            <div class="payment-card-option midtrans-opt" onclick="handleChoiceClick('midtrans')">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon midtrans-icon">
+                                        <i class="bi bi-credit-card-2-front"></i>
+                                    </div>
+                                    <div class="payment-card-content">
+                                        <div class="payment-card-title-row">
+                                            <h4 class="payment-card-title">Pembayaran Instan (Midtrans)</h4>
+                                            <span class="sandbox-badge midtrans-badge">Mode Uji Coba (Sandbox Midtrans)</span>
+                                        </div>
+                                        <p class="payment-card-desc">Bayar langsung menggunakan e-wallet atau VA. Pembayaran instan terverifikasi otomatis.</p>
+                                        <div class="sandbox-warning">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                            <span>Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opsi 3: Duitku -->
+                            <div class="payment-card-option duitku-opt-card" id="optionDuitkuCard" onclick="expandDuitkuOptions(event)">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon duitku-icon">
+                                        <i class="bi bi-wallet2"></i>
+                                    </div>
+                                    <div class="payment-card-content" style="width: 100%;">
+                                        <div class="payment-card-title-row">
+                                            <h4 class="payment-card-title">Transfer & E-Wallet Otomatis (Duitku)</h4>
+                                            <span class="sandbox-badge duitku-badge">Mode Uji Coba (Sandbox Duitku)</span>
+                                        </div>
+                                        <p class="payment-card-desc">Bayar otomatis menggunakan QRIS, ShopeePay, OVO, LinkAja, atau berbagai Virtual Account.</p>
+                                        <div class="sandbox-warning" style="margin-bottom: 12px;">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                            <span>Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.</span>
+                                        </div>
+
+                                        <!-- Sub-opsi List (Duitku Payment Methods) -->
+                                        <div id="duitkuMethodsContainer" class="duitku-methods-container" style="display: none;" onclick="event.stopPropagation()">
+                                            <div class="duitku-methods-header">
+                                                <span class="duitku-methods-label">Pilih Saluran Pembayaran Duitku:</span>
+                                                <span id="loadingDuitkuMethods" class="duitku-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-1" style="width: 10px; height: 10px;"></span> Memuat...</span>
+                                            </div>
+                                            <div id="duitkuMethodsGrid" class="duitku-methods-grid">
+                                                <!-- Metode pembayaran dimasukkan via Javascript -->
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    `;
+                } else {
+                    choicesContainer.innerHTML = step.choices.map(c => `
+                        <button class="btn-choice-pill" onclick="handleChoiceClick('${c.v}')">
+                            ${c.l}
+                        </button>
+                    `).join('');
+                }
                 choicesContainer.style.display = 'flex';
             } else {
                 chatInput.type = step.type;
@@ -635,6 +708,52 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showToast('Gagal menghubungi server.');
             }
         }
+
+        window.expandDuitkuOptions = async function(event) {
+            event.stopPropagation();
+            const container = document.getElementById('duitkuMethodsContainer');
+            const grid = document.getElementById('duitkuMethodsGrid');
+            const loader = document.getElementById('loadingDuitkuMethods');
+            
+            // Toggle container
+            if (container.style.display === 'block') {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            // If already loaded, do not fetch again
+            if (grid.children.length > 0) return;
+            
+            loader.style.display = 'inline-flex';
+            try {
+                const amount = formData.paket === 'santai' ? 50000 : 150000;
+                const res = await fetch('/api/duitku/payment-methods?amount=' + amount);
+                const data = await res.json();
+                loader.style.display = 'none';
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    grid.innerHTML = data.data.map(m => `
+                        <div class="duitku-method-card" onclick="selectDuitkuMethod(event, '${m.paymentMethod}')">
+                            ${m.paymentImage ? `<img src="${m.paymentImage}" alt="${m.paymentName}">` : ''}
+                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text); line-height: 1.2;">${m.paymentName}</div>
+                            <div style="font-size: 0.62rem; color: var(--text-muted); font-weight: 500;">+Rp ${parseInt(m.fee).toLocaleString('id-ID')}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; font-size: 0.78rem; color: var(--red); padding: 10px;">Gagal memuat metode pembayaran Duitku. Silakan coba lagi.</div>`;
+                }
+            } catch (e) {
+                loader.style.display = 'none';
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; font-size: 0.78rem; color: var(--red); padding: 10px;">Terjadi kesalahan jaringan.</div>`;
+            }
+        };
+
+        window.selectDuitkuMethod = function(event, code) {
+            event.stopPropagation();
+            handleChoiceClick(code);
+        };
 
         // Initialize First Step
         setTimeout(() => askStep(0), 100);
