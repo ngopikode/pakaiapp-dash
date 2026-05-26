@@ -9,9 +9,13 @@ use App\Services\TenantWalletService;
 use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use App\Models\TenantRegistration;
+use App\Mail\SystemEmail;
 
 new #[Layout('layouts::central', ['title' => 'Gatekeeper | Pakaiapp'])]
 class extends Component {
@@ -78,6 +82,7 @@ class extends Component {
 
         $exitCode = Artisan::call('tenant:create', [
             'name' => $this->storeName,
+            '--id' => $this->tenantId,
             '--type' => $this->storeType,
             '--domain' => $domainUrl,
             '--plan' => $this->subscriptionPlan,
@@ -133,10 +138,79 @@ class extends Component {
         }
     }
 
+    public function retryCreateTenant($id)
+    {
+        $registration = TenantRegistration::findOrFail($id);
+
+        if ($registration->status !== 'paid') {
+            $this->dispatch('swal:error', message: 'Hanya pendaftaran berstatus PAID (Gagal Aktivasi Otomatis) yang bisa diproses ulang.');
+            return;
+        }
+
+        try {
+            $slug = $registration->tenant_id;
+            $domainUrl = $slug . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
+
+            // 1. Create Tenant Database & Subdomain
+            Artisan::call('tenant:create', [
+                'name' => $registration->store_name,
+                '--id' => $slug,
+                '--type' => $registration->store_type,
+                '--domain' => $domainUrl,
+                '--plan' => $registration->plan,
+            ]);
+
+            // 2. Initialize manager user
+            $plainPassword = $registration->password; // Retrieve plain password stored temporarily
+            $tenant = Tenant::find($slug);
+            if (!$tenant) {
+                throw new Exception("Tenant {$slug} tidak ditemukan setelah pembuatan database.");
+            }
+
+            $tenant->run(function () use ($registration, $plainPassword) {
+                User::firstOrCreate(
+                    ['email' => $registration->email],
+                    [
+                        'name' => $registration->owner_name,
+                        'password' => $plainPassword, // Laravel handles the hashing automatically
+                        'role' => 'manager'
+                    ]
+                );
+                // Update StoreSetting brand text
+                StoreSetting::first()?->update([
+                    'navbar_brand_text' => $registration->store_name,
+                    'hero_headline' => 'Selamat datang di ' . $registration->store_name,
+                ]);
+            });
+
+            // 3. Securely hash the password inside the central DB
+            $registration->update([
+                'status' => 'created',
+                'password' => Hash::make($plainPassword)
+            ]);
+
+            // 4. Send Welcome Email
+            $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
+            $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+
+            Mail::to($registration->email)->send(
+                new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")
+            );
+
+            $this->dispatch('swal:success', title: 'Aktivasi Berhasil!', message: "Toko {$registration->store_name} berhasil dibuat dan diaktifkan secara manual di {$domainUrl}. Email rincian akses telah dikirimkan ke pemilik.");
+        } catch (Exception $e) {
+            Log::error("Manual activation retry failed: " . $e->getMessage());
+            $this->dispatch('swal:error', message: 'Gagal mengaktivasi toko: ' . $e->getMessage());
+        }
+    }
+
     public function with()
     {
         return [
-            'tenants' => $this->isAuthenticated ? Tenant::orderBy('id')->get() : []
+            'tenants' => $this->isAuthenticated ? Tenant::orderBy('id')->get() : [],
+            'pendingRegistrations' => $this->isAuthenticated
+                ? TenantRegistration::where('status', 'paid')->orderBy('created_at', 'desc')->get()
+                : []
         ];
     }
 };

@@ -105,6 +105,15 @@
                                         <i class="bi bi-wallet2 me-1"></i> Injeksi Saldo
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $activeTab === 'pending_activations' ? 'active fw-bold' : 'text-muted' }}"
+                                       href="#" wire:click.prevent="changeTab('pending_activations')">
+                                        <i class="bi bi-exclamation-triangle me-1"></i> Aktivasi Tertunda
+                                        @if(count($pendingRegistrations) > 0)
+                                            <span class="badge bg-danger rounded-pill ms-1">{{ count($pendingRegistrations) }}</span>
+                                        @endif
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
@@ -210,6 +219,67 @@
                                         </button>
                                     </div>
                                 </form>
+                            @elseif($activeTab === 'pending_activations')
+                                <div>
+                                    <h5 class="mb-3 border-bottom pb-2">Antrean Aktivasi Toko Berbayar (PAID tapi Gagal Setup)</h5>
+                                    <p class="text-muted small mb-4">
+                                        Daftar di bawah adalah merchant yang telah <strong>berhasil membayar</strong> via payment gateway (Midtrans/Duitku) namun proses otomatisasi setup server terganggu (misal: database host down, kuota limit, dll). Gunakan tombol <strong>Aktivasi Paksa</strong> untuk memicu pembuatan database ulang secara manual.
+                                    </p>
+
+                                    @if(count($pendingRegistrations) === 0)
+                                        <div class="text-center py-5 text-muted">
+                                            <i class="bi bi-check-circle fs-1 text-success mb-3 d-block"></i>
+                                            <span>Tidak ada aktivasi berbayar yang tertunda. Semua server sehat dan teraktivasi!</span>
+                                        </div>
+                                    @else
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Invoice</th>
+                                                        <th>Nama Toko / Subdomain</th>
+                                                        <th>Pemilik / Kontak</th>
+                                                        <th>Paket & Nilai</th>
+                                                        <th class="text-center">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($pendingRegistrations as $reg)
+                                                        <tr>
+                                                            <td>
+                                                                <span class="badge bg-secondary font-monospace">{{ $reg->invoice_code }}</span>
+                                                                <div class="text-muted small mt-1" style="font-size: 0.72rem;">{{ $reg->created_at->format('d/m/Y H:i') }}</div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="fw-bold">{{ $reg->store_name }}</div>
+                                                                <div class="text-primary small font-monospace">{{ $reg->tenant_id }}.pakaiapp.online</div>
+                                                            </td>
+                                                            <td>
+                                                                <div>{{ $reg->owner_name }}</div>
+                                                                <div class="text-muted small" style="font-size: 0.8rem;">
+                                                                    <i class="bi bi-envelope"></i> {{ $reg->email }} <br>
+                                                                    <i class="bi bi-whatsapp"></i> {{ $reg->whatsapp }}
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-warning text-dark text-uppercase" style="font-size: 0.75rem;">{{ $reg->plan }}</span>
+                                                                <div class="fw-bold mt-1 text-success" style="font-size: 0.85rem;">Rp {{ number_format($reg->amount, 0, ',', '.') }}</div>
+                                                                <div class="text-muted small" style="font-size: 0.72rem;">via {{ strtoupper($reg->payment_method) }}</div>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <button wire:click="retryCreateTenant({{ $reg->id }})" 
+                                                                        class="btn btn-primary btn-sm"
+                                                                        wire:loading.attr="disabled">
+                                                                    <i class="bi bi-arrow-clockwise"></i> Aktivasi Paksa
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     </div>
