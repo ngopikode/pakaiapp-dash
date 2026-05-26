@@ -2,9 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SystemEmail;
 use App\Models\Order;
+use App\Models\Tenant;
+use App\Models\TenantRegistration;
+use App\Models\User;
+use App\Services\BillingService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Throwable;
@@ -47,15 +56,15 @@ class CentralMidtransController extends Controller
 
             // --- NEW: Handle Central Tenant Registration with custom invoice_code ---
             if (str_starts_with($order_id, 'INV-REG-')) {
-                $registration = \App\Models\TenantRegistration::where('invoice_code', $order_id)->first();
+                $registration = TenantRegistration::where('invoice_code', $order_id)->first();
 
                 if (!$registration) {
                     Log::warning('[Midtrans] Registration not found', ['reg_id' => $order_id]);
-                    return response()->json(['message' => 'REG_NOT_FOUND'], 200);
+                    return response()->json(['message' => 'REG_NOT_FOUND']);
                 }
 
                 if (in_array($registration->status, ['paid', 'created', 'failed'])) {
-                    return response()->json(['message' => 'ALREADY_PROCESSED'], 200);
+                    return response()->json(['message' => 'ALREADY_PROCESSED']);
                 }
 
                 $status = 'pending';
@@ -71,7 +80,7 @@ class CentralMidtransController extends Controller
                     // Create Tenant
                     try {
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
-                        \Illuminate\Support\Facades\Artisan::call('tenant:create', [
+                        Artisan::call('tenant:create', [
                             'name' => $registration->store_name,
                             '--type' => $registration->store_type,
                             '--domain' => $domainUrl,
@@ -79,9 +88,9 @@ class CentralMidtransController extends Controller
                         ]);
 
                         $plainPassword = $registration->password; // Retrieve plain password
-                        $tenant = \App\Models\Tenant::find($registration->tenant_id);
+                        $tenant = Tenant::find($registration->tenant_id);
                         $tenant?->run(function () use ($registration, $plainPassword) {
-                            \App\Models\User::firstOrCreate(
+                            User::firstOrCreate(
                                 ['email' => $registration->email],
                                 [
                                     'name' => $registration->owner_name,
@@ -99,25 +108,25 @@ class CentralMidtransController extends Controller
 
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\nPassword: {$plainPassword}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
-                        \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
+                        Mail::to($registration->email)->send(
+                            new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")
                         );
 
                         Log::info('[Midtrans] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('[Midtrans] Failed to create tenant after payment', ['error' => $e->getMessage()]);
 
                         // Send Failure Email
                         $emailTitle = "Pendaftaran Toko Gagal";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
+                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ($registration->store_name). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
 
                         try {
-                            \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                                 new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                            Mail::to($registration->email)->send(
+                                new SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
                             );
-                        } catch (\Exception $mailEx) {
+                        } catch (Exception $mailEx) {
                             Log::error('[Midtrans] Failed to send failure email: ' . $mailEx->getMessage());
                         }
                     }
@@ -125,7 +134,7 @@ class CentralMidtransController extends Controller
                     $registration->update(['status' => 'failed']);
                 }
 
-                return response()->json(['message' => 'OK'], 200);
+                return response()->json(['message' => 'OK']);
             }
 
             // Extract tenant ID dan real invoice code using safe separators
@@ -140,15 +149,15 @@ class CentralMidtransController extends Controller
             // Backward compatibility for old 'REG' tenantId
             if ($parts[0] === 'REG') {
                 $registrationId = explode('~', $parts[1])[0] ?? null;
-                $registration = \App\Models\TenantRegistration::find($registrationId);
+                $registration = TenantRegistration::find($registrationId);
 
                 if (!$registration) {
                     Log::warning('[Midtrans] Registration not found', ['reg_id' => $registrationId]);
-                    return response()->json(['message' => 'REG_NOT_FOUND'], 200);
+                    return response()->json(['message' => 'REG_NOT_FOUND']);
                 }
 
                 if (in_array($registration->status, ['paid', 'created', 'failed'])) {
-                    return response()->json(['message' => 'ALREADY_PROCESSED'], 200);
+                    return response()->json(['message' => 'ALREADY_PROCESSED']);
                 }
 
                 $status = 'pending';
@@ -164,7 +173,7 @@ class CentralMidtransController extends Controller
                     // Create Tenant
                     try {
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
-                        \Illuminate\Support\Facades\Artisan::call('tenant:create', [
+                        Artisan::call('tenant:create', [
                             'name' => $registration->store_name,
                             '--type' => $registration->store_type,
                             '--domain' => $domainUrl,
@@ -172,9 +181,9 @@ class CentralMidtransController extends Controller
                         ]);
 
                         $plainPassword = $registration->password; // Retrieve plain password
-                        $tenant = \App\Models\Tenant::find($registration->tenant_id);
+                        $tenant = Tenant::find($registration->tenant_id);
                         $tenant?->run(function () use ($registration, $plainPassword) {
-                            \App\Models\User::firstOrCreate(
+                            User::firstOrCreate(
                                 ['email' => $registration->email],
                                 [
                                     'name' => $registration->owner_name,
@@ -192,25 +201,25 @@ class CentralMidtransController extends Controller
 
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\nPassword: {$plainPassword}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
-                        \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
+                        Mail::to($registration->email)->send(
+                            new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")
                         );
 
                         Log::info('[Midtrans] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('[Midtrans] Failed to create tenant after payment', ['error' => $e->getMessage()]);
 
                         // Send Failure Email
                         $emailTitle = "Pendaftaran Toko Gagal";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
+                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ($registration->store_name). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
 
                         try {
-                            \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                                 new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                            Mail::to($registration->email)->send(
+                                new SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
                             );
-                        } catch (\Exception $mailEx) {
+                        } catch (Exception $mailEx) {
                             Log::error('[Midtrans] Failed to send failure email: ' . $mailEx->getMessage());
                         }
                     }
@@ -218,7 +227,7 @@ class CentralMidtransController extends Controller
                     $registration->update(['status' => 'failed']);
                 }
 
-                return response()->json(['message' => 'OK'], 200);
+                return response()->json(['message' => 'OK']);
             }
 
             $tenantId = $parts[0];
@@ -244,7 +253,7 @@ class CentralMidtransController extends Controller
                     'invoice_code' => $invoiceCode,
                 ]);
                 tenancy()->end();
-                return response()->json(['message' => 'ORDER_NOT_FOUND'], 200); // 200 agar midtrans berhenti retry
+                return response()->json(['message' => 'ORDER_NOT_FOUND']); // 200 agar midtrans berhenti retry
             }
 
             // Cek idempotency: jika order sudah berstatus akhir, abaikan webhook
@@ -254,7 +263,7 @@ class CentralMidtransController extends Controller
                     'current_status' => $order->status
                 ]);
                 tenancy()->end();
-                return response()->json(['message' => 'ALREADY_PROCESSED'], 200);
+                return response()->json(['message' => 'ALREADY_PROCESSED']);
             }
 
             $status = 'pending';
@@ -283,7 +292,7 @@ class CentralMidtransController extends Controller
 
             if ($status === 'paid') {
                 $amountPaid = (int)$notif->gross_amount;
-                
+
                 // --- MITIGASI FRAUD: Cek apakah nominal bayar sesuai ---
                 if ($amountPaid < $order->total_price) {
                     Log::warning('[Midtrans] Fraud detected: Underpaid', [
@@ -297,9 +306,9 @@ class CentralMidtransController extends Controller
                         'midtrans_transaction_id' => $notif->transaction_id,
                         'midtrans_payment_type' => $type,
                     ]);
-                    
+
                     tenancy()->end();
-                    return response()->json(['message' => 'OK'], 200); // 200 agar midtrans berhenti retry
+                    return response()->json(['message' => 'OK']); // 200 agar midtrans berhenti retry
                 }
 
                 $order->update([
@@ -311,7 +320,7 @@ class CentralMidtransController extends Controller
                 ]);
 
                 // --- POTONG SALDO WALLET (DYNAMIC PAYG CAPPING) ---
-                app(\App\Services\BillingService::class)->chargeTransactionFee($order);
+                app(BillingService::class)->chargeTransactionFee($order);
             } else if ($status === 'cancelled') {
                 $order->update([
                     'status' => 'cancelled',
@@ -328,7 +337,7 @@ class CentralMidtransController extends Controller
             ]);
 
             tenancy()->end();
-            return response()->json(['message' => 'OK'], 200);
+            return response()->json(['message' => 'OK']);
 
         } catch (Throwable $e) {
             Log::error('[Midtrans] Notification processing error', [

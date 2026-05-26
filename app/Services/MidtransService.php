@@ -3,10 +3,11 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\TenantRegistration;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Snap;
-use Midtrans\Notification;
 
 class MidtransService
 {
@@ -26,6 +27,7 @@ class MidtransService
      * @param array $customerDetail
      * @param string $tenantId
      * @return string $snapToken
+     * @throws Exception
      */
     public function createSnapToken(Order $order, array $customerDetail, string $tenantId): string
     {
@@ -35,7 +37,7 @@ class MidtransService
         $params = [
             'transaction_details' => [
                 'order_id' => $merchantOrderId,
-                'gross_amount' => (int) $order->total_price,
+                'gross_amount' => (int)$order->total_price,
             ],
             'customer_details' => [
                 'first_name' => $customerDetail['firstName'] ?? '',
@@ -46,8 +48,8 @@ class MidtransService
             'item_details' => $order->items->map(function ($item) {
                 return [
                     'id' => $item->product_id,
-                    'price' => (int) $item->price,
-                    'quantity' => (int) $item->quantity,
+                    'price' => (int)$item->price,
+                    'quantity' => (int)$item->quantity,
                     'name' => mb_strimwidth($item->product_name, 0, 50, '...'), // max 50 chars for Midtrans
                 ];
             })->toArray()
@@ -57,7 +59,7 @@ class MidtransService
         if ($order->service_charge_amount > 0) {
             $params['item_details'][] = [
                 'id' => 'SERVICE_CHARGE',
-                'price' => (int) $order->service_charge_amount,
+                'price' => (int)$order->service_charge_amount,
                 'quantity' => 1,
                 'name' => 'Biaya Layanan',
             ];
@@ -67,7 +69,7 @@ class MidtransService
         if ($order->tax_amount > 0) {
             $params['item_details'][] = [
                 'id' => 'TAX_PB1',
-                'price' => (int) $order->tax_amount,
+                'price' => (int)$order->tax_amount,
                 'quantity' => 1,
                 'name' => 'Pajak Restoran (PB1)',
             ];
@@ -75,7 +77,7 @@ class MidtransService
 
         try {
             return Snap::getSnapToken($params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('[Midtrans] Gagal membuat Snap Token', [
                 'order_id' => $merchantOrderId,
                 'error' => $e->getMessage()
@@ -87,17 +89,18 @@ class MidtransService
     /**
      * Membuat transaksi Snap Token khusus untuk pendaftaran/registrasi tenant di Central.
      *
-     * @param \App\Models\TenantRegistration $registration
+     * @param TenantRegistration $registration
      * @return string $snapToken
+     * @throws Exception
      */
-    public function createRegistrationSnapToken(\App\Models\TenantRegistration $registration): string
+    public function createRegistrationSnapToken(TenantRegistration $registration): string
     {
         $merchantOrderId = $registration->invoice_code;
 
         $params = [
             'transaction_details' => [
                 'order_id' => $merchantOrderId,
-                'gross_amount' => (int) $registration->amount,
+                'gross_amount' => (int)$registration->amount,
             ],
             'customer_details' => [
                 'first_name' => mb_strimwidth($registration->owner_name, 0, 50, ''),
@@ -107,7 +110,7 @@ class MidtransService
             'item_details' => [
                 [
                     'id' => 'PLAN_' . strtoupper($registration->plan),
-                    'price' => (int) $registration->amount,
+                    'price' => (int)$registration->amount,
                     'quantity' => 1,
                     'name' => 'Pendaftaran Pakaiapp - Paket ' . ucfirst($registration->plan),
                 ]
@@ -119,7 +122,7 @@ class MidtransService
 
         try {
             return Snap::getSnapToken($params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('[Midtrans] Gagal membuat Snap Token Registrasi', [
                 'order_id' => $merchantOrderId,
                 'error' => $e->getMessage()

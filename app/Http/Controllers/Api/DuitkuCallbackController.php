@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\DuitkuService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Throwable;
 
 /**
@@ -44,7 +46,7 @@ class DuitkuCallbackController extends Controller
             $clientIp = $request->ip();
             $allowedIps = config('duitku.sandbox', true)
                 ? ['182.23.85.11', '182.23.85.12', '103.177.101.187', '103.177.101.188']
-                : ['182.23.85.8', '182.23.85.9', '182.23.85.10', '182.23.85.13', '182.23.85.14', 
+                : ['182.23.85.8', '182.23.85.9', '182.23.85.10', '182.23.85.13', '182.23.85.14',
                    '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
 
             if (! in_array($clientIp, $allowedIps, true)) {
@@ -146,7 +148,7 @@ class DuitkuCallbackController extends Controller
      * Status aktual transaksi sebaiknya dicek via callback, bukan dari return URL ini
      * karena return URL bisa di-manipulasi oleh user.
      */
-    public function return(Request $request): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
+    public function return(Request $request): RedirectResponse|View
     {
         $merchantOrderId = $request->query('merchantOrderId', '');
 

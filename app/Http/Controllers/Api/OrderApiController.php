@@ -11,6 +11,7 @@ use App\Services\DuitkuService;
 use App\Services\MidtransService;
 use App\Traits\ApiResponserTrait;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -123,6 +124,12 @@ class OrderApiController extends Controller
         return null;
     }
 
+    /**
+     * @param Request $request
+     * @param array $gateway
+     * @return Order
+     * @throws Throwable
+     */
     private function createOrderInTransaction(Request $request, array $gateway): Order
     {
         return DB::transaction(function () use ($request, $gateway) {
@@ -235,6 +242,9 @@ class OrderApiController extends Controller
         ], 'Order berhasil dibuat.', 201);
     }
 
+    /**
+     * @throws ConnectionException
+     */
     private function processDuitku(Order $order, array $customerDetail, string $method): JsonResponse
     {
         $service = new DuitkuService();

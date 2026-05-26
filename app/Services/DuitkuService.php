@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\TenantRegistration;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -191,13 +192,13 @@ class DuitkuService
     /**
      * Buat invoice pembayaran ke Duitku untuk Registrasi Tenant.
      *
-     * @param \App\Models\TenantRegistration $registration Registration entry
+     * @param TenantRegistration $registration Registration entry
      * @param string $paymentMethod Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
      * @return array { payment_url, reference, va_number }
      *
      * @throws RuntimeException|ConnectionException jika Duitku API error
      */
-    public function createRegistrationInvoice(\App\Models\TenantRegistration $registration, string $paymentMethod): array
+    public function createRegistrationInvoice(TenantRegistration $registration, string $paymentMethod): array
     {
         $expiryPeriod = (int)config('duitku.expiry_period', 60);
         $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');

@@ -7,6 +7,7 @@ use App\Models\WalletTransaction;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class TenantWalletService
 {
@@ -23,6 +24,11 @@ class TenantWalletService
 
     /**
      * Menambah saldo dompet (Top-up, Refund, dsb)
+     * @param float|int $amount
+     * @param Model $reference
+     * @param string|null $description
+     * @return WalletTransaction
+     * @throws Throwable
      */
     public function addBalance(float|int $amount, Model $reference, ?string $description = null): WalletTransaction
     {
@@ -32,7 +38,7 @@ class TenantWalletService
     /**
      * Memotong saldo dompet (Pembayaran transaksi, Beli slot, dsb)
      *
-     * @throws Exception Jika saldo tidak mencukupi
+     * @throws Exception|Throwable Jika saldo tidak mencukupi
      */
     public function deductBalance(float|int $amount, Model $reference, ?string $description = null): WalletTransaction
     {
@@ -42,6 +48,12 @@ class TenantWalletService
     /**
      * Core logic mutasi dompet dengan sistem penguncian mutlak (Pessimistic Locking).
      * Dibuat private agar controller hanya bisa memanggil addBalance / deductBalance.
+     * @param string $type
+     * @param float|int $amount
+     * @param Model $reference
+     * @param string|null $description
+     * @return WalletTransaction
+     * @throws Throwable
      */
     private function processTransaction(string $type, float|int $amount, Model $reference, ?string $description = null): WalletTransaction
     {
