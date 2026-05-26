@@ -16,7 +16,8 @@
         "livewire/livewire": "^4.1",
         "midtrans/midtrans-php": "^2.6",
         "resend/resend-laravel": "^1.4",
-        "stancl/tenancy": "^3.10"
+        "stancl/tenancy": "^3.10",
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
