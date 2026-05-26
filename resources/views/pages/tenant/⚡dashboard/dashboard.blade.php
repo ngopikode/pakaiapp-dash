@@ -3,11 +3,10 @@
     {{-- Welcome Header --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-md-5 gap-3 pt-3">
         <div>
-            <h6 class="text-secondary small fw-bold mb-1 text-uppercase" style="letter-spacing: 1.5px;">
+            <h6 class="page-greeting-label">
                 Selamat Datang, {{ explode(' ', $user->name)[0] }} 👋
             </h6>
-            <h2 class="fw-bolder mb-2 text-brand-gradient text-brand-gradient"
-                style="letter-spacing: -1.2px; font-size: 2.3rem; font-family: var(--font-serif), sans-serif;">
+            <h2 class="page-store-name mb-2">
                 {{ $store->name ?? 'Setup Tokomu' }}
             </h2>
             <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
@@ -37,7 +36,7 @@
                 <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm"></span> Menyusun Data...</span>
             </button>
             <a href="{{ route('cashier') }}" wire:navigate
-               class="btn btn-dashboard-header btn-filled text-white-fixed">
+               class="btn btn-caramel-solid text-white">
                 <i class="bi bi-cart-check-fill fs-5"></i> Buka Kasir
                 @if($newOrderCount > 0)
                     <span class="badge rounded-circle ms-1"
@@ -49,13 +48,8 @@
 
     {{-- New Order Notification Glassmorphism Island --}}
     @if($newOrderCount > 0)
-        <div class="card border-0 shadow-lg p-3 mb-4 transition-all"
-             style="border-radius: 1.25rem;
-                background: linear-gradient(135deg, rgba(202, 138, 4, 0.1) 0%, rgba(180, 83, 9, 0.05) 100%);
-                border: 1px solid rgba(180, 83, 9, 0.2) !important;
-                backdrop-filter: blur(8px);
-                position: relative;
-                overflow: hidden;">
+        <div class="notif-new-order p-3 mb-4 transition-all"
+             style="position: relative; overflow: hidden;">
 
             {{-- Decorative Subtle Glow Behind --}}
             <div class="position-absolute rounded-circle"
@@ -89,10 +83,7 @@
 
             {{-- Premium Action Button --}}
             <button wire:click="acknowledgeOrders"
-                    class="btn text-white-fixed fw-bold rounded-pill px-4 py-2.5 shadow-sm flex-shrink-0 w-100 w-md-auto border-0 transition-all mt-2"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309); font-size: 0.85rem;"
-                    onmouseover="this.style.opacity='0.9'; this.style.transform='translateY(-1px)';"
-                    onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)';"
+                    class="btn btn-caramel-solid flex-shrink-0 w-100 w-md-auto mt-2"
                     type="button">
                 <i class="bi bi-check2-all me-1"></i> Selesai Periksa
             </button>
@@ -197,25 +188,24 @@
             {{-- Omset Hari Ini --}}
             <div class="col">
                 <div
-                    class="card h-100 dash-card bg-gradient-caramel text-white-fixed position-relative overflow-hidden p-2 border-0">
-                    <div class="position-absolute top-0 end-0 p-3 text-white-fixed-25">
-                        <i class="bi bi-wallet2" style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem;"></i>
+                    class="card h-100 dash-card stat-card-primary text-white-fixed position-relative overflow-hidden p-2">
+                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.15;">
+                        <i class="bi bi-wallet2" style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem; color: #fff;"></i>
                     </div>
                     <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between"
                          style="min-height: 160px;">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <span class="badge rounded-pill px-3 py-2 fw-bold text-white-fixed"
-                                  style="font-size: 0.72rem; background-color: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.25) !important;">Omset Hari Ini</span>
+                                  style="font-size: 0.72rem; background-color: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.2) !important;">Omset Hari Ini</span>
                         </div>
                         <div>
-                            <h2 class="fw-black mb-1 display-6 text-white-fixed"
-                                style="font-family: var(--font-serif), sans-serif; letter-spacing: -1px;">
-                                Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}</h2>
-                            <p class="text-white-fixed-75 small fw-bold mb-0">Dari {{ $stats['orders_today'] }}
-                                Transaksi Sukses
+                            <div class="stat-number stat-number-lg text-white-fixed mb-2">
+                                Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}
+                            </div>
+                            <p class="stat-label text-white-fixed mb-0">Dari {{ $stats['orders_today'] }} Transaksi Sukses
                                 @if($stats['revenue_trend_today'] != 0)
                                     <span
-                                        class="ms-2 px-2 py-0.5 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
+                                        class="ms-2 px-2 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
                                         style="font-size: 0.65rem;">
                                         <i class="bi {{ $stats['revenue_trend_today'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_today']) }}%
                                     </span>
@@ -229,26 +219,26 @@
             {{-- Omset Bulan Ini --}}
             <div class="col">
                 <div
-                    class="card h-100 dash-card bg-gradient-espresso text-white-fixed position-relative overflow-hidden p-2 border-0">
-                    <div class="position-absolute top-0 end-0 p-3 text-white-fixed-25">
+                    class="card h-100 dash-card stat-card-dark text-white-fixed position-relative overflow-hidden p-2">
+                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
                         <i class="bi bi-graph-up-arrow"
-                           style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem;"></i>
+                           style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem; color: #fff;"></i>
                     </div>
                     <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between"
                          style="min-height: 160px;">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <span
                                 class="badge text-white-fixed rounded-pill px-3 py-2 fw-bold"
-                                style="font-size: 0.72rem; background-color: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.25) !important;">Omset Bulan Ini</span>
+                                style="font-size: 0.72rem; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15) !important;">Omset Bulan Ini</span>
                         </div>
                         <div>
-                            <h2 class="fw-black mb-1 display-6 text-white-fixed"
-                                style="font-family: var(--font-serif), sans-serif; letter-spacing: -1px;">
-                                Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}</h2>
-                            <p class="text-white-fixed-75 small fw-bold mb-0">Total Pendapatan Bulanan
+                            <div class="stat-number stat-number-lg text-white-fixed mb-2">
+                                Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}
+                            </div>
+                            <p class="stat-label text-white-fixed mb-0">Total Pendapatan Bulanan
                                 @if($stats['revenue_trend_month'] != 0)
                                     <span
-                                        class="ms-2 px-2 py-0.5 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
+                                        class="ms-2 px-2 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
                                         style="font-size: 0.65rem;">
                                         <i class="bi {{ $stats['revenue_trend_month'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_month']) }}%
                                     </span>
@@ -262,28 +252,27 @@
             {{-- Pesanan Pending --}}
             <div class="col">
                 <div
-                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 {{ $stats['pending_orders'] > 0 ? 'border-danger border-2 shadow-danger' : 'border-secondary border-opacity-25' }}"
-                    style="{{ $stats['pending_orders'] > 0 ? 'border-color: rgba(220, 53, 69, 0.45) !important; background: linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(220, 53, 69, 0.02) 100%) !important;' : '' }}">
-                    @if($stats['pending_orders'] > 0)
-                        <div class="position-absolute top-0 end-0 m-3">
-                            <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 {{ $stats['pending_orders'] > 0 ? 'border-danger border-2' : 'border-secondary border-opacity-25' }}"
+                    style="{{ $stats['pending_orders'] > 0 ? 'border-color: rgba(220,53,69,0.4) !important; background-color: rgba(220,53,69,0.04) !important;' : '' }}">
+                        <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
+                            <i class="bi bi-hourglass-split"
+                               style="font-size: 5rem; color: {{ $stats['pending_orders'] > 0 ? '#dc3545' : 'var(--bs-secondary-color)' }};"></i>
                         </div>
-                    @endif
-                    <div class="card-body p-4 d-flex flex-column justify-content-between" style="min-height: 160px;">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div
-                                class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 45px; height: 45px;">
-                                <i class="bi bi-hourglass-split fs-5"></i>
+                        <div class="card-body p-4 d-flex flex-column justify-content-between" style="min-height: 160px;">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div
+                                    class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 45px; height: 45px;">
+                                    <i class="bi bi-hourglass-split fs-5"></i>
+                                </div>
+                                <span
+                                    class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
+                                    style="font-size: 0.72rem;">Antrean</span>
                             </div>
-                            <span
-                                class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
-                                style="font-size: 0.72rem;">Antrean</span>
-                        </div>
                         <div>
-                            <h2 class="fw-black mb-1 display-6 {{ $stats['pending_orders'] > 0 ? 'text-danger' : 'text-body' }}"
-                                style="font-family: var(--font-serif), sans-serif; letter-spacing: -1px;">
-                                {{ $stats['pending_orders'] }}</h2>
+                            <div class="stat-number {{ $stats['pending_orders'] > 0 ? 'text-danger' : 'text-body' }} mb-1">
+                                {{ $stats['pending_orders'] }}
+                            </div>
                             <p class="text-secondary small fw-bold mb-0 opacity-75">Pesanan Menunggu Diproses</p>
                         </div>
                     </div>
@@ -397,24 +386,24 @@
 
                     {{-- WIDGET SALDO KREDIT (BARU - PREMIUM BANK CARD LAYOUT) --}}
                     <div
-                        class="card dash-card bg-gradient-copper-card border-0 shadow-lg p-1 position-relative overflow-hidden mb-2">
+                        class="card dash-card stat-card-wallet p-1 position-relative overflow-hidden mb-2">
                         <div class="card-body p-4 d-flex flex-column justify-content-between"
                              style="min-height: 200px;">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex flex-column">
-                                    <span class="text-white-fixed-75 small fw-bold uppercase tracking-wider"
-                                          style="font-size: 0.65rem; letter-spacing: 1.5px;">SALDO PAKAIAPP</span>
-                                    <span class="text-white-fixed-50 small fw-medium mt-0.5"
-                                          style="font-size: 0.62rem;">Credit Card Account</span>
+                                    <span class="text-white-fixed-75 small fw-bold"
+                                          style="font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;">SALDO PAKAIAPP</span>
+                                    <span class="text-white-fixed-50 small fw-medium mt-1"
+                                          style="font-size: 0.62rem;">Pakaiapp Credit Account</span>
                                 </div>
-                                <div class="wallet-chip"></div>
+                                {{-- Chip: solid orange --}}
+                                <div style="width: 38px; height: 28px; background-color: #F97316; border-radius: 6px; opacity: 0.9;"></div>
                             </div>
 
                             <div class="my-3">
-                                <h3 class="fw-black mb-1 text-white-fixed display-6 {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }}"
-                                    style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px;">
+                                <div class="stat-number text-white-fixed {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }} mb-1">
                                     Rp {{ number_format($stats['wallet_balance'], 0, ',', '.') }}
-                                </h3>
+                                </div>
                                 @if($stats['wallet_balance'] < 3000)
                                     <span
                                         class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-20 rounded-pill px-2.5 py-1 fw-bold mt-1"
@@ -462,8 +451,7 @@
                                             class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
                                             style="border-color: var(--bs-border-color-translucent) !important;">
                                             <div class="d-flex align-items-center gap-2">
-                                                <div
-                                                    class="rank-badge {{ $index == 0 ? 'rank-gold' : ($index == 1 ? 'rank-silver' : ($index == 2 ? 'rank-bronze' : 'rank-default')) }}">
+                                                <div class="rank-badge-solid {{ $index == 0 ? 'gold' : ($index == 1 ? 'silver' : ($index == 2 ? 'bronze' : 'other')) }}">
                                                     {{ $index + 1 }}
                                                 </div>
                                                 <div class="fw-bold small text-truncate text-body"
@@ -817,13 +805,13 @@
         display: inline-block;
     }
 
-    /* Text Gradient Header */
+    /* Page Store Name — solid, no gradient text */
     .text-brand-gradient {
-        background: linear-gradient(90deg, var(--bs-primary) 0%, var(--brand-caramel) 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: inline-block;
+        color: var(--bs-body-color) !important;
+        background: none !important;
+        -webkit-text-fill-color: var(--bs-body-color) !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
     }
 
     /* Custom Header Buttons */
@@ -852,16 +840,17 @@
     }
 
     .btn-dashboard-header.btn-filled {
-        background: linear-gradient(135deg, var(--brand-caramel), #7E4B1E);
+        background-color: var(--brand-caramel, #B67332);
         color: #ffffff !important;
         border: none !important;
-        box-shadow: 0 4px 15px rgba(182, 115, 50, 0.25);
+        box-shadow: 0 4px 14px rgba(182, 115, 50, 0.3);
     }
 
     .btn-dashboard-header.btn-filled:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(182, 115, 50, 0.35);
-        opacity: 0.95;
+        box-shadow: 0 6px 20px rgba(182, 115, 50, 0.4);
+        background-color: #9a5f28;
+        opacity: 1;
     }
 
     /* Responsive Overrides */

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TenantRegistration extends Model
 {
     protected $fillable = [
+        'invoice_code',
         'owner_name',
         'email',
         'password',

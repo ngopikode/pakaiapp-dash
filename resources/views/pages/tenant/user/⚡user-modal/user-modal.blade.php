@@ -42,9 +42,12 @@
                         <div class="mb-4">
                             <label class="form-label small text-muted fw-bold">Hak Akses (Role)</label>
                             <select class="form-select @error('role') is-invalid @enderror" wire:model="role"
-                                    style="border-radius: 0.75rem;">
+                                    style="border-radius: 0.75rem;"
+                                    {{ ($isEditing && $role === 'manager') ? 'disabled' : '' }}>
                                 <option value="cashier">Kasir (Transaksi & Kasir)</option>
-                                <option value="manager">Manager (Akses Penuh)</option>
+                                @if($isEditing && $role === 'manager')
+                                    <option value="manager">Manager (Akses Penuh)</option>
+                                @endif
                             </select>
                             @error('role') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>

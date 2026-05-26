@@ -72,9 +72,9 @@ class DuitkuService
         $callbackUrl = $callbackBaseUrl . '/duitku/callback';
         $returnUrl = $callbackBaseUrl . '/duitku/return';
 
-        // merchantOrderId = "{tenantId}~{invoiceCode}"
+        // merchantOrderId = "{tenantId}__{invoiceCode}"
         // Format ini memungkinkan CentralDuitkuController mem-parse tenant & order
-        $merchantOrderId = $tenantId . '~' . $order->invoice_code;
+        $merchantOrderId = $tenantId . '__' . $order->invoice_code;
 
         // Sanitasi input customer — jangan kirim raw user input ke Duitku
         $firstName = substr(strip_tags($customerDetail['firstName'] ?? 'Pelanggan'), 0, 50);
@@ -125,7 +125,7 @@ class DuitkuService
             'merchantCode' => $this->merchantCode,
             'paymentAmount' => $paymentAmount,
             'paymentMethod' => $paymentMethod,
-            'merchantOrderId' => $merchantOrderId,             // {tenantId}~{invoiceCode}
+            'merchantOrderId' => $merchantOrderId,             // {tenantId}__{invoiceCode}
             'productDetails' => 'Pembayaran ' . $order->invoice_code,
             'additionalParam' => $tenantId,                    // backup identifier untuk callback
             'merchantUserInfo' => $tenantId,                    // backup identifier
@@ -204,10 +204,10 @@ class DuitkuService
 
         // Central URLs
         $callbackUrl = $callbackBaseUrl . '/duitku/callback';
-        $returnUrl = $callbackBaseUrl . '/duitku/return';
+        $returnUrl = $callbackBaseUrl . '/register/status/' . $registration->invoice_code;
 
-        // merchantOrderId = "REG~{registration_id}"
-        $merchantOrderId = 'REG~' . $registration->id;
+        // merchantOrderId = "{invoice_code}"
+        $merchantOrderId = $registration->invoice_code;
 
         $firstName = substr(strip_tags($registration->owner_name), 0, 50);
         $lastName = ''; // We only collect one name field
@@ -257,7 +257,7 @@ class DuitkuService
             'itemDetails' => $itemDetails,
             'customerDetail' => $customerDetailParam,
             'callbackUrl' => $callbackUrl,
-            'returnUrl' => $returnUrl . '?merchantOrderId=' . urlencode($merchantOrderId),
+            'returnUrl' => $returnUrl,
             'signature' => $signature,
             'expiryPeriod' => $expiryPeriod,
         ];

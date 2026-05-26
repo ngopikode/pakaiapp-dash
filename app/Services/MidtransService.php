@@ -30,7 +30,7 @@ class MidtransService
     public function createSnapToken(Order $order, array $customerDetail, string $tenantId): string
     {
         // Merchant order ID gabungan untuk identifikasi tenant di webhook
-        $merchantOrderId = $tenantId . '~' . $order->invoice_code;
+        $merchantOrderId = $tenantId . '__' . $order->invoice_code;
 
         $params = [
             'transaction_details' => [
@@ -92,7 +92,7 @@ class MidtransService
      */
     public function createRegistrationSnapToken(\App\Models\TenantRegistration $registration): string
     {
-        $merchantOrderId = 'REG~' . $registration->id . '~' . time();
+        $merchantOrderId = $registration->invoice_code;
 
         $params = [
             'transaction_details' => [
@@ -111,7 +111,10 @@ class MidtransService
                     'quantity' => 1,
                     'name' => 'Pendaftaran Pakaiapp - Paket ' . ucfirst($registration->plan),
                 ]
-            ]
+            ],
+            'callbacks' => [
+                'finish' => 'https://api.pakaiapp.online/register/status/' . $registration->invoice_code,
+            ],
         ];
 
         try {

@@ -45,16 +45,94 @@ class CentralMidtransController extends Controller
                 return response()->json(['message' => 'INVALID_SIGNATURE'], 403);
             }
 
-            // Extract tenant ID dan real invoice code
-            // Format: "{tenantId}~{invoiceCode}"
-            if (!str_contains($order_id, '~')) {
+            // --- NEW: Handle Central Tenant Registration with custom invoice_code ---
+            if (str_starts_with($order_id, 'INV-REG-')) {
+                $registration = \App\Models\TenantRegistration::where('invoice_code', $order_id)->first();
+
+                if (!$registration) {
+                    Log::warning('[Midtrans] Registration not found', ['reg_id' => $order_id]);
+                    return response()->json(['message' => 'REG_NOT_FOUND'], 200);
+                }
+
+                if (in_array($registration->status, ['paid', 'created', 'failed'])) {
+                    return response()->json(['message' => 'ALREADY_PROCESSED'], 200);
+                }
+
+                $status = 'pending';
+                if ($transaction == 'capture' || $transaction == 'settlement') {
+                    $status = 'paid';
+                } else if (in_array($transaction, ['deny', 'expire', 'cancel'])) {
+                    $status = 'failed';
+                }
+
+                if ($status === 'paid') {
+                    $registration->update(['status' => 'paid']);
+
+                    // Create Tenant
+                    try {
+                        $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
+                        \Illuminate\Support\Facades\Artisan::call('tenant:create', [
+                            'name' => $registration->store_name,
+                            '--type' => $registration->store_type,
+                            '--domain' => $domainUrl,
+                            '--plan' => $registration->plan,
+                        ]);
+
+                        $tenant = \App\Models\Tenant::find($registration->tenant_id);
+                        $tenant?->run(function () use ($registration) {
+                            \App\Models\User::firstOrCreate(
+                                ['email' => $registration->email],
+                                [
+                                    'name' => $registration->owner_name,
+                                    'password' => $registration->password,
+                                    'role' => 'manager'
+                                ]
+                            );
+                        });
+
+                        $registration->update(['status' => 'created']);
+
+                        // Send Welcome Email
+                        $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+
+                        \Illuminate\Support\Facades\Mail::to($registration->email)->send(
+                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
+                        );
+
+                        Log::info('[Midtrans] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
+                    } catch (\Exception $e) {
+                        Log::error('[Midtrans] Failed to create tenant after payment', ['error' => $e->getMessage()]);
+
+                        // Send Failure Email
+                        $emailTitle = "Pendaftaran Toko Gagal";
+                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
+
+                        try {
+                            \Illuminate\Support\Facades\Mail::to($registration->email)->send(
+                                 new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                            );
+                        } catch (\Exception $mailEx) {
+                            Log::error('[Midtrans] Failed to send failure email: ' . $mailEx->getMessage());
+                        }
+                    }
+                } else if ($status === 'failed') {
+                    $registration->update(['status' => 'failed']);
+                }
+
+                return response()->json(['message' => 'OK'], 200);
+            }
+
+            // Extract tenant ID dan real invoice code using safe separators
+            $separator = str_contains($order_id, '__') ? '__' : '~';
+            if (!str_contains($order_id, $separator)) {
                 Log::warning('[Midtrans] Format order_id tidak valid (tidak ada tenant separator)', ['order_id' => $order_id]);
                 return response()->json(['message' => 'INVALID_ORDER_FORMAT'], 400);
             }
 
-            $parts = explode('~', $order_id, 2);
+            $parts = explode($separator, $order_id, 2);
 
-            // --- NEW: Handle Central Tenant Registration ---
+            // Backward compatibility for old 'REG' tenantId
             if ($parts[0] === 'REG') {
                 $registrationId = explode('~', $parts[1])[0] ?? null;
                 $registration = \App\Models\TenantRegistration::find($registrationId);
@@ -120,7 +198,7 @@ class CentralMidtransController extends Controller
 
                         try {
                             \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                                new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                                 new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
                             );
                         } catch (\Exception $mailEx) {
                             Log::error('[Midtrans] Failed to send failure email: ' . $mailEx->getMessage());
@@ -132,7 +210,6 @@ class CentralMidtransController extends Controller
 
                 return response()->json(['message' => 'OK'], 200);
             }
-            // --- END NEW ---
 
             $tenantId = $parts[0];
             $invoiceCode = $parts[1];
@@ -195,12 +272,32 @@ class CentralMidtransController extends Controller
             $paymentMethodDb = in_array(strtolower($type), ['gopay', 'shopeepay', 'qris']) ? 'qris' : 'transfer';
 
             if ($status === 'paid') {
+                $amountPaid = (int)$notif->gross_amount;
+                
+                // --- MITIGASI FRAUD: Cek apakah nominal bayar sesuai ---
+                if ($amountPaid < $order->total_price) {
+                    Log::warning('[Midtrans] Fraud detected: Underpaid', [
+                        'invoiceCode' => $invoiceCode,
+                        'amountPaid' => $amountPaid,
+                        'expected' => $order->total_price,
+                    ]);
+                    $order->update([
+                        'status' => 'cancelled',
+                        'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
+                        'midtrans_transaction_id' => $notif->transaction_id,
+                        'midtrans_payment_type' => $type,
+                    ]);
+                    
+                    tenancy()->end();
+                    return response()->json(['message' => 'OK'], 200); // 200 agar midtrans berhenti retry
+                }
+
                 $order->update([
                     'status' => 'paid',
                     'midtrans_transaction_id' => $notif->transaction_id,
                     'midtrans_payment_type' => $type,
                     'payment_method' => $paymentMethodDb,
-                    'amount_paid' => (int)$notif->gross_amount,
+                    'amount_paid' => $amountPaid,
                 ]);
 
                 // --- POTONG SALDO WALLET (DYNAMIC PAYG CAPPING) ---

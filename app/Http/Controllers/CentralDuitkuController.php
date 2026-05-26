@@ -60,11 +60,17 @@ class CentralDuitkuController extends Controller
             [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
 
             // --- NEW: Handle Central Tenant Registration ---
-            if ($tenantId === 'REG' && $invoiceCode) {
-                $registration = \App\Models\TenantRegistration::find($invoiceCode);
+            $isRegCallback = (str_starts_with($rawMerchantOrderId, 'INV-REG-') || ($tenantId === 'REG' && $invoiceCode));
+
+            if ($isRegCallback) {
+                if (str_starts_with($rawMerchantOrderId, 'INV-REG-')) {
+                    $registration = \App\Models\TenantRegistration::where('invoice_code', $rawMerchantOrderId)->first();
+                } else {
+                    $registration = \App\Models\TenantRegistration::find($invoiceCode);
+                }
 
                 if (!$registration) {
-                    Log::warning('[Duitku Central] Registration not found', ['reg_id' => $invoiceCode]);
+                    Log::warning('[Duitku Central] Registration not found', ['reg_id' => $rawMerchantOrderId]);
                     return response('REG_NOT_FOUND', 200);
                 }
 
@@ -182,7 +188,19 @@ class CentralDuitkuController extends Controller
             abort(400, 'Invalid order ID format.');
         }
 
+        // Handle Central Tenant Registration return directly
+        if (str_starts_with($rawMerchantOrderId, 'INV-REG-')) {
+            return redirect()->route('register.status', ['invoice_code' => $rawMerchantOrderId]);
+        }
+
         [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
+
+        if ($tenantId === 'REG' && $invoiceCode) {
+            $registration = \App\Models\TenantRegistration::find($invoiceCode);
+            if ($registration) {
+                return redirect()->route('register.status', ['invoice_code' => $registration->invoice_code]);
+            }
+        }
 
         if ($tenantId && $invoiceCode) {
             $tenant = Tenant::find($tenantId);
@@ -334,6 +352,20 @@ class CentralDuitkuController extends Controller
                 // Ambil jumlah yang benar-benar dibayar customer dari notifikasi Duitku
                 $amountPaid = (int)($notif['amount'] ?? $order->total_price);
 
+                // --- MITIGASI FRAUD: Cek apakah nominal bayar sesuai ---
+                if ($amountPaid < $order->total_price) {
+                    Log::warning('[Duitku Central] Fraud detected: Underpaid', [
+                        'invoiceCode' => $invoiceCode,
+                        'amountPaid' => $amountPaid,
+                        'expected' => $order->total_price,
+                    ]);
+                    $order->update([
+                        'status' => 'cancelled',
+                        'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
+                    ]);
+                    return;
+                }
+
                 $order->update([
                     'status' => 'paid',
                     'payment_method' => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
@@ -386,11 +418,12 @@ class CentralDuitkuController extends Controller
      */
     private function parseMerchantOrderId(string $merchantOrderId): array
     {
-        if (!str_contains($merchantOrderId, '~')) {
+        $separator = str_contains($merchantOrderId, '__') ? '__' : '~';
+        if (!str_contains($merchantOrderId, $separator)) {
             return [null, null];
         }
 
-        $parts = explode('~', $merchantOrderId, 2);
+        $parts = explode($separator, $merchantOrderId, 2);
 
         $tenantId = $parts[0] ?? null;
         $invoiceCode = $parts[1] ?? null;

@@ -43,8 +43,14 @@ new class extends Component {
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $this->userId,
-            'role' => 'required|in:manager,cashier',
         ];
+
+        if ($this->isEditing && $this->role === 'manager') {
+            $rules['role'] = 'required|in:manager';
+        } else {
+            $rules['role'] = 'required|in:cashier';
+            $this->role = 'cashier'; // Force role to cashier for new creations or if trying to escalate
+        }
         
         if (!$this->isEditing || !empty($this->password)) {
             $rules['password'] = 'required|min:6';

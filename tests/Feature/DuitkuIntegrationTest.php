@@ -50,8 +50,8 @@ test('it correctly calculates HMAC-SHA256 signature and creates invoice', functi
 
     // Assert that signature matches Duitku v2.0 signature standard
     // Formula: merchantCode + merchantOrderId + paymentAmount
-    // merchantOrderId = "tenant123~INV-999"
-    $expectedStringToSign = 'DS12345' . 'tenant123~INV-999' . 50000;
+    // merchantOrderId = "tenant123__INV-999"
+    $expectedStringToSign = 'DS12345' . 'tenant123__INV-999' . 50000;
     $expectedSignature = hash_hmac('sha256', $expectedStringToSign, 'test_api_key_12345');
 
     Http::assertSent(function ($request) use ($expectedSignature) {
@@ -59,7 +59,7 @@ test('it correctly calculates HMAC-SHA256 signature and creates invoice', functi
             && $request['signature'] === $expectedSignature
             && $request['merchantCode'] === 'DS12345'
             && $request['paymentAmount'] === 50000
-            && $request['merchantOrderId'] === 'tenant123~INV-999';
+            && $request['merchantOrderId'] === 'tenant123__INV-999';
     });
 });
 
@@ -107,13 +107,13 @@ test('it correctly calculates signature and checks transaction status', function
 
     // Assert that signature matches Duitku v2.0 status signature standard
     // Formula: merchantCode + merchantOrderId
-    $expectedStringToSign = 'DS12345' . 'tenant123~INV-999';
+    $expectedStringToSign = 'DS12345' . 'tenant123__INV-999';
     $expectedSignature = hash_hmac('sha256', $expectedStringToSign, 'test_api_key_12345');
 
     Http::assertSent(function ($request) use ($expectedSignature) {
         return $request->url() === 'https://sandbox.duitku.com/webapi/api/merchant/transactionStatus'
             && $request['signature'] === $expectedSignature
-            && $request['merchantOrderId'] === 'tenant123~INV-999';
+            && $request['merchantOrderId'] === 'tenant123__INV-999';
     });
 });
 
@@ -146,7 +146,7 @@ test('it correctly fetches active payment methods', function () {
 });
 
 test('it successfully validates callback with correct signature', function () {
-    $merchantOrderId = 'tenant123~INV-999';
+    $merchantOrderId = 'tenant123__INV-999';
     $amount = '50000';
     $merchantCode = 'DS12345';
 
@@ -176,7 +176,7 @@ test('it throws RuntimeException on callback with invalid signature', function (
     request()->merge([
         'merchantCode' => 'DS12345',
         'amount' => '50000',
-        'merchantOrderId' => 'tenant123~INV-999',
+        'merchantOrderId' => 'tenant123__INV-999',
         'signature' => 'invalid_signature_here',
     ]);
 
