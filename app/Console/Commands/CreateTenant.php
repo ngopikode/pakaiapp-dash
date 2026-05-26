@@ -17,7 +17,7 @@ class CreateTenant extends Command
      *
      * @var string
      */
-    protected $signature = 'tenant:create {name} {--type=resto} {--domain=} {--plan=free}';
+    protected $signature = 'tenant:create {name} {--id=} {--type=resto} {--domain=} {--plan=free}';
 
     /**
      * The console command description.
@@ -34,13 +34,14 @@ class CreateTenant extends Command
         $name = $this->argument('name');
         $type = $this->option('type');
         $domain = $this->option('domain');
+        $idOpt = $this->option('id');
 
         if (!in_array($type, ['resto', 'retail'])) {
             $this->error("Invalid tenant type. Must be 'resto' or 'retail'.");
             return 1;
         }
 
-        $tenantId = Str::slug($name);
+        $tenantId = $idOpt ?: Str::slug($name);
 
         if (!$domain) {
             $domain = $tenantId . '.' . parse_url(config('app.url'), PHP_URL_HOST);

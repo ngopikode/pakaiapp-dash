@@ -269,8 +269,14 @@
                                                             <td class="text-center">
                                                                 <button wire:click="retryCreateTenant({{ $reg->id }})" 
                                                                         class="btn btn-primary btn-sm"
-                                                                        wire:loading.attr="disabled">
-                                                                    <i class="bi bi-arrow-clockwise"></i> Aktivasi Paksa
+                                                                        wire:loading.attr="disabled"
+                                                                        wire:target="retryCreateTenant({{ $reg->id }})">
+                                                                    <span wire:loading.remove wire:target="retryCreateTenant({{ $reg->id }})">
+                                                                        <i class="bi bi-arrow-clockwise"></i> Aktivasi Paksa
+                                                                    </span>
+                                                                    <span wire:loading wire:target="retryCreateTenant({{ $reg->id }})">
+                                                                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Memproses...
+                                                                    </span>
                                                                 </button>
                                                             </td>
                                                         </tr>

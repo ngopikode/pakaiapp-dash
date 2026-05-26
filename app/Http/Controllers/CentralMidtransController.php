@@ -82,6 +82,7 @@ class CentralMidtransController extends Controller
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
                         Artisan::call('tenant:create', [
                             'name' => $registration->store_name,
+                            '--id' => $registration->tenant_id,
                             '--type' => $registration->store_type,
                             '--domain' => $domainUrl,
                             '--plan' => $registration->plan,
@@ -175,6 +176,7 @@ class CentralMidtransController extends Controller
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
                         Artisan::call('tenant:create', [
                             'name' => $registration->store_name,
+                            '--id' => $registration->tenant_id,
                             '--type' => $registration->store_type,
                             '--domain' => $domainUrl,
                             '--plan' => $registration->plan,

@@ -320,6 +320,7 @@ class CentralAuthController extends Controller
                 $domainUrl = $slug . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
                 Artisan::call('tenant:create', [
                     'name' => $validated['namaToko'],
+                    '--id' => $slug,
                     '--type' => $registration->store_type,
                     '--domain' => $domainUrl,
                     '--plan' => 'free',
