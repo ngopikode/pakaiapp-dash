@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class GlobalSetting extends Model
 {
     /**
+     * The database connection that should be used by the model.
+     *
+     * @var string
+     */
+    protected $connection = 'mysql';
+
+    /**
      * The primary key associated with the table.
      *
      * @var string

@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectTo(
+            guests: '/auth/login',
+        );
         $middleware->group('universal', []);
         $middleware->trustProxies(at: '*');
         $middleware->alias([

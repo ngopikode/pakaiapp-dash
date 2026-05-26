@@ -53,7 +53,10 @@ new class extends Component {
         return [
             'quota' => Quota::firstOrCreate(
                 ['type' => 'PRODUCT_SLOT'],
-                ['total_slots' => 50, 'used_slots' => 0]
+                [
+                    'total_slots' => app(\App\Services\SettingService::class)->get('product_slots', tenant(), 12),
+                    'used_slots' => 0
+                ]
             ),
             'walletBalance' => app(TenantWalletService::class)->getWallet()->balance
         ];
