@@ -12,9 +12,18 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SystemEmail;
+use Illuminate\Support\Facades\RateLimiter;
 
 class CentralAuthController extends Controller
 {
+    private const DISPOSABLE_EMAIL_DOMAINS = [
+        'yopmail.com', 'mailinator.com', 'tempmail.com', '10minutemail.com',
+        'sharklasers.com', 'guerrillamail.com', 'dispostable.com', 'getairmail.com',
+        'maildrop.cc', 'temp-mail.org', 'fakeinbox.com', 'throwawaymail.com',
+        'mailnesia.com', 'mailcatch.com', 'yopmail.fr', 'yopmail.net',
+        'cool.fr.nf', 'jetable.org', 'boun.cr', 'trbvm.com'
+    ];
+
     public function showRegister()
     {
         return view('register');
@@ -191,6 +200,74 @@ class CentralAuthController extends Controller
             $waClean = '62' . substr($waClean, 1);
         }
 
+        // ─── FREE TRIAL ABUSE PREVENTION ───
+        if ($validated['paket'] === 'free') {
+            // Layer 1: IP Rate Limiting (max 2 free registrations per hour per IP)
+            $ip = $request->ip();
+            $rateKey = 'free_registration_limit_' . $ip;
+            if (RateLimiter::tooManyAttempts($rateKey, 2)) {
+                $seconds = RateLimiter::availableIn($rateKey);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Batas pendaftaran toko gratis terlampaui untuk perangkat Anda. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.'
+                ]);
+            }
+
+            // Layer 2: Cookie Fingerprint Protection
+            if ($request->hasCookie('pakaiapp_free_trial_claimed')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Perangkat/Browser Anda terdeteksi sudah pernah mendaftarkan Toko Gratis. Untuk mendaftarkan toko tambahan, silakan pilih Paket Santai atau Paket Premium.'
+                ]);
+            }
+
+            // Layer 3: Disposable / Temporary Email Blocker
+            $emailDomain = strtolower(substr(strrchr($validated['email'], "@"), 1));
+            if (in_array($emailDomain, self::DISPOSABLE_EMAIL_DOMAINS)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pendaftaran Toko Gratis dibatasi. Silakan gunakan alamat email utama/resmi Anda (seperti Gmail, Yahoo, Outlook, atau domain instansi).'
+                ]);
+            }
+
+            // Layer 4: Gmail Dot & Plus Alias Normalization
+            $inputNormalized = $this->normalizeEmail($validated['email']);
+            $freeStores = TenantRegistration::where('plan', 'free')
+                ->whereIn('status', ['paid', 'created'])
+                ->get(['email']);
+
+            $hasFreeStore = false;
+            foreach ($freeStores as $store) {
+                if ($this->normalizeEmail($store->email) === $inputNormalized) {
+                    $hasFreeStore = true;
+                    break;
+                }
+            }
+
+            if ($hasFreeStore) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Alamat email ini sudah terdaftar untuk Toko Gratis lainnya. Untuk mendaftarkan toko tambahan, silakan pilih Paket Santai atau Paket Premium.'
+                ]);
+            }
+
+            // Layer 5: WhatsApp Unique Limit (1 free trial store per WA number)
+            $hasFreeWa = TenantRegistration::where('whatsapp', $waClean)
+                ->where('plan', 'free')
+                ->whereIn('status', ['paid', 'created'])
+                ->exists();
+
+            if ($hasFreeWa) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Nomor WhatsApp ini sudah terdaftar untuk Toko Gratis lainnya. Silakan gunakan nomor lain atau pilih Paket Santai/Premium.'
+                ]);
+            }
+
+            // Hit Rate Limiter
+            RateLimiter::hit($rateKey, 3600); // 1 hour cooldown
+        }
+
         // Create tenant slug/subdomain
         $slug = Str::slug($validated['namaToko']);
         if (Tenant::where('id', $slug)->exists() || TenantRegistration::where('tenant_id', $slug)->where('status', 'paid')->exists()) {
@@ -265,11 +342,12 @@ class CentralAuthController extends Controller
                     new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
                 );
 
+                $cookie = cookie()->forever('pakaiapp_free_trial_claimed', '1');
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Toko berhasil dibuat! Anda akan dialihkan ke dashboard.',
                     'redirect_url' => 'https://' . $domainUrl . '/auth/login'
-                ]);
+                ])->withCookie($cookie);
             } catch (\Exception $e) {
                 Log::error("Free registration failed: " . $e->getMessage());
 
@@ -368,5 +446,17 @@ class CentralAuthController extends Controller
             Log::error("Gagal create Duitku invoice registrasi: " . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke layanan pembayaran Duitku.']);
         }
+    }
+
+    private function normalizeEmail(string $email): string
+    {
+        $email = strtolower(trim($email));
+        if (str_contains($email, '@gmail.com') || str_contains($email, '@googlemail.com')) {
+            [$username, $domain] = explode('@', $email);
+            $username = explode('+', $username)[0]; // Remove Gmail alias (+something)
+            $username = str_replace('.', '', $username); // Remove Gmail dots
+            return $username . '@gmail.com';
+        }
+        return $email;
     }
 }
