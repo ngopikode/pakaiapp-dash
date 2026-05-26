@@ -2,21 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\TenantRegistration;
+use App\Mail\SystemEmail;
 use App\Models\Tenant;
-use Illuminate\Support\Str;
+use App\Models\TenantRegistration;
+use App\Models\User;
+use App\Services\DuitkuService;
+use App\Services\MidtransService;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\SystemEmail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Random\RandomException;
 
 class CentralAuthController extends Controller
 {
-    private const DISPOSABLE_EMAIL_DOMAINS = [
+    private const array DISPOSABLE_EMAIL_DOMAINS = [
         'yopmail.com', 'mailinator.com', 'tempmail.com', '10minutemail.com',
         'sharklasers.com', 'guerrillamail.com', 'dispostable.com', 'getairmail.com',
         'maildrop.cc', 'temp-mail.org', 'fakeinbox.com', 'throwawaymail.com',
@@ -124,11 +130,16 @@ class CentralAuthController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws RandomException
+     */
     public function requestOtp(Request $request)
     {
         $request->validate(['email' => 'required|email']);
         $email = $request->email;
-        
+
         // Check if there is already a verified token (prevent requesting again if already verified)
         if (Cache::get('email_verified_' . $email)) {
             return response()->json(['status' => 'error', 'message' => 'Email ini sudah terverifikasi.']);
@@ -136,20 +147,20 @@ class CentralAuthController extends Controller
 
         // Generate 6 digit OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         // Store OTP in cache for 5 minutes
         Cache::put('otp_register_' . $email, $otp, now()->addMinutes(5));
 
         // Send Email
         $emailTitle = "Kode Verifikasi (OTP) Pendaftaran";
-        $emailBody = "Halo,\n\nTerima kasih telah mendaftar di Pakaiapp. Berikut adalah kode OTP Anda untuk verifikasi email:\n\n{$otp}\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapa pun.";
-        
+        $emailBody = "Halo,\n\nTerima kasih telah mendaftar di Pakaiapp. Berikut adalah kode OTP Anda untuk verifikasi email:\n\n$otp\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapa pun.";
+
         try {
             Mail::to($email)->send(
                 new SystemEmail($emailTitle, $emailBody)
             );
             return response()->json(['status' => 'success', 'message' => 'OTP berhasil dikirim ke email Anda.']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("Failed to send OTP email: " . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Gagal mengirim email OTP. Silakan coba lagi.']);
         }
@@ -184,7 +195,6 @@ class CentralAuthController extends Controller
             'namaOwner' => 'required|string|max:100',
             'noWa' => 'required|string|max:50',
             'email' => 'required|email|max:150',
-            'password' => 'required|string|min:6',
             'paket' => 'required|in:free,santai,premium',
             'payment_method' => 'required|string|max:50',
         ]);
@@ -318,7 +328,7 @@ class CentralAuthController extends Controller
                 // Update User Email & Password di dalam Tenant
                 $tenant = Tenant::find($slug);
                 $tenant?->run(function () use ($registration, $plainPassword) {
-                    \App\Models\User::firstOrCreate(
+                    User::firstOrCreate(
                         ['email' => $registration->email],
                         [
                             'name' => $registration->owner_name,
@@ -336,10 +346,10 @@ class CentralAuthController extends Controller
 
                 // Send Welcome Email
                 $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                $emailBody = "Halo {$registration->owner_name},\n\nSelamat bergabung di Pakaiapp! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan.\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\nPassword: {$plainPassword}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                $emailBody = "Halo $registration->owner_name,\n\nSelamat bergabung di Pakaiapp! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan.\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
                 Mail::to($registration->email)->send(
-                    new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
+                    new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")
                 );
 
                 $cookie = cookie()->forever('pakaiapp_free_trial_claimed', '1');
@@ -348,18 +358,18 @@ class CentralAuthController extends Controller
                     'message' => 'Toko berhasil dibuat! Anda akan dialihkan ke dashboard.',
                     'redirect_url' => 'https://' . $domainUrl . '/auth/login'
                 ])->withCookie($cookie);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("Free registration failed: " . $e->getMessage());
 
                 // Send Failure Email
                 $emailTitle = "Pendaftaran Toko Gagal";
-                $emailBody = "Halo {$registration->owner_name},\n\nMohon maaf, terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menangani masalah ini.\n\nSilakan coba beberapa saat lagi atau hubungi support kami jika masalah berlanjut.\n\nSalam,\nTim Pakaiapp";
+                $emailBody = "Halo $registration->owner_name,\n\nMohon maaf, terjadi kesalahan sistem saat menyiapkan toko Anda ($registration->store_name). Tim kami sedang menangani masalah ini.\n\nSilakan coba beberapa saat lagi atau hubungi support kami jika masalah berlanjut.\n\nSalam,\nTim Pakaiapp";
 
                 try {
                     Mail::to($registration->email)->send(
                         new SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
                     );
-                } catch (\Exception $mailEx) {
+                } catch (Exception $mailEx) {
                     Log::error("Failed to send failure email: " . $mailEx->getMessage());
                 }
 
@@ -370,18 +380,18 @@ class CentralAuthController extends Controller
         // Jika Manual (WA)
         if ($validated['payment_method'] === 'manual') {
             $text = "Halo Admin Pakaiapp, saya ingin mendaftar toko baru dengan rincian:\n"
-                . "Nama Toko: {$registration->store_name}\n"
-                . "Pemilik: {$registration->owner_name}\n"
-                . "Email: {$registration->email}\n"
+                . "Nama Toko: $registration->store_name\n"
+                . "Pemilik: $registration->owner_name\n"
+                . "Email: $registration->email\n"
                 . "Paket: " . ucfirst($registration->plan) . "\n"
-                . "Invoice: {$invoiceCode}\n"
+                . "Invoice: $invoiceCode\n"
                 . "Mohon info rekening untuk pembayaran sebesar Rp " . number_format($amount, 0, ',', '.') . ". Terima kasih.";
 
             $waUrl = "https://wa.me/6285172441544?text=" . urlencode($text);
 
             // Send Billing Invoice Email (Manual)
-            $emailTitle = "Menunggu Pembayaran (Manual) - {$invoiceCode}";
-            $emailBody = "Halo {$registration->owner_name},\n\nPendaftaran toko Anda ({$registration->store_name}) telah kami catat dengan Paket " . ucfirst($registration->plan) . ".\n\nNomor Tagihan: {$invoiceCode}\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\nMetode: Transfer Manual\n\nSilakan klik tombol di bawah ini untuk chat dengan Admin kami guna mengkonfirmasi pembayaran Anda. Setelah dikonfirmasi, toko Anda akan langsung kami aktifkan.\n\nTerima kasih,\nTim Pakaiapp";
+            $emailTitle = "Menunggu Pembayaran (Manual) - $invoiceCode";
+            $emailBody = "Halo $registration->owner_name,\n\nPendaftaran toko Anda ($registration->store_name) telah kami catat dengan Paket " . ucfirst($registration->plan) . ".\n\nNomor Tagihan: $invoiceCode\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\nMetode: Transfer Manual\n\nSilakan klik tombol di bawah ini untuk chat dengan Admin kami guna mengkonfirmasi pembayaran Anda. Setelah dikonfirmasi, toko Anda akan langsung kami aktifkan.\n\nTerima kasih,\nTim Pakaiapp";
 
             Mail::to($registration->email)
                 ->send((new SystemEmail($emailTitle, $emailBody, 'Konfirmasi via WA', $waUrl))
@@ -396,13 +406,13 @@ class CentralAuthController extends Controller
         // Jika berbayar via Midtrans
         if ($validated['payment_method'] === 'midtrans') {
             try {
-                $midtransService = app(\App\Services\MidtransService::class);
+                $midtransService = app(MidtransService::class);
                 $snapToken = $midtransService->createRegistrationSnapToken($registration);
                 $registration->update(['snap_token' => $snapToken]);
 
                 // Send Billing Invoice Email (Midtrans)
-                $emailTitle = "Tagihan Pendaftaran Toko - {$invoiceCode}";
-                $emailBody = "Halo {$registration->owner_name},\n\nPendaftaran toko Anda ({$registration->store_name}) untuk Paket " . ucfirst($registration->plan) . " tinggal satu langkah lagi.\n\nNomor Tagihan: {$invoiceCode}\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\n\nSistem kami mendeteksi Anda akan menggunakan E-Wallet/QRIS. Silakan selesaikan pembayaran Anda di layar website Anda.\n\nTerima kasih,\nTim Pakaiapp";
+                $emailTitle = "Tagihan Pendaftaran Toko - $invoiceCode";
+                $emailBody = "Halo $registration->owner_name,\n\nPendaftaran toko Anda ($registration->store_name) untuk Paket " . ucfirst($registration->plan) . " tinggal satu langkah lagi.\n\nNomor Tagihan: $invoiceCode\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\n\nSistem kami mendeteksi Anda akan menggunakan E-Wallet/QRIS. Silakan selesaikan pembayaran Anda di layar website Anda.\n\nTerima kasih,\nTim Pakaiapp";
 
                 Mail::to($registration->email)
                     ->send((new SystemEmail($emailTitle, $emailBody))
@@ -413,7 +423,7 @@ class CentralAuthController extends Controller
                     'snap_token' => $snapToken,
                     'invoice_code' => $invoiceCode,
                 ]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("Gagal create snap token registrasi: " . $e->getMessage());
                 return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke layanan pembayaran Midtrans.']);
             }
@@ -421,7 +431,7 @@ class CentralAuthController extends Controller
 
         // Jika berbayar via Duitku
         try {
-            $duitkuService = app(\App\Services\DuitkuService::class);
+            $duitkuService = app(DuitkuService::class);
             $duitkuInvoice = $duitkuService->createRegistrationInvoice($registration, $validated['payment_method']);
 
             $registration->update([
@@ -430,8 +440,8 @@ class CentralAuthController extends Controller
             ]);
 
             // Send Billing Invoice Email (Duitku)
-            $emailTitle = "Tagihan Pendaftaran Toko - {$invoiceCode}";
-            $emailBody = "Halo {$registration->owner_name},\n\nPendaftaran toko Anda ({$registration->store_name}) untuk Paket " . ucfirst($registration->plan) . " telah diteruskan ke Payment Gateway.\n\nNomor Tagihan: {$invoiceCode}\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\n\nJika halaman pembayaran tidak terbuka otomatis atau tertutup, silakan klik tombol di bawah ini untuk melanjutkan pembayaran Anda.\n\nSetelah pembayaran berhasil, toko Anda akan otomatis disiapkan.\n\nTerima kasih,\nTim Pakaiapp";
+            $emailTitle = "Tagihan Pendaftaran Toko - $invoiceCode";
+            $emailBody = "Halo $registration->owner_name,\n\nPendaftaran toko Anda ($registration->store_name) untuk Paket " . ucfirst($registration->plan) . " telah diteruskan ke Payment Gateway.\n\nNomor Tagihan: $invoiceCode\nTotal Tagihan: Rp " . number_format($amount, 0, ',', '.') . "\n\nJika halaman pembayaran tidak terbuka otomatis atau tertutup, silakan klik tombol di bawah ini untuk melanjutkan pembayaran Anda.\n\nSetelah pembayaran berhasil, toko Anda akan otomatis disiapkan.\n\nTerima kasih,\nTim Pakaiapp";
 
             Mail::to($registration->email)
                 ->send((new SystemEmail($emailTitle, $emailBody, 'Lanjutkan Pembayaran', $duitkuInvoice['payment_url']))
@@ -442,7 +452,7 @@ class CentralAuthController extends Controller
                 'payment_url' => $duitkuInvoice['payment_url'],
                 'invoice_code' => $invoiceCode,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("Gagal create Duitku invoice registrasi: " . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke layanan pembayaran Duitku.']);
         }

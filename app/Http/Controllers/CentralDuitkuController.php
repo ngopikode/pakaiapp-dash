@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SystemEmail;
 use App\Models\Order;
 use App\Models\Tenant;
+use App\Models\TenantRegistration;
+use App\Models\User;
 use App\Services\BillingService;
 use App\Services\DuitkuService;
 use App\Services\TenantWalletService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Throwable;
 
@@ -64,9 +71,9 @@ class CentralDuitkuController extends Controller
 
             if ($isRegCallback) {
                 if (str_starts_with($rawMerchantOrderId, 'INV-REG-')) {
-                    $registration = \App\Models\TenantRegistration::where('invoice_code', $rawMerchantOrderId)->first();
+                    $registration = TenantRegistration::where('invoice_code', $rawMerchantOrderId)->first();
                 } else {
-                    $registration = \App\Models\TenantRegistration::find($invoiceCode);
+                    $registration = TenantRegistration::find($invoiceCode);
                 }
 
                 if (!$registration) {
@@ -89,7 +96,7 @@ class CentralDuitkuController extends Controller
                     // Create Tenant
                     try {
                         $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
-                        \Illuminate\Support\Facades\Artisan::call('tenant:create', [
+                        Artisan::call('tenant:create', [
                             'name' => $registration->store_name,
                             '--type' => $registration->store_type,
                             '--domain' => $domainUrl,
@@ -99,7 +106,7 @@ class CentralDuitkuController extends Controller
                         $plainPassword = $registration->password; // Retrieve plain password
                         $createdTenant = Tenant::find($registration->tenant_id);
                         $createdTenant?->run(function () use ($registration, $plainPassword) {
-                            \App\Models\User::firstOrCreate(
+                            User::firstOrCreate(
                                 ['email' => $registration->email],
                                 [
                                     'name' => $registration->owner_name,
@@ -117,25 +124,25 @@ class CentralDuitkuController extends Controller
 
                         // Send Welcome Email
                         $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ({$registration->store_name}) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://{$domainUrl}/auth/login\nEmail: {$registration->email}\nPassword: {$plainPassword}\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
-                        \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                            new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://{$domainUrl}/auth/login")
+                        Mail::to($registration->email)->send(
+                            new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")
                         );
 
                         Log::info('[Duitku Central] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::error('[Duitku Central] Failed to create tenant after payment', ['error' => $e->getMessage()]);
 
                         // Send Failure Email
                         $emailTitle = "Pendaftaran Toko Gagal";
-                        $emailBody = "Halo {$registration->owner_name},\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ({$registration->store_name}). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
+                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ($registration->store_name). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
 
                         try {
-                            \Illuminate\Support\Facades\Mail::to($registration->email)->send(
-                                new \App\Mail\SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                            Mail::to($registration->email)->send(
+                                new SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
                             );
-                        } catch (\Exception $mailEx) {
+                        } catch (Exception $mailEx) {
                             Log::error('[Duitku Central] Failed to send failure email: ' . $mailEx->getMessage());
                         }
                     }
@@ -201,7 +208,7 @@ class CentralDuitkuController extends Controller
         [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
 
         if ($tenantId === 'REG' && $invoiceCode) {
-            $registration = \App\Models\TenantRegistration::find($invoiceCode);
+            $registration = TenantRegistration::find($invoiceCode);
             if ($registration) {
                 return redirect()->route('register.status', ['invoice_code' => $registration->invoice_code]);
             }
@@ -310,7 +317,10 @@ class CentralDuitkuController extends Controller
     /**
      * Proses logika callback di dalam tenant context.
      *
-     * Method ini dipanggil oleh $tenant->run() sehingga sudah dalam DB tenant.
+     *  Method ini dipanggil oleh $tenant->run() sehingga sudah dalam DB tenant.
+     * @param string $invoiceCode
+     * @return void
+     * @throws Throwable
      */
     private function processCallback(string $invoiceCode): void
     {
@@ -386,7 +396,7 @@ class CentralDuitkuController extends Controller
                 $walletService->addBalance(
                     $amountPaid,
                     $order,
-                    "Pendapatan Duitku masuk untuk pesanan {$order->invoice_code}"
+                    "Pendapatan Duitku masuk untuk pesanan $order->invoice_code"
                 );
 
                 // Potong biaya layanan pakaiapp dengan sistem dinamis

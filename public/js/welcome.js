@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const loadingText = document.getElementById('loadingText');
 
         let currentStepIndex = 0;
-        let formData = { namaToko: '', jenisBisnis: '', namaOwner: '', noWa: '', email: '', password: '', paket: '', payment_method: '' };
+        let formData = { namaToko: '', jenisBisnis: '', namaOwner: '', noWa: '', email: '', paket: '', payment_method: '' };
         let isEmailVerified = false;
         let isProcessing = false;
         let toastTimeout;
@@ -394,7 +394,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             { id: 'TanyaWa', q: 'Berapa nomor WhatsApp aktif Anda?', sub: 'Untuk mengirimkan informasi penting terkait toko.', type: 'tel', placeholder: 'Contoh: 08123456789' },
             { id: 'TanyaEmail', q: 'Apa alamat email aktif Anda?', sub: 'Kami akan mengirimkan kode verifikasi (OTP) ke email ini.', type: 'email', placeholder: 'Contoh: nama@email.com' },
             { id: 'TanyaOTP', q: 'Masukkan 6 angka OTP', sub: 'Cek kotak masuk atau folder spam email Anda.', type: 'number', placeholder: 'Ketik 6 angka OTP di sini...' },
-            { id: 'TanyaPassword', q: 'Buat kata sandi yang kuat', sub: 'Minimal 6 karakter untuk melindungi akun Anda.', type: 'password', placeholder: 'Minimal 6 karakter...' },
             { id: 'TanyaPaket', q: 'Pilih paket langganan Anda', sub: 'Pilih yang paling sesuai dengan kebutuhan bisnis.', type: 'choice', choices: [{l: 'Gratis (Rp 0)', v: 'free'}, {l: 'Santai (Rp 50.000/bln)', v: 'santai'}, {l: 'Premium (Rp 150.000/bln)', v: 'premium'}] },
             { id: 'TanyaPayment', q: 'Metode Pembayaran', sub: 'Pilih metode pembayaran yang Anda inginkan.', type: 'choice', choices: [{l: 'QRIS / E-Wallet', v: 'NQ'}, {l: 'Transfer / VA', v: 'BC'}, {l: 'Manual (Bantuan WA Admin)', v: 'manual'}] }
         ];
@@ -638,13 +637,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showToast('Gagal verifikasi jaringan.');
                     }
                 }
-            } else if (step.id === 'TanyaPassword') {
-                if (val.length < 6) {
-                    showToast('Password minimal 6 karakter.');
-                } else {
-                    formData.password = val;
-                    askStep(currentStepIndex + 1);
-                }
             }
 
             isProcessing = false;
@@ -685,8 +677,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 hideLoading();
                 
                 if (data.status === 'success') {
-                    showLoading('Selamat! Mengarahkan ke dashboard...');
-                    setTimeout(() => window.location.href = data.redirect_url, 1500);
+                    showCustomAlert(
+                        'success',
+                        'Toko Berhasil Dibuat!',
+                        'Selamat! Toko kasir Anda telah berhasil dibuat. Kami telah mengirimkan detail URL login, email, beserta password acak yang aman ke alamat email Anda: ' + formData.email + '. Silakan cek kotak masuk atau folder spam email Anda untuk login.',
+                        () => {
+                            window.location.href = data.redirect_url;
+                        },
+                        'Buka Dashboard Toko'
+                    );
                 } else if (data.status === 'manual') {
                     showCustomAlert('info', 'Pendaftaran Dicatat', 'Selesaikan pembayaran manual via WhatsApp.', () => {
                         window.open(data.redirect_url, '_blank'); window.location.href = '/';
