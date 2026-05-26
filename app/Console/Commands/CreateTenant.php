@@ -103,12 +103,33 @@ class CreateTenant extends Command
         DB::purge('tenant');
 
         // 4. Masuk ke environment tenant untuk insert data
-        $tenant->run(function () use ($name, $type) {
+        $tenant->run(function () use ($name, $type, $plan) {
             StoreSetting::create([
                 'name' => $name,
                 'store_type' => $type,
                 'is_active' => true,
             ]);
+
+            // Initialize Wallet and Inject Initial Balance based on subscription plan
+            try {
+                $walletService = app(\App\Services\TenantWalletService::class);
+                $wallet = $walletService->getWallet();
+
+                $initialBalance = 10000; // Default Free: Rp 10.000
+                if ($plan === 'santai') {
+                    $initialBalance = 50000;
+                } elseif ($plan === 'premium') {
+                    $initialBalance = 150000;
+                }
+
+                $walletService->addBalance(
+                    $initialBalance,
+                    $wallet,
+                    "Saldo awal pendaftaran Paket " . ucfirst($plan)
+                );
+            } catch (\Exception $e) {
+                Log::error("Failed to initialize wallet balance for tenant: " . $e->getMessage());
+            }
         });
 
         $this->info("Default StoreSetting initialized.");
