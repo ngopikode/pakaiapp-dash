@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Status Pendaftaran - Pakaiapp POS</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -276,8 +281,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Success Animation */
@@ -297,8 +306,14 @@
         }
 
         @keyframes scaleIn {
-            0% { transform: scale(0.7); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* Buttons */
@@ -354,68 +369,69 @@
 </head>
 <body>
 
-    <!-- Nav -->
-    <header class="status-nav">
-        <div class="logo-container">
-            <span class="logo-icon">P</span>
-            <span class="logo-text">Pakaiapp<span class="text-accent">.</span></span>
+<!-- Nav -->
+<header class="status-nav">
+    <div class="logo-container">
+        <span class="logo-icon">P</span>
+        <span class="logo-text">Pakaiapp<span class="text-accent">.</span></span>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="main-container">
+    <div class="status-card">
+
+        <!-- DYNAMIC CONTENT STARTS HERE -->
+        <div id="statusContent">
+            <!-- Fallback Loading while JS queries -->
+            <div class="spinner-custom"></div>
+            <h2 class="status-title">Memuat Status...</h2>
+            <p class="status-desc">Harap tunggu sementara sistem memeriksa status pendaftaran Anda.</p>
         </div>
-    </header>
+        <!-- DYNAMIC CONTENT ENDS HERE -->
 
-    <!-- Main -->
-    <main class="main-container">
-        <div class="status-card">
-            
-            <!-- DYNAMIC CONTENT STARTS HERE -->
-            <div id="statusContent">
-                <!-- Fallback Loading while JS queries -->
-                <div class="spinner-custom"></div>
-                <h2 class="status-title">Memuat Status...</h2>
-                <p class="status-desc">Harap tunggu sementara sistem memeriksa status pendaftaran Anda.</p>
+        <!-- Detail Box (Always visible) -->
+        <div class="detail-box">
+            <div class="detail-row">
+                <span class="detail-label">Invoice Pendaftaran</span>
+                <span class="detail-value" style="font-family: monospace;">{{ $registration->invoice_code }}</span>
             </div>
-            <!-- DYNAMIC CONTENT ENDS HERE -->
-
-            <!-- Detail Box (Always visible) -->
-            <div class="detail-box">
-                <div class="detail-row">
-                    <span class="detail-label">Invoice Pendaftaran</span>
-                    <span class="detail-value" style="font-family: monospace;">{{ $registration->invoice_code }}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Nama Toko</span>
-                    <span class="detail-value">{{ $registration->store_name }}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Pemilik</span>
-                    <span class="detail-value">{{ $registration->owner_name }}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Paket Dipilih</span>
-                    <span class="detail-value text-uppercase text-accent">{{ $registration->plan }}</span>
-                </div>
-                @if($registration->amount > 0)
+            <div class="detail-row">
+                <span class="detail-label">Nama Toko</span>
+                <span class="detail-value">{{ $registration->store_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Pemilik</span>
+                <span class="detail-value">{{ $registration->owner_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Paket Dipilih</span>
+                <span class="detail-value text-uppercase text-accent">{{ $registration->plan }}</span>
+            </div>
+            @if($registration->amount > 0)
                 <div class="detail-row">
                     <span class="detail-label">Total Pembayaran</span>
-                    <span class="detail-value text-accent">Rp {{ number_format($registration->amount, 0, ',', '.') }}</span>
+                    <span
+                        class="detail-value text-accent">Rp {{ number_format($registration->amount, 0, ',', '.') }}</span>
                 </div>
-                @endif
-            </div>
-
+            @endif
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="status-footer">
-        &copy; 2026 Pakaiapp.online. Seluruh sistem aman dilindungi enkripsi SSL.
-    </footer>
+    </div>
+</main>
 
-    <!-- Custom Script for Real-Time Polling -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const invoiceCode = "{{ $registration->invoice_code }}";
+<!-- Footer -->
+<footer class="status-footer">
+    &copy; 2026 Pakaiapp.online. Seluruh sistem aman dilindungi enkripsi SSL.
+</footer>
 
-            function fetchRegistrationDetails() {
-                fetch('/api/register/status/' + invoiceCode)
+<!-- Custom Script for Real-Time Polling -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const invoiceCode = "{{ $registration->invoice_code }}";
+
+        function fetchRegistrationDetails() {
+            fetch('/api/register/status/' + invoiceCode)
                 .then(r => r.json())
                 .then(res => {
                     renderStatus(res.status, res.redirect_url, res.payment_url);
@@ -427,13 +443,13 @@
                     // Fallback polling in case of transient errors
                     setTimeout(fetchRegistrationDetails, 5000);
                 });
-            }
+        }
 
-            function renderStatus(status, redirectUrl, paymentUrl) {
-                const container = document.getElementById('statusContent');
-                
-                if (status === 'pending') {
-                    container.innerHTML = `
+        function renderStatus(status, redirectUrl, paymentUrl) {
+            const container = document.getElementById('statusContent');
+
+            if (status === 'pending') {
+                container.innerHTML = `
                         <div class="status-badge badge-pending"><i class="bi bi-clock"></i> Menunggu Pembayaran</div>
                         <h2 class="status-title">Selesaikan Pembayaran</h2>
                         <p class="status-desc">Kami mendeteksi tagihan pembayaran Anda belum terbayar. Silakan klik tombol di bawah untuk menyelesaikan pembayaran Anda.</p>
@@ -444,8 +460,8 @@
                             <div class="step-item"><div class="step-icon">3</div><div class="step-label">Selesai</div></div>
                         </div>
                     `;
-                } else if (status === 'paid') {
-                    container.innerHTML = `
+            } else if (status === 'paid') {
+                container.innerHTML = `
                         <div class="spinner-custom"></div>
                         <div class="status-badge badge-paid"><i class="bi bi-check-circle"></i> Pembayaran Diterima</div>
                         <h2 class="status-title">Menyiapkan Toko Anda...</h2>
@@ -456,8 +472,8 @@
                             <div class="step-item"><div class="step-icon">3</div><div class="step-label">Selesai</div></div>
                         </div>
                     `;
-                } else if (status === 'created') {
-                    container.innerHTML = `
+            } else if (status === 'created') {
+                container.innerHTML = `
                         <div class="success-checkmark"><i class="bi bi-check-lg"></i></div>
                         <div class="status-badge badge-created"><i class="bi bi-check-circle"></i> Toko Aktif</div>
                         <h2 class="status-title">Toko Anda Siap Digunakan!</h2>
@@ -469,20 +485,20 @@
                             <div class="step-item completed"><div class="step-icon"><i class="bi bi-check"></i></div><div class="step-label">Selesai</div></div>
                         </div>
                     `;
-                } else if (status === 'failed') {
-                    container.innerHTML = `
+            } else if (status === 'failed') {
+                container.innerHTML = `
                         <div class="status-badge badge-failed"><i class="bi bi-x-circle"></i> Pendaftaran Gagal</div>
                         <h2 class="status-title">Pendaftaran Gagal</h2>
                         <p class="status-desc">Terjadi kesalahan sistem saat menyiapkan toko Anda atau pembayaran Anda ditolak. Silakan hubungi support kami via WhatsApp untuk penyelesaian manual.</p>
                         <a href="https://wa.me/6285172441544" target="_blank" class="btn-accent" style="background-color:#22c55e;"><i class="bi bi-whatsapp"></i> Chat Support Admin</a>
                         <a href="/register" class="btn-outline-custom">Daftar Ulang</a>
                     `;
-                }
             }
+        }
 
-            // Start fetching status!
-            fetchRegistrationDetails();
-        });
-    </script>
+        // Start fetching status!
+        fetchRegistrationDetails();
+    });
+</script>
 </body>
 </html>
