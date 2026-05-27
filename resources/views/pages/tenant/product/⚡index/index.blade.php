@@ -32,11 +32,36 @@
                 <span>Kategori</span>
             </button>
 
-            <a id="tour-add-product" href="{{ route('product.create') }}" wire:navigate
-               class="btn brand-gradient-btn fw-bold px-4 py-2.5 rounded-pill shadow-sm flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-1.5"
-               style="font-size: 0.9rem;">
-                <i class="bi bi-plus-lg"></i> <span>Tambah Produk</span>
-            </a>
+            @if($categories->isEmpty())
+                <button id="tour-add-product"
+                        @click="Swal.fire({
+                            title: 'Buat Kategori Terlebih Dahulu',
+                            html: 'Anda belum memiliki kategori produk. Silakan buat <b>Kategori baru</b> terlebih dahulu sebelum menambahkan produk.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#F97316',
+                            cancelButtonColor: '#6B7280',
+                            confirmButtonText: 'Buat Kategori',
+                            cancelButtonText: 'Batal',
+                            customClass: {
+                                popup: 'border-0 shadow-lg rounded-4'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $dispatch('openModal', { type: 'category', mode: 'create' });
+                            }
+                        })"
+                        class="btn brand-gradient-btn fw-bold px-4 py-2.5 rounded-pill shadow-sm flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-1.5"
+                        style="font-size: 0.9rem;">
+                    <i class="bi bi-plus-lg"></i> <span>Tambah Produk</span>
+                </button>
+            @else
+                <a id="tour-add-product" href="{{ route('product.create') }}" wire:navigate
+                   class="btn brand-gradient-btn fw-bold px-4 py-2.5 rounded-pill shadow-sm flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-1.5"
+                   style="font-size: 0.9rem;">
+                    <i class="bi bi-plus-lg"></i> <span>Tambah Produk</span>
+                </a>
+            @endif
         </div>
     </div>
 

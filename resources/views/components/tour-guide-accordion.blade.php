@@ -132,6 +132,35 @@
                         return;
                     }
 
+                    if (this.currentStep === 0) {
+                        let hasProducts = !!(document.querySelector('.premium-prod-card') || document.querySelector('.list-product-row'));
+                        if (!hasProducts) {
+                            this.steps = [
+                                {
+                                    target: '#tour-accordion-edit-category',
+                                    title: 'Aksi Kategori',
+                                    content: 'Gunakan tombol ini untuk mengubah nama kategori atau menghapusnya jika kategori sedang kosong.',
+                                    position: 'bottom'
+                                }
+                            ];
+                        } else {
+                            this.steps = [
+                                {
+                                    target: '#tour-accordion-edit-category',
+                                    title: 'Aksi Kategori',
+                                    content: 'Gunakan tombol ini untuk mengubah nama kategori atau menghapusnya jika kategori sedang kosong.',
+                                    position: 'bottom'
+                                },
+                                {
+                                    target: '.tour-accordion-product-actions',
+                                    title: 'Aksi Produk Cepat',
+                                    content: 'Edit produk atau matikan sementara (nonaktifkan) produk ini jika stok sedang kosong atau tidak tersedia.',
+                                    position: 'top'
+                                }
+                            ];
+                        }
+                    }
+
                     const rect = targetElement.getBoundingClientRect();
                     const isInViewport = (
                         rect.top >= 0 &&

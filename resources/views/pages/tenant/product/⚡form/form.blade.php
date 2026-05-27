@@ -25,11 +25,19 @@
                 </h2>
                 <p class="text-secondary small mb-0 fw-medium">Lengkapi informasi dan harga untuk menu/produkmu.</p>
             </div>
-            <a href="{{ route('product') }}"
-               class="btn btn-back-premium d-none d-md-inline-flex"
-               wire:navigate>
-                <i class="bi bi-x-lg"></i> Batal
-            </a>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" @click="window.dispatchEvent(new CustomEvent('start-form-tour'))"
+                        class="btn btn-outline-secondary rounded-pill fw-bold px-3 py-2 d-inline-flex align-items-center gap-1.5 shadow-sm"
+                        style="border-color: var(--bs-border-color) !important; color: var(--bs-body-color); font-size: 0.85rem;">
+                    <i class="bi bi-patch-question-fill" style="color: #F97316 !important;"></i>
+                    <span>Panduan Pengisian</span>
+                </button>
+                <a href="{{ route('product') }}"
+                   class="btn btn-back-premium d-none d-md-inline-flex"
+                   wire:navigate>
+                    <i class="bi bi-x-lg"></i> Batal
+                </a>
+            </div>
         </div>
     </div>
 
@@ -433,4 +441,7 @@
         </div>
 
     </form>
+
+    <!-- Product Form Interactive Guide Component -->
+    <x-tour-guide-form />
 </div>
