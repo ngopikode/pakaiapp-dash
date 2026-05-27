@@ -36,16 +36,16 @@
                         validateMsg: 'Silakan pilih kategori terlebih dahulu.'
                     },
                     {
-                        target: 'button[x-show="tab === \'general\'"]',
+                        target: '.tour-btn-next-price',
                         title: 'Melangkah ke Harga 💰',
                         content: 'Luar biasa! Sekarang ketuk tombol "Lanjut Harga" untuk melangkah ke pengisian harga dan stok.',
                         position: 'top',
                         isActionStep: true,
                         listenEvent: 'click',
-                        listenTarget: 'button[x-show="tab === \'general\'"]'
+                        listenTarget: '.tour-btn-next-price'
                     },
                     {
-                        target: 'input[wire\\:model="basePrice"]',
+                        target: '#productPrice',
                         title: 'Harga Jual Produk 🪙',
                         content: 'Tentukan harga jual produk/menu Anda. Masukkan harga dasar tanpa titik atau koma (misal: 18000).',
                         position: 'bottom',
@@ -55,16 +55,16 @@
                         validateMsg: 'Silakan masukkan harga jual yang valid (lebih dari 0).'
                     },
                     {
-                        target: 'button[x-show="tab === \'pricing\'"]',
+                        target: '.tour-btn-next-addons',
                         title: 'Langkah Review Akhir ✨',
                         content: 'Hampir selesai! Ketuk tombol "Lanjut Add-ons" atau "Lanjut" untuk melangkah ke halaman review akhir.',
                         position: 'top',
                         isActionStep: true,
                         listenEvent: 'click',
-                        listenTarget: 'button[x-show="tab === \'pricing\'"]'
+                        listenTarget: '.tour-btn-next-addons'
                     },
                     {
-                        target: 'button[type="submit"]',
+                        target: '.tour-btn-submit',
                         title: 'Simpan Produk Baru 🎉',
                         content: 'Sempurna! Terakhir, klik tombol "Simpan Produk" atau "Simpan" di bagian bawah untuk mendaftarkan menu baru Anda ke sistem kasir!',
                         position: 'top'
@@ -133,7 +133,7 @@
                         catEl.addEventListener('change', (e) => { this.categoryValue = e.target.value; });
                     }
 
-                    const priceEl = document.querySelector('input[wire\\:model="basePrice"]');
+                    const priceEl = document.querySelector('#productPrice');
                     if (priceEl) {
                         this.priceValue = priceEl.value;
                         priceEl.addEventListener('input', (e) => { this.priceValue = e.target.value; });
@@ -189,12 +189,14 @@
                     const step = this.currentStepData;
                     if (!step) return;
 
-                    let targetElement = document.querySelector(step.target);
+                    let targetElements = document.querySelectorAll(step.target);
+                    let targetElement = Array.from(targetElements).find(el => el.offsetParent !== null);
                     let retries = 10;
 
                     while (!targetElement && retries > 0) {
                         await new Promise(resolve => setTimeout(resolve, 200));
-                        targetElement = document.querySelector(step.target);
+                        targetElements = document.querySelectorAll(step.target);
+                        targetElement = Array.from(targetElements).find(el => el.offsetParent !== null);
                         retries--;
                     }
 

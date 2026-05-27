@@ -233,7 +233,7 @@
                                     <div class="col-6 col-md-3">
                                         <label class="form-label small fw-bold text-danger mb-1">Harga Jual *</label>
                                         <input type="number" class="form-control bg-body fw-bold"
-                                               wire:model="basePrice" placeholder="Rp 0" required
+                                               wire:model="basePrice" id="productPrice" placeholder="Rp 0" required
                                                style="color: var(--brand-caramel, #B67332);">
                                     </div>
                                     <div class="col-6 col-md-3">
@@ -388,16 +388,16 @@
                     x-show="tab !== 'general'" @click="tab = tab === 'extras' ? 'pricing' : 'general'">
                 <i class="bi bi-chevron-left"></i> Kembali
             </button>
-            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm" x-show="tab === 'general'"
+            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-price" x-show="tab === 'general'"
                     @click="tab = 'pricing'">
                 Lanjut Harga <i class="bi bi-chevron-right"></i>
             </button>
-            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
+            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-addons"
                     x-show="tab === 'pricing'" @click="tab = 'extras'">
                 Lanjut Add-ons <i class="bi bi-chevron-right"></i>
             </button>
             <button type="submit"
-                    class="btn brand-gradient-btn fw-bold px-5 py-2 shadow-sm d-flex align-items-center gap-2"
+                    class="btn brand-gradient-btn fw-bold px-5 py-2 shadow-sm d-flex align-items-center gap-2 tour-btn-submit"
                     x-show="tab === 'extras'"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save"><i class="bi bi-check2-circle"></i> Simpan Produk</span>
@@ -420,18 +420,18 @@
                 <i class="bi bi-chevron-left"></i>
             </button>
 
-            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
+            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 tour-btn-next-price"
                     x-show="tab === 'general'" @click="tab = 'pricing'">
                 Lanjut <i class="bi bi-chevron-right"></i>
             </button>
 
-            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
+            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 tour-btn-next-addons"
                     x-show="tab === 'pricing'" @click="tab = 'extras'">
                 Lanjut <i class="bi bi-chevron-right"></i>
             </button>
 
             <button type="submit"
-                    class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 d-flex justify-content-center align-items-center gap-2"
+                    class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 d-flex justify-content-center align-items-center gap-2 tour-btn-submit"
                     x-show="tab === 'extras'"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save"><i class="bi bi-check2-circle"></i> Simpan</span>

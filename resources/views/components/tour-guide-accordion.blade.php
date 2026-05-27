@@ -6,6 +6,7 @@
                 isPositioned: false,
                 currentStep: 0,
                 positioningTimeout: null,
+                hasProducts: true,
                 steps: [
                     {
                         target: '#tour-accordion-edit-category',
@@ -89,6 +90,11 @@
                 },
 
                 nextStep() {
+                    if (this.currentStep === 0 && !this.hasProducts) {
+                        this.endTour();
+                        return;
+                    }
+
                     if (this.currentStep < this.steps.length - 1) {
                         this.isPositioned = false;
                         this.currentStep++;
@@ -133,32 +139,7 @@
                     }
 
                     if (this.currentStep === 0) {
-                        let hasProducts = !!(document.querySelector('.premium-prod-card') || document.querySelector('.list-product-row'));
-                        if (!hasProducts) {
-                            this.steps = [
-                                {
-                                    target: '#tour-accordion-edit-category',
-                                    title: 'Aksi Kategori',
-                                    content: 'Gunakan tombol ini untuk mengubah nama kategori atau menghapusnya jika kategori sedang kosong.',
-                                    position: 'bottom'
-                                }
-                            ];
-                        } else {
-                            this.steps = [
-                                {
-                                    target: '#tour-accordion-edit-category',
-                                    title: 'Aksi Kategori',
-                                    content: 'Gunakan tombol ini untuk mengubah nama kategori atau menghapusnya jika kategori sedang kosong.',
-                                    position: 'bottom'
-                                },
-                                {
-                                    target: '.tour-accordion-product-actions',
-                                    title: 'Aksi Produk Cepat',
-                                    content: 'Edit produk atau matikan sementara (nonaktifkan) produk ini jika stok sedang kosong atau tidak tersedia.',
-                                    position: 'top'
-                                }
-                            ];
-                        }
+                        this.hasProducts = !!(document.querySelector('.premium-prod-card') || document.querySelector('.list-product-row'));
                     }
 
                     const rect = targetElement.getBoundingClientRect();
@@ -275,7 +256,8 @@
                              style="border-color: var(--bs-border-color) !important;">
                             <div class="d-flex gap-1">
                                 <template x-for="(step, index) in steps" :key="index">
-                                    <div class="rounded-pill transition-all"
+                                    <div x-show="index === 0 || hasProducts"
+                                         class="rounded-pill transition-all"
                                          :class="index === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
                                          :style="index === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
                                     </div>
@@ -295,7 +277,7 @@
                                         class="btn btn-sm btn-primary fw-bold rounded-pill px-4 transition-all"
                                         style="background-color: var(--brand-caramel) !important; border-color: var(--brand-caramel) !important;"
                                         @click="nextStep()"
-                                        x-text="currentStep === steps.length - 1 ? 'Selesai' : 'Lanjut'"></button>
+                                        x-text="(currentStep === steps.length - 1 || (currentStep === 0 && !hasProducts)) ? 'Selesai' : 'Lanjut'"></button>
                             </div>
                         </div>
                     </div>
