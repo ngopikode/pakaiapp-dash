@@ -10,7 +10,7 @@
         <div class="d-grid d-md-block">
             <button wire:click="save"
                     class="btn rounded-pill px-4 py-2 shadow-sm fw-bold d-flex align-items-center justify-content-center gap-2 text-white"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
+                    style="background: #F97316; border: none;"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save"><i
                         class="bi bi-check2-circle fs-5"></i> Simpan Perubahan</span>

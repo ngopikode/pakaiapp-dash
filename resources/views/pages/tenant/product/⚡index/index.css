@@ -30,31 +30,27 @@
     animation: premium-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* 2. Header and Controls */
 .brand-title {
     color: var(--bs-primary) !important;
     font-family: var(--font-serif), sans-serif;
     font-weight: 800;
     letter-spacing: -0.75px;
-    background: linear-gradient(135deg, var(--bs-primary), var(--brand-caramel, #B67332));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .brand-gradient-btn {
-    background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14)) !important;
+    background: #F97316 !important;
     border: none !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     letter-spacing: -0.2px;
-    box-shadow: 0 4px 14px rgba(182, 115, 50, 0.25) !important;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25) !important;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .brand-gradient-btn:hover {
+    background: #EA580C !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(182, 115, 50, 0.4) !important;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4) !important;
     opacity: 0.95;
     color: #ffffff !important;
 }
@@ -426,16 +422,15 @@
     animation: skeleton-warm-glow 1.5s ease-in-out infinite;
 }
 
-/* 7. Beautiful Empty States */
 .empty-state-icon-container {
     width: 76px;
     height: 76px;
-    background: linear-gradient(135deg, rgba(var(--bs-warning-rgb), 0.1), rgba(var(--bs-primary-rgb), 0.05));
-    color: var(--brand-caramel, #B67332);
+    background: rgba(249, 115, 22, 0.08);
+    color: #F97316;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.25rem;
-    box-shadow: 0 4px 12px rgba(182, 115, 50, 0.08);
+    border: 1px solid rgba(249, 115, 22, 0.15);
 }

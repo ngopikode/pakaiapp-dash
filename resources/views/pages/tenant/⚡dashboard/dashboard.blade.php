@@ -188,21 +188,25 @@
             {{-- Omset Hari Ini --}}
             <div class="col">
                 <div
-                    class="card h-100 dash-card stat-card-primary text-white-fixed position-relative overflow-hidden p-2">
-                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.15;">
-                        <i class="bi bi-wallet2" style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem; color: #fff;"></i>
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2">
+                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
+                        <i class="bi bi-wallet2" style="font-size: 5rem; color: #F97316;"></i>
                     </div>
                     <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between"
                          style="min-height: 160px;">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge rounded-pill px-3 py-2 fw-bold text-white-fixed"
-                                  style="font-size: 0.72rem; background-color: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.2) !important;">Omset Hari Ini</span>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 45px; height: 45px; background-color: rgba(249, 115, 22, 0.1); color: #F97316;">
+                                <i class="bi bi-wallet2 fs-5"></i>
+                            </div>
+                            <span class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
+                                  style="font-size: 0.72rem;">Hari Ini</span>
                         </div>
                         <div>
-                            <div class="stat-number stat-number-lg text-white-fixed mb-2">
+                            <div class="stat-number text-body mb-1">
                                 Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}
                             </div>
-                            <p class="stat-label text-white-fixed mb-0">Dari {{ $stats['orders_today'] }} Transaksi Sukses
+                            <p class="text-secondary small fw-bold mb-0 opacity-75">Dari {{ $stats['orders_today'] }} Transaksi Sukses
                                 @if($stats['revenue_trend_today'] != 0)
                                     <span
                                         class="ms-2 px-2 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
@@ -219,23 +223,25 @@
             {{-- Omset Bulan Ini --}}
             <div class="col">
                 <div
-                    class="card h-100 dash-card stat-card-dark text-white-fixed position-relative overflow-hidden p-2">
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2">
                     <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
-                        <i class="bi bi-graph-up-arrow"
-                           style="font-size: 6rem; margin-top: -1rem; margin-right: -1rem; color: #fff;"></i>
+                        <i class="bi bi-graph-up-arrow" style="font-size: 5rem; color: #10B981;"></i>
                     </div>
                     <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between"
                          style="min-height: 160px;">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span
-                                class="badge text-white-fixed rounded-pill px-3 py-2 fw-bold"
-                                style="font-size: 0.72rem; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15) !important;">Omset Bulan Ini</span>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 45px; height: 45px; background-color: rgba(16, 185, 129, 0.1); color: #10B981;">
+                                <i class="bi bi-graph-up-arrow fs-5"></i>
+                            </div>
+                            <span class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
+                                  style="font-size: 0.72rem;">Bulan Ini</span>
                         </div>
                         <div>
-                            <div class="stat-number stat-number-lg text-white-fixed mb-2">
+                            <div class="stat-number text-body mb-1">
                                 Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}
                             </div>
-                            <p class="stat-label text-white-fixed mb-0">Total Pendapatan Bulanan
+                            <p class="text-secondary small fw-bold mb-0 opacity-75">Total Pendapatan Bulanan
                                 @if($stats['revenue_trend_month'] != 0)
                                     <span
                                         class="ms-2 px-2 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
@@ -385,23 +391,27 @@
                 <div class="d-flex flex-column gap-3 gap-md-4 h-100">
 
                     {{-- WIDGET SALDO KREDIT (BARU - PREMIUM BANK CARD LAYOUT) --}}
+                    {{-- WIDGET SALDO KREDIT (BARU - PREMIUM BANK CARD LAYOUT) --}}
                     <div
-                        class="card dash-card stat-card-wallet p-1 position-relative overflow-hidden mb-2">
+                        class="card dash-card border bg-body p-1 position-relative overflow-hidden mb-2">
                         <div class="card-body p-4 d-flex flex-column justify-content-between"
                              style="min-height: 200px;">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex flex-column">
-                                    <span class="text-white-fixed-75 small fw-bold"
+                                    <span class="text-secondary small fw-bold"
                                           style="font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;">SALDO PAKAIAPP</span>
-                                    <span class="text-white-fixed-50 small fw-medium mt-1"
+                                    <span class="text-muted small fw-medium mt-1"
                                           style="font-size: 0.62rem;">Pakaiapp Credit Account</span>
                                 </div>
-                                {{-- Chip: solid orange --}}
-                                <div style="width: 38px; height: 28px; background-color: #F97316; border-radius: 6px; opacity: 0.9;"></div>
+                                {{-- Icon: solid orange --}}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 45px; height: 45px; background-color: rgba(249, 115, 22, 0.1); color: #F97316;">
+                                    <i class="bi bi-wallet2 fs-5"></i>
+                                </div>
                             </div>
 
                             <div class="my-3">
-                                <div class="stat-number text-white-fixed {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }} mb-1">
+                                <div class="stat-number text-body {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }} mb-1">
                                     Rp {{ number_format($stats['wallet_balance'], 0, ',', '.') }}
                                 </div>
                                 @if($stats['wallet_balance'] < 3000)
@@ -411,8 +421,8 @@
                                         <i class="bi bi-exclamation-triangle-fill me-1"></i> Saldo menipis, isi ulang!
                                     </span>
                                 @else
-                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold mt-1"
-                                          style="font-size: 0.65rem; background-color: rgba(255, 255, 255, 0.1); color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important;">
+                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold mt-1 text-secondary bg-body-tertiary border"
+                                          style="font-size: 0.65rem;">
                                         <i class="bi bi-check-circle-fill text-success me-1"></i>
                                         Cukup untuk ~{{ floor($stats['wallet_balance'] / $stats['fee_per_trx']) }} transaksi
                                     </span>
@@ -420,12 +430,12 @@
                             </div>
 
                             <div
-                                class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light border-opacity-10">
-                                <span class="text-white-fixed-50 small font-monospace"
-                                      style="font-size: 0.72rem; letter-spacing: 2px;">**** **** **** {{ substr(tenant('id'), 0, 4) }}</span>
-                                <button class="btn btn-sm rounded-pill fw-black px-4 py-1.5 shadow-sm hover-translate"
+                                class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary border-opacity-10">
+                                <span class="text-secondary small font-monospace"
+                                      style="font-size: 0.72rem;">ID: {{ strtoupper(tenant('id')) }}</span>
+                                <button class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3 py-1 shadow-sm"
                                         data-bs-toggle="modal" data-bs-target="#topUpModal"
-                                        style="font-size: 0.75rem; background-color: #ffffff !important; color: #170903 !important; border: none !important;"
+                                        style="font-size: 0.75rem;"
                                         type="button">
                                     <i class="bi bi-plus-lg me-1"></i> Top Up
                                 </button>
@@ -597,22 +607,25 @@
 
     /* Coffee & Sunset Gradients */
     .bg-gradient-caramel {
-        background: linear-gradient(135deg, #B67332 0%, #7E4B1E 100%) !important;
-        box-shadow: 0 8px 24px rgba(182, 115, 50, 0.25) !important;
+        background-color: #F97316 !important;
+        background-image: none !important;
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15) !important;
     }
 
     .bg-gradient-espresso {
-        background: linear-gradient(135deg, #321E14 0%, #1A0F0A 100%) !important;
-        box-shadow: 0 8px 24px rgba(50, 30, 20, 0.2) !important;
+        background-color: #1E293B !important;
+        background-image: none !important;
+        box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15) !important;
     }
 
     /* Premium Wallet Card (Copper Theme) */
     .bg-gradient-copper-card {
         position: relative;
-        background: linear-gradient(135deg, #5C3217 0%, #30170A 50%, #170903 100%) !important;
+        background-color: #1E293B !important;
+        background-image: none !important;
         color: #F9F7F5 !important;
-        box-shadow: 0 12px 30px rgba(92, 50, 23, 0.25) !important;
-        border: 1px solid rgba(182, 115, 50, 0.25) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid var(--bs-border-color-translucent) !important;
         overflow: hidden;
         z-index: 1;
     }
@@ -624,7 +637,7 @@
         right: -20%;
         width: 250px;
         height: 250px;
-        background: radial-gradient(circle, rgba(182, 115, 50, 0.25) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
         z-index: -1;
         pointer-events: none;
     }
@@ -632,10 +645,10 @@
     .bg-gradient-copper-card .wallet-chip {
         width: 38px;
         height: 28px;
-        background: linear-gradient(135deg, #E8B97D 0%, #B67332 100%);
+        background-color: #F97316;
         border-radius: 6px;
         position: relative;
-        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4);
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
     }
 
     .bg-gradient-copper-card .wallet-chip::after {
@@ -645,7 +658,7 @@
         left: 4px;
         right: 4px;
         bottom: 4px;
-        border: 1px solid rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 4px;
     }
 
@@ -679,21 +692,24 @@
     }
 
     .rank-gold {
-        background: linear-gradient(135deg, #F5D061 0%, #C49B25 100%);
-        color: #4A3A0F;
-        box-shadow: 0 2px 6px rgba(196, 155, 37, 0.3);
+        background-color: #F59E0B;
+        background-image: none !important;
+        color: #1c1400;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
     }
 
     .rank-silver {
-        background: linear-gradient(135deg, #E2E8F0 0%, #94A3B8 100%);
-        color: #1E293B;
-        box-shadow: 0 2px 6px rgba(148, 163, 184, 0.3);
+        background-color: #94A3B8;
+        background-image: none !important;
+        color: #0f172a;
+        box-shadow: 0 2px 6px rgba(148, 163, 184, 0.2);
     }
 
     .rank-bronze {
-        background: linear-gradient(135deg, #EDC2A0 0%, #B07E5D 100%);
-        color: #482C17;
-        box-shadow: 0 2px 6px rgba(176, 126, 93, 0.3);
+        background-color: #D97706;
+        background-image: none !important;
+        color: #1c0d00;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.2);
     }
 
     .rank-default {

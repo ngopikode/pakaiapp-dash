@@ -77,7 +77,7 @@
                                 title: 'Saldo Tidak Cukup!',
                                 html: `Sisa Saldo Pakaiapp Anda <b>Rp {{ number_format($walletBalance, 0, ',', '.') }}</b>.<br><br>Anda butuh <b>Rp {{ number_format($price, 0, ',', '.') }}</b> untuk menambah slot. Silakan hubungi Admin untuk Top Up.`,
                                 icon: 'warning',
-                                confirmButtonColor: '#B67332',
+                                confirmButtonColor: '#F97316',
                                 confirmButtonText: 'Tutup',
                                 customClass: {
                                     confirmButton: 'btn btn-primary rounded-pill px-4 fw-bold shadow-sm'
@@ -90,8 +90,8 @@
                                 html: `Saldo Anda akan dipotong <b>Rp {{ number_format($price, 0, ',', '.') }}</b> untuk menambah <b>{{ $additionalSlots }} slot produk</b> secara permanen.`,
                                 icon: 'question',
                                 showCancelButton: true,
-                                confirmButtonColor: '#B67332', /* Warna Caramel */
-                                cancelButtonColor: '#846A58', /* Warna Mocha */
+                                confirmButtonColor: '#F97316',
+                                cancelButtonColor: '#6c757d',
                                 confirmButtonText: '<i class=\'bi bi-cart-check-fill me-1\'></i> Ya, Beli Sekarang',
                                 cancelButtonText: 'Batal',
                                 reverseButtons: true,
@@ -107,8 +107,8 @@
                             })
                         }
                     "
-                    class="btn text-white fw-bold px-4 rounded-pill flex-shrink-0"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309);"
+                    class="btn text-white fw-bold px-4 rounded-pill flex-shrink-0 border-0"
+                    style="background-color: #F97316;"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="buySlot">
                     <i class="bi bi-cart-plus-fill me-1"></i> Beli Slot

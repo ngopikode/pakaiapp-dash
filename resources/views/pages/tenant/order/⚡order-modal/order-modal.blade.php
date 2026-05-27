@@ -236,7 +236,7 @@
                                 {{-- Bayar — selalu di kanan --}}
                                 <button wire:click="triggerPayment" wire:loading.attr="disabled"
                                         class="btn fw-bold rounded-3 px-4 ms-auto text-white flex-shrink-0"
-                                        style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; min-width: 130px;">
+                                        style="background: #F97316; border: none; min-width: 130px;">
                                     <span wire:loading.remove wire:target="triggerPayment">
                                         <i class="bi bi-cash-coin me-1"></i>Bayar
                                     </span>

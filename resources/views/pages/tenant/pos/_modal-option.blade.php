@@ -114,7 +114,7 @@
                     </div>
                     <button @click="confirmOption"
                             class="btn btn-primary fw-bold w-100 py-3 d-flex justify-content-between align-items-center shadow-sm text-white border-0"
-                            style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309);"
+                            style="border-radius: 1rem; background: #F97316;"
                             :disabled="optionProduct && optionProduct.has_variants && optionSelected.length === 0">
                         <span><i class="bi bi-cart-plus me-2"></i>Tambahkan ke Keranjang</span>
                         <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>

@@ -15,7 +15,7 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         // Central Pages (Register, Login, Status Onboarding)
         Route::get('/register', [CentralAuthController::class, 'showRegister'])->name('register');
-        Route::get('/login', [CentralAuthController::class, 'showLogin'])->name('login');
+        Route::get('/login', [CentralAuthController::class, 'showLogin'])->name('central.login');
 
         Route::get('/register/status/{invoice_code}', [CentralAuthController::class, 'registerStatus'])->name('register.status');
         Route::get('/api/register/status/{invoice_code}', [CentralAuthController::class, 'apiRegisterStatus']);

@@ -321,8 +321,8 @@
                             data-bs-dismiss="modal">Batal
                     </button>
                     <button @click="submitPayment"
-                            class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white"
-                            style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
+                            class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white border-0"
+                            style="background-color: #F97316;"
                             :disabled="isSubmitting
                                 || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))
                                 || (paymentMethod === 'duitku' && !duitkuMethod)"

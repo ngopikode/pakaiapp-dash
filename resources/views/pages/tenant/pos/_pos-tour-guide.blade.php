@@ -45,7 +45,7 @@
                 Pelajari cara cepat menggunakan halaman kasir ini melalui panduan interaktif kami.
             </p>
             <button @click="openGuide()" class="btn btn-warning btn-sm fw-bold rounded-pill w-100 text-white"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; font-size: 0.75rem;">
+                    style="background: #F97316; border: none; font-size: 0.75rem;">
                 Buka Panduan <i class="bi bi-arrow-right ms-1"></i>
             </button>
         </div>
@@ -416,11 +416,6 @@
                  :style="tooltipStyle"
                  :class="isPositioned ? 'opacity-100 visible' : 'opacity-0 invisible'">
                 <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                         style="border-radius: 1rem; pointer-events: none; z-index: 0;">
-                        <div class="position-absolute opacity-10"
-                             style="background-color: var(--brand-caramel); width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; filter: blur(30px);"></div>
-                    </div>
 
                     <div class="position-relative" style="z-index: 1;">
                         <div class="d-flex align-items-center mb-3">

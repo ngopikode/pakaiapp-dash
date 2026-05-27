@@ -321,7 +321,7 @@
 
                 {{-- Header (Premium Gradient) --}}
                 <div class="modal-header border-bottom px-4 py-3 flex-shrink-0 text-white"
-                     style="border-radius: 1.5rem 1.5rem 0 0; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+                     style="border-radius: 1.5rem 1.5rem 0 0; background: #F97316; border: none;">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-journal-bookmark-fill fs-4"></i>
                         <h5 class="fw-bold mb-0">Panduan Mengelola Pesanan</h5>
@@ -471,7 +471,7 @@
                      Pelajari alur manajemen transaksi dan kelola pesanan online/offline Anda dengan lancar.
                  </p>
                  <button @click="openGuide()" class="btn btn-warning btn-sm fw-bold rounded-pill w-100 text-white"
-                         style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; font-size: 0.75rem;">
+                         style="background: #F97316; border: none; font-size: 0.75rem;">
                      Buka Panduan Alur <i class="bi bi-arrow-right ms-1"></i>
                  </button>
              </div>

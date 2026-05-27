@@ -15,7 +15,7 @@
                 width: 48px !important;
                 height: 48px !important;
                 z-index: 1040 !important;
-                background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-mocha, #846A58)) !important;
+                background: #F97316 !important;
                 color: #ffffff !important;
                 border: 1px solid rgba(255, 255, 255, 0.15) !important;
                 box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
@@ -120,7 +120,7 @@
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
+            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>
@@ -246,6 +246,10 @@
         handleProductClick(product) {
             if (product.stock <= 0) {
                 showIslandToast('Stok habis!', 'warning');
+                return;
+            }
+            if (!product.variants || product.variants.length === 0) {
+                showIslandToast('Produk ini belum memiliki varian harga yang valid.', 'danger');
                 return;
             }
             if (product.selection_type === 'multiple' || (product.has_variants && product.variants.length > 1) || (product.extras && product.extras.length > 0)) {
@@ -393,6 +397,10 @@
         },
 
         addToCart(product, variant, qty = 1) {
+            if (!variant) {
+                showIslandToast('Varian produk tidak ditemukan.', 'danger');
+                return;
+            }
             let existing = this.cart.find(i => i.variant_id === variant.id);
             if (existing) {
                 if (existing.quantity + qty <= variant.stock) {

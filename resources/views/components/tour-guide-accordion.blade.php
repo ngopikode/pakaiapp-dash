@@ -218,12 +218,7 @@
                  :style="tooltipStyle"
                  :class="isPositioned ? 'opacity-100 visible' : 'opacity-0 invisible'">
                 <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                         style="border-radius: 1rem; pointer-events: none; z-index: 0;">
-                        <div class="position-absolute opacity-10"
-                             style="background-color: var(--brand-caramel); width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; filter: blur(30px);"></div>
-                    </div>
-
+                  
                     <div class="position-relative" style="z-index: 1;">
                         <div class="d-flex align-items-center mb-3">
                             <div class="bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"

@@ -237,12 +237,6 @@
                  :style="tooltipStyle"
                  :class="isPositioned ? 'opacity-100 visible' : 'opacity-0 invisible'">
             <div class="card-body p-4 position-relative">
-                <!-- Decorative accent -->
-                <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                     style="border-radius: 1rem; pointer-events: none; z-index: 0;">
-                    <div class="position-absolute bg-primary opacity-10"
-                         style="width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; filter: blur(30px);"></div>
-                </div>
 
                 <div class="position-relative" style="z-index: 1;">
                     <div class="d-flex align-items-center mb-3">

@@ -153,7 +153,7 @@
                 <button id="tour-resto-pay" @click="openDirectPaymentModal"
                         class="btn w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center py-3 text-white"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
-                        style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+                        style="border-radius: 1rem; background: #F97316; border: none;">
                     <span>Bayar</span>
                     <span x-text="formatRupiah(subTotalWithCharges)"></span>
                 </button>

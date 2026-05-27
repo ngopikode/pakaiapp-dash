@@ -114,8 +114,8 @@
                                             'subtotal' => $order->subtotal,
                                             'total_price' => $order->total_price ?? $order->subtotal,
                                         ]) }})"
-                                class="btn btn-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 text-white"
-                                style="border-radius: 0.75rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+                                class="btn btn-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 text-white border-0"
+                                style="border-radius: 0.75rem; background-color: #F97316;">
                             <i class="bi bi-cash-coin"></i> Bayar Sekarang
                         </button>
                     </div>

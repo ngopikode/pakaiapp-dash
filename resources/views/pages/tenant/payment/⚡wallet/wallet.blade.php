@@ -11,28 +11,23 @@
 
         {{-- Saldo Aktif --}}
         <div class="col-12 col-md-5">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 text-white position-relative"
-                 style="background: linear-gradient(135deg, #ca8a04 0%, #b45309 60%, #78350f 100%); min-height: 160px;">
-                {{-- Decorative circles --}}
-                <div class="position-absolute rounded-circle opacity-25"
-                     style="width:220px;height:220px;background:rgba(255,255,255,0.15);top:-60px;right:-60px;"></div>
-                <div class="position-absolute rounded-circle opacity-25"
-                     style="width:130px;height:130px;background:rgba(255,255,255,0.1);bottom:-30px;left:20px;"></div>
+            <div class="card border shadow-sm rounded-4 overflow-hidden h-100 position-relative bg-body"
+                 style="border-color: var(--bs-border-color-translucent) !important; min-height: 160px;">
 
                 <div class="card-body p-4 position-relative d-flex flex-column justify-content-between" style="z-index:1;">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="mb-1 fw-bold opacity-75" style="font-size:0.78rem; letter-spacing:1.5px; text-transform:uppercase;">Saldo Aktif</p>
-                            <h2 class="fw-black mb-0" style="font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing:-1px;">
+                            <p class="mb-1 fw-bold text-secondary" style="font-size:0.78rem; letter-spacing:1.5px; text-transform:uppercase;">Saldo Aktif</p>
+                            <h2 class="fw-black mb-0 text-body" style="font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing:-1px;">
                                 Rp {{ number_format($wallet->balance, 0, ',', '.') }}
                             </h2>
                         </div>
-                        <div class="rounded-3 d-flex align-items-center justify-content-center opacity-50"
-                             style="width:48px;height:48px;background:rgba(255,255,255,0.15);">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:rgba(249, 115, 22, 0.1); color: #F97316;">
                             <i class="bi bi-wallet2 fs-4"></i>
                         </div>
                     </div>
-                    <p class="small mb-0 opacity-60 mt-3">
+                    <p class="small mb-0 text-secondary mt-3">
                         <i class="bi bi-info-circle me-1"></i>Saldo digunakan untuk biaya layanan pakaiapp (Rp 300/transaksi).
                     </p>
                 </div>

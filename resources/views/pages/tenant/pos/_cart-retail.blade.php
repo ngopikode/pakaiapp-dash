@@ -153,7 +153,7 @@
         <button id="tour-retail-pay" @click="openPaymentModal"
                 class="btn w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center py-3 text-white border-0"
                 :disabled="cart.length === 0 || stockError !== ''"
-                style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309);">
+                style="border-radius: 1rem; background: #F97316;">
             <span><i class="bi bi-cart-check me-2"></i> Lanjut Bayar</span>
             <span x-text="'Rp ' + formatRupiah(grandTotal)"></span>
         </button>
