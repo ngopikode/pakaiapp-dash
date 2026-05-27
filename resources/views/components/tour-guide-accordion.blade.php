@@ -58,6 +58,16 @@
                         let firstAccordionBtn = document.querySelector('.cat-accordion-btn.collapsed');
                         if (firstAccordionBtn) {
                             firstAccordionBtn.click();
+                        } else {
+                            // Kategori / produk masih kosong
+                            Swal.fire({
+                                title: 'Kategori Masih Kosong',
+                                html: 'Silakan buat <b>Kategori baru</b> dan tambahkan <b>Produk pertama</b> Anda terlebih dahulu untuk memulai panduan ini.',
+                                icon: 'info',
+                                confirmButtonColor: '#F97316',
+                                confirmButtonText: 'Saya Mengerti'
+                            });
+                            return;
                         }
                     }
 

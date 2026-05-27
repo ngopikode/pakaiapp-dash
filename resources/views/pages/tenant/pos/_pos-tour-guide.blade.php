@@ -230,6 +230,26 @@
                 },
 
                 startTour() {
+                    // Cek jika produk sama sekali belum ada di kasir
+                    let productExists = document.querySelector('.tour-product-item');
+                    if (!productExists) {
+                        Swal.fire({
+                            title: 'Belum Ada Produk',
+                            html: 'Halaman kasir belum memiliki produk untuk dipajang dan dijual.<br><br>Silakan tambahkan produk Anda terlebih dahulu di menu <b>Produk</b> sebelum memulai panduan kasir.',
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#F97316',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: '<i class="bi bi-box-seam me-1"></i> Kelola Produk',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '{{ route("product") }}';
+                            }
+                        });
+                        return;
+                    }
+
                     if (this.isActive) return;
                     
                     this.currentStep = 0;
