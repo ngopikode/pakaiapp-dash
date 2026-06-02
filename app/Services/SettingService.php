@@ -31,12 +31,16 @@ class SettingService
         // 2. Cek Global Setting dari Database (di-cache untuk performance)
         $globalKey = 'default_' . $key;
         
-        $globalSetting = Cache::remember('global_setting_' . $globalKey, 3600, function () use ($globalKey) {
-            return GlobalSetting::find($globalKey);
+        // Menggunakan cache key baru 'global_setting_val_' agar bypass cache model lama
+        // Kita hanya meng-cache $value akhirnya (scalar/array) bukan Object Eloquent Model
+        // untuk mencegah error "__PHP_Incomplete_Class" saat unserialize
+        $value = Cache::remember('global_setting_val_' . $globalKey, 3600, function () use ($globalKey) {
+            $setting = GlobalSetting::find($globalKey);
+            return $setting ? $setting->cast_value : null;
         });
 
-        if ($globalSetting) {
-            return $globalSetting->cast_value;
+        if ($value !== null) {
+            return $value;
         }
 
         // 3. Fallback terakhir
