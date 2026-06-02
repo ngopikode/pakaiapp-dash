@@ -2,6 +2,7 @@
 
 use App\Models\TenantUser;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component {
@@ -37,6 +38,12 @@ new class extends Component {
         $this->dispatch('show-bootstrap-modal');
     }
 
+    #[Computed]
+    public function storeType()
+    {
+        return \App\Models\StoreSetting::first()?->store_type ?? 'retail';
+    }
+
     public function save(): void
     {
         // Validasi Dinamis (Password wajib saat Create, opsional saat Edit)
@@ -48,8 +55,13 @@ new class extends Component {
         if ($this->isEditing && $this->role === 'manager') {
             $rules['role'] = 'required|in:manager';
         } else {
-            $rules['role'] = 'required|in:cashier,kitchen';
-            if (!in_array($this->role, ['cashier', 'kitchen'])) {
+            if ($this->storeType === 'resto') {
+                $rules['role'] = 'required|in:cashier,kitchen';
+                if (!in_array($this->role, ['cashier', 'kitchen'])) {
+                    $this->role = 'cashier';
+                }
+            } else {
+                $rules['role'] = 'required|in:cashier';
                 $this->role = 'cashier';
             }
         }

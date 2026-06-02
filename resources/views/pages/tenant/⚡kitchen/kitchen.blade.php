@@ -33,8 +33,29 @@
                         class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center py-3">
                         <div>
                             <h5 class="mb-0 text-white fw-bold">#{{ substr($order->invoice_code, -4) }}</h5>
-                            <small class="text-white-50">{{ $order->created_at->format('H:i') }}
-                                ({{ $order->created_at->diffForHumans() }})</small>
+                            <small class="text-white-50"
+                                   x-data="{ 
+                                       timeAgo: '', 
+                                       start: new Date('{{ $order->created_at->toIso8601String() }}'),
+                                       updateTime() {
+                                           let diff = Math.floor((new Date() - this.start) / 1000);
+                                           if (diff < 60) {
+                                               this.timeAgo = diff + ' detik lalu';
+                                           } else if (diff < 3600) {
+                                               let m = Math.floor(diff / 60);
+                                               let s = diff % 60;
+                                               this.timeAgo = m + 'm ' + s + 's lalu';
+                                           } else {
+                                               let h = Math.floor(diff / 3600);
+                                               let m = Math.floor((diff % 3600) / 60);
+                                               this.timeAgo = h + 'j ' + m + 'm lalu';
+                                           }
+                                       }
+                                   }"
+                                   x-init="updateTime(); setInterval(() => updateTime(), 1000)">
+                                {{ $order->created_at->format('H:i') }}
+                                (<span x-text="timeAgo">{{ $order->created_at->diffForHumans() }}</span>)
+                            </small>
                         </div>
                         <div class="text-end">
                             @if($order->order_type === 'dinein')

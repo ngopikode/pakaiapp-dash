@@ -45,7 +45,9 @@
                                     style="border-radius: 0.75rem;"
                                     {{ ($isEditing && $role === 'manager') ? 'disabled' : '' }}>
                                 <option value="cashier">Kasir (Transaksi & Kasir)</option>
-                                <option value="kitchen">Dapur (Hanya Layar KDS)</option>
+                                @if($this->storeType === 'resto')
+                                    <option value="kitchen">Dapur (Hanya Layar KDS)</option>
+                                @endif
                                 @if($isEditing && $role === 'manager')
                                     <option value="manager">Manager (Akses Penuh)</option>
                                 @endif

@@ -35,7 +35,7 @@ new class extends Component {
     public function with(): array
     {
         $orders = Order::with('items')
-            ->whereIn('status', ['pending', 'paid'])
+            ->whereIn('status', ['pending', 'paid', 'progress'])
             ->whereIn('kitchen_status', ['waiting', 'processing'])
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')
