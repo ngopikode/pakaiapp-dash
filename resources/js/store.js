@@ -111,6 +111,7 @@ document.addEventListener('alpine:init', () => {
                 paymentMethod: orderData.paymentMethod,
                 paymentName: orderData.paymentName,
                 status: orderData.status || 'pending',
+                waUrl: orderData.waUrl || null,
                 items: orderData.items.map(i => ({
                     name: i.cartName || i.name,
                     qty: i.qty,
@@ -645,7 +646,8 @@ document.addEventListener('alpine:init', () => {
                         orderType: this.orderType,
                         paymentMethod: 'cash',
                         paymentName: 'Bayar Manual / Di Kasir',
-                        items: this.cart
+                        items: this.cart,
+                        waUrl: finalWaUrl
                     });
 
                     // 4. BUKA OTOMATIS KE WA (Persis kayak fitur asli lu)
