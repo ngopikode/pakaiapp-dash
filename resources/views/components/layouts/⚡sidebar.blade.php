@@ -95,9 +95,18 @@ new class extends Component {
         @endforeach
     </nav>
 
-    <div class="p-3 border-top" style="border-color: var(--bs-border-color) !important;">
+    <div class="p-3 border-top d-flex gap-2" style="border-color: var(--bs-border-color) !important;">
+        <button type="button"
+                x-data="themeToggle"
+                @click="toggleTheme()"
+                class="btn btn-outline-secondary border-0 d-flex align-items-center justify-content-center py-2.5 rounded-3 fw-bold transition-all shadow-sm"
+                style="background-color: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color-translucent) !important; width: 48px; flex-shrink: 0;"
+                title="Ganti Tema">
+            <i x-show="theme === 'dark'" class="bi bi-sun-fill text-warning fs-5" x-cloak></i>
+            <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
+        </button>
         <button type="button" wire:click="logout"
-                class="btn btn-outline-danger w-100 border-0 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all"
+                class="btn btn-outline-danger flex-grow-1 border-0 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all shadow-sm"
                 style="background-color: rgba(220, 53, 69, 0.04); border: 1px solid rgba(220, 53, 69, 0.1) !important; color: #dc3545; font-size: 0.88rem;">
             <i class="bi bi-box-arrow-left"></i> Log Out
         </button>

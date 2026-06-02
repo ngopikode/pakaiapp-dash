@@ -1,6 +1,13 @@
 .pos-container {
-    height: calc(100vh - 100px); /* Sesuaikan dengan tinggi navbar lu */
+    height: calc(100vh - 100px - var(--bottom-nav-height, 0px)); /* Sesuaikan dengan tinggi navbar lu dan bottom navbar (mobile) */
     overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+    .pos-container {
+        /* On mobile, top navbar is hidden, so we only subtract padding (16px * 2) and bottom navbar */
+        height: calc(100vh - 32px - var(--bottom-nav-height, 0px));
+    }
 }
 
 .product-grid {
@@ -59,7 +66,7 @@
 
     .floating-cart-btn {
         position: fixed;
-        bottom: 20px;
+        bottom: calc(20px + var(--bottom-nav-height, 0px));
         left: 50%;
         transform: translateX(-50%);
         width: 90%;

@@ -10,7 +10,7 @@
         @media (max-width: 767.98px) {
             .mobile-help-fab {
                 position: fixed !important;
-                bottom: 24px !important;
+                bottom: 89px !important; /* 24px + 65px (bottom nav) */
                 right: 24px !important;
                 width: 48px !important;
                 height: 48px !important;
@@ -25,7 +25,7 @@
             }
 
             .mobile-help-fab.active-cart {
-                bottom: 96px !important; /* Raised to float above the bottom "View Cart" checkout button */
+                bottom: 161px !important; /* 96px + 65px (bottom nav) - Raised to float above the bottom "View Cart" checkout button */
             }
 
             .mobile-help-fab:hover, .mobile-help-fab:active {
@@ -120,7 +120,7 @@
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
+            style="position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>

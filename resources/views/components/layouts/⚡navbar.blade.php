@@ -28,7 +28,7 @@ new class extends Component {
 };
 ?>
 
-<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm navbar-dashboard"
+<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm navbar-dashboard d-none d-md-flex"
      id="mainNavbar" style="min-height: 70px;">
 
     <div class="d-flex align-items-center justify-content-between w-100 flex-nowrap">
@@ -70,7 +70,7 @@ new class extends Component {
             </li>
 
             <li class="nav-item dropdown">
-                <a class="nav-link text-secondary position-relative p-2 hover-lift d-flex align-items-center" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" wire:poll.15s>
+                <a class="nav-link text-secondary position-relative p-2 hover-lift d-flex align-items-center" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" wire:poll.15s.visible>
                     <i class="bi bi-bell fs-5" id="notifBellIcon"></i>
                     @if($this->pendingOrdersCount > 0)
                         <span
