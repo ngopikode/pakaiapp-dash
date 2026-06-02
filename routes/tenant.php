@@ -32,6 +32,7 @@ Route::middleware([
 ])->group(function () {
 
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
+    Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
 
     Route::get('/', function () {
         if (tenant('store_type') === 'retail') return view('pages.tenant.retail.index');
