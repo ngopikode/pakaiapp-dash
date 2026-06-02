@@ -23,8 +23,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Toko Tidak Ditemukan</title>
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     @vite(['resources/css/store.css'])
 </head>
 <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6">
@@ -65,8 +65,8 @@
             <link rel="icon" type="image/png" href="{{ Storage::url($setting->logo) }}">
             <link rel="apple-touch-icon" href="{{ Storage::url($setting->logo) }}">
         @else
-            <link rel="icon" type="image/png" href="/logo.png">
-            <link rel="apple-touch-icon" href="/logo.png">
+            <link rel="icon" type="image/x-icon" href="/favicon.ico">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         @endif
 
         <meta property="og:title" content="{{ $setting->og_title ?: ($storeName . ' | Toko Online') }}"/>
@@ -75,7 +75,7 @@
         @if($setting->og_image)
             <meta property="og:image" content="{{ Storage::url($setting->og_image) }}"/>
         @else
-            <meta property="og:image" content="/logo.png"/>
+            <meta property="og:image" content="/apple-touch-icon.png"/>
         @endif
         <meta property="og:type" content="website"/>
 

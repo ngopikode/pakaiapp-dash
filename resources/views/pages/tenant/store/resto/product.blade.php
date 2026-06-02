@@ -94,8 +94,8 @@
         <link rel="icon" type="image/png" href="{{ Storage::url($setting->logo) }}">
         <link rel="apple-touch-icon" href="{{ Storage::url($setting->logo) }}">
     @else
-        <link rel="icon" type="image/png" href="/logo.png">
-        <link rel="apple-touch-icon" href="/logo.png">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     @endif
 
     <link rel="canonical" href="{{ $canonicalUrl }}"/>
@@ -113,7 +113,7 @@
         <meta property="og:image:height" content="600"/>
         <meta property="og:image:alt" content="{{ $product->name }}"/>
     @else
-        <meta property="og:image" content="{{ url('/logo.png') }}"/>
+        <meta property="og:image" content="{{ url('/apple-touch-icon.png') }}"/>
     @endif
 
     {{-- Twitter Card --}}
