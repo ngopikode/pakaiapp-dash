@@ -5,7 +5,7 @@ use App\Models\StoreSetting;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::guest')]
+new #[Layout('layouts::mobile')]
 class extends Component {
     public Order $order;
     public $store;
@@ -36,38 +36,38 @@ class extends Component {
             "*Tipe:* " . ucfirst($this->order->order_type),
             "*Status Pembayaran:* " . ($this->order->status === 'paid' || $this->order->status === 'completed' ? 'Sudah Dibayar' : 'Belum Dibayar'),
         ];
-        
+
         if ($this->order->notes) {
             $waLines[] = "*Catatan/Meja:* {$this->order->notes}";
         }
-        
+
         $waLines[] = '';
         $waLines[] = '*Daftar Pesanan:*';
-        
+
         foreach ($this->order->items as $item) {
             $waLines[] = "- {$item->quantity}x {$item->product_name}";
         }
-        
+
         $waLines[] = '';
         $waLines[] = "*Subtotal:* Rp " . number_format($this->order->subtotal, 0, ',', '.');
-        
+
         if ($this->order->service_charge_amount > 0) {
             $waLines[] = "*Biaya Layanan:* Rp " . number_format($this->order->service_charge_amount, 0, ',', '.');
         }
         if ($this->order->tax_amount > 0) {
             $waLines[] = "*Pajak PB1:* Rp " . number_format($this->order->tax_amount, 0, ',', '.');
         }
-        
+
         $waLines[] = "*Total Tagihan:* Rp " . number_format($this->order->total_price, 0, ',', '.');
-        
+
         return implode("\n", $waLines);
     }
-    
+
     public function getWaUrl(): string
     {
         $number = $this->store->whatsapp_number ?? '';
         if (!$number) return '';
-        
+
         $text = $this->generateWaText();
         return "https://wa.me/{$number}?text=" . urlencode($text);
     }

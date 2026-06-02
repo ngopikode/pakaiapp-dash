@@ -18,6 +18,8 @@
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
+    @stack('styles')
+
     @livewireStyles
 
     @if(config('midtrans.server_key'))
@@ -62,10 +64,13 @@
             {{ $slot }}
         </main>
     </div>
-    
-    <livewire:layouts.bottom-navbar />
+
+    <livewire:layouts.bottom-navbar/>
 </div>
 
 @livewireScripts
+
+@stack('scripts')
+
 </body>
 </html>

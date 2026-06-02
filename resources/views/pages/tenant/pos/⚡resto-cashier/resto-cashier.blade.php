@@ -6,39 +6,6 @@
      @close-mobile-cart.window="isMobileCartOpen = false"
      x-cloak>
 
-    <style>
-        @media (max-width: 767.98px) {
-            .mobile-help-fab {
-                position: fixed !important;
-                bottom: 89px !important; /* 24px + 65px (bottom nav) */
-                right: 24px !important;
-                width: 48px !important;
-                height: 48px !important;
-                z-index: 1040 !important;
-                background: #F97316 !important;
-                color: #ffffff !important;
-                border: 1px solid rgba(255, 255, 255, 0.15) !important;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
-                margin: 0 !important;
-                display: flex !important;
-                transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s ease, box-shadow 0.2s ease !important;
-            }
-
-            .mobile-help-fab.active-cart {
-                bottom: 161px !important; /* 96px + 65px (bottom nav) - Raised to float above the bottom "View Cart" checkout button */
-            }
-
-            .mobile-help-fab:hover, .mobile-help-fab:active {
-                transform: scale(1.08) !important;
-                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25) !important;
-            }
-
-            .mobile-help-fab i {
-                font-size: 1.3rem !important; /* Slightly larger icon for comfortable mobile tapping */
-            }
-        }
-    </style>
-
     {{-- Premium Glassmorphism Loading Screen --}}
     <div wire:loading wire:target="changeTab"
          class="position-absolute top-0 start-0 w-100 h-100"
@@ -120,7 +87,7 @@
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
+            style="position: fixed; bottom: 65px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>
@@ -141,14 +108,6 @@
     </div>
 
 </div>
-
-@if(config('midtrans.client_key'))
-    @push('scripts')
-        <script
-            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-            data-client-key="{{ config('midtrans.client_key') }}"></script>
-    @endpush
-@endif
 
 @script
 <script>
@@ -182,9 +141,7 @@
         duitkuPaymentMethods: [],     // Daftar metode pembayaran Duitku dinamis
 
         async fetchDuitkuMethods() {
-            @if(!config('duitku.enabled'))
-                return;
-            @endif
+            if (!{{ config('duitku.enabled') ? 'true' : 'false' }}) return;
             if (this.payTotal <= 0) return;
             try {
                 const res = await fetch(`/api/duitku/payment-methods?amount=${this.payTotal}`);
