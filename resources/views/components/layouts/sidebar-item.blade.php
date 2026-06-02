@@ -9,7 +9,7 @@
     $isActive = ($activeRoute === $route) || (str_starts_with($activeRoute, $route . '.'));
 @endphp
 
-<a href="{{ route($route) }}" wire:navigate
+<a href="{{ route($route) }}" wire:navigate onclick="window.showLoader()"
    class="list-group-item list-group-item-action {{ $isActive ? 'active' : '' }} d-flex align-items-center justify-content-between">
     <div class="d-flex align-items-center gap-3">
         <i class="{{ $icon }}"></i>

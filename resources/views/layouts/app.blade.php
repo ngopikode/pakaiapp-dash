@@ -62,6 +62,8 @@
             {{ $slot }}
         </main>
     </div>
+    
+    <livewire:layouts.bottom-navbar />
 </div>
 
 @livewireScripts
