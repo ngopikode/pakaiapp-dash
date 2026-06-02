@@ -21,10 +21,16 @@ class extends Component {
         $this->store = StoreSetting::first();
     }
 
-    // Auto-refresh order dari database (dipicu oleh wire:poll saat pending)
     public function refreshOrder(): void
     {
         $this->order->refresh();
+    }
+
+    public function markAsPrinted(): void
+    {
+        if (!$this->order->is_printed) {
+            $this->order->update(['is_printed' => true]);
+        }
     }
 
     // Mengambil nama dan logo secara dinamis dari API Duitku (Tanpa Hardcoding!)

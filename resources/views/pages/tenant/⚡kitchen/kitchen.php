@@ -35,7 +35,15 @@ new class extends Component {
     public function with(): array
     {
         $orders = Order::with('items')
-            ->whereIn('status', ['pending', 'paid', 'progress'])
+            ->where(function ($query) {
+                // Tampilkan pesanan yang sudah dibayar/progress
+                $query->whereIn('status', ['paid', 'progress'])
+                      // ATAU pesanan pending (belum bayar) HANYA JIKA dibuat secara internal (kasir/Dine-In)
+                      ->orWhere(function ($q) {
+                          $q->where('status', 'pending')
+                            ->where('is_online', false);
+                      });
+            })
             ->whereIn('kitchen_status', ['waiting', 'processing'])
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'asc')

@@ -60,10 +60,20 @@ new class extends Component {
             }
         }
 
+        // --- VALIDASI FRAUD DAPUR ---
+        if ($status === 'cancelled' && in_array($order->kitchen_status, ['processing', 'ready', 'completed'])) {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Pesanan tidak dapat dibatalkan karena sedang/sudah diproses oleh dapur.']);
+            $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+            return;
+        }
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($order, $status, $cancellationNote) {
             $updateData = ['status' => $status];
             if ($status === 'cancelled' && $cancellationNote) {
                 $updateData['cancellation_note'] = $cancellationNote;
+            }
+            if ($status === 'completed') {
+                $updateData['kitchen_status'] = 'completed';
             }
             $order->update($updateData);
 

@@ -22,6 +22,12 @@
                            style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
                 </div>
 
+                <button type="button" @click="window.open('/invoice/' + lastOrder.invoice_code, '_blank')"
+                        class="btn btn-dark fw-bold p-3 mb-2 mt-1 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white border-0"
+                        style="border-radius: 1rem;">
+                    <i class="bi bi-printer fs-5"></i> Lihat & Cetak Struk
+                </button>
+
                 <template x-if="lastOrder.customer_phone && lastOrder.customer_phone.length >= 9">
                     <button type="button" @click="sendWa"
                             class="btn btn-success fw-bold p-3 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white border-0"

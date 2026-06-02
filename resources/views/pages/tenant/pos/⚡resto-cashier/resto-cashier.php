@@ -387,6 +387,14 @@ new class extends Component {
             }
         }
 
+        // --- VALIDASI FRAUD DAPUR ---
+        // Jangan izinkan cancel jika dapur sudah memproses (processing) atau sudah selesai (ready/completed)
+        if (in_array($order->kitchen_status, ['processing', 'ready', 'completed'])) {
+            $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
+            $this->js("window.showIslandToast('Pesanan tidak dapat dibatalkan karena sedang/sudah diproses oleh dapur.', 'danger');");
+            return;
+        }
+
         DB::transaction(function () use ($order, $note) {
             // Restore stock
             foreach ($order->items as $item) {

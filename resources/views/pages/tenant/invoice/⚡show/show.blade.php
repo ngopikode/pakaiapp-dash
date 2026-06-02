@@ -7,7 +7,7 @@
 
     <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
          style="max-width: 450px;">
-        <button onclick="window.print()"
+        <button wire:click="markAsPrinted" onclick="setTimeout(() => window.print(), 300)"
                 class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2">
             <i class="bi bi-printer"></i> Cetak
         </button>
@@ -280,8 +280,15 @@
             @endif
         </div>
 
-        <div class="dashed-border py-3 mb-3">
-            <h6 class="text-center fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 3px;">E-Receipt</h6>
+        <div class="dashed-border py-3 mb-3 text-center">
+            @if($order->is_printed)
+                <div class="mb-2">
+                     <h2 class="fw-bold text-dark text-uppercase mb-1" style="letter-spacing: 2px; border: 2px solid #000; display: inline-block; padding: 4px 12px; font-size: 1.2rem;">COPY / REPRINT</h2>
+                     <p class="small text-muted mb-0" style="font-size: 0.7rem;">Dicetak ulang pada: {{ now()->format('d M Y, H:i') }}</p>
+                </div>
+            @else
+                <h6 class="fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 3px;">E-Receipt</h6>
+            @endif
         </div>
 
         <div class="mb-4 small">
