@@ -28,6 +28,7 @@ class Order extends Model
         'amount_paid',
         'change_amount',
         'status',
+        'kitchen_status',
         'user_id',
         'cancellation_note',
 

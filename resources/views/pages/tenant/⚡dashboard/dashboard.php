@@ -37,7 +37,7 @@ new class extends Component {
         }
 
         $orders = Order::whereMonth('created_at', date('m'))
-            ->where('status', 'paid')
+            ->whereIn('status', ['paid', 'completed'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -79,13 +79,13 @@ new class extends Component {
         if ($store) {
             // Stats Hari Ini & Bulanan
             $stats['orders_today'] = Order::whereDate('created_at', today())->count();
-            $stats['revenue_today'] = Order::whereDate('created_at', today())->where('status', 'paid')->sum('total_price');
-            $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('status', 'paid')->sum('total_price');
+            $stats['revenue_today'] = Order::whereDate('created_at', today())->whereIn('status', ['paid', 'completed'])->sum('total_price');
+            $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->whereIn('status', ['paid', 'completed'])->sum('total_price');
             $stats['pending_orders'] = Order::where('status', 'pending')->count();
             $stats['active_products'] = Product::where('is_active', true)->count();
 
             // Calculate Trends
-            $yesterdayRevenue = Order::whereDate('created_at', today()->subDay())->where('status', 'paid')->sum('total_price');
+            $yesterdayRevenue = Order::whereDate('created_at', today()->subDay())->whereIn('status', ['paid', 'completed'])->sum('total_price');
             if ($yesterdayRevenue > 0) {
                 $stats['revenue_trend_today'] = round((($stats['revenue_today'] - $yesterdayRevenue) / $yesterdayRevenue) * 100);
             } else {
@@ -94,7 +94,7 @@ new class extends Component {
 
             $lastMonthRevenue = Order::whereMonth('created_at', today()->subMonth()->format('m'))
                 ->whereYear('created_at', today()->subMonth()->format('Y'))
-                ->where('status', 'paid')
+                ->whereIn('status', ['paid', 'completed'])
                 ->sum('total_price');
                 
             if ($lastMonthRevenue > 0) {
@@ -108,7 +108,7 @@ new class extends Component {
                 $date = today()->subDays($daysAgo);
                 return [
                     'date' => $date->format('d M'),
-                    'revenue' => Order::whereDate('created_at', $date)->where('status', 'paid')->sum('total_price')
+                    'revenue' => Order::whereDate('created_at', $date)->whereIn('status', ['paid', 'completed'])->sum('total_price')
                 ];
             });
 
@@ -124,7 +124,7 @@ new class extends Component {
                     ->join('orders', 'order_items.order_id', '=', 'orders.id')
                     ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
                     ->whereMonth('orders.created_at', date('m'))
-                    ->where('orders.status', 'paid')
+                    ->whereIn('orders.status', ['paid', 'completed'])
                     ->groupBy('order_items.product_name')
                     ->orderByDesc('total_sold')
                     ->limit(5)

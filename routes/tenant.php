@@ -57,6 +57,11 @@ Route::middleware([
             Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
         });
 
+        // Routes accessible by manager AND kitchen
+        Route::middleware('role:manager,kitchen')->group(function () {
+            Route::livewire('kitchen', 'pages::tenant.kitchen')->name('kitchen');
+        });
+
         // Routes accessible ONLY by manager
         Route::middleware('role:manager')->group(function () {
             Route::livewire('dashboard', 'pages::tenant.dashboard')->name('dashboard');

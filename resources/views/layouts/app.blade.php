@@ -41,31 +41,53 @@
     </div>
 </div>
 
+<?php
+    $userMenuRole = auth()->user()?->role ?? 'cashier';
+    $storeType = \App\Models\StoreSetting::first()?->store_type ?? 'retail';
+    
+    $allRoles = [
+        ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
+        ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
+    ];
+    if ($storeType === 'resto') {
+        $allRoles[] = ['manager', 'kitchen'];
+    }
+    
+    $accessibleMenus = collect($allRoles)->filter(fn($roles) => in_array($userMenuRole, $roles))->count();
+    $showSidebar = $accessibleMenus > 1;
+?>
+
 <div id="wrapper">
-    <div class="d-none d-md-flex">
-        <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
-    </div>
-
-    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar"
-         aria-labelledby="mobileSidebarLabel" style="width: 280px;">
-        <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title font-serif fw-bold" id="mobileSidebarLabel">{{ config('app.name') }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    @if($showSidebar)
+        <div class="d-none d-md-flex">
+            <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
         </div>
-        <div class="offcanvas-body p-0">
-            <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
+
+        <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar"
+             aria-labelledby="mobileSidebarLabel" style="width: 280px;">
+            <div class="offcanvas-header border-bottom">
+                <h5 class="offcanvas-title font-serif fw-bold" id="mobileSidebarLabel">{{ config('app.name') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
+            </div>
         </div>
-    </div>
+    @endif
 
-    <div id="page-content-wrapper">
-        <livewire:layouts.navbar :header="$header ?? null"/>
+    <div id="page-content-wrapper" @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
+        @if($showSidebar)
+            <livewire:layouts.navbar :header="$header ?? null"/>
+        @endif
 
-        <main class="container-fluid p-3">
+        <main class="container-fluid @if($showSidebar) p-3 @else p-0 @endif">
             {{ $slot }}
         </main>
     </div>
 
-    <livewire:layouts.bottom-navbar/>
+    @if($showSidebar)
+        <livewire:layouts.bottom-navbar/>
+    @endif
 </div>
 
 @livewireScripts

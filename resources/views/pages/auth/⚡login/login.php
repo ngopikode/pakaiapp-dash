@@ -28,7 +28,8 @@ class extends Component {
         if (Auth::attempt($credentials, $this->form['remember'])) {
             session()->regenerate();
 
-            if (auth()->user()->role === 'manager') $this->redirect('/dashboard');
+            if (auth()->user()->role === 'manager') $this->redirectRoute('dashboard');
+            elseif (auth()->user()->role === 'kitchen') $this->redirectRoute('kitchen');
             else $this->redirectRoute('cashier');
         }
 

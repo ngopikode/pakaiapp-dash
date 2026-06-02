@@ -48,8 +48,10 @@ new class extends Component {
         if ($this->isEditing && $this->role === 'manager') {
             $rules['role'] = 'required|in:manager';
         } else {
-            $rules['role'] = 'required|in:cashier';
-            $this->role = 'cashier'; // Force role to cashier for new creations or if trying to escalate
+            $rules['role'] = 'required|in:cashier,kitchen';
+            if (!in_array($this->role, ['cashier', 'kitchen'])) {
+                $this->role = 'cashier';
+            }
         }
         
         if (!$this->isEditing || !empty($this->password)) {

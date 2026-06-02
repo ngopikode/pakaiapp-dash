@@ -22,16 +22,22 @@ new class extends Component {
         $user = Auth::user();
         $storeType = StoreSetting::first()?->store_type ?? 'retail';
 
+        $mainMenuItems = [
+            ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard', 'roles' => ['manager']],
+            ['route' => 'wallet', 'icon' => 'bi bi-wallet2', 'label' => 'Dompet', 'roles' => ['manager']],
+            ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Produk', 'roles' => ['manager']],
+            ['route' => 'order', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
+            ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
+        ];
+
+        if ($storeType === 'resto') {
+            $mainMenuItems[] = ['route' => 'kitchen', 'icon' => 'bi bi-display', 'label' => 'Layar Dapur', 'roles' => ['manager', 'kitchen']];
+        }
+
         $sections = [
             [
                 'title' => 'Menu Utama',
-                'items' => [
-                    ['route' => 'dashboard',  'icon' => 'bi bi-grid-fill',        'label' => 'Dashboard',   'roles' => ['manager']],
-                    ['route' => 'wallet',     'icon' => 'bi bi-wallet2',           'label' => 'Dompet',      'roles' => ['manager']],
-                    ['route' => 'product',    'icon' => 'bi bi-journal-richtext',  'label' => 'Produk',      'roles' => ['manager']],
-                    ['route' => 'order',      'icon' => 'bi bi-receipt-cutoff',    'label' => 'Pesanan',     'roles' => ['manager', 'cashier']],
-                    ['route' => 'cashier',    'icon' => 'bi bi-cash-coin',         'label' => 'Kasir',       'roles' => ['manager', 'cashier']],
-                ]
+                'items' => $mainMenuItems
             ],
             [
                 'title' => 'Pengaturan',
@@ -80,7 +86,8 @@ new class extends Component {
 
     <nav class="list-group list-group-flush my-3 flex-grow-1">
         @foreach($this->menuSections as $section)
-            <div class="small text-secondary fw-bold px-4 mb-2 mt-3 text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.8px; color: var(--brand-caramel, #B67332) !important;">
+            <div class="small text-secondary fw-bold px-4 mb-2 mt-3 text-uppercase"
+                 style="font-size: 0.65rem; letter-spacing: 0.8px; color: var(--brand-caramel, #B67332) !important;">
                 {{ $section['title'] }}
             </div>
 
