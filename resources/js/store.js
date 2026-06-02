@@ -629,7 +629,7 @@ document.addEventListener('alpine:init', () => {
                     const waText = waLines.filter((l) => l !== null).join('\n');
 
                     // 2. Bikin URL WA-nya
-                    const finalWaUrl = `https://wa.me/${this._waNumber}?text=${encodeURIComponent(waText)}`;
+                    const finalWaUrl = `https://wa.me/${this.waNumber}?text=${encodeURIComponent(waText)}`;
 
                     // 3. Simpan URL-nya ke state orderSuccess (biar tombol di HTML bisa pake link ini buat RESEND)
                     this.orderSuccess = {
