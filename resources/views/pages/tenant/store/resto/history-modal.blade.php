@@ -159,7 +159,6 @@
                                 <div class="flex items-center gap-2">
                                     <a
                                         :href="'/order/' + order.invoiceCode"
-                                        target="_blank"
                                         class="px-3.5 py-2 bg-zinc-50 group-hover:bg-[var(--primary-color)] text-zinc-800 group-hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider border border-zinc-100 group-hover:border-[var(--primary-color)] transition-all duration-300 flex items-center gap-1 active:scale-95 shadow-sm"
                                     >
                                         <span>Detail</span>
