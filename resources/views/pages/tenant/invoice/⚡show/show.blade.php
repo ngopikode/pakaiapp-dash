@@ -458,7 +458,11 @@
 
         <div class="text-center mt-4 pt-3 dashed-border">
             <div class="text-center mb-3">
-                <div id="receipt-qrcode" class="d-inline-block p-2 bg-white rounded-2 border" style="line-height:0;"></div>
+                <img id="receipt-qrcode" 
+                     src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/invoice/' . $order->invoice_code)) }}&bgcolor=ffffff&color=111827&margin=0" 
+                     alt="QR Code" 
+                     class="d-inline-block p-2 bg-white rounded-2 border" 
+                     style="width: 90px; height: 90px; object-fit: contain;">
                 <div class="text-muted mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">{{ $order->invoice_code }}</div>
             </div>
             <p class="fw-bold text-dark mb-1">Terima Kasih!</p>
@@ -599,7 +603,6 @@
         background-color: #f8fafc !important;
     }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -643,19 +646,5 @@
         });
     }
 
-    // Generate QR Code untuk struk
-    document.addEventListener('DOMContentLoaded', function () {
-        const qrEl = document.getElementById('receipt-qrcode');
-        if (qrEl && typeof QRCode !== 'undefined') {
-            new QRCode(qrEl, {
-                text: '{{ $order->invoice_code }}',
-                width: 90,
-                height: 90,
-                colorDark: '#111827',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.M
-            });
-        }
-    });
 </script>
 @endassets

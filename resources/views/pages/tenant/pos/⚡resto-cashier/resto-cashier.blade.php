@@ -101,6 +101,7 @@
 
     {{-- ===== OPTION MODAL ===== --}}
     @include('pages.tenant.pos._modal-option')
+    @include('pages.tenant.order.⚡order-list._modal-split-bill')
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -178,7 +179,48 @@
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
+            this.splitBillModalInstance = new bootstrap.Modal(document.getElementById('splitBillModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
+
+            window.addEventListener('open-payment-modal', (e) => {
+                this.openPayForOrder(e.detail);
+            });
+        },
+
+        splittingOrder: null,
+        splitItems: [],
+        get splitTotalItems() {
+            return this.splitItems.reduce((acc, curr) => acc + curr.qtyToSplit, 0);
+        },
+        openSplitModal(order) {
+            this.splittingOrder = order;
+            this.splitItems = order.items.map(i => ({
+                id: i.id,
+                name: i.product_name,
+                variant_name: i.variant_name,
+                price: parseFloat(i.price),
+                maxQty: parseInt(i.quantity),
+                qtyToSplit: 0
+            }));
+            this.splitBillModalInstance.show();
+        },
+        submitSplitOrder() {
+            if (this.splitTotalItems === 0) {
+                showIslandToast('Pilih minimal 1 item untuk dipisah.', 'warning');
+                return;
+            }
+            const totalOriginalItems = this.splitItems.reduce((acc, curr) => acc + curr.maxQty, 0);
+            if (this.splitTotalItems === totalOriginalItems) {
+                showIslandToast('Anda memilih semua item. Gunakan Bayar biasa saja.', 'warning');
+                return;
+            }
+            
+            const dataToSend = this.splitItems.filter(i => i.qtyToSplit > 0).map(i => ({
+                id: i.id,
+                qty: i.qtyToSplit
+            }));
+            
+            @this.splitOrder(this.splittingOrder.id, dataToSend);
         },
 
         get subTotal() {

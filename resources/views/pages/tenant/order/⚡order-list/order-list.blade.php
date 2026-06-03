@@ -8,6 +8,46 @@
             const inst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
             inst.show();
         }
+    },
+    splittingOrder: null,
+    splitItems: [],
+    get splitTotalItems() {
+        return this.splitItems.reduce((acc, curr) => acc + curr.qtyToSplit, 0);
+    },
+    openSplitModal(order) {
+        this.splittingOrder = order;
+        this.splitItems = order.items.map(i => ({
+            id: i.id,
+            name: i.product_name,
+            variant_name: i.variant_name,
+            price: parseFloat(i.price),
+            maxQty: parseInt(i.quantity),
+            qtyToSplit: 0
+        }));
+
+        const modalEl = document.getElementById('splitBillModal');
+        if (modalEl) {
+            const inst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            inst.show();
+        }
+    },
+    submitSplitOrder() {
+        if (this.splitTotalItems === 0) {
+            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warning', message: 'Pilih minimal 1 item untuk dipisah.' } }));
+            return;
+        }
+        const totalOriginalItems = this.splitItems.reduce((acc, curr) => acc + curr.maxQty, 0);
+        if (this.splitTotalItems === totalOriginalItems) {
+            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warning', message: 'Anda memilih semua item. Gunakan Bayar biasa saja.' } }));
+            return;
+        }
+
+        const dataToSend = this.splitItems.filter(i => i.qtyToSplit > 0).map(i => ({
+            id: i.id,
+            qty: i.qtyToSplit
+        }));
+
+        @this.splitOrder(this.splittingOrder.id, dataToSend);
     }
 }" wire:poll.15s>
 
@@ -38,7 +78,7 @@
     <div class="row">
         <div class="col-12" style="min-width: 0;">
             <div class="card dash-card bg-body border h-100" style="border-color: var(--bs-border-color-translucent) !important;">
-                
+
                 {{-- Controls: Filters & Search --}}
                 <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4 d-flex flex-column flex-lg-row justify-content-between gap-3">
                     @php
@@ -58,10 +98,10 @@
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-filter fs-4 text-body"></i>
                                 <span class="text-body" x-text="
-                                    activeFilter === 'all' ? 'Filter: Semua Pesanan' : 
-                                    (activeFilter === 'pending' ? 'Filter: Menunggu' : 
-                                    (activeFilter === 'paid' ? 'Filter: Baru Masuk' : 
-                                    (activeFilter === 'progress' ? 'Filter: Diproses' : 
+                                    activeFilter === 'all' ? 'Filter: Semua Pesanan' :
+                                    (activeFilter === 'pending' ? 'Filter: Menunggu' :
+                                    (activeFilter === 'paid' ? 'Filter: Baru Masuk' :
+                                    (activeFilter === 'progress' ? 'Filter: Diproses' :
                                     (activeFilter === 'completed' ? 'Filter: Selesai' : 'Filter: Batal'))))
                                 ">Filter</span>
                             </div>
@@ -124,7 +164,7 @@
 
                 <div class="card-body p-3 p-md-4 pt-0 bg-body">
                     <div class="list-group list-group-flush bg-transparent position-relative">
-                        
+
                         {{-- Loading Overlay --}}
                         <div wire:loading wire:target="statusFilter, search" class="position-absolute w-100 h-100 start-0 top-0 z-1" style="background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(4px);">
                             <div class="d-flex justify-content-center pt-5">
@@ -180,19 +220,19 @@
                                                 <div class="text-secondary small fw-medium d-flex align-items-center flex-wrap gap-2 opacity-75 mb-2">
                                                     <span class="fw-bold text-primary">#{{ $order->invoice_code }}</span>
                                                     <span class="d-none d-sm-inline">&bull;</span>
-                                                    
+
                                                     <span class="badge border {{ $typeInfo['class'] }} border-opacity-25 rounded-pill px-2 py-0.5">
                                                         <i class="bi {{ $typeInfo['icon'] }} me-1"></i>{{ $typeInfo['label'] }}
                                                     </span>
                                                     <span class="d-none d-sm-inline">&bull;</span>
-                                                    
+
                                                     @if($order->is_online)
                                                         <span class="text-success fw-bold"><i class="bi bi-globe2 me-1"></i>Online</span>
                                                     @else
                                                         <span><i class="bi bi-pc-display me-1"></i>POS Kasir</span>
                                                     @endif
                                                     <span class="d-none d-sm-inline">&bull;</span>
-                                                    
+
                                                     <span>{{ $order->created_at->format('d M, H:i') }}</span>
                                                 </div>
 
@@ -257,6 +297,17 @@
                                                                title="Tambah Pesanan ke Meja Ini">
                                                                 <i class="bi bi-plus-circle me-1"></i> Tambah
                                                             </a>
+                                                            @if($order->items->count() > 1)
+                                                                <button @click="openSplitModal({{ json_encode([
+                                                                    'id' => $order->id,
+                                                                    'invoice_code' => $order->invoice_code,
+                                                                    'items' => $order->items
+                                                                ]) }})"
+                                                                        class="btn btn-sm btn-outline-warning text-dark fw-bold rounded-pill px-3 shadow-sm hover-lift"
+                                                                        title="Pisah Bill (Bayar Sebagian)">
+                                                                    <i class="bi bi-scissors me-1"></i> Pisah
+                                                                </button>
+                                                            @endif
                                                         @endif
                                                         <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
                                                                 class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
@@ -297,6 +348,9 @@
             </div>
         </div>
     </div>
+
+    {{-- ===== SPLIT BILL MODAL ===== --}}
+    @include('pages.tenant.order.⚡order-list._modal-split-bill')
 
     {{-- ===== PREMIUM TUTORIAL & HELP MODAL ===== --}}
     <div class="modal fade" id="orderGuideModal" tabindex="-1" aria-hidden="true" wire:ignore>
@@ -469,7 +523,7 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-    
+
     /* Fix horizontal scrollbar */
     .filter-scroll-wrapper::-webkit-scrollbar {
         display: none;

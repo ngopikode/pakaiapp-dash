@@ -112,6 +112,17 @@
                            style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Tambah Pesanan ke Meja Ini">
                             <i class="bi bi-plus-lg fs-5"></i>
                         </a>
+                        @if($order->items->count() > 1)
+                        <button @click="openSplitModal({{ json_encode([
+                                    'id' => $order->id,
+                                    'invoice_code' => $order->invoice_code,
+                                    'items' => $order->items
+                                ]) }})"
+                                class="btn btn-outline-warning fw-bold flex-shrink-0 bg-body"
+                                style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Pisah Bill (Bayar Sebagian)">
+                            <i class="bi bi-scissors fs-5 text-warning" style="filter: brightness(0.8);"></i>
+                        </button>
+                        @endif
                         <button @click="openPayForOrder({{ json_encode([
                                             'id' => $order->id,
                                             'invoice_code' => $order->invoice_code,
