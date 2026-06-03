@@ -379,6 +379,24 @@ class CentralDuitkuController extends Controller
                         'status' => 'cancelled',
                         'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
                     ]);
+
+                    // Restore stock
+                    $order->load('items.variant.recipes.rawMaterial');
+                    foreach ($order->items as $item) {
+                        if ($item->variant) {
+                            $item->variant->increment('stock', $item->quantity);
+
+                            $storeType = tenant('store_type');
+                            if ($storeType === 'resto') {
+                                foreach ($item->variant->recipes as $recipe) {
+                                    if ($recipe->rawMaterial) {
+                                        $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     return;
                 }
 
@@ -416,7 +434,24 @@ class CentralDuitkuController extends Controller
                     'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
                 ]);
 
-                Log::info('[Duitku Central] Pembayaran gagal/dibatalkan', ['invoiceCode' => $invoiceCode]);
+                // Restore stock
+                $order->load('items.variant.recipes.rawMaterial');
+                foreach ($order->items as $item) {
+                    if ($item->variant) {
+                        $item->variant->increment('stock', $item->quantity);
+
+                        $storeType = tenant('store_type');
+                        if ($storeType === 'resto') {
+                            foreach ($item->variant->recipes as $recipe) {
+                                if ($recipe->rawMaterial) {
+                                    $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Log::info('[Duitku Central] Pembayaran gagal/dibatalkan, stok dikembalikan', ['invoiceCode' => $invoiceCode]);
 
             } else {
                 Log::warning('[Duitku Central] resultCode tidak dikenal, tidak ada perubahan', [

@@ -29,4 +29,9 @@ class ProductVariant extends Model
     {
         return $this->price - $this->cost;
     }
+
+    public function recipes()
+    {
+        return $this->hasMany(VariantRecipe::class, 'variant_id');
+    }
 }

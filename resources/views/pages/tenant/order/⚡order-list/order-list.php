@@ -243,15 +243,22 @@ new class extends Component {
                 $q->where('status', $this->statusFilter);
             });
 
+        $counts = \Illuminate\Support\Facades\DB::table('orders')
+            ->select('status', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $allCount = $counts->sum();
+
         return [
             'orders' => $query->with('items')->latest()->paginate($this->perPage),
 
-            'allCount' => Order::count(),
-            'pendingCount' => Order::where('status', 'pending')->count(),
-            'paidCount' => Order::where('status', 'paid')->count(),
-            'progressCount' => Order::where('status', 'progress')->count(),
-            'completedCount' => Order::where('status', 'completed')->count(),
-            'cancelledCount' => Order::where('status', 'cancelled')->count(),
+            'allCount' => $allCount,
+            'pendingCount' => $counts->get('pending', 0),
+            'paidCount' => $counts->get('paid', 0),
+            'progressCount' => $counts->get('progress', 0),
+            'completedCount' => $counts->get('completed', 0),
+            'cancelledCount' => $counts->get('cancelled', 0),
         ];
     }
 };

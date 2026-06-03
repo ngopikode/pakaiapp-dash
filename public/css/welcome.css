@@ -771,8 +771,8 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
     flex-shrink: 0;
 }
 
-.testi-name { font-size: 0.875rem; font-weight: 700; color: var(--text); }
-.testi-biz  { font-size: 0.75rem; color: var(--text-muted); }
+.testi-name { font-size: 0.875rem; font-weight: 700; color: var(--text); margin: 0; }
+.testi-biz  { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
 
 /* ============================================
    FAQ
@@ -2215,3 +2215,160 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
     }
 }
 
+/* ============================================
+   CHAT WIDGET
+============================================ */
+.chat-widget {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 320px;
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform-origin: bottom right;
+    z-index: 1000;
+}
+
+.chat-widget.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+.chat-header {
+    background: var(--accent);
+    color: #fff;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-avatar {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+
+.chat-online-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    margin-right: 4px;
+    box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.3);
+}
+
+.chat-close {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-size: 1.2rem; cursor: pointer; transition: color 0.2s;
+}
+.chat-close:hover { color: #fff; }
+
+.chat-body {
+    padding: 1.5rem 1rem;
+    background: var(--bg);
+    min-height: 120px;
+}
+
+.chat-msg {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border-top-left-radius: 2px;
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.chat-footer {
+    padding: 1rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 576px) {
+    .hero-cta-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+    .btn-hero-primary, .btn-hero-secondary {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem 2rem;
+        font-size: 1.05rem;
+    }
+    
+    .chat-widget {
+        position: fixed;
+        bottom: 0; right: 0; left: 0;
+        width: 100%;
+        height: auto;
+        max-height: 85dvh;
+        border-radius: 24px 24px 0 0;
+        transform: translateY(100%);
+        z-index: 9999;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+    }
+    .chat-widget.open {
+        transform: translateY(0);
+    }
+    .chat-body { flex: 1; overflow-y: auto; }
+}
+
+/* ============================================
+   MODALS (TNC & Refund)
+============================================ */
+.modal-content {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.modal-header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+}
+.modal-body {
+    padding: 2rem;
+    color: var(--text-muted);
+}
+.modal-body h6 {
+    color: var(--text);
+    margin-top: 1.5rem;
+}
+.modal-body h6:first-child {
+    margin-top: 0;
+}
+.modal-body ul {
+    padding-left: 1.5rem;
+}
+.modal-body li {
+    margin-bottom: 0.5rem;
+}
+.modal-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 2rem;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+}
+.modal-backdrop.show {
+    opacity: 0.7;
+    backdrop-filter: blur(4px);
+}

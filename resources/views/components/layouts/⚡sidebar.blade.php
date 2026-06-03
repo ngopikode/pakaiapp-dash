@@ -32,6 +32,7 @@ new class extends Component {
 
         if ($storeType === 'resto') {
             $mainMenuItems[] = ['route' => 'kitchen', 'icon' => 'bi bi-display', 'label' => 'Layar Dapur', 'roles' => ['manager', 'kitchen']];
+            $mainMenuItems[] = ['route' => 'raw-material', 'icon' => 'bi bi-box-seam', 'label' => 'Bahan Baku (Resep)', 'roles' => ['manager']];
         }
 
         $sections = [

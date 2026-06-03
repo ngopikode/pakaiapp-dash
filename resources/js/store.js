@@ -137,7 +137,7 @@ document.addEventListener('alpine:init', () => {
             localStorage.setItem('ezmenu-cart', JSON.stringify(this.cart));
         },
 
-        addToCart(item, selectedVariants = '', quantity = 1) {
+        addToCart(item, selectedVariants = '', quantity = 1, variantId = null) {
             const cartName = selectedVariants
                 ? `${item.name} (${selectedVariants})`
                 : item.name;
@@ -145,7 +145,7 @@ document.addEventListener('alpine:init', () => {
             if (existing) {
                 existing.qty += quantity;
             } else {
-                this.cart.push({...item, cartName, qty: quantity});
+                this.cart.push({...item, cartName, qty: quantity, variant_id: variantId});
             }
             this.saveCart();
             this.showToast('Berhasil ditambahkan ke keranjang!');
@@ -306,36 +306,46 @@ document.addEventListener('alpine:init', () => {
         confirmOption() {
             if (!this.optionValid || !this.optionProduct) return;
 
-            // Hitung harga variant
-            let price;
-            let variantLabel = '';
+            let finalPrice = 0;
+            let finalVariantLabel = '';
+            let variantId = null;
+
             if (!this.optionProduct.variants?.length) {
-                price = parseFloat(this.optionProduct.price) || 0;
+                // No variant product
+                finalPrice = parseFloat(this.optionProduct.price) || 0;
+                variantId = this.optionProduct.default_variant_id || null;
             } else if (this.isMulti) {
-                price = parseFloat(this.optionProduct.price) || 0;
-                variantLabel = this.optionSelected.join(', ');
+                // Multi selection (Checkbox)
+                finalPrice = parseFloat(this.optionProduct.price) || 0;
+                finalVariantLabel = this.optionSelected.join(', ');
             } else {
-                const v = this.optionProduct.variants.find(
+                // Single selection (Radio)
+                const selectedVariant = this.optionProduct.variants.find(
                     (v) => v.name === this.optionSelected[0]
                 );
-                price = v ? (parseFloat(v.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
-                variantLabel = this.optionSelected[0] || '';
+                finalPrice = selectedVariant
+                    ? parseFloat(selectedVariant.price) || 0
+                    : parseFloat(this.optionProduct.price) || 0;
+                finalVariantLabel = this.optionSelected[0] || '';
+                variantId = selectedVariant ? selectedVariant.id : null;
             }
 
-            // Tambahkan harga extras
-            price += this.extrasTotal;
+            finalPrice += this.extrasTotal;
 
-            // Bangun label lengkap untuk cartName
-            const extrasLabel = this.extrasSelected.length
+            const finalExtraLabel = this.extrasSelected.length
                 ? this.extrasSelected.join(', ')
                 : '';
-            const selectedLabel = [variantLabel, extrasLabel].filter(Boolean).join(' + ');
+            const combinedLabel = [finalVariantLabel, finalExtraLabel]
+                .filter(Boolean)
+                .join(' + ');
 
             this.addToCart(
-                {...this.optionProduct, price},
-                selectedLabel,
-                this.optionQty
+                {...this.optionProduct, price: finalPrice},
+                combinedLabel,
+                this.optionQty,
+                variantId
             );
+
             this.closeOption();
         },
 
@@ -496,9 +506,12 @@ document.addEventListener('alpine:init', () => {
                 order_type: this.orderType,
                 order_info: this.customerInfo.trim() || null,
                 total_price: this.totalOrderPrice,
-                payment_method: this.isDigitalMethod ? 'digital' : (this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash'),
+                payment_method: this.isDigitalMethod
+                    ? 'digital'
+                    : this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash',
                 items: this.cart.map((item) => ({
                     product_id: item.id,
+                    variant_id: item.variant_id || null,
                     name: item.cartName,
                     quantity: item.qty,
                     price: parseFloat(item.price)

@@ -69,6 +69,7 @@ Route::middleware([
             Route::view('product', 'pages.tenant.product.product')->name('product');
             Route::livewire('product/create', 'pages::tenant.product.form')->name('product.create');
             Route::livewire('product/{product}/edit', 'pages::tenant.product.form')->name('product.edit');
+            Route::livewire('raw-material', 'pages::tenant.resto.raw-material')->name('raw-material');
             Route::livewire('store-setting', 'pages::tenant.setting.store-setting')->name('store-setting');
             Route::livewire('product-slot/buy', 'pages::tenant.setting.buy-product-slot')->name('product-slot.buy');
             Route::view('user', 'pages.tenant.user.index')->name('user');

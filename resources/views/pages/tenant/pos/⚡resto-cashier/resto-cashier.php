@@ -54,7 +54,7 @@ new class extends Component {
                 $dbVariants = [];
 
                 foreach ($cart as $index => $item) {
-                    $variant = ProductVariant::lockForUpdate()->find($item['variant_id']);
+                    $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
                     if (!$variant || $variant->stock < $item['quantity']) {
                         throw new Exception("Stok '{$item['name']}' tidak cukup. Sisa: " . ($variant ? $variant->stock : 0));
                     }
@@ -126,6 +126,14 @@ new class extends Component {
                         'kitchen_status' => 'waiting' // Asumsi ada field ini atau kalau tidak biarkan default
                     ]);
                     $variant->decrement('stock', $item['quantity']);
+
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($variant->recipes as $recipe) {
+                            if ($recipe->rawMaterial) {
+                                $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
+                            }
+                        }
+                    }
                 }
 
                 return ['success' => true, 'invoice_code' => $invoiceCode];
@@ -148,7 +156,7 @@ new class extends Component {
                 $dbVariants = [];
 
                 foreach ($cart as $index => $item) {
-                    $variant = ProductVariant::lockForUpdate()->find($item['variant_id']);
+                    $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
                     if (!$variant || $variant->stock < $item['quantity']) {
                         throw new Exception("Stok '{$item['name']}' tidak cukup. Sisa: " . ($variant ? $variant->stock : 0));
                     }
@@ -231,6 +239,14 @@ new class extends Component {
                         'note' => $item['note'] ?? null,
                     ]);
                     $variant->decrement('stock', $item['quantity']);
+
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($variant->recipes as $recipe) {
+                            if ($recipe->rawMaterial) {
+                                $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
+                            }
+                        }
+                    }
                 }
 
                 // --- POTONG SALDO WALLET ---
@@ -431,7 +447,7 @@ new class extends Component {
         $orderId = $data['orderId'] ?? null;
         $note = $data['note'] ?? null;
 
-        $order = Order::with('items')->find($orderId);
+        $order = Order::with('items.variant.recipes.rawMaterial')->find($orderId);
         if (!$order) return;
 
         if ($order->status === 'cancelled') {
@@ -459,7 +475,17 @@ new class extends Component {
         DB::transaction(function () use ($order, $note) {
             // Restore stock
             foreach ($order->items as $item) {
-                ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+                if ($item->variant) {
+                    $item->variant->increment('stock', $item->quantity);
+
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($item->variant->recipes as $recipe) {
+                            if ($recipe->rawMaterial) {
+                                $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
+                            }
+                        }
+                    }
+                }
             }
 
             $updateData = ['status' => 'cancelled'];

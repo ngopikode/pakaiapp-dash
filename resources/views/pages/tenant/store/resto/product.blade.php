@@ -38,6 +38,7 @@
         'has_variants'    => $product->has_variants,
         'selection_type'  => $product->selection_type ?? 'single',
         'max_selections'  => $product->max_selections ?? 1,
+        'default_variant_id' => $product->variants->firstWhere('name', 'Default')?->id ?? $product->variants->first()?->id,
         'variants'        => $product->variants->map(fn ($v) => [
             'id'    => $v->id,
             'name'  => $v->name,

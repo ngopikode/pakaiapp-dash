@@ -27,9 +27,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const trx = parseInt(this.value);
         trxDisplay.textContent = trx.toLocaleString('id-ID');
 
-        let cost = trx * 300;
-        const isUnlimited = cost >= 150000;
-        if (isUnlimited) cost = 150000;
+        const trxFee = window.PAKAIAAPP_CONFIG ? window.PAKAIAAPP_CONFIG.trxFee : 300;
+        const cappingLimit = window.PAKAIAAPP_CONFIG ? window.PAKAIAAPP_CONFIG.cappingLimit : 150000;
+        const cappingLimitFormatted = window.PAKAIAAPP_CONFIG ? window.PAKAIAAPP_CONFIG.cappingLimitFormatted : '150.000';
+
+        let cost = trx * trxFee;
+        const isUnlimited = cost >= cappingLimit;
+        if (isUnlimited) cost = cappingLimit;
 
         if (trx === 0) {
             costEl.textContent = 'GRATIS!';
@@ -37,14 +41,14 @@ document.addEventListener('DOMContentLoaded', function () {
             costNote.textContent = 'Tidak ada transaksi = tidak ada biaya.';
             unlimitedEl.style.display = 'none';
         } else if (isUnlimited) {
-            costEl.textContent = 'Rp 150.000';
+            costEl.textContent = 'Rp ' + cappingLimitFormatted;
             costEl.style.color = '#fff';
             costNote.textContent = 'Maks. biaya per bulan — sisanya GRATIS tak terbatas!';
             unlimitedEl.style.display = 'inline-flex';
         } else {
             costEl.textContent = 'Rp ' + cost.toLocaleString('id-ID');
             costEl.style.color = 'var(--accent)';
-            costNote.textContent = 'Rp 300 × ' + trx.toLocaleString('id-ID') + ' transaksi';
+            costNote.textContent = 'Rp ' + trxFee + ' × ' + trx.toLocaleString('id-ID') + ' transaksi';
             unlimitedEl.style.display = 'none';
         }
     });
@@ -87,207 +91,22 @@ if (themeToggle && htmlRoot && themeIcon) {
     }
 }
 
-// --- FAB + GUIDED TOUR ---
-window.toggleFab = function() {
-    const menu = document.getElementById('fabMenu');
-    const btn = document.getElementById('fabMain');
-    const icon = document.getElementById('fabIcon');
-    const nudge = document.getElementById('fabNudge');
-    const isOpen = menu.classList.contains('open');
-    if (isOpen) {
-        menu.classList.remove('open');
+
+
+// --- CHAT WIDGET ---
+window.toggleChat = function() {
+    const widget = document.getElementById('chatWidget');
+    const btn = document.getElementById('fabMainBtn');
+    const icon = document.getElementById('fabMainIcon');
+    
+    if (widget.classList.contains('open')) {
+        widget.classList.remove('open');
         btn.classList.remove('open');
-        icon.className = 'bi bi-headset';
+        icon.className = 'bi bi-chat-dots-fill';
     } else {
-        menu.classList.add('open');
+        widget.classList.add('open');
         btn.classList.add('open');
         icon.className = 'bi bi-x-lg';
-        // Hide nudge when FAB opens
-        if (nudge) nudge.classList.remove('show');
-    }
-};
-
-// Nudge bubble: auto-show after 4s, dismissed by user
-document.addEventListener('DOMContentLoaded', function() {
-    const nudge = document.getElementById('fabNudge');
-    if (!nudge) return; // Not on welcome page
-
-    // Show once per 24 hours using localStorage timestamp
-    const lastDismissed = localStorage.getItem('fabNudgeTs');
-    const oneDayMs = 24 * 60 * 60 * 1000;
-    if (lastDismissed && (Date.now() - parseInt(lastDismissed)) < oneDayMs) return;
-
-    setTimeout(function() {
-        nudge.classList.add('show');
-        // Auto-hide after 10 seconds
-        setTimeout(function() { nudge.classList.remove('show'); }, 10000);
-    }, 3500);
-});
-
-window.dismissNudge = function() {
-    const nudge = document.getElementById('fabNudge');
-    if (nudge) nudge.classList.remove('show');
-    localStorage.setItem('fabNudgeTs', Date.now().toString());
-};
-
-// Close FAB when clicking outside
-document.addEventListener('click', function(e) {
-    const fab = document.getElementById('fabContainer');
-    if (fab && !fab.contains(e.target)) {
-        const menu = document.getElementById('fabMenu');
-        const btn = document.getElementById('fabMain');
-        const icon = document.getElementById('fabIcon');
-        if (menu && menu.classList.contains('open')) {
-            menu.classList.remove('open');
-            btn.classList.remove('open');
-            icon.className = 'bi bi-headset';
-        }
-    }
-});
-
-// Tour steps definition
-const tourSteps = [
-    {
-        selector: '.hero',
-        title: '👋 Selamat datang di Pakaiapp!',
-        msg: 'Ini adalah <strong>halaman utama</strong> Pakaiapp — kasir berbasis web untuk UMKM. Anda bisa langsung daftar gratis dan toko siap dalam 2 menit!'
-    },
-    {
-        selector: '#cara-daftar',
-        title: '⚡ Cara Kerja',
-        msg: 'Hanya <strong>3 langkah mudah</strong> untuk mulai jualan: Daftar → Input Menu → Langsung Terima Order. Tidak perlu install aplikasi apapun!'
-    },
-    {
-        selector: '#fitur',
-        title: '🗂️ Fitur Lengkap',
-        msg: 'Semua fitur yang Anda butuhkan sudah tersedia: <strong>Kasir Real-Time, QR Self-Order, QRIS & E-Wallet, Laporan Analitik, Multi-Staf</strong>, dan masih banyak lagi!'
-    },
-    {
-        selector: '.feat-card.feat-card-accent',
-        title: '🧾 Kasir Web Real-Time',
-        msg: '<strong>Proses transaksi</strong> dari browser HP atau PC Anda. Semua data sinkron ke cloud — seluruh staf bisa akses secara bersamaan!'
-    },
-    {
-        selector: '#harga',
-        title: '💰 Harga Super Terjangkau',
-        msg: 'Hanya <strong>Rp 300 per transaksi sukses</strong>. Tidak ada biaya bulanan, tidak ada kontrak. Cukup bayar kalau ada penjualan!'
-    },
-    {
-        selector: '.calc-card',
-        title: '🧮 Simulasi Biaya',
-        msg: 'Geser slider untuk menghitung estimasi biaya Anda per bulan. Setelah tagihan mencapai <strong>Rp 150.000</strong>, semua transaksi berikutnya <strong>GRATIS!</strong>'
-    },
-    {
-        selector: '#cta-hero-register',
-        title: '🚀 Siap Mulai?',
-        msg: 'Klik tombol <strong>"Buat Toko Sekarang"</strong> untuk mendaftar gratis sekarang juga. Proses hanya 2 menit dan toko Anda langsung aktif!'
-    }
-];
-
-let tourCurrentIndex = 0;
-let tourHighlightedEl = null;
-
-window.startTour = function() {
-    // Close FAB menu first
-    const menu = document.getElementById('fabMenu');
-    const btn = document.getElementById('fabMain');
-    const icon = document.getElementById('fabIcon');
-    if (menu) { menu.classList.remove('open'); btn.classList.remove('open'); icon.className = 'bi bi-headset'; }
-
-    tourCurrentIndex = 0;
-    document.getElementById('tourMessages').innerHTML = '';
-    document.getElementById('tourOverlay').classList.add('active');
-    const popup = document.getElementById('tourPopup');
-    popup.classList.add('open');
-    tourShowStep(0);
-};
-
-window.tourNext = function() {
-    tourCurrentIndex++;
-    if (tourCurrentIndex >= tourSteps.length) {
-        closeTour();
-        return;
-    }
-    tourShowStep(tourCurrentIndex);
-};
-
-function tourShowStep(index) {
-    const step = tourSteps[index];
-    const nextBtn = document.getElementById('tourNextBtn');
-    const isLast = index === tourSteps.length - 1;
-    nextBtn.innerHTML = isLast
-        ? '<i class="bi bi-check-lg"></i> Selesai!'
-        : '<i class="bi bi-chevron-right"></i> Selanjutnya';
-
-    // Remove previous highlight
-    if (tourHighlightedEl) {
-        tourHighlightedEl.classList.remove('tour-highlight-el');
-        tourHighlightedEl = null;
-    }
-
-    const target = document.querySelector(step.selector);
-    if (target) {
-        // Scroll to element
-        setTimeout(() => {
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-
-        // Highlight after scroll
-        setTimeout(() => {
-            target.classList.add('tour-highlight-el');
-            tourHighlightedEl = target;
-
-            // Position tooltip near element
-            const rect = target.getBoundingClientRect();
-            const tooltip = document.getElementById('tourTooltip');
-            tooltip.textContent = step.title;
-            tooltip.className = 'tour-spotlight-tooltip show';
-
-            const tipTop = rect.top - 44;
-            const tipLeft = Math.min(rect.left, window.innerWidth - 270);
-            tooltip.style.top = (tipTop < 10 ? rect.bottom + 8 : tipTop) + 'px';
-            tooltip.style.left = Math.max(8, tipLeft) + 'px';
-        }, 400);
-    }
-
-    // Add message
-    addTourMessage(step.msg);
-}
-
-function addTourMessage(html) {
-    const area = document.getElementById('tourMessages');
-    const msg = document.createElement('div');
-    msg.className = 'tour-msg';
-    msg.innerHTML = `
-        <div class="tour-msg-avatar"><i class="bi bi-stars"></i></div>
-        <div class="tour-msg-bubble">${html}</div>
-    `;
-    area.appendChild(msg);
-    setTimeout(() => { area.scrollTop = area.scrollHeight; }, 50);
-}
-
-window.closeTour = function() {
-    document.getElementById('tourOverlay').classList.remove('active');
-    const popup = document.getElementById('tourPopup');
-    popup.style.opacity = '0';
-    popup.style.transform = 'translateY(20px)';
-    setTimeout(() => {
-        popup.classList.remove('open');
-        popup.style.opacity = '';
-        popup.style.transform = '';
-    }, 350);
-
-    if (tourHighlightedEl) {
-        tourHighlightedEl.classList.remove('tour-highlight-el');
-        tourHighlightedEl = null;
-    }
-    const tooltip = document.getElementById('tourTooltip');
-    if (tooltip) tooltip.className = 'tour-spotlight-tooltip';
-};
-
-window.closeTourOverlay = function(e) {
-    if (e.target === document.getElementById('tourOverlay')) {
-        closeTour();
     }
 };
 
@@ -541,6 +360,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 chatInput.type = step.type;
                 chatInput.placeholder = step.placeholder;
+                
+                // Set existing value if they went back
+                if (step.id === 'TanyaNama') chatInput.value = formData.namaToko;
+                else if (step.id === 'TanyaOwner') chatInput.value = formData.namaOwner;
+                else if (step.id === 'TanyaWa') chatInput.value = formData.noWa;
+                else if (step.id === 'TanyaEmail') chatInput.value = formData.email;
+                else chatInput.value = '';
+
                 if (step.type === 'number' && step.id === 'TanyaOTP') chatInput.maxLength = 6;
                 else chatInput.removeAttribute('maxLength');
                 inputContainer.style.display = 'flex';

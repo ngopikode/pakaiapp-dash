@@ -309,6 +309,23 @@ class CentralMidtransController extends Controller
                         'midtrans_payment_type' => $type,
                     ]);
 
+                    // Restore stock
+                    $order->load('items.variant.recipes.rawMaterial');
+                    foreach ($order->items as $item) {
+                        if ($item->variant) {
+                            $item->variant->increment('stock', $item->quantity);
+
+                            $storeType = tenant('store_type');
+                            if ($storeType === 'resto') {
+                                foreach ($item->variant->recipes as $recipe) {
+                                    if ($recipe->rawMaterial) {
+                                        $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     tenancy()->end();
                     return response()->json(['message' => 'OK']); // 200 agar midtrans berhenti retry
                 }
@@ -330,6 +347,23 @@ class CentralMidtransController extends Controller
                     'midtrans_transaction_id' => $notif->transaction_id,
                     'midtrans_payment_type' => $type,
                 ]);
+
+                // Restore stock
+                $order->load('items.variant.recipes.rawMaterial');
+                foreach ($order->items as $item) {
+                    if ($item->variant) {
+                        $item->variant->increment('stock', $item->quantity);
+
+                        $storeType = tenant('store_type');
+                        if ($storeType === 'resto') {
+                            foreach ($item->variant->recipes as $recipe) {
+                                if ($recipe->rawMaterial) {
+                                    $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             Log::info('[Midtrans] Order status updated', [

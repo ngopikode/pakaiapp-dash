@@ -101,6 +101,7 @@ class OrderApiController extends Controller
             'payment_method' => 'nullable|string|max:20',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|integer',
+            'items.*.variant_id' => 'nullable|integer',
             'items.*.name' => 'required|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric|min:0',
@@ -168,11 +169,27 @@ class OrderApiController extends Controller
             foreach ($request->items as $item) {
                 $order->items()->create([
                     'product_id' => $item['product_id'],
+                    'variant_id' => $item['variant_id'] ?? null,
                     'product_name' => $item['name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'subtotal' => $item['price'] * $item['quantity'],
                 ]);
+
+                if (!empty($item['variant_id'])) {
+                    $variant = \App\Models\ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
+                    if ($variant) {
+                        $variant->decrement('stock', $item['quantity']);
+                        
+                        if (tenant('store_type') === 'resto') {
+                            foreach ($variant->recipes as $recipe) {
+                                if ($recipe->rawMaterial) {
+                                    $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             return $order;

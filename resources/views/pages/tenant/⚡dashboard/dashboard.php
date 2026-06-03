@@ -104,11 +104,20 @@ new class extends Component {
             }
 
             // 7 Days Chart Data
-            $chartData = collect(range(6, 0))->map(function($daysAgo) {
+            $sevenDaysAgo = today()->subDays(6)->startOfDay();
+            
+            // Standardizing date extraction to support different DB drivers
+            $dailyRevenues = Order::where('created_at', '>=', $sevenDaysAgo)
+                ->whereIn('status', ['paid', 'completed'])
+                ->select(DB::raw('DATE(created_at) as date_string'), DB::raw('SUM(total_price) as total_revenue'))
+                ->groupBy('date_string')
+                ->pluck('total_revenue', 'date_string');
+
+            $chartData = collect(range(6, 0))->map(function($daysAgo) use ($dailyRevenues) {
                 $date = today()->subDays($daysAgo);
                 return [
                     'date' => $date->format('d M'),
-                    'revenue' => Order::whereDate('created_at', $date)->whereIn('status', ['paid', 'completed'])->sum('total_price')
+                    'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
                 ];
             });
 
@@ -133,6 +142,43 @@ new class extends Component {
                 $topProducts = collect([]);
             }
 
+            $peakSalesTimes = collect([]);
+            $slowMovingProducts = collect([]);
+
+            try {
+                // Peak Sales Time (Top 3 Hours in the last 30 days)
+                $peakSalesTimes = DB::table('orders')
+                    ->select(DB::raw("STRFTIME('%H', created_at) as hour"), DB::raw("COUNT(id) as total_orders"))
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->where('created_at', '>=', today()->subDays(30))
+                    ->groupBy('hour')
+                    ->orderByDesc('total_orders')
+                    ->limit(3)
+                    ->get()
+                    ->map(function ($item) {
+                        return (object) [
+                            'time_range' => $item->hour . ':00 - ' . str_pad((int)$item->hour + 1, 2, '0', STR_PAD_LEFT) . ':00',
+                            'orders' => $item->total_orders
+                        ];
+                    });
+
+                // Slow-moving Items (Bottom 5 Active Products by quantity sold in the last 30 days)
+                $slowMovingProducts = DB::table('products')
+                    ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+                    ->leftJoin('orders', function ($join) {
+                        $join->on('order_items.order_id', '=', 'orders.id')
+                             ->whereIn('orders.status', ['paid', 'completed'])
+                             ->where('orders.created_at', '>=', today()->subDays(30));
+                    })
+                    ->select('products.name', DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'))
+                    ->where('products.is_active', true)
+                    ->groupBy('products.id', 'products.name')
+                    ->orderBy('total_sold', 'asc')
+                    ->limit(5)
+                    ->get();
+            } catch (\Exception $e) {
+            }
+
             $newOrderCount = Order::where('id', '>', $this->lastCheckedOrderId)->count();
         }
 
@@ -142,6 +188,8 @@ new class extends Component {
             'stats' => $stats,
             'recentOrders' => $recentOrders,
             'topProducts' => $topProducts,
+            'peakSalesTimes' => $peakSalesTimes,
+            'slowMovingProducts' => $slowMovingProducts,
             'newOrderCount' => $newOrderCount,
             'chartData' => collect($chartData)->toJson(),
         ];

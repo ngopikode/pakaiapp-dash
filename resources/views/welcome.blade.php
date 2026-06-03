@@ -11,11 +11,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    @php
+        $trxFee = \App\Models\GlobalSetting::where('key', 'default_trx_fee')->first()?->value ?? 300;
+        $cappingLimit = \App\Models\GlobalSetting::where('key', 'default_capping_limit')->first()?->value ?? 150000;
+        $cappingLimitFormatted = number_format($cappingLimit, 0, ',', '.');
+        $cappingLimitShort = ($cappingLimit / 1000) . 'rb';
+    @endphp
+
     <title>Pakaiapp - Kasir Web UMKM Tanpa Biaya Langganan</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="title" content="Pakaiapp - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
-    <meta name="description" content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp 300 per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp 150rb/bulan!">
+    <meta name="description" content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
     <meta name="keywords" content="aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
@@ -25,7 +32,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pakaiapp.online/">
     <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
-    <meta property="og:description" content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp150.000/bulan tercapai!">
+    <meta property="og:description" content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
     <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://pakaiapp.online/">
@@ -46,7 +53,7 @@
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "IDR",
-            "description": "Pendaftaran gratis, biaya penggunaan hanya Rp 300 per transaksi sukses."
+            "description": "Pendaftaran gratis, biaya penggunaan hanya Rp {{ $trxFee }} per transaksi sukses."
         },
         "creator": {
             "@type": "Organization",
@@ -107,15 +114,19 @@
     </div>
 
     <h1 class="hero-headline">
-        Kasir Web Profesional<br>
-        <span class="highlight">Bayar Pas Ada Transaksi</span>
+        Bebaskan Bisnismu dari<br>
+        <span class="highlight">Beban Langganan Kasir Bulanan</span>
     </h1>
 
     <p class="hero-desc">
-        Kelola penjualan, menu, laporan, dan pembayaran QRIS dari satu dashboard berbasis web — bisa dibuka dari HP, tablet, atau laptop. Cuma bayar <strong style="color:var(--text)">Rp 300</strong> per transaksi sukses, otomatis <strong style="color:var(--green)">GRATIS sepenuhnya</strong> setelah Rp 150.000/bulan.
+        Sepi? Gratis. Ramai? Bayar Suka-suka. Kelola penjualan, menu, laporan, dan pembayaran QRIS dari HP, tablet, atau laptop. Cuma bayar <strong style="color:var(--text)">Rp {{ $trxFee }}</strong> per transaksi sukses, otomatis <strong style="color:var(--green)">GRATIS sepenuhnya</strong> setelah Rp {{ $cappingLimitFormatted }}/bulan.
     </p>
 
-    <div class="hero-cta-group">
+    <div class="text-warning fw-bold mb-3 mt-2" style="font-size: 0.85rem; letter-spacing: 0.5px; display: flex; justify-content: center; width: 100%;">
+        <i class="bi bi-gift-fill me-1"></i> Spesial Hari Ini: Gratis Kuota 100 Transaksi Pertama!
+    </div>
+
+    <div class="hero-cta-group align-items-center">
         <a href="/register" class="btn-hero-primary text-decoration-none d-inline-flex align-items-center justify-content-center" id="cta-hero-register">
             <i class="bi bi-shop me-2"></i>
             Buat Toko Sekarang — Gratis
@@ -126,7 +137,7 @@
         </a>
     </div>
 
-    <div class="hero-stats">
+    <div class="hero-stats mt-5">
         <div class="hero-stat-item">
             <div class="hero-stat-number">15<span>K+</span></div>
             <div class="hero-stat-label">Toko Aktif</div>
@@ -146,7 +157,7 @@
     </div>
 </section>
 
-<hr class="section-divider">
+
 
 <!-- ============================================
      CARA DAFTAR (How it Works)
@@ -324,7 +335,7 @@
             <div class="cost-display">
                 <p class="cost-label">Total Biaya Pakaiapp Bulan Ini</p>
                 <p class="cost-value" id="costPakaiapp">GRATIS!</p>
-                <p class="cost-note" id="costNote">Rp 300 × 0 transaksi = Rp 0</p>
+                <p class="cost-note" id="costNote">Rp {{ $trxFee }} × 0 transaksi = Rp 0</p>
                 <span id="unlimitedBadge" class="unlimited-badge" style="display:none; margin: 0.5rem auto 0;">
                     🔥 Unlimited — Sisa Bulan Gratis Sepenuhnya!
                 </span>
@@ -332,7 +343,7 @@
 
             <div style="margin-top:1rem; padding:1rem; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); font-size:0.8rem; color:var(--text-muted); line-height:1.65;">
                 <strong style="color:var(--text); display:block; margin-bottom:0.35rem;">🎉 Cara Hitung:</strong>
-                Rp 300 per transaksi sukses. Kalau total tagihan <strong style="color:var(--text)">sudah tembus Rp 150.000</strong> di bulan itu, <strong style="color:var(--green)">semua transaksi berikutnya di bulan itu jadi GRATIS</strong> sampai akhir bulan!
+                Rp {{ $trxFee }} per transaksi sukses. Kalau total tagihan <strong style="color:var(--text)">sudah tembus Rp {{ $cappingLimitFormatted }}</strong> di bulan itu, <strong style="color:var(--green)">semua transaksi berikutnya di bulan itu jadi GRATIS</strong> sampai akhir bulan!
             </div>
         </div>
 
@@ -356,12 +367,12 @@
             </div>
             <div class="compare-row">
                 <span class="col-feature">Biaya Per Transaksi</span>
-                <span class="col-pakaiapp"><i class="bi bi-check-circle-fill check-icon"></i> Rp 300</span>
+                <span class="col-pakaiapp"><i class="bi bi-check-circle-fill check-icon"></i> Rp {{ $trxFee }}</span>
                 <span class="col-other" style="color:var(--text-muted);">Tergantung plan</span>
             </div>
             <div class="compare-row">
                 <span class="col-feature">Auto Unlimited (Gratis)</span>
-                <span class="col-pakaiapp"><i class="bi bi-check-circle-fill check-icon"></i> Ya, Rp 150rb</span>
+                <span class="col-pakaiapp"><i class="bi bi-check-circle-fill check-icon"></i> Ya, Rp {{ $cappingLimitShort }}</span>
                 <span class="col-other"><i class="bi bi-x-circle-fill cross-icon"></i> Tidak Ada</span>
             </div>
             <div class="compare-row">
@@ -404,12 +415,12 @@
             <div class="testi-stars">
                 <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
             </div>
-            <p class="testi-text">"Sebelumnya saya pakai kasir lain yang Rp 300rb/bulan. Pindah ke Pakaiapp, bulan pertama malah cuma bayar Rp 45.000 karena lagi sepi. Hemat banget buat usaha kecil."</p>
+            <p class="testi-text">"Alhamdulillah, sejak pakai sistem ini di Sama Roti Kukus (Seruput & Gigit), operasional cafe jadi jauh lebih mudah. Dari aplikasi kasir pintar (POS), manajemen stok, hingga urusan toko online ada di satu platform praktis. Pelayanan makin cepat dan transaksi lebih rapi. Cocok banget buat UMKM kuliner!"</p>
             <div class="testi-author">
-                <div class="testi-avatar" style="background:#1A3E25;">AR</div>
+                <div class="testi-avatar" style="background:#1A3E25;">M</div>
                 <div>
-                    <p class="testi-name">Andi Ramadan</p>
-                    <p class="testi-biz">Warung Kopi & Cemilan, Medan</p>
+                    <p class="testi-name">Mirayeni</p>
+                    <p class="testi-biz">Owner Sama Roti Kukus (Seruput & Gigit)</p>
                 </div>
             </div>
         </div>
@@ -463,7 +474,7 @@
                     Apakah benar-benar gratis untuk daftar?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan dikenakan biaya Rp 300 per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada transaksi, tidak ada biaya sama sekali.</div>
+                <div class="faq-answer">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan dikenakan biaya Rp {{ $trxFee }} per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada transaksi, tidak ada biaya sama sekali.</div>
             </div>
 
             <div class="faq-item">
@@ -471,7 +482,7 @@
                     Apa itu "Otomatis Gratis Unlimited"?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai Rp 150.000 (setara 500 transaksi), maka semua transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp dalam sebulan adalah Rp 150.000, berapapun jumlah transaksinya.</div>
+                <div class="faq-answer">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai Rp {{ $cappingLimitFormatted }} (setara {{ floor($cappingLimit / $trxFee) }} transaksi), maka semua transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp dalam sebulan adalah Rp {{ $cappingLimitFormatted }}, berapapun jumlah transaksinya.</div>
             </div>
 
             <div class="faq-item">
@@ -503,7 +514,7 @@
                     Apakah ada biaya tambahan untuk fitur QRIS atau QR Self-Order?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan manajemen stok sudah termasuk dalam satu biaya flat Rp 300/transaksi. Tidak ada paket berbeda atau fitur yang dikunci di balik paywall.</div>
+                <div class="faq-answer">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan manajemen stok sudah termasuk dalam satu biaya flat Rp {{ $trxFee }}/transaksi. Tidak ada paket berbeda atau fitur yang dikunci di balik paywall.</div>
             </div>
 
         </div>
@@ -589,75 +600,46 @@
 </footer>
 
 <!-- ============================================
-     FLOATING ACTION BUTTON (WA + Tour Guide)
+     CHATBOT WIDGET
 ============================================ -->
 <div class="fab-container" id="fabContainer">
-    <!-- Speed Dial Options -->
-    <div class="fab-menu" id="fabMenu">
-        <!-- Option 1: WA Chat -->
-        <div class="fab-item" id="fabWaBtn" onclick="window.open('https://wa.me/6285172441544','_blank')">
-            <div class="fab-item-tooltip">Hubungi via WhatsApp</div>
-            <div class="fab-item-btn fab-wa">
-                <i class="bi bi-whatsapp"></i>
+    <!-- Chat Widget Panel -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                <div>
+                    <h6 class="mb-0 fw-bold" style="font-size:0.95rem; color:#fff;">Asisten Pakaiapp</h6>
+                    <small style="color:rgba(255,255,255,0.8); font-size:0.75rem;"><span class="chat-online-dot"></span> Selalu Online</small>
+                </div>
+            </div>
+            <button class="chat-close" onclick="toggleChat()" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+        </div>
+        
+        <div class="chat-body">
+            <div class="chat-msg bot-msg">
+                Halo! 👋 Saya asisten virtual Pakaiapp. Ada yang ingin ditanyakan seputar pendaftaran atau fitur kami?
             </div>
         </div>
-        <!-- Option 2: Interactive Tour -->
-        <div class="fab-item" id="fabTourBtn" onclick="startTour()">
-            <div class="fab-item-tooltip">Tur Fitur Interaktif</div>
-            <div class="fab-item-btn fab-tour">
-                <i class="bi bi-map"></i>
-            </div>
+        
+        <div class="chat-footer">
+            <a href="https://wa.me/6285172441544" target="_blank" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2" style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
+                <i class="bi bi-whatsapp"></i> Chat Admin (WA)
+            </a>
+            <a href="#faq" onclick="toggleChat()" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 mt-2" style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
+                <i class="bi bi-question-circle"></i> Lihat FAQ
+            </a>
         </div>
     </div>
 
     <!-- Main FAB Button -->
-    <button class="fab-main" id="fabMain" onclick="toggleFab()" aria-label="Bantuan">
-        <i class="bi bi-headset" id="fabIcon"></i>
+    <button class="fab-main" id="fabMainBtn" onclick="toggleChat()" aria-label="Bantuan">
+        <i class="bi bi-chat-dots-fill" id="fabMainIcon"></i>
         <span class="fab-pulse"></span>
     </button>
-
-    <!-- Nudge Bubble -->
-    <div class="fab-nudge" id="fabNudge" onclick="toggleFab()">
-        <div class="fab-nudge-text">
-            <span class="fab-nudge-emoji">💡</span>
-            <div>
-                <div class="fab-nudge-title">Bingung atau penasaran?</div>
-                <div class="fab-nudge-sub">Coba tur fitur gratis kami!</div>
-            </div>
-        </div>
-        <button class="fab-nudge-close" onclick="event.stopPropagation(); dismissNudge()" aria-label="Tutup">
-            <i class="bi bi-x"></i>
-        </button>
-    </div>
 </div>
 
-<!-- ============================================
-     GUIDED TOUR CHATBOT POPUP
-============================================ -->
-<div class="tour-overlay" id="tourOverlay" onclick="closeTourOverlay(event)"></div>
 
-<div class="tour-popup" id="tourPopup">
-    <div class="tour-popup-header">
-        <div class="tour-bot-avatar"><i class="bi bi-stars"></i></div>
-        <div>
-            <div class="tour-bot-name">Asisten Pakaiapp</div>
-            <div class="tour-bot-status"><span class="tour-dot"></span> Online</div>
-        </div>
-        <button class="tour-close-btn" onclick="closeTour()"><i class="bi bi-x-lg"></i></button>
-    </div>
-
-    <div class="tour-messages" id="tourMessages"></div>
-
-    <div class="tour-actions" id="tourActions">
-        <button class="tour-btn-next" id="tourNextBtn" onclick="tourNext()">
-            <i class="bi bi-chevron-right"></i> Selanjutnya
-        </button>
-        <button class="tour-btn-skip" onclick="closeTour()">Tutup Tur</button>
-    </div>
-</div>
-
-<!-- Tour Highlight Tooltip -->
-<div class="tour-spotlight-tooltip" id="tourTooltip"></div>
 
 <!-- ============================================
      MODAL TNC
@@ -666,43 +648,43 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title fw-bold">
-                    <i class="bi bi-shield-check me-2" style="color:var(--accent);"></i>Syarat & Ketentuan Layanan
-                </h6>
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-shield-check me-2" style="color:var(--accent);"></i> Syarat & Ketentuan Layanan
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body small" style="color:var(--text-muted); line-height:1.7;">
-                <p class="mb-4">Selamat datang di <strong style="color:var(--text)">pakaiapp.online</strong>. Harap membaca Syarat & Ketentuan ini dengan saksama sebelum mendaftar dan menggunakan platform kami.</p>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">1. KETENTUAN UMUM & DEFINISI</h6>
-                <ul class="mb-4">
-                    <li><strong style="color:var(--text)">pakaiapp.online</strong> adalah platform Software-as-a-Service (SaaS) aplikasi kasir pintar (Point of Sales) berbasis web cloud yang dikembangkan oleh PT Sinergi Kode Kreatif.</li>
+            <div class="modal-body">
+                <p class="mb-4">Selamat datang di <strong style="color:var(--text)">Pakaiapp</strong>. Harap membaca Syarat & Ketentuan ini dengan saksama sebelum mendaftar dan menggunakan platform kami.</p>
+                <h6 class="fw-bold">1. KETENTUAN UMUM & DEFINISI</h6>
+                <ul>
+                    <li><strong style="color:var(--text)">Pakaiapp</strong> adalah platform Software-as-a-Service (SaaS) aplikasi kasir pintar (Point of Sales) berbasis web cloud yang dikembangkan oleh PT Sinergi Kode Kreatif.</li>
                     <li><strong style="color:var(--text)">Pengguna</strong> adalah pemilik usaha (merchant), beserta staf/admin yang ditunjuk, yang mendaftarkan diri.</li>
                     <li><strong style="color:var(--text)">Layanan</strong> mencakup penyediaan sistem kasir, manajemen varian menu, etalase online (QR self-order), dan pelaporan.</li>
                 </ul>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">2. PENDAFTARAN AKUN DAN KEAMANAN</h6>
-                <ul class="mb-4">
+                <h6 class="fw-bold mt-4">2. PENDAFTARAN AKUN DAN KEAMANAN</h6>
+                <ul>
                     <li>Pengguna wajib memberikan data informasi bisnis yang akurat, benar, dan terbaru pada saat proses pendaftaran.</li>
                     <li>Pengguna bertanggung jawab penuh atas keamanan kredensial akun dan hak akses karyawan masing-masing.</li>
                 </ul>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">3. FUNGSI DOMPET DIGITAL (WALLET) & BIAYA TRANSAKSI</h6>
-                <ul class="mb-4">
+                <h6 class="fw-bold mt-4">3. FUNGSI DOMPET DIGITAL (WALLET) & BIAYA TRANSAKSI</h6>
+                <ul>
                     <li>Platform menggunakan sistem Dompet Digital terpusat untuk: (1) menampung saldo Top-Up prabayar untuk pemotongan biaya sistem, dan (2) menampung dana hasil penjualan dari Payment Gateway.</li>
                     <li>Pendaftaran akun dan penggunaan dasar aplikasi tidak dikenakan biaya langganan bulanan.</li>
-                    <li>Setiap transaksi penjualan yang berstatus sukses/selesai akan dikenakan biaya sistem sebesar <strong style="color:var(--text)">Rp 300</strong> yang dipotong otomatis dari Saldo Wallet Pengguna.</li>
+                    <li>Setiap transaksi penjualan yang berstatus sukses/selesai akan dikenakan biaya sistem sebesar <strong style="color:var(--text)">Rp {{ $trxFee }}</strong> yang dipotong otomatis dari Saldo Wallet Pengguna.</li>
                 </ul>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">4. PENARIKAN DANA (WITHDRAWAL) & PENGEMBALIAN DANA</h6>
-                <ul class="mb-4">
+                <h6 class="fw-bold mt-4">4. PENARIKAN DANA (WITHDRAWAL) & PENGEMBALIAN DANA</h6>
+                <ul>
                     <li>Saldo yang bersumber dari hasil penjualan (Payment Gateway) dapat ditarik oleh Pengguna ke rekening bank yang didaftarkan.</li>
-                    <li>Proses penarikan saat ini dilakukan secara manual oleh tim admin pakaiapp.online.</li>
+                    <li>Proses penarikan saat ini dilakukan secara manual oleh tim admin.</li>
                     <li>Saldo yang bersumber dari Top-Up prabayar bersifat non-refundable (tidak dapat ditarik atau diuangkan kembali).</li>
                 </ul>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">5. HUKUM YANG BERLAKU</h6>
+                <h6 class="fw-bold mt-4">5. HUKUM YANG BERLAKU</h6>
                 <ul class="mb-0">
                     <li>Syarat & Ketentuan ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum negara Republik Indonesia.</li>
                 </ul>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-submit-checkout" style="width:auto; padding: 0.6rem 1.5rem; font-size:0.875rem;" data-bs-dismiss="modal">Saya Setuju</button>
+                <button type="button" class="btn-hero-primary w-100 py-2 rounded-pill" data-bs-dismiss="modal">Saya Setuju</button>
             </div>
         </div>
     </div>
@@ -715,24 +697,24 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title fw-bold">
-                    <i class="bi bi-wallet2 me-2" style="color:var(--accent);"></i>Kebijakan Pengembalian Dana
-                </h6>
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-wallet2 me-2" style="color:var(--accent);"></i> Kebijakan Pengembalian Dana
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body small" style="color:var(--text-muted); line-height:1.7;">
-                <p class="mb-4">Sebagai bagian dari kepatuhan operasional kami di <strong style="color:var(--text)">pakaiapp.online</strong>, berikut adalah kebijakan resmi terkait pengembalian dana (refund):</p>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">1. FINALITAS TRANSAKSI TOP-UP</h6>
+            <div class="modal-body">
+                <p class="mb-4">Sebagai bagian dari kepatuhan operasional kami di <strong style="color:var(--text)">Pakaiapp</strong>, berikut adalah kebijakan resmi terkait pengembalian dana (refund):</p>
+                <h6 class="fw-bold">1. FINALITAS TRANSAKSI TOP-UP</h6>
                 <p class="mb-4">Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh sistem bersifat final dan mengikat.</p>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">2. PEMISAHAN JENIS SALDO & PENARIKAN</h6>
+                <h6 class="fw-bold mt-4">2. PEMISAHAN JENIS SALDO & PENARIKAN</h6>
                 <p class="mb-4"><strong style="color:var(--text)">Saldo Top-Up prabayar bersifat mutlak non-refundable</strong>. Namun, <strong style="color:var(--text)">Saldo Pendapatan</strong> dari hasil transaksi penjualan online dapat ditarik secara manual ke rekening bank pemilik usaha yang telah diverifikasi.</p>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">3. SALDO ABADI</h6>
-                <p class="mb-4">Saldo top-up pada wallet pakaiapp.online bersifat abadi dan tidak memiliki masa kedaluwarsa.</p>
-                <h6 class="fw-bold mb-2" style="color:var(--text)">4. HUBUNGI KAMI</h6>
+                <h6 class="fw-bold mt-4">3. SALDO ABADI</h6>
+                <p class="mb-4">Saldo top-up pada wallet Pakaiapp bersifat abadi dan tidak memiliki masa kedaluwarsa.</p>
+                <h6 class="fw-bold mt-4">4. HUBUNGI KAMI</h6>
                 <p class="mb-0">Hubungi kami melalui WhatsApp di <strong style="color:var(--accent)">085172441544</strong> atau email ke <strong style="color:var(--text)">support@pakaiapp.online</strong>.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-submit-checkout" style="width:auto; padding: 0.6rem 1.5rem; font-size:0.875rem;" data-bs-dismiss="modal">Saya Mengerti</button>
+                <button type="button" class="btn-hero-primary w-100 py-2 rounded-pill" data-bs-dismiss="modal">Saya Mengerti</button>
             </div>
         </div>
     </div>
@@ -751,6 +733,14 @@
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 @endif
 
+<script>
+    window.PAKAIAAPP_CONFIG = {
+        trxFee: {{ $trxFee }},
+        cappingLimit: {{ $cappingLimit }},
+        cappingLimitFormatted: '{{ $cappingLimitFormatted }}',
+        cappingLimitShort: '{{ $cappingLimitShort }}'
+    };
+</script>
 <script src="{{ asset('js/welcome.js') }}"></script>
 </body>
 </html>

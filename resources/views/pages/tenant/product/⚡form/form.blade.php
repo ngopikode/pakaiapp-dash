@@ -66,6 +66,11 @@
                         </button>
                         @if(tenant('store_type') === 'resto')
                             <button type="button" class="btn btn-tab text-start fw-bold p-3"
+                                    :class="tab === 'recipe' ? 'btn-primary shadow-sm' : ''"
+                                    @click="tab = 'recipe'">
+                                <i class="bi bi-box-seam me-2"></i> Resep (BOM)
+                            </button>
+                            <button type="button" class="btn btn-tab text-start fw-bold p-3"
                                     :class="tab === 'extras' ? 'btn-primary shadow-sm' : ''"
                                     @click="tab = 'extras'">
                                 <i class="bi bi-plus-circle-dotted me-2"></i> Add-ons
@@ -318,6 +323,65 @@
                         </div>
 
                         @if($selectedCategoryType === 'resto')
+                            {{-- TAB 2.5: RECIPES (BOM) --}}
+                            <div x-show="tab === 'recipe'" x-transition.opacity x-cloak>
+                                <h5 class="fw-bold mb-4" style="color: var(--brand-caramel, #B67332);">
+                                    <i class="bi bi-box-seam me-2"></i>Resep Bahan Baku (BOM)
+                                </h5>
+
+                                @if(!$hasVariants)
+                                    <div class="form-item-card mb-4">
+                                        <h6 class="fw-bold small mb-3 text-secondary">Bahan Baku untuk Produk Ini</h6>
+                                        @foreach($baseRecipes as $rIndex => $recipe)
+                                            <div class="row g-2 align-items-center mb-2">
+                                                <div class="col-6 col-md-5">
+                                                    <select class="form-select shadow-sm" wire:model="baseRecipes.{{ $rIndex }}.raw_material_id">
+                                                        <option value="">-- Pilih Bahan --</option>
+                                                        @foreach($rawMaterials as $rm)
+                                                            <option value="{{ $rm['id'] }}">{{ $rm['name'] }} ({{ $rm['unit'] }})</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-4 col-md-3">
+                                                    <input type="number" step="0.01" class="form-control shadow-sm" wire:model="baseRecipes.{{ $rIndex }}.quantity_used" placeholder="Takaran">
+                                                </div>
+                                                <div class="col-2 col-md-1">
+                                                    <button type="button" class="btn btn-glass-danger shadow-sm w-100" wire:click="removeBaseRecipe({{ $rIndex }})"><i class="bi bi-trash3"></i></button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        <button type="button" class="btn btn-sm btn-outline-brand mt-2" wire:click="addBaseRecipe"><i class="bi bi-plus"></i> Tambah Bahan</button>
+                                    </div>
+                                @else
+                                    @foreach($variants as $vIndex => $variant)
+                                        <div class="form-item-card mb-4">
+                                            <h6 class="fw-bold small mb-3 text-secondary">Bahan Baku untuk Varian: <span class="text-primary">{{ $variant['name'] ?: 'Varian '.($vIndex+1) }}</span></h6>
+                                            @if(isset($variant['recipes']))
+                                                @foreach($variant['recipes'] as $rIndex => $recipe)
+                                                    <div class="row g-2 align-items-center mb-2">
+                                                        <div class="col-6 col-md-5">
+                                                            <select class="form-select shadow-sm" wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.raw_material_id">
+                                                                <option value="">-- Pilih Bahan --</option>
+                                                                @foreach($rawMaterials as $rm)
+                                                                    <option value="{{ $rm['id'] }}">{{ $rm['name'] }} ({{ $rm['unit'] }})</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-4 col-md-3">
+                                                            <input type="number" step="0.01" class="form-control shadow-sm" wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.quantity_used" placeholder="Takaran">
+                                                        </div>
+                                                        <div class="col-2 col-md-1">
+                                                            <button type="button" class="btn btn-glass-danger shadow-sm w-100" wire:click="removeVariantRecipe({{ $vIndex }}, {{ $rIndex }})"><i class="bi bi-trash3"></i></button>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                            <button type="button" class="btn btn-sm btn-outline-brand mt-2" wire:click="addVariantRecipe({{ $vIndex }})"><i class="bi bi-plus"></i> Tambah Bahan</button>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
                             {{-- TAB 3: EXTRAS / ADD-ONS --}}
                             <div x-show="tab === 'extras'" x-transition.opacity x-cloak>
                                 <h5 class="fw-bold mb-4" style="color: var(--brand-caramel, #B67332);">
@@ -393,7 +457,15 @@
                 Lanjut Harga <i class="bi bi-chevron-right"></i>
             </button>
             <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-addons"
-                    x-show="tab === 'pricing'" @click="tab = 'extras'">
+                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'retail'" @click="tab = 'extras'">
+                Lanjut Add-ons <i class="bi bi-chevron-right"></i>
+            </button>
+            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
+                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'resto'" @click="tab = 'recipe'">
+                Lanjut Resep <i class="bi bi-chevron-right"></i>
+            </button>
+            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
+                    x-show="tab === 'recipe'" @click="tab = 'extras'">
                 Lanjut Add-ons <i class="bi bi-chevron-right"></i>
             </button>
             <button type="submit"
@@ -416,7 +488,12 @@
 
             <button type="button"
                     class="btn btn-back-circle shadow-sm flex-shrink-0"
-                    x-show="tab !== 'general'" @click="tab = tab === 'extras' ? 'pricing' : 'general'">
+                    x-show="tab !== 'general'" 
+                    @click="
+                        if (tab === 'extras') tab = '{{ tenant('store_type') }}' === 'resto' ? 'recipe' : 'pricing';
+                        else if (tab === 'recipe') tab = 'pricing';
+                        else if (tab === 'pricing') tab = 'general';
+                    ">
                 <i class="bi bi-chevron-left"></i>
             </button>
 
@@ -426,7 +503,15 @@
             </button>
 
             <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 tour-btn-next-addons"
-                    x-show="tab === 'pricing'" @click="tab = 'extras'">
+                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'retail'" @click="tab = 'extras'">
+                Lanjut <i class="bi bi-chevron-right"></i>
+            </button>
+            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
+                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'resto'" @click="tab = 'recipe'">
+                Lanjut <i class="bi bi-chevron-right"></i>
+            </button>
+            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
+                    x-show="tab === 'recipe'" @click="tab = 'extras'">
                 Lanjut <i class="bi bi-chevron-right"></i>
             </button>
 

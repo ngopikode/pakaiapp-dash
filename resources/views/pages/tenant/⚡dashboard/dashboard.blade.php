@@ -480,6 +480,78 @@
                         </div>
                     </div>
 
+                    {{-- Widget Produk Kurang Laku --}}
+                    <div class="card dash-card flex-grow-1 p-2 bg-body border mt-3"
+                         style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="card-header border-0 bg-transparent pt-3 px-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-arrow-down-right-circle-fill text-danger fs-5"></i>
+                            <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;">Perlu Perhatian (Kurang Laku)</h6>
+                        </div>
+                        <div class="card-body p-3 pt-1 bg-body">
+                            @if(count($slowMovingProducts) > 0)
+                                <div class="d-flex flex-column gap-2">
+                                    @foreach($slowMovingProducts as $index => $item)
+                                        <div
+                                            class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
+                                            style="border-color: var(--bs-border-color-translucent) !important;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">
+                                                    !
+                                                </div>
+                                                <div class="fw-bold small text-truncate text-body"
+                                                     style="max-width: 150px;">{{ $item->name }}</div>
+                                            </div>
+                                            <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i
+                                                    class="bi bi-graph-down-arrow text-danger me-1"></i> {{ $item->total_sold }} Terjual</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-4 rounded-4 bg-body-tertiary border">
+                                    <small class="text-secondary fw-bold">Semua produk terjual dengan baik!</small>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Widget Waktu Tersibuk --}}
+                    <div class="card dash-card flex-grow-1 p-2 bg-body border mt-3"
+                         style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="card-header border-0 bg-transparent pt-3 px-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-clock-history text-primary fs-5"></i>
+                            <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;">Waktu Penjualan Tersibuk</h6>
+                        </div>
+                        <div class="card-body p-3 pt-1 bg-body">
+                            @if(count($peakSalesTimes) > 0)
+                                <div class="d-flex flex-column gap-2">
+                                    @foreach($peakSalesTimes as $index => $item)
+                                        <div
+                                            class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
+                                            style="border-color: var(--bs-border-color-translucent) !important;">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">
+                                                    {{ $index + 1 }}
+                                                </div>
+                                                <div class="fw-bold small text-truncate text-body">
+                                                    {{ $item->time_range }}
+                                                </div>
+                                            </div>
+                                            <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i
+                                                    class="bi bi-bag-check-fill text-primary me-1"></i> {{ $item->orders }} Order</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <small class="text-secondary opacity-75" style="font-size: 0.65rem;">Berdasarkan 30 hari terakhir</small>
+                                </div>
+                            @else
+                                <div class="text-center py-4 rounded-4 bg-body-tertiary border">
+                                    <small class="text-secondary fw-bold">Belum ada data waktu penjualan.</small>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     {{-- Quick Actions --}}
                     <div class="card dash-card p-2 bg-body border"
                          style="border-color: var(--bs-border-color-translucent) !important;">
