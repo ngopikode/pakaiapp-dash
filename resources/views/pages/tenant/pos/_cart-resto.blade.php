@@ -1,8 +1,16 @@
 <div class="card d-flex flex-column h-100 border shadow-sm bg-body text-body"
      style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
+     
+    <template x-if="isEditingOrder">
+        <div class="bg-primary bg-opacity-10 text-primary px-3 py-2 border-bottom fw-medium text-center small position-relative" style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
+            <i class="bi bi-info-circle-fill me-1"></i> Menambah ke <span class="fw-bold" x-text="editInvoiceCode"></span> (<span x-text="customerName || tableNumber"></span>)
+            <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" style="font-size: 0.6rem;" @click="window.location.href='/cashier'" title="Batal Edit"></button>
+        </div>
+    </template>
+
     {{-- Header (Safe Context Light/Dark) --}}
     <div class="p-3 p-lg-4 border-bottom d-flex justify-content-between align-items-center bg-body"
-         style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
+         :style="isEditingOrder ? 'border-radius: 0;' : 'border-radius: 1.5rem 1.5rem 0 0;'" style="border-color: var(--bs-border-color-translucent) !important;">
         <div class="d-flex align-items-center gap-2">
             <!-- Tombol Kembali Khusus HP -->
             <button @click="isMobileCartOpen = false"
@@ -91,7 +99,8 @@
                 <button @click="orderType = '{{ $type['id'] }}'; if('{{ $type['id'] }}' !== 'dinein') tableNumber = ''"
                         class="btn fw-bold py-2 px-3 flex-shrink-0 transition-all rounded-pill"
                         :class="orderType === '{{ $type['id'] }}' ? 'btn-primary text-white' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                        style="font-size: 0.85rem;">
+                        style="font-size: 0.85rem;"
+                        :disabled="isEditingOrder">
                     {{ $type['label'] }}
                 </button>
             @endforeach
@@ -101,12 +110,12 @@
         <div class="row g-2 mb-3">
             <div :class="orderType === 'dinein' ? 'col-7' : 'col-12'">
                 <input type="text" class="form-control bg-body-tertiary text-body border" x-model="customerName"
-                       placeholder="Nama Pelanggan"
+                       placeholder="Nama Pelanggan" :disabled="isEditingOrder"
                        style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
             </div>
             <div class="col-5" x-show="orderType === 'dinein'">
                 <input type="text" class="form-control bg-body-tertiary text-body border" x-model="tableNumber"
-                       placeholder="Meja"
+                       placeholder="Meja" :disabled="isEditingOrder"
                        style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
             </div>
         </div>
@@ -156,7 +165,7 @@
                 <button id="tour-resto-save" @click="submitNewOrder"
                         class="btn btn-warning w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center text-dark py-3"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting" style="border-radius: 1rem;">
-                    <span x-text="isSubmitting ? 'Memproses...' : 'Simpan Antrian'"></span>
+                    <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Antrian')"></span>
                 </button>
             </div>
             <div class="col-12 col-xl-6">

@@ -16,6 +16,9 @@ use Livewire\Component;
 new class extends Component {
 
     public string $activeTab = 'cashier';
+    public ?int $addToOrder = null;
+    
+    public ?Order $existingOrder = null;
 
     // Tarif potong kredit per transaksi sukses
     private int $feePerTransaction = 300;
@@ -23,6 +26,19 @@ new class extends Component {
     public function changeTab($tab)
     {
         $this->activeTab = $tab;
+    }
+
+    public function mount(?int $addToOrder = null): void
+    {
+        $this->addToOrder = $addToOrder;
+        if ($this->addToOrder) {
+            $this->existingOrder = Order::find($this->addToOrder);
+            if ($this->existingOrder && $this->existingOrder->status !== 'pending') {
+                // If it's already paid or cancelled, we shouldn't add to it.
+                $this->addToOrder = null;
+                $this->existingOrder = null;
+            }
+        }
     }
 
     /**
@@ -54,27 +70,44 @@ new class extends Component {
                 $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
                 $totalPrice = $subtotal + $serviceChargeAmount + $taxAmount;
 
-                $invoiceCode = 'INV-' . strtoupper(Str::random(6));
+                if ($this->addToOrder && $this->existingOrder) {
+                    $order = $this->existingOrder;
+                    // Update total for the existing order
+                    $newSubtotal = $order->subtotal + $subtotal;
+                    $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
+                    $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
+                    $newTotalPrice = $newSubtotal + $newServiceCharge + $newTaxAmount;
 
-                $order = Order::create([
-                    'invoice_code' => $invoiceCode,
-                    'table_number' => $orderType === 'dinein' ? $tableNumber : null,
-                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
-                    'customer_name' => $customerName ?: 'Pelanggan Umum',
-                    'order_type' => $orderType,
-                    'payment_method' => 'cash',
-                    'subtotal' => $subtotal,
-                    'tax_amount' => $taxAmount,
-                    'service_charge_amount' => $serviceChargeAmount,
-                    'tax_percentage' => $taxRate,
-                    'service_charge_percentage' => $serviceRate,
-                    'discount' => 0,
-                    'total_price' => $totalPrice,
-                    'amount_paid' => 0,
-                    'change_amount' => 0,
-                    'status' => 'pending', // Belum bayar!
-                    'user_id' => Auth::id(),
-                ]);
+                    $order->update([
+                        'subtotal' => $newSubtotal,
+                        'service_charge_amount' => $newServiceCharge,
+                        'tax_amount' => $newTaxAmount,
+                        'total_price' => $newTotalPrice,
+                    ]);
+                    $invoiceCode = $order->invoice_code;
+                } else {
+                    $invoiceCode = 'INV-' . strtoupper(Str::random(6));
+
+                    $order = Order::create([
+                        'invoice_code' => $invoiceCode,
+                        'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                        'notes' => $orderType !== 'dinein' ? $tableNumber : null,
+                        'customer_name' => $customerName ?: 'Pelanggan Umum',
+                        'order_type' => $orderType,
+                        'payment_method' => 'cash',
+                        'subtotal' => $subtotal,
+                        'tax_amount' => $taxAmount,
+                        'service_charge_amount' => $serviceChargeAmount,
+                        'tax_percentage' => $taxRate,
+                        'service_charge_percentage' => $serviceRate,
+                        'discount' => 0,
+                        'total_price' => $totalPrice,
+                        'amount_paid' => 0,
+                        'change_amount' => 0,
+                        'status' => 'pending', // Belum bayar!
+                        'user_id' => Auth::id(),
+                    ]);
+                }
 
                 foreach ($cart as $index => $item) {
                     $variant = $dbVariants[$index];
@@ -89,6 +122,8 @@ new class extends Component {
                         'discount' => 0,
                         'subtotal' => $item['subtotal'],
                         'note' => $item['note'] ?? null,
+                        // Tandai item ini belum diproses (baru ditambahkan)
+                        'kitchen_status' => 'waiting' // Asumsi ada field ini atau kalau tidak biarkan default
                     ]);
                     $variant->decrement('stock', $item['quantity']);
                 }
@@ -130,30 +165,56 @@ new class extends Component {
                 $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
 
                 $discountAmount = (float)$discount;
-                $totalPrice = max(0, $subtotal + $serviceChargeAmount + $taxAmount - $discountAmount);
-                $paid = (float)$amountPaid ?: $totalPrice;
-                $change = max(0, $paid - $totalPrice);
-                $invoiceCode = 'INV-' . strtoupper(Str::random(6));
 
-                $order = Order::create([
-                    'invoice_code' => $invoiceCode,
-                    'table_number' => $orderType === 'dinein' ? $tableNumber : null,
-                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
-                    'customer_name' => $customerName ?: 'Pelanggan Umum',
-                    'order_type' => $orderType,
-                    'payment_method' => $paymentMethod,
-                    'subtotal' => $subtotal,
-                    'tax_amount' => $taxAmount,
-                    'service_charge_amount' => $serviceChargeAmount,
-                    'tax_percentage' => $taxRate,
-                    'service_charge_percentage' => $serviceRate,
-                    'discount' => $discountAmount,
-                    'total_price' => $totalPrice,
-                    'amount_paid' => $paid,
-                    'change_amount' => $change,
-                    'status' => 'paid',
-                    'user_id' => Auth::id(),
-                ]);
+                if ($this->addToOrder && $this->existingOrder) {
+                    $order = $this->existingOrder;
+                    
+                    $newSubtotal = $order->subtotal + $subtotal;
+                    $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
+                    $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
+                    $newTotalPrice = max(0, $newSubtotal + $newServiceCharge + $newTaxAmount - $discountAmount);
+                    
+                    $paid = (float)$amountPaid ?: $newTotalPrice;
+                    $change = max(0, $paid - $newTotalPrice);
+                    $invoiceCode = $order->invoice_code;
+
+                    $order->update([
+                        'payment_method' => $paymentMethod,
+                        'subtotal' => $newSubtotal,
+                        'service_charge_amount' => $newServiceCharge,
+                        'tax_amount' => $newTaxAmount,
+                        'discount' => $discountAmount,
+                        'total_price' => $newTotalPrice,
+                        'amount_paid' => $paid,
+                        'change_amount' => $change,
+                        'status' => 'paid',
+                    ]);
+                } else {
+                    $totalPrice = max(0, $subtotal + $serviceChargeAmount + $taxAmount - $discountAmount);
+                    $paid = (float)$amountPaid ?: $totalPrice;
+                    $change = max(0, $paid - $totalPrice);
+                    $invoiceCode = 'INV-' . strtoupper(Str::random(6));
+
+                    $order = Order::create([
+                        'invoice_code' => $invoiceCode,
+                        'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                        'notes' => $orderType !== 'dinein' ? $tableNumber : null,
+                        'customer_name' => $customerName ?: 'Pelanggan Umum',
+                        'order_type' => $orderType,
+                        'payment_method' => $paymentMethod,
+                        'subtotal' => $subtotal,
+                        'tax_amount' => $taxAmount,
+                        'service_charge_amount' => $serviceChargeAmount,
+                        'tax_percentage' => $taxRate,
+                        'service_charge_percentage' => $serviceRate,
+                        'discount' => $discountAmount,
+                        'total_price' => $totalPrice,
+                        'amount_paid' => $paid,
+                        'change_amount' => $change,
+                        'status' => 'paid',
+                        'user_id' => Auth::id(),
+                    ]);
+                }
 
                 foreach ($cart as $index => $item) {
                     $variant = $dbVariants[$index];

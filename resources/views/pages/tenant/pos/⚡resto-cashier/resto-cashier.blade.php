@@ -26,7 +26,7 @@
     {{-- Tab Navigation (Safe Context Colors) --}}
     <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
         <div class="d-flex gap-2">
-            <button wire:click="changeTab('cashier')"
+            <button wire:click="changeTab('cashier')" @click="if(isEditingOrder) window.location.href='/cashier'"
                     class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
                     :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
                     style="border-radius: 1rem;">
@@ -128,9 +128,11 @@
         extrasSelected: [],
         optionQty: 1,
 
-        customerName: '',
-        tableNumber: '',
-        orderType: @json($restoOrderTypes[0]['id'] ?? 'dinein'),
+        customerName: @json($existingOrder ? $existingOrder->customer_name : ''),
+        tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ''),
+        orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]['id'] ?? 'dinein')),
+        isEditingOrder: @json($existingOrder ? true : false),
+        editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null),
         paymentMethod: 'cash',
         amountPaid: '',
         payDiscount: 0,
@@ -429,11 +431,15 @@
             try {
                 const result = await $wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
                 if (result && result.success) {
-                    showIslandToast(`Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
+                    showIslandToast(this.isEditingOrder ? `Tambahan disimpan ke ${result.invoice_code}!` : `Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
                     this.clearCart();
                     this.customerName = '';
                     this.tableNumber = '';
                     Livewire.dispatch('stock-updated');
+                    
+                    if (this.isEditingOrder) {
+                        setTimeout(() => { window.location.href = '/cashier'; }, 500);
+                    }
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
                     Livewire.dispatch('stock-updated');

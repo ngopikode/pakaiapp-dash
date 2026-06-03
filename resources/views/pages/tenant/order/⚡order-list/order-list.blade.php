@@ -251,6 +251,13 @@
                                                     </button>
 
                                                     @if($order->status == 'pending')
+                                                        @if($storeType === 'resto')
+                                                            <a href="{{ route('cashier', ['add_to_order' => $order->id]) }}"
+                                                               class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-sm hover-lift"
+                                                               title="Tambah Pesanan ke Meja Ini">
+                                                                <i class="bi bi-plus-circle me-1"></i> Tambah
+                                                            </a>
+                                                        @endif
                                                         <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
                                                                 class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
                                                             Bayar
