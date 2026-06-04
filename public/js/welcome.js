@@ -266,6 +266,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 btnContainer.innerHTML = '';
             }
             
+            // Force clear chat input before changing steps
+            if (chatInput) chatInput.value = '';
+            
             // Fade out
             questionArea.classList.add('fade-out');
             inputContainer.style.display = 'none';
@@ -362,11 +365,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 chatInput.placeholder = step.placeholder;
                 
                 // Set existing value if they went back
-                if (step.id === 'TanyaNama') chatInput.value = formData.namaToko;
-                else if (step.id === 'TanyaOwner') chatInput.value = formData.namaOwner;
-                else if (step.id === 'TanyaWa') chatInput.value = formData.noWa;
-                else if (step.id === 'TanyaEmail') chatInput.value = formData.email;
-                else chatInput.value = '';
+                if (step.id === 'TanyaNama' && formData.namaToko) chatInput.value = formData.namaToko;
+                else if (step.id === 'TanyaOwner' && formData.namaOwner) chatInput.value = formData.namaOwner;
+                else if (step.id === 'TanyaWa' && formData.noWa) chatInput.value = formData.noWa;
+                else if (step.id === 'TanyaEmail' && formData.email) chatInput.value = formData.email;
 
                 if (step.type === 'number' && step.id === 'TanyaOTP') chatInput.maxLength = 6;
                 else chatInput.removeAttribute('maxLength');
