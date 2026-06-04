@@ -53,30 +53,41 @@
     gap: 12px;
 }
 .pwa-icon img {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    object-fit: contain;
+    transform: translateY(0);
 }
-.pwa-text {
+.pwa-header {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
-.pwa-text strong {
+.pwa-icon {
+    width: 48px;
+    height: 48px;
+    background: #fdf4ff;
+    color: #c026d3;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+.pwa-title {
+    font-weight: 700;
+    margin: 0;
     font-size: 15px;
     color: #1f2937;
-    margin-bottom: 2px;
-    font-weight: 700;
 }
-.pwa-text span {
-    font-size: 12.5px;
+.pwa-desc {
+    margin: 0;
+    font-size: 13px;
     color: #6b7280;
     line-height: 1.4;
 }
-.pwa-toast-actions {
+.pwa-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
+    margin-top: 4px;
 }
 .pwa-btn-dismiss, .pwa-btn-install {
     border: none;
@@ -98,7 +109,6 @@
 }
 .pwa-btn-install:hover { background: #16a34a; }
 
-/* Prevent overlap with bottom navbar on mobile */
 @media (max-width: 768px) {
     .pwa-toast {
         bottom: calc(var(--bottom-nav-height, 65px) + 20px) !important;
@@ -107,7 +117,6 @@
 </style>
 
 <script>
-    // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js').then(registration => {
@@ -119,89 +128,86 @@
     }
 
     window.deferredPrompt = null;
-    const pwaToast = document.getElementById('pwa-toast');
-    const pwaInstallBtn = document.getElementById('pwa-install');
-    const pwaDismissBtn = document.getElementById('pwa-dismiss');
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const pwaToast = document.getElementById('pwa-toast');
+        const pwaInstallBtn = document.getElementById('pwa-install');
+        const pwaDismissBtn = document.getElementById('pwa-dismiss');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        window.deferredPrompt = e;
-        
-        // Show install button in sidebar if it exists
-        const sidebarBtn = document.getElementById('sidebar-pwa-install');
-        if (sidebarBtn) {
-            sidebarBtn.style.display = 'flex';
-        }
-        
-        // Check if user has dismissed it recently
-        const lastDismissed = localStorage.getItem('pwaDismissedTs');
-        const delayDaysMs = 1 * 24 * 60 * 60 * 1000; // 1 day
-        
-        if (!lastDismissed || (Date.now() - parseInt(lastDismissed)) > delayDaysMs) {
-            if (pwaToast) {
-                pwaToast.style.display = 'flex';
-                // Slight delay to allow display block to render before CSS transform
-                setTimeout(() => {
-                    pwaToast.classList.add('show');
-                }, 500);
-            }
-        }
-    });
-
-    window.installPwa = async function() {
-        if (window.deferredPrompt) {
-            if (pwaToast) {
-                pwaToast.classList.remove('show');
-                setTimeout(() => { pwaToast.style.display = 'none'; }, 400);
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            
+            const sidebarBtn = document.getElementById('sidebar-pwa-install');
+            if (sidebarBtn) {
+                sidebarBtn.style.display = 'flex';
             }
             
-            window.deferredPrompt.prompt();
-            const { outcome } = await window.deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
+            const lastDismissed = localStorage.getItem('pwaDismissedTs');
+            const delayDaysMs = 1 * 24 * 60 * 60 * 1000;
             
-            if (outcome === 'accepted') {
-                window.deferredPrompt = null;
-                const sidebarBtn = document.getElementById('sidebar-pwa-install');
-                if (sidebarBtn) sidebarBtn.style.display = 'none';
-            }
-        } else {
-            // Fallback alert if deferredPrompt is not available
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Cara Install App',
-                    text: 'Untuk menginstall aplikasi ini, buka menu browser (ikon titik tiga di pojok kanan atas) lalu pilih "Tambahkan ke Layar Utama" (Add to Home screen).',
-                    confirmButtonColor: '#22c55e'
-                });
-            } else {
-                alert('Buka menu browser Anda dan pilih "Tambahkan ke Layar Utama" (Add to Home screen) untuk menginstall aplikasi.');
-            }
-        }
-    };
-
-    if (pwaInstallBtn) {
-        pwaInstallBtn.addEventListener('click', () => window.installPwa());
-    }
-
-    if (pwaDismissBtn) {
-        pwaDismissBtn.addEventListener('click', () => {
-            pwaToast.classList.remove('show');
-            setTimeout(() => { pwaToast.style.display = 'none'; }, 400);
-            localStorage.setItem('pwaDismissedTs', Date.now().toString());
-            
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Bisa Di-install Kapan Saja',
-                    text: 'Anda bisa menginstall aplikasi ini kapan saja lewat menu "Install App" di sidebar kiri, atau lewat menu browser (Add to Home screen).',
-                    confirmButtonColor: '#22c55e',
-                    timer: 5000
-                });
-            } else {
-                alert('Anda bisa menginstall aplikasi ini kapan saja lewat menu "Install App" di sidebar atau menu browser (Add to Home screen).');
+            if (!lastDismissed || (Date.now() - parseInt(lastDismissed)) > delayDaysMs) {
+                if (pwaToast) {
+                    pwaToast.style.display = 'flex';
+                    setTimeout(() => {
+                        pwaToast.classList.add('show');
+                    }, 500);
+                }
             }
         });
-    }
+
+        window.installPwa = async function() {
+            if (window.deferredPrompt) {
+                if (pwaToast) {
+                    pwaToast.classList.remove('show');
+                    setTimeout(() => { pwaToast.style.display = 'none'; }, 400);
+                }
+                
+                window.deferredPrompt.prompt();
+                const { outcome } = await window.deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    window.deferredPrompt = null;
+                    const sidebarBtn = document.getElementById('sidebar-pwa-install');
+                    if (sidebarBtn) sidebarBtn.style.display = 'none';
+                }
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Cara Install App',
+                        text: 'Untuk menginstall aplikasi ini, buka menu browser (ikon titik tiga di pojok kanan atas) lalu pilih "Tambahkan ke Layar Utama" (Add to Home screen).',
+                        confirmButtonColor: '#22c55e'
+                    });
+                } else {
+                    alert('Buka menu browser Anda dan pilih "Tambahkan ke Layar Utama" (Add to Home screen) untuk menginstall aplikasi.');
+                }
+            }
+        };
+
+        if (pwaInstallBtn) {
+            pwaInstallBtn.addEventListener('click', () => window.installPwa());
+        }
+
+        if (pwaDismissBtn) {
+            pwaDismissBtn.addEventListener('click', () => {
+                pwaToast.classList.remove('show');
+                setTimeout(() => { pwaToast.style.display = 'none'; }, 400);
+                localStorage.setItem('pwaDismissedTs', Date.now().toString());
+                
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Bisa Di-install Kapan Saja',
+                        text: 'Anda bisa menginstall aplikasi ini kapan saja lewat menu "Install App" di sidebar kiri, atau lewat menu browser (Add to Home screen).',
+                        confirmButtonColor: '#22c55e',
+                        timer: 5000
+                    });
+                } else {
+                    alert('Anda bisa menginstall aplikasi ini kapan saja lewat menu "Install App" di sidebar atau menu browser (Add to Home screen).');
+                }
+            });
+        }
+    });
 </script>
+@endonce
