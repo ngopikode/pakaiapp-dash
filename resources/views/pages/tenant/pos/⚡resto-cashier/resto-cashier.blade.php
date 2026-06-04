@@ -22,39 +22,41 @@
         </div>
     </div>
 
-    {{-- Tab Navigation (Safe Context Colors) --}}
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
-        <div class="d-flex gap-2">
+    {{-- Tab Navigation (Premium Segmented Control) --}}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
+        <div class="bg-body-tertiary p-1 rounded-pill border d-inline-flex shadow-sm" style="border-color: var(--bs-border-color-translucent) !important;">
+            <!-- Tab: Kasir Baru -->
             <button wire:click="changeTab('cashier')" @click="if(isEditingOrder) window.location.href='/cashier'"
-                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                    :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                    style="border-radius: 1rem;">
-                <i class="bi bi-plus-circle"></i> Kasir Baru
+                    class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0"
+                    :class="currentTab === 'cashier' ? 'bg-body shadow-sm text-primary' : 'text-secondary hover-bg-light'"
+                    style="font-size: 0.9rem;">
+                <i class="bi bi-calculator-fill fs-6"></i>
+                <span class="d-none d-sm-inline">Kasir Baru</span>
+                <span class="d-inline d-sm-none">Kasir</span>
             </button>
-            <button wire:click="changeTab('queue')" title="Daftar Antrean"
-                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                    :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                    style="border-radius: 1rem;">
-                <i class="bi bi-hourglass-split"></i>
-                <span>Antrian</span>
 
+            <!-- Tab: Antrian -->
+            <button wire:click="changeTab('queue')" title="Daftar Antrean"
+                    class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0 position-relative"
+                    :class="currentTab === 'queue' ? 'bg-body shadow-sm text-warning' : 'text-secondary hover-bg-light'"
+                    style="font-size: 0.9rem;">
+                <i class="bi bi-hourglass-split fs-6"></i>
+                <span>Antrian</span>
+                
                 @if($pendingOrders->count() > 0)
-                    <!-- Badge digeser masuk secara inline (sejajar teks), dijamin gak bakal mentok ujung layar luar lagi -->
-                    <small class="bg-danger text-white fw-bold d-flex align-items-center justify-content-center px-2"
-                           style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.65rem;">
                         {{ $pendingOrders->count() }}
-                    </small>
+                    </span>
                 @endif
             </button>
         </div>
 
-        {{-- Premium Help Button (Dynamic FAB on Mobile, Standard Circle on Desktop) --}}
+        {{-- Premium Help Button (Now gracefully sitting in the header) --}}
         <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
-                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0 mobile-help-fab"
-                :class="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0 ? 'active-cart' : ''"
-                style="width: 40px; height: 40px; border-radius: 50% !important;"
+                class="btn btn-light bg-body border fw-bold rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all hover-scale text-warning me-1 me-lg-0"
+                style="width: 44px; height: 44px; border-color: var(--bs-border-color-translucent) !important;"
                 title="Panduan & Tutorial Penggunaan">
-            <i class="bi bi-question-circle fs-5"></i>
+            <i class="bi bi-lightbulb-fill fs-5"></i>
         </button>
     </div>
 
