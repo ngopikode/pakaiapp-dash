@@ -26,8 +26,16 @@
      x-transition:leave="transition ease-in duration-200"
      x-transition:leave-start="opacity-100 translate-y-0 scale-100"
      x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-     class="position-fixed bottom-0 start-0 m-3 m-md-4 p-3 shadow-lg border text-body"
+     class="tour-guide-toast position-fixed bottom-0 start-0 m-3 m-md-4 p-3 shadow-lg border text-body"
      style="z-index: 1040; width: 320px; border-radius: 1.25rem; background: rgba(var(--bs-body-bg-rgb), 0.85); backdrop-filter: blur(12px); border-color: var(--bs-border-color-translucent) !important;">
+     
+    <style>
+        @media (max-width: 768px) {
+            .tour-guide-toast {
+                bottom: calc(var(--bottom-nav-height, 65px) + env(safe-area-inset-bottom, 0px)) !important;
+            }
+        }
+    </style>
 
     <div class="d-flex align-items-start gap-3">
         <div
