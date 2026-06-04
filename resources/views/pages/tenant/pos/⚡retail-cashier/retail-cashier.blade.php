@@ -51,12 +51,12 @@
     </div>
 
     {{-- SKELETON LOADER SAAT GANTI TAB --}}
-    <div wire:loading.flex wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0 w-100 mt-0" style="min-height: 0; padding-top: 1rem;">
-        <div class="col-lg-7 col-xl-8 h-100">
-            <div class="skeleton-shimmer h-100 w-100" style="border-radius: 1.25rem;"></div>
+    <div wire:loading.flex wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0 w-100 mt-0" style="padding-top: 1rem;">
+        <div class="col-lg-7 col-xl-8">
+            <div class="skeleton-shimmer w-100" style="border-radius: 1.25rem; min-height: 70vh;"></div>
         </div>
-        <div class="col-lg-5 col-xl-4 h-100 d-none d-lg-block">
-            <div class="skeleton-shimmer h-100 w-100" style="border-radius: 1.25rem;"></div>
+        <div class="col-lg-5 col-xl-4 d-none d-lg-block">
+            <div class="skeleton-shimmer w-100" style="border-radius: 1.25rem; min-height: 70vh;"></div>
         </div>
     </div>
 
