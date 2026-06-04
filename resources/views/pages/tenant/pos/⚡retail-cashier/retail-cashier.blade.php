@@ -6,6 +6,7 @@
      @keydown.window="handleKeydown($event)"
      @open-mobile-cart.window="isMobileCartOpen = true"
      @close-mobile-cart.window="isMobileCartOpen = false"
+     @force-cashier-tab.window="currentTab = 'cashier'"
      x-cloak>
 
     {{-- Premium Glassmorphism Loading Screen --}}
@@ -113,13 +114,6 @@
     Alpine.data('retailPos', () => ({
         cart: [],
         isMobileCartOpen: false,
-
-        init() {
-            window.addEventListener('force-cashier-tab', () => {
-                this.currentTab = 'cashier';
-                @this.set('activeTab', 'cashier');
-            });
-        },
 
         currentTab: $wire.entangle('activeTab').live,
 
