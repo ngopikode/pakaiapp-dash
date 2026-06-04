@@ -127,7 +127,9 @@ new class extends Component {
             // 5 Pesanan Terbaru
             $recentOrders = Order::latest()->take(5)->get();
 
-            // Produk Terlaris
+            // Produk Terlaris, Metode Pembayaran, & Tipe Pesanan
+            $paymentMethods = collect([]);
+            $orderTypes = collect([]);
             try {
                 $topProducts = DB::table('order_items')
                     ->join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -137,6 +139,20 @@ new class extends Component {
                     ->groupBy('order_items.product_name')
                     ->orderByDesc('total_sold')
                     ->limit(5)
+                    ->get();
+                    
+                $paymentMethods = DB::table('orders')
+                    ->select('payment_method', DB::raw('COUNT(id) as total'), DB::raw('SUM(total_price) as total_amount'))
+                    ->whereMonth('created_at', date('m'))
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->groupBy('payment_method')
+                    ->get();
+                    
+                $orderTypes = DB::table('orders')
+                    ->select('order_type', DB::raw('COUNT(id) as total'))
+                    ->whereMonth('created_at', date('m'))
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->groupBy('order_type')
                     ->get();
             } catch (\Exception $e) {
                 $topProducts = collect([]);
@@ -188,6 +204,8 @@ new class extends Component {
             'stats' => $stats,
             'recentOrders' => $recentOrders,
             'topProducts' => $topProducts,
+            'paymentMethods' => $paymentMethods ?? collect([]),
+            'orderTypes' => $orderTypes ?? collect([]),
             'peakSalesTimes' => $peakSalesTimes,
             'slowMovingProducts' => $slowMovingProducts,
             'newOrderCount' => $newOrderCount,

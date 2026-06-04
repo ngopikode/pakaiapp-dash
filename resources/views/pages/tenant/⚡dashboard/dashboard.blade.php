@@ -302,86 +302,91 @@
         </div>
 
         <div class="row g-3 g-md-4">
-            {{-- Pesanan Terbaru --}}
+            {{-- Operational Insights --}}
             <div class="col-xl-8">
-                <div class="card dash-card h-100 bg-body border"
-                     style="border-color: var(--bs-border-color-translucent) !important;">
-                    <div
-                        class="card-header bg-transparent border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;"><i
-                                class="bi bi-receipt me-2 text-warning"></i>Pesanan Terbaru</h5>
-                        <a href="{{ route('order') }}" wire:navigate
-                           class="btn btn-secondary border bg-body-tertiary text-secondary btn-sm rounded-pill px-3 fw-bold d-none d-sm-inline-block">Kelola
-                            Pesanan</a>
-                    </div>
-                    <div class="card-body p-3 p-md-4 pt-0 bg-body">
-                        <div class="list-group list-group-flush bg-transparent">
-                            @forelse($recentOrders as $order)
-                                <div
-                                    class="list-group-item list-group-item-custom p-2 p-sm-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-3">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div
-                                            class="rounded-circle text-white-fixed d-flex align-items-center justify-content-center fw-bolder shadow-sm bg-gradient-caramel flex-shrink-0"
-                                            style="width: 45px; height: 45px; font-size: 1.1rem; font-family: var(--font-serif), sans-serif;">
-                                            {{ strtoupper(substr($order->customer_name, 0, 1)) }}
-                                        </div>
-                                        <div>
-                                            <div class="d-flex align-items-center gap-2 mb-1">
-                                                <h6 class="fw-bold mb-0 text-body">{{ $order->customer_name }}</h6>
+                <div class="row g-3 g-md-4 h-100">
+                    {{-- Metode Pembayaran --}}
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="card dash-card h-100 bg-body border" style="border-color: var(--bs-border-color-translucent) !important;">
+                            <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4">
+                                <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;"><i class="bi bi-credit-card-2-front-fill me-2 text-primary"></i>Metode Pembayaran (Bulan Ini)</h6>
+                            </div>
+                            <div class="card-body p-3 p-md-4 pt-2">
+                                @if(count($paymentMethods) > 0)
+                                    @php 
+                                        $totalPayments = $paymentMethods->sum('total'); 
+                                        $colors = ['cash' => 'success', 'qris' => 'info', 'transfer' => 'primary'];
+                                        $icons = ['cash' => 'cash-stack', 'qris' => 'qr-code-scan', 'transfer' => 'bank'];
+                                        $labels = ['cash' => 'Tunai (Cash)', 'qris' => 'QRIS', 'transfer' => 'Transfer Bank'];
+                                    @endphp
+                                    <div class="d-flex flex-column gap-3">
+                                        @foreach($paymentMethods as $pm)
+                                            @php 
+                                                $pct = $totalPayments > 0 ? round(($pm->total / $totalPayments) * 100) : 0; 
+                                                $c = $colors[$pm->payment_method] ?? 'secondary';
+                                                $i = $icons[$pm->payment_method] ?? 'credit-card';
+                                                $l = $labels[$pm->payment_method] ?? ucfirst($pm->payment_method);
+                                            @endphp
+                                            <div>
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="small fw-bold text-body"><i class="bi bi-{{$i}} text-{{$c}} me-1"></i> {{$l}}</span>
+                                                    <span class="small text-secondary fw-bold">{{$pct}}% ({{$pm->total}})</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px; border-radius: 4px; background-color: var(--bs-secondary-bg);">
+                                                    <div class="progress-bar bg-{{$c}}" role="progressbar" style="width: {{$pct}}%" aria-valuenow="{{$pct}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
                                             </div>
-                                            <div
-                                                class="text-secondary small fw-medium d-flex align-items-center flex-wrap gap-2 opacity-75">
-                                                <span class="badge border text-secondary bg-body"
-                                                      style="font-size: 0.65rem;">#{{ $order->invoice_code }}</span>
-                                                <span class="text-uppercase" style="font-size: 0.7rem;"><i
-                                                        class="bi bi-tag-fill text-warning me-1"></i>{{ $order->order_type }}</span>
-                                                <span class="text-secondary d-none d-sm-inline">&bull;</span>
-                                                <span>{{ $order->created_at->diffForHumans() }}</span>
-                                            </div>
-                                        </div>
+                                        @endforeach
                                     </div>
-                                    <div
-                                        class="text-start text-sm-end w-100 w-sm-auto ps-5 ps-sm-0 mt-2 mt-sm-0 d-flex justify-content-between d-sm-block align-items-center border-top border-sm-0 pt-2 pt-sm-0"
-                                        style="border-color: var(--bs-border-color-translucent) !important;">
-                                        <div class="fw-bold mb-sm-1 text-body"
-                                             style="font-size: 1.1rem; font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px;">
-                                            Rp {{ number_format($order->total_price, 0, ',', '.') }}</div>
-                                        <div>
-                                            @if($order->status == 'pending')
-                                                <span class="badge-pill-glow badge-pill-warning">
-                                                    <span class="rounded-circle"
-                                                          style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Menunggu
-                                                </span>
-                                            @elseif($order->status == 'paid')
-                                                <span class="badge-pill-glow badge-pill-success">
-                                                    <span class="rounded-circle"
-                                                          style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Lunas
-                                                </span>
-                                            @elseif($order->status == 'cancelled')
-                                                <span class="badge-pill-glow badge-pill-danger">
-                                                    <span class="rounded-circle"
-                                                          style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Batal
-                                                </span>
-                                            @endif
-                                        </div>
+                                @else
+                                    <div class="text-center py-4 rounded-4 bg-body-tertiary border">
+                                        <small class="text-secondary fw-bold">Belum ada data pembayaran.</small>
                                     </div>
-                                </div>
-                            @empty
-                                <div class="text-center py-5">
-                                    <div
-                                        class="rounded-circle d-inline-flex p-4 mb-3 text-secondary bg-body-tertiary border">
-                                        <i class="bi bi-inbox fs-1"></i>
-                                    </div>
-                                    <h6 class="fw-bold text-body">Belum Ada Pesanan</h6>
-                                    <p class="text-secondary small mb-0">Pesanan terbaru akan muncul di sini secara
-                                        otomatis.</p>
-                                </div>
-                            @endforelse
+                                @endif
+                            </div>
                         </div>
-                        <a href="{{ route('order') }}" wire:navigate
-                           class="btn btn-outline-secondary border bg-body text-secondary w-100 rounded-pill fw-bold d-block d-sm-none mt-3">
-                            Lihat Semua Pesanan
-                        </a>
+                    </div>
+
+                    {{-- Channel Pesanan --}}
+                    <div class="col-md-6">
+                        <div class="card dash-card h-100 bg-body border" style="border-color: var(--bs-border-color-translucent) !important;">
+                            <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4">
+                                <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;"><i class="bi bi-shop-window me-2 text-warning"></i>Sumber Pesanan (Bulan Ini)</h6>
+                            </div>
+                            <div class="card-body p-3 p-md-4 pt-2">
+                                @if(count($orderTypes) > 0)
+                                    @php 
+                                        $totalTypes = $orderTypes->sum('total'); 
+                                        $tColors = ['retail' => 'secondary', 'dinein' => 'warning', 'takeaway' => 'danger', 'online' => 'success'];
+                                        $tIcons = ['retail' => 'bag', 'dinein' => 'cup-hot', 'takeaway' => 'box-seam', 'online' => 'globe'];
+                                        $tLabels = ['retail' => 'Kasir Retail', 'dinein' => 'Dine-in (Makan di Tempat)', 'takeaway' => 'Takeaway (Bawa Pulang)', 'online' => 'Online Order'];
+                                    @endphp
+                                    <div class="d-flex flex-column gap-3">
+                                        @foreach($orderTypes as $ot)
+                                            @php 
+                                                $pct = $totalTypes > 0 ? round(($ot->total / $totalTypes) * 100) : 0; 
+                                                $c = $tColors[$ot->order_type] ?? 'primary';
+                                                $i = $tIcons[$ot->order_type] ?? 'shop';
+                                                $l = $tLabels[$ot->order_type] ?? ucfirst($ot->order_type);
+                                            @endphp
+                                            <div>
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="small fw-bold text-body"><i class="bi bi-{{$i}} text-{{$c}} me-1"></i> {{$l}}</span>
+                                                    <span class="small text-secondary fw-bold">{{$ot->total}} Trx</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px; border-radius: 4px; background-color: var(--bs-secondary-bg);">
+                                                    <div class="progress-bar bg-{{$c}}" role="progressbar" style="width: {{$pct}}%" aria-valuenow="{{$pct}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-4 rounded-4 bg-body-tertiary border">
+                                        <small class="text-secondary fw-bold">Belum ada data pesanan.</small>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
