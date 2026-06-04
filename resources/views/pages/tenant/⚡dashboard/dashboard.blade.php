@@ -1,21 +1,23 @@
 <div wire:poll.15s class="pb-5 min-vh-100">
 
     {{-- Welcome Header --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 mb-md-5 gap-3 pt-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-4 gap-3 pt-3">
         <div>
             <h6 class="page-greeting-label">
                 Selamat Datang, {{ explode(' ', $user->name)[0] }} 👋
             </h6>
-            <h2 class="page-store-name mb-2">
+            <h2 class="page-store-name mb-2 d-flex flex-wrap align-items-center gap-2 gap-md-3">
                 {{ $store->name ?? 'Setup Tokomu' }}
-            </h2>
-            <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
                 @if($store)
                     <span
-                        class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2 border border-success border-opacity-10"
-                        style="font-size: 0.72rem;">
-                        <span class="active-glow-dot"></span> Online
+                        class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 fw-bold d-flex align-items-center gap-1 border border-success border-opacity-10 mt-1 mt-md-0"
+                        style="font-size: 0.65rem; height: fit-content;">
+                        <span class="active-glow-dot" style="width:6px;height:6px;"></span> Online
                     </span>
+                @endif
+            </h2>
+            <div class="d-flex align-items-center gap-2 mt-1">
+                @if($store)
                     <a href="{{ url('/') }}"
                        target="_blank"
                        class="badge text-secondary bg-body-tertiary border rounded-pill px-3 py-2 text-decoration-none transition-all hover-translate"
@@ -26,25 +28,48 @@
             </div>
         </div>
 
-        {{-- Header Buttons (Mobile Friendly) --}}
-        <div class="d-flex flex-row flex-wrap flex-sm-nowrap gap-2 mt-3 mt-md-0 w-100 w-md-auto">
-            <button wire:click="exportLaporan"
-                    class="btn btn-dashboard-header btn-outline flex-grow-1 py-2 px-2 px-sm-3"
-                    wire:loading.attr="disabled"
-                    style="font-size: 0.85rem; border-radius: 12px;">
-                <span wire:loading.remove wire:target="exportLaporan"><i
-                        class="bi bi-file-earmark-excel-fill text-success fs-6 me-1"></i> Export</span>
-                <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm me-1"></span> Proses...</span>
-            </button>
-            <a href="{{ route('cashier') }}" wire:navigate
-               class="btn btn-caramel-solid text-white flex-grow-1 py-2 px-2 px-sm-3 d-flex align-items-center justify-content-center gap-1"
-               style="font-size: 0.85rem; border-radius: 12px;">
-                <i class="bi bi-cart-check-fill fs-6"></i> Kasir
-                @if($newOrderCount > 0)
-                    <span class="badge rounded-circle ms-1 shadow-sm"
-                          style="padding: 0.35em 0.5em; background-color: #ffffff !important; color: #dc3545 !important; font-size: 0.7rem;">{{ $newOrderCount }}</span>
-                @endif
-            </a>
+        {{-- Desktop: Saldo Top Right & Action Buttons Below it --}}
+        <div class="d-flex flex-column align-items-md-end w-100 w-md-auto mt-2 mt-md-0 gap-3">
+            {{-- Top Right Mini Wallet Info --}}
+            <div class="d-flex align-items-center justify-content-between gap-3 py-2 px-3 rounded-pill border bg-body shadow-sm w-100 w-md-auto" style="border-color: var(--bs-border-color-translucent) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning flex-shrink-0" style="width: 32px; height: 32px;">
+                        <i class="bi bi-wallet2 fs-6"></i>
+                    </div>
+                    <div class="d-flex flex-column lh-1">
+                        <span class="text-secondary small fw-bold" style="font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase;">Saldo Pakaiapp</span>
+                        <span class="fw-bold mt-1 text-body {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }}" style="font-family: var(--font-serif), sans-serif; font-size: 1rem;">
+                            Rp {{ number_format($stats['wallet_balance'], 0, ',', '.') }}
+                        </span>
+                    </div>
+                </div>
+                <div class="border-start ps-3 py-1">
+                    <button class="btn btn-sm p-0 text-primary fw-bold hover-translate" data-bs-toggle="modal" data-bs-target="#topUpModal" style="font-size: 0.8rem;" type="button">
+                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Header Buttons --}}
+            <div class="d-flex flex-row flex-wrap flex-sm-nowrap gap-2 w-100 w-md-auto">
+                <button wire:click="exportLaporan"
+                        class="btn btn-dashboard-header btn-outline flex-grow-1 py-2 px-3"
+                        wire:loading.attr="disabled"
+                        style="font-size: 0.85rem; border-radius: 12px;">
+                    <span wire:loading.remove wire:target="exportLaporan"><i
+                            class="bi bi-file-earmark-excel-fill text-success fs-6 me-1"></i> Export</span>
+                    <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm me-1"></span> Proses...</span>
+                </button>
+                <a href="{{ route('cashier') }}" wire:navigate
+                   class="btn btn-caramel-solid text-white flex-grow-1 py-2 px-3 d-flex align-items-center justify-content-center gap-1"
+                   style="font-size: 0.85rem; border-radius: 12px;">
+                    <i class="bi bi-cart-check-fill fs-6"></i> Kasir
+                    @if($newOrderCount > 0)
+                        <span class="badge rounded-circle ms-1 shadow-sm"
+                              style="padding: 0.35em 0.5em; background-color: #ffffff !important; color: #dc3545 !important; font-size: 0.7rem;">{{ $newOrderCount }}</span>
+                    @endif
+                </a>
+            </div>
         </div>
     </div>
 
@@ -395,59 +420,7 @@
             <div class="col-xl-4">
                 <div class="d-flex flex-column gap-3 gap-md-4 h-100">
 
-                    {{-- WIDGET SALDO KREDIT (BARU - PREMIUM BANK CARD LAYOUT) --}}
-                    {{-- WIDGET SALDO KREDIT (BARU - PREMIUM BANK CARD LAYOUT) --}}
-                    <div
-                        class="card dash-card border bg-body p-1 position-relative overflow-hidden mb-2">
-                        <div class="card-body p-3 p-md-4 d-flex flex-column justify-content-between"
-                             style="min-height: 160px;">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="d-flex flex-column">
-                                    <span class="text-secondary small fw-bold"
-                                          style="font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;">SALDO PAKAIAPP</span>
-                                    <span class="text-muted small fw-medium mt-1"
-                                          style="font-size: 0.62rem;">Pakaiapp Credit Account</span>
-                                </div>
-                                {{-- Icon: solid orange --}}
-                                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width: 45px; height: 45px; background-color: rgba(249, 115, 22, 0.1); color: #F97316;">
-                                    <i class="bi bi-wallet2 fs-5"></i>
-                                </div>
-                            </div>
 
-                            <div class="my-3">
-                                <div class="stat-number text-body {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }} mb-1">
-                                    Rp {{ number_format($stats['wallet_balance'], 0, ',', '.') }}
-                                </div>
-                                @if($stats['wallet_balance'] < 3000)
-                                    <span
-                                        class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-20 rounded-pill px-2.5 py-1 fw-bold mt-1"
-                                        style="font-size: 0.65rem;">
-                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Saldo menipis, isi ulang!
-                                    </span>
-                                @else
-                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold mt-1 text-secondary bg-body-tertiary border"
-                                          style="font-size: 0.65rem;">
-                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                        Cukup untuk ~{{ floor($stats['wallet_balance'] / $stats['fee_per_trx']) }} transaksi
-                                    </span>
-                                @endif
-                            </div>
-
-                            <div
-                                class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary border-opacity-10">
-                                <span class="text-secondary small font-monospace"
-                                      style="font-size: 0.72rem;">ID: {{ strtoupper(tenant('id')) }}</span>
-                                <button class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3 py-1 shadow-sm"
-                                        data-bs-toggle="modal" data-bs-target="#topUpModal"
-                                        style="font-size: 0.75rem;"
-                                        type="button">
-                                    <i class="bi bi-plus-lg me-1"></i> Top Up
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- END WIDGET SALDO KREDIT --}}
 
 
                     {{-- Widget Produk Terlaris --}}
