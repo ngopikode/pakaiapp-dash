@@ -102,8 +102,8 @@
                         return [
                             {
                                 target: '#tour-pos-search',
-                                title: 'Cari Produk & Kitchen Notes',
-                                content: 'Cari menu di sini. Anda juga bisa menulis catatan khusus per menu (seperti "tanpa es" atau "tidak pedas") langsung di bawah setiap item keranjang.',
+                                title: 'Cari Menu',
+                                content: 'Gunakan kolom pencarian ini untuk menemukan menu dengan cepat saat pelanggan memesan.',
                                 position: 'bottom'
                             },
                             {
@@ -523,7 +523,7 @@
                     </div>
 
                     <div class="row g-3">
-                        <!-- Step 1: Kitchen Notes -->
+                        <!-- Step 1: Meja & Pelanggan -->
                         <div class="col-md-6">
                             <div class="card h-100 p-3 border shadow-sm bg-body-tertiary"
                                  style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -531,13 +531,11 @@
                                     <div
                                         class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center p-2.5"
                                         style="width: 48px; height: 48px;">
-                                        <i class="bi bi-chat-dots fs-4"></i>
+                                        <i class="bi bi-people fs-4"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-body">Kitchen Notes (Catatan Dapur)</h6>
-                                        <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Tuliskan catatan
-                                            khusus per menu (seperti <em>"tanpa es"</em> atau <em>"tidak pedas"</em>)
-                                            langsung dari kolom input catatan di bawah setiap item keranjang belanja.
+                                        <h6 class="fw-bold mb-1 text-body">Nomor Meja & Pelanggan</h6>
+                                        <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Jangan lupa isi nomor meja pelanggan saat mereka makan di tempat (Dine-in). Anda juga bisa menyimpan nomor HP pelanggan untuk keperluan keanggotaan.
                                         </p>
                                     </div>
                                 </div>

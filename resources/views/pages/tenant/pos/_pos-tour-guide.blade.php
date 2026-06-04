@@ -142,14 +142,14 @@
                         let arr = [
                             {
                                 target: '#tour-pos-search',
-                                title: 'Cari Produk & Kitchen Notes',
-                                content: 'Cari menu di sini. Anda juga bisa menulis catatan khusus per menu (seperti "tanpa es" atau "tidak pedas") langsung di bawah setiap item keranjang.',
+                                title: 'Cari Menu',
+                                content: 'Gunakan kolom pencarian ini untuk menemukan menu dengan cepat saat pelanggan memesan.',
                                 position: 'bottom'
                             },
                             {
                                 target: '.tour-product-item',
-                                title: 'Pilih Menu & Catatan',
-                                content: 'Klik menu pada daftar ini untuk memasukkannya ke pesanan. Setelah masuk keranjang, Anda bisa menambahkan catatan dapur khusus.',
+                                title: 'Pilih Menu',
+                                content: 'Klik menu pada daftar ini untuk menambahkannya langsung ke keranjang pesanan.',
                                 position: 'right'
                             }
                         ];
