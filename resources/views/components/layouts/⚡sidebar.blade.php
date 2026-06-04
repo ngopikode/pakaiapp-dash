@@ -114,6 +114,18 @@ new class extends Component {
     </nav>
 
     <div class="p-3 border-top" style="border-color: var(--bs-border-color) !important;">
+        <style>
+            /* Hide the install button if the app is already installed (standalone mode) */
+            @media (display-mode: standalone) {
+                #sidebar-pwa-install { display: none !important; }
+            }
+        </style>
+        <button type="button" id="sidebar-pwa-install" onclick="if(window.installPwa) window.installPwa()"
+                class="btn btn-outline-success w-100 border-0 align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all shadow-sm mb-2"
+                style="display: none; background-color: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2) !important; color: #16a34a; font-size: 0.88rem;">
+            <i class="bi bi-download"></i> Install App
+        </button>
+
         <button type="button" wire:click="logout"
                 class="btn btn-outline-danger w-100 border-0 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all shadow-sm"
                 style="background-color: rgba(220, 53, 69, 0.04); border: 1px solid rgba(220, 53, 69, 0.1) !important; color: #dc3545; font-size: 0.88rem;">
