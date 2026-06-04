@@ -27,20 +27,22 @@
         </div>
 
         {{-- Header Buttons (Mobile Friendly) --}}
-        <div class="d-flex flex-column flex-sm-row gap-2 mt-2 mt-md-0">
+        <div class="d-flex flex-row flex-wrap flex-sm-nowrap gap-2 mt-3 mt-md-0 w-100 w-md-auto">
             <button wire:click="exportLaporan"
-                    class="btn btn-dashboard-header btn-outline"
-                    wire:loading.attr="disabled">
+                    class="btn btn-dashboard-header btn-outline flex-grow-1 py-2 px-2 px-sm-3"
+                    wire:loading.attr="disabled"
+                    style="font-size: 0.85rem; border-radius: 12px;">
                 <span wire:loading.remove wire:target="exportLaporan"><i
-                        class="bi bi-file-earmark-excel-fill text-success fs-5"></i> Export Excel</span>
-                <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm"></span> Menyusun Data...</span>
+                        class="bi bi-file-earmark-excel-fill text-success fs-6 me-1"></i> Export</span>
+                <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm me-1"></span> Proses...</span>
             </button>
             <a href="{{ route('cashier') }}" wire:navigate
-               class="btn btn-caramel-solid text-white">
-                <i class="bi bi-cart-check-fill fs-5"></i> Buka Kasir
+               class="btn btn-caramel-solid text-white flex-grow-1 py-2 px-2 px-sm-3 d-flex align-items-center justify-content-center gap-1"
+               style="font-size: 0.85rem; border-radius: 12px;">
+                <i class="bi bi-cart-check-fill fs-6"></i> Kasir
                 @if($newOrderCount > 0)
-                    <span class="badge rounded-circle ms-1"
-                          style="padding: 0.35em 0.6em; background-color: #ffffff !important; color: #dc3545 !important;">{{ $newOrderCount }}</span>
+                    <span class="badge rounded-circle ms-1 shadow-sm"
+                          style="padding: 0.35em 0.5em; background-color: #ffffff !important; color: #dc3545 !important; font-size: 0.7rem;">{{ $newOrderCount }}</span>
                 @endif
             </a>
         </div>
@@ -183,34 +185,33 @@
         </div>
     @else
         {{-- Modern Stats Row (Omset Harian & Bulanan) --}}
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 g-md-4 mb-4">
+        <div class="row g-2 g-md-4 mb-4">
 
             {{-- Omset Hari Ini --}}
-            <div class="col">
+            <div class="col-6 col-xl-4">
                 <div
-                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2">
-                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
-                        <i class="bi bi-wallet2" style="font-size: 5rem; color: #F97316;"></i>
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 p-md-3">
+                    <div class="position-absolute top-0 end-0 p-2 p-md-3" style="opacity: 0.12;">
+                        <i class="bi bi-wallet2" style="font-size: 3.5rem; color: #F97316;"></i>
                     </div>
-                    <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between"
-                         style="min-height: 160px;">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="card-body p-2 p-md-4 position-relative z-1 d-flex flex-column justify-content-between"
+                         style="min-height: 130px;">
+                        <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
                             <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 45px; height: 45px; background-color: rgba(249, 115, 22, 0.1); color: #F97316;">
-                                <i class="bi bi-wallet2 fs-5"></i>
+                                 style="width: 35px; height: 35px; background-color: rgba(249, 115, 22, 0.1); color: #F97316;">
+                                <i class="bi bi-wallet2 fs-6"></i>
                             </div>
-                            <span class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
-                                  style="font-size: 0.72rem;">Hari Ini</span>
+                            <span class="badge text-secondary border rounded-pill px-2 py-1 bg-body-tertiary"
+                                  style="font-size: 0.65rem;">Hari Ini</span>
                         </div>
                         <div>
-                            <div class="stat-number text-body mb-1">
+                            <div class="stat-number text-body mb-1" style="font-size: clamp(1.25rem, 4vw, 2.75rem);">
                                 Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}
                             </div>
-                            <p class="text-secondary small fw-bold mb-0 opacity-75">Dari {{ $stats['orders_today'] }} Transaksi Sukses
+                            <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.65rem;">{{ $stats['orders_today'] }} Transaksi
                                 @if($stats['revenue_trend_today'] != 0)
                                     <span
-                                        class="ms-2 px-2 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
-                                        style="font-size: 0.65rem;">
+                                        class="ms-1 px-1 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
                                         <i class="bi {{ $stats['revenue_trend_today'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_today']) }}%
                                     </span>
                                 @endif
@@ -221,31 +222,30 @@
             </div>
 
             {{-- Omset Bulan Ini --}}
-            <div class="col">
+            <div class="col-6 col-xl-4">
                 <div
-                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2">
-                    <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
-                        <i class="bi bi-graph-up-arrow" style="font-size: 5rem; color: #10B981;"></i>
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 p-md-3">
+                    <div class="position-absolute top-0 end-0 p-2 p-md-3" style="opacity: 0.12;">
+                        <i class="bi bi-graph-up-arrow" style="font-size: 3.5rem; color: #10B981;"></i>
                     </div>
-                    <div class="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between"
-                         style="min-height: 160px;">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="card-body p-2 p-md-4 position-relative z-1 d-flex flex-column justify-content-between"
+                         style="min-height: 130px;">
+                        <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
                             <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 45px; height: 45px; background-color: rgba(16, 185, 129, 0.1); color: #10B981;">
-                                <i class="bi bi-graph-up-arrow fs-5"></i>
+                                 style="width: 35px; height: 35px; background-color: rgba(16, 185, 129, 0.1); color: #10B981;">
+                                <i class="bi bi-graph-up-arrow fs-6"></i>
                             </div>
-                            <span class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
-                                  style="font-size: 0.72rem;">Bulan Ini</span>
+                            <span class="badge text-secondary border rounded-pill px-2 py-1 bg-body-tertiary"
+                                  style="font-size: 0.65rem;">Bulan Ini</span>
                         </div>
                         <div>
-                            <div class="stat-number text-body mb-1">
+                            <div class="stat-number text-body mb-1" style="font-size: clamp(1.25rem, 4vw, 2.75rem);">
                                 Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}
                             </div>
-                            <p class="text-secondary small fw-bold mb-0 opacity-75">Total Pendapatan Bulanan
+                            <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.65rem;">Pendapatan
                                 @if($stats['revenue_trend_month'] != 0)
                                     <span
-                                        class="ms-2 px-2 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
-                                        style="font-size: 0.65rem;">
+                                        class="ms-1 px-1 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
                                         <i class="bi {{ $stats['revenue_trend_month'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_month']) }}%
                                     </span>
                                 @endif
@@ -256,27 +256,27 @@
             </div>
 
             {{-- Pesanan Pending --}}
-            <div class="col">
+            <div class="col-12 col-xl-4 mt-2 mt-xl-0">
                 <div
-                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 {{ $stats['pending_orders'] > 0 ? 'border-danger border-2' : 'border-secondary border-opacity-25' }}"
+                    class="card h-100 dash-card position-relative overflow-hidden border bg-body p-2 p-md-3 {{ $stats['pending_orders'] > 0 ? 'border-danger border-2' : 'border-secondary border-opacity-25' }}"
                     style="{{ $stats['pending_orders'] > 0 ? 'border-color: rgba(220,53,69,0.4) !important; background-color: rgba(220,53,69,0.04) !important;' : '' }}">
-                        <div class="position-absolute top-0 end-0 p-3" style="opacity: 0.12;">
+                        <div class="position-absolute top-0 end-0 p-2 p-md-3" style="opacity: 0.12;">
                             <i class="bi bi-hourglass-split"
-                               style="font-size: 5rem; color: {{ $stats['pending_orders'] > 0 ? '#dc3545' : 'var(--bs-secondary-color)' }};"></i>
+                               style="font-size: 4rem; color: {{ $stats['pending_orders'] > 0 ? '#dc3545' : 'var(--bs-secondary-color)' }};"></i>
                         </div>
-                        <div class="card-body p-4 d-flex flex-column justify-content-between" style="min-height: 160px;">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="card-body p-3 p-md-4 d-flex flex-column justify-content-between" style="min-height: 100px;">
+                            <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
                                 <div
                                     class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center"
-                                    style="width: 45px; height: 45px;">
+                                    style="width: 40px; height: 40px;">
                                     <i class="bi bi-hourglass-split fs-5"></i>
                                 </div>
                                 <span
-                                    class="badge text-secondary border rounded-pill px-3 py-2 bg-body-tertiary"
+                                    class="badge text-secondary border rounded-pill px-3 py-1 bg-body-tertiary"
                                     style="font-size: 0.72rem;">Antrean</span>
                             </div>
                         <div>
-                            <div class="stat-number {{ $stats['pending_orders'] > 0 ? 'text-danger' : 'text-body' }} mb-1">
+                            <div class="stat-number {{ $stats['pending_orders'] > 0 ? 'text-danger' : 'text-body' }} mb-1" style="font-size: clamp(2rem, 4vw, 2.75rem);">
                                 {{ $stats['pending_orders'] }}
                             </div>
                             <p class="text-secondary small fw-bold mb-0 opacity-75">Pesanan Menunggu Diproses</p>
@@ -318,7 +318,7 @@
                         <div class="list-group list-group-flush bg-transparent">
                             @forelse($recentOrders as $order)
                                 <div
-                                    class="list-group-item list-group-item-custom p-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                                    class="list-group-item list-group-item-custom p-2 p-sm-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-3">
                                     <div class="d-flex align-items-center gap-3">
                                         <div
                                             class="rounded-circle text-white-fixed d-flex align-items-center justify-content-center fw-bolder shadow-sm bg-gradient-caramel flex-shrink-0"
@@ -394,8 +394,8 @@
                     {{-- WIDGET SALDO KREDIT (BARU - PREMIUM BANK CARD LAYOUT) --}}
                     <div
                         class="card dash-card border bg-body p-1 position-relative overflow-hidden mb-2">
-                        <div class="card-body p-4 d-flex flex-column justify-content-between"
-                             style="min-height: 200px;">
+                        <div class="card-body p-3 p-md-4 d-flex flex-column justify-content-between"
+                             style="min-height: 160px;">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex flex-column">
                                     <span class="text-secondary small fw-bold"
