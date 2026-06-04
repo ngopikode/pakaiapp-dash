@@ -40,10 +40,36 @@ new class extends Component {
         $query = Product::with(['variants:id,product_id,name,cost,price,stock'])
             ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
-            ->when($this->search, fn($q) => $q->where(function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('variants', fn($v) => $v->where('sku', 'like', '%' . $this->search . '%'));
-            }))
+            ->when($this->search, function ($q) {
+                $searchTerm = trim($this->search);
+                $words = array_filter(explode(' ', $searchTerm));
+
+                $q->where(function ($query) use ($words, $searchTerm) {
+                    // 1. Exact Phrase Match (Fastest for Barcode/SKU or exact name)
+                    $query->where('name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhereHas('variants', fn($v) => 
+                            $v->where('sku', 'like', '%' . $searchTerm . '%')
+                              ->orWhere('name', 'like', '%' . $searchTerm . '%')
+                        );
+
+                    // 2. Multi-word Match (e.g. "Milo Jumbo" -> searches name & variant name)
+                    if (count($words) > 1) {
+                        $query->orWhere(function ($multiWordQuery) use ($words) {
+                            foreach ($words as $word) {
+                                $multiWordQuery->where(function ($wordQuery) use ($word) {
+                                    $wordQuery->where('name', 'like', '%' . $word . '%')
+                                        ->orWhere('description', 'like', '%' . $word . '%')
+                                        ->orWhereHas('variants', fn($v) => 
+                                            $v->where('sku', 'like', '%' . $word . '%')
+                                              ->orWhere('name', 'like', '%' . $word . '%')
+                                        );
+                                });
+                            }
+                        });
+                    }
+                });
+            })
             ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
 
         $totalCount = (clone $query)->count();
