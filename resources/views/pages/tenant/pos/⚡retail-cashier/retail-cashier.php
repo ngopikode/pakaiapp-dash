@@ -69,7 +69,7 @@ new class extends Component {
                     'total_price' => $totalPrice,
                     'amount_paid' => $paid,
                     'change_amount' => $change,
-                    'status' => 'paid',
+                    'status' => 'completed',
                     'user_id' => Auth::id(),
                 ]);
 
