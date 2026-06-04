@@ -7,7 +7,20 @@
      @force-cashier-tab.window="currentTab = 'cashier'"
      x-cloak>
 
-
+    {{-- Premium Glassmorphism Loading Screen --}}
+    <div wire:loading.flex wire:target="changeTab"
+         class="position-fixed top-0 start-0 w-100 h-100 justify-content-center align-items-center"
+         style="z-index: 9999; background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(8px); transition: all 0.3s ease;">
+        <div class="text-center bg-body p-4 rounded-4 shadow border"
+             style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
+            <div class="spinner-border text-warning mb-3" role="status"
+                 style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
+            <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
+        </div>
+    </div>
 
     {{-- Tab Navigation (Premium Segmented Control) --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
@@ -47,19 +60,8 @@
         </button>
     </div>
 
-    {{-- SKELETON LOADER SAAT GANTI TAB --}}
-    <div wire:loading.flex wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0 w-100 mt-0" style="padding-top: 1rem;">
-        <div class="col-lg-7 col-xl-8">
-            <div class="skeleton-shimmer w-100" style="border-radius: 1.25rem; min-height: 70vh;"></div>
-        </div>
-        <div class="col-lg-5 col-xl-4 d-none d-lg-block">
-            <div class="skeleton-shimmer w-100" style="border-radius: 1.25rem; min-height: 70vh;"></div>
-        </div>
-    </div>
-
-    <div wire:loading.remove wire:target="changeTab" class="w-100 d-flex flex-column flex-grow-1" style="min-height:0;">
-        {{-- ===== TAB 1: KASIR BARU ===== --}}
-        <div x-show="currentTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
+    {{-- ===== TAB 1: KASIR BARU ===== --}}
+    <div x-show="currentTab === 'cashier'" wire:loading.class="d-none" wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
 
         <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
@@ -75,11 +77,10 @@
         </div>
     </div>
 
-        {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-        <div x-show="currentTab === 'queue'" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
+    {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
+    <div x-show="currentTab === 'queue'" wire:loading.class="d-none" wire:target="changeTab" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
-            @include('pages.tenant.post._queue-resto')
-        </div>
+        @include('pages.tenant.post._queue-resto')
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
