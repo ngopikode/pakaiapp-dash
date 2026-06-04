@@ -21,6 +21,7 @@
     <title>Pakaiapp - Kasir Web UMKM Tanpa Biaya Langganan</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
     <meta name="title" content="Pakaiapp - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
     <meta name="description" content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
     <meta name="keywords" content="aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
@@ -742,5 +743,8 @@
     };
 </script>
 <script src="{{ asset('js/welcome.js') }}"></script>
+
+@include('components.pwa-toast')
+
 </body>
 </html>
