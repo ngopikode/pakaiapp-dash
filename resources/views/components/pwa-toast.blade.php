@@ -1,3 +1,4 @@
+@once
 @php
     $isTenant = function_exists('tenant') && tenant('id');
     $appName = 'Pakaiapp';

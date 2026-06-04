@@ -329,10 +329,10 @@
         <div class="row g-3 g-md-4">
             {{-- Operational Insights --}}
             <div class="col-xl-8">
-                <div class="row g-3 g-md-4 h-100">
+                <div class="row g-3 g-md-4 align-items-start">
                     {{-- Metode Pembayaran --}}
                     <div class="col-md-6 mb-3 mb-md-0">
-                        <div class="card dash-card h-100 bg-body border" style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="card dash-card bg-body border w-100" style="border-color: var(--bs-border-color-translucent) !important;">
                             <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4">
                                 <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;"><i class="bi bi-credit-card-2-front-fill me-2 text-primary"></i>Metode Pembayaran (Bulan Ini)</h6>
                             </div>
@@ -374,7 +374,7 @@
 
                     {{-- Channel Pesanan --}}
                     <div class="col-md-6">
-                        <div class="card dash-card h-100 bg-body border" style="border-color: var(--bs-border-color-translucent) !important;">
+                        <div class="card dash-card bg-body border w-100" style="border-color: var(--bs-border-color-translucent) !important;">
                             <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4">
                                 <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;"><i class="bi bi-shop-window me-2 text-warning"></i>Sumber Pesanan (Bulan Ini)</h6>
                             </div>
