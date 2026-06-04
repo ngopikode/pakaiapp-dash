@@ -97,6 +97,13 @@
     color: white;
 }
 .pwa-btn-install:hover { background: #16a34a; }
+
+/* Prevent overlap with bottom navbar on mobile */
+@media (max-width: 768px) {
+    .pwa-toast {
+        bottom: calc(var(--bottom-nav-height, 65px) + 20px) !important;
+    }
+}
 </style>
 
 <script>

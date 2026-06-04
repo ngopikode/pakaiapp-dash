@@ -88,9 +88,9 @@ new class extends Component {
             --bottom-nav-height: 65px;
         }
 
-        body {
+        #page-content-wrapper {
             /* Add padding so content doesn't get hidden behind the bottom navbar on mobile */
-            padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px)) !important;
+            padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 20px)) !important;
         }
     }
 </style>
