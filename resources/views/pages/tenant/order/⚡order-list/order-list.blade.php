@@ -354,70 +354,77 @@
 
     {{-- ===== PREMIUM TUTORIAL & HELP MODAL ===== --}}
     <div class="modal fade" id="orderGuideModal" tabindex="-1" aria-hidden="true" wire:ignore>
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg"
-                 style="border-radius: 1.5rem; max-height: 90vh; background-color: var(--bs-card-bg);">
+                 style="border-radius: 1.5rem; background-color: var(--bs-card-bg); overflow: hidden;">
+                 
+                 {{-- Top Hero Graphic Area --}}
+                 <div class="position-relative bg-body-tertiary" style="height: 160px; overflow: hidden;">
+                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.02));"></div>
+                     <!-- Decorative circles -->
+                     <div class="position-absolute rounded-circle bg-warning bg-opacity-25" style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
+                     <div class="position-absolute rounded-circle bg-primary bg-opacity-10" style="width: 100px; height: 100px; bottom: -20px; left: 10%;"></div>
+                     
+                     <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
+                         <div class="d-inline-flex align-items-center justify-content-center bg-body border rounded-circle shadow-sm mb-2" style="width: 64px; height: 64px; border-color: var(--bs-border-color-translucent) !important;">
+                             <i class="bi bi-card-checklist text-warning fs-2"></i>
+                         </div>
+                         <h5 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;">Alur Transaksi</h5>
+                     </div>
+                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3 shadow-sm bg-body rounded-circle p-2 opacity-75 hover-opacity-100 transition-all" data-bs-dismiss="modal" aria-label="Close"></button>
+                 </div>
 
-                {{-- Header (Premium Gradient) --}}
-                <div class="modal-header border-bottom px-4 py-3 flex-shrink-0 text-white"
-                     style="border-radius: 1.5rem 1.5rem 0 0; background: #F97316; border: none;">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-journal-bookmark-fill fs-4"></i>
-                        <h5 class="fw-bold mb-0">Panduan Mengelola Pesanan</h5>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                 {{-- Body --}}
+                 <div class="modal-body p-4 p-md-5 pt-4 bg-body">
+                    <p class="text-secondary text-center small mb-4 pb-2 border-bottom" style="border-color: var(--bs-border-color-translucent) !important;">
+                        Pahami alur status pesanan agar operasional toko Anda berjalan lancar dan pelanggan puas.
+                    </p>
 
-                {{-- Body --}}
-                <div class="modal-body p-4 bg-body overflow-y-auto">
-                    <div class="text-center mb-4">
-                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill fw-bold px-3 py-1.5 mb-2" style="font-size: 0.8rem;">
-                            <i class="bi bi-clock-history me-1"></i>Alur Manajemen Transaksi
-                        </span>
-                        <h4 class="fw-bold text-body">Pahami Alur Kerja Pesananmu 🚀</h4>
-                        <p class="text-secondary small max-w-lg mx-auto">Sistem kami terhubung secara real-time ke kasir dan toko online. Pelajari status pesanan untuk operasional bebas hambatan.</p>
-                    </div>
+                    <div class="position-relative">
+                        <!-- Connecting Line -->
+                        <div class="position-absolute bg-body-tertiary rounded-pill" style="width: 4px; top: 20px; bottom: 20px; left: 23px;"></div>
 
-                    <div class="row g-3">
-                        <!-- Step 1: Baru Masuk -->
-                        <div class="col-md-6">
-                            <div class="card h-100 p-3 border shadow-sm bg-body-tertiary" style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
-                                <div class="d-flex gap-3 align-items-start">
-                                    <div class="bg-info bg-opacity-10 text-info rounded-4 d-flex align-items-center justify-content-center p-2.5 flex-shrink-0" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-bag-plus-fill fs-4"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-1 text-body">Baru Masuk (Lunas)</h6>
-                                        <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Pesanan dari Toko Online atau kasir yang **sudah dibayar**. Segera klik tombol **"Proses"** untuk memberitahu dapur atau tim penyiapan.</p>
-                                    </div>
-                                </div>
+                        <!-- Step 1 -->
+                        <div class="d-flex gap-3 position-relative mb-4 pb-2">
+                            <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center flex-shrink-0 z-1 border" style="width: 50px; height: 50px; border-width: 4px !important; border-color: var(--bs-body-bg) !important; box-shadow: 0 0 0 1px rgba(var(--bs-info-rgb), 0.2);">
+                                <i class="bi bi-bag-plus-fill fs-5"></i>
+                            </div>
+                            <div class="pt-1">
+                                <h6 class="fw-bold mb-1 text-body">1. Baru Masuk (Lunas)</h6>
+                                <p class="text-secondary small mb-0 lh-sm" style="font-size: 0.8rem;">Pesanan baru saja dibayar. Segera klik <strong>"Proses"</strong> untuk mulai menyiapkan barang/makanan.</p>
                             </div>
                         </div>
 
-                        <!-- Step 2: Sedang Diproses -->
-                        <div class="col-md-6">
-                            <div class="card h-100 p-3 border shadow-sm bg-body-tertiary" style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
-                                <div class="d-flex gap-3 align-items-start">
-                                    <div class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center p-2.5 flex-shrink-0" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-arrow-repeat fs-4 spin-slow"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-1 text-body">Sedang Diproses</h6>
-                                        <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Pesanan sedang disiapkan. Jika barang/makanan sudah siap diserahkan ke pelanggan/kurir, klik tombol **"Selesai"**.</p>
-                                    </div>
-                                </div>
+                        <!-- Step 2 -->
+                        <div class="d-flex gap-3 position-relative mb-4 pb-2">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0 z-1 border" style="width: 50px; height: 50px; border-width: 4px !important; border-color: var(--bs-body-bg) !important; box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.2);">
+                                <i class="bi bi-arrow-repeat fs-5 spin-slow"></i>
+                            </div>
+                            <div class="pt-1">
+                                <h6 class="fw-bold mb-1 text-body">2. Sedang Diproses</h6>
+                                <p class="text-secondary small mb-0 lh-sm" style="font-size: 0.8rem;">Pesanan sedang disiapkan. Jika barang sudah siap diserahkan, klik <strong>"Selesai"</strong>.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="d-flex gap-3 position-relative">
+                            <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center flex-shrink-0 z-1 border" style="width: 50px; height: 50px; border-width: 4px !important; border-color: var(--bs-body-bg) !important; box-shadow: 0 0 0 1px rgba(var(--bs-success-rgb), 0.2);">
+                                <i class="bi bi-check2-circle fs-5"></i>
+                            </div>
+                            <div class="pt-1">
+                                <h6 class="fw-bold mb-1 text-body">3. Selesai</h6>
+                                <p class="text-secondary small mb-0 lh-sm" style="font-size: 0.8rem;">Pesanan telah diserahkan. Transaksi sukses tercatat di sistem! 🎉</p>
                             </div>
                         </div>
                     </div>
-                </div>
+                 </div>
 
-                {{-- Footer --}}
-                <div class="modal-footer bg-body-tertiary border-top p-3 flex-shrink-0"
-                     style="border-radius: 0 0 1.5rem 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
-                    <button type="button" class="btn btn-outline-secondary border fw-bold rounded-pill px-4 shadow-sm bg-body text-body" data-bs-dismiss="modal">
-                        Mengerti, Siap! 👍
-                    </button>
-                </div>
+                 {{-- Footer --}}
+                 <div class="modal-footer bg-body border-0 p-4 pt-0 justify-content-center">
+                     <button type="button" class="btn btn-warning text-white fw-bold rounded-pill px-5 py-2 shadow-sm w-100 hover-translate" data-bs-dismiss="modal">
+                         Oke, Paham!
+                     </button>
+                 </div>
             </div>
         </div>
     </div>
