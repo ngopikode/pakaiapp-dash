@@ -15,7 +15,10 @@
          },
          openGuide() {
              this.dismiss();
-             window.dispatchEvent(new CustomEvent('start-pos-tour'));
+             window.dispatchEvent(new CustomEvent('force-cashier-tab'));
+             setTimeout(() => {
+                 window.dispatchEvent(new CustomEvent('start-pos-tour'));
+             }, 300);
          }
      }"
      @tutorial-opened.window="showBanner = false"

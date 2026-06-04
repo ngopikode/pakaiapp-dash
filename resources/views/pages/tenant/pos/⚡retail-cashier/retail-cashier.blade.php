@@ -51,8 +51,8 @@
         </div>
 
         {{-- Premium Help Button (Dynamic FAB on Mobile, Standard Circle on Desktop) --}}
-        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('start-pos-tour'))"
-                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0 mobile-help-fab"
+        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
+                class="btn btn-outline-secondary bg-body text-secondary border fw-bold rounded-pill px-3 py-2 d-flex align-items-center gap-2 shadow-sm transition-all me-3 me-lg-0 mobile-help-fab"
                 :class="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0 ? 'active-cart' : ''"
                 style="width: 40px; height: 40px; border-radius: 50% !important;"
                 title="Panduan & Tutorial Penggunaan">
@@ -113,6 +113,13 @@
     Alpine.data('retailPos', () => ({
         cart: [],
         isMobileCartOpen: false,
+
+        init() {
+            window.addEventListener('force-cashier-tab', () => {
+                this.currentTab = 'cashier';
+                @this.set('activeTab', 'cashier');
+            });
+        },
 
         currentTab: $wire.entangle('activeTab').live,
 
