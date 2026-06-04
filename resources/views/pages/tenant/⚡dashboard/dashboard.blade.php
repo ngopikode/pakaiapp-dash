@@ -240,14 +240,19 @@
                             <div class="stat-number text-body mb-1" style="font-size: clamp(1.25rem, 4vw, 2.75rem);">
                                 Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}
                             </div>
-                            <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.65rem;">{{ $stats['orders_today'] }} Transaksi
-                                @if($stats['revenue_trend_today'] != 0)
-                                    <span
-                                        class="ms-1 px-1 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
-                                        <i class="bi {{ $stats['revenue_trend_today'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_today']) }}%
-                                    </span>
-                                @endif
-                            </p>
+                            <div class="d-flex flex-column gap-1">
+                                <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.65rem;">{{ $stats['orders_today'] }} Transaksi
+                                    @if($stats['revenue_trend_today'] != 0)
+                                        <span
+                                            class="ms-1 px-1 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
+                                            <i class="bi {{ $stats['revenue_trend_today'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_today']) }}%
+                                        </span>
+                                    @endif
+                                </p>
+                                <p class="text-success fw-bold mb-0" style="font-size: 0.75rem;">
+                                    <i class="bi bi-piggy-bank-fill me-1"></i>Laba: Rp {{ number_format($stats['profit_today'], 0, ',', '.') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -274,14 +279,19 @@
                             <div class="stat-number text-body mb-1" style="font-size: clamp(1.25rem, 4vw, 2.75rem);">
                                 Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}
                             </div>
-                            <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.65rem;">Pendapatan
-                                @if($stats['revenue_trend_month'] != 0)
-                                    <span
-                                        class="ms-1 px-1 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
-                                        <i class="bi {{ $stats['revenue_trend_month'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_month']) }}%
-                                    </span>
-                                @endif
-                            </p>
+                            <div class="d-flex flex-column gap-1">
+                                <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.65rem;">Pendapatan
+                                    @if($stats['revenue_trend_month'] != 0)
+                                        <span
+                                            class="ms-1 px-1 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
+                                            <i class="bi {{ $stats['revenue_trend_month'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_month']) }}%
+                                        </span>
+                                    @endif
+                                </p>
+                                <p class="text-success fw-bold mb-0" style="font-size: 0.75rem;">
+                                    <i class="bi bi-piggy-bank-fill me-1"></i>Laba: Rp {{ number_format($stats['profit_month'], 0, ',', '.') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

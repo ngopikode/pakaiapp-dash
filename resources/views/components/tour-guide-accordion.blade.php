@@ -255,11 +255,11 @@
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top"
                              style="border-color: var(--bs-border-color) !important;">
                             <div class="d-flex gap-1">
-                                <template x-for="(step, index) in steps" :key="index">
+                                <template x-for="(step, idx) in steps" :key="index">
                                     <div x-show="index === 0 || hasProducts"
                                          class="rounded-pill transition-all"
-                                         :class="index === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
-                                         :style="index === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
+                                         :class="idx === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
+                                         :style="idx === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
                                     </div>
                                 </template>
                             </div>

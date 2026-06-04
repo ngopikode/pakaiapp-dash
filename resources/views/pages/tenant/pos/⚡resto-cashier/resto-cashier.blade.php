@@ -57,8 +57,9 @@
         </div>
     </div>
 
-    {{-- ===== TAB 1: KASIR BARU ===== --}}
-    <div x-show="currentTab === 'cashier'" wire:loading.class="d-none" wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
+    <div wire:loading.remove wire:target="changeTab" class="w-100 d-flex flex-column flex-grow-1" style="min-height:0;">
+        {{-- ===== TAB 1: KASIR BARU ===== --}}
+        <div x-show="currentTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
 
         <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
@@ -74,10 +75,11 @@
         </div>
     </div>
 
-    {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="currentTab === 'queue'" wire:loading.class="d-none" wire:target="changeTab" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
+        {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
+        <div x-show="currentTab === 'queue'" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
-        @include('pages.tenant.post._queue-resto')
+            @include('pages.tenant.post._queue-resto')
+        </div>
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}

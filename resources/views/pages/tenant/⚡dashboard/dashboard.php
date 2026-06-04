@@ -63,6 +63,8 @@ new class extends Component {
             'orders_today' => 0,
             'revenue_today' => 0,
             'revenue_month' => 0,
+            'profit_today' => 0,
+            'profit_month' => 0,
             'pending_orders' => 0,
             'active_products' => 0,
             'wallet_balance' => 0, // Tambahkan ini
@@ -81,6 +83,24 @@ new class extends Component {
             $stats['orders_today'] = Order::whereDate('created_at', today())->count();
             $stats['revenue_today'] = Order::whereDate('created_at', today())->whereIn('status', ['paid', 'completed'])->sum('total_price');
             $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->whereIn('status', ['paid', 'completed'])->sum('total_price');
+            
+            $todayHpp = DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->join('product_variants', 'order_items.variant_id', '=', 'product_variants.id')
+                ->whereDate('orders.created_at', today())
+                ->whereIn('orders.status', ['paid', 'completed'])
+                ->sum(DB::raw('order_items.quantity * product_variants.cost'));
+            $stats['profit_today'] = $stats['revenue_today'] - $todayHpp;
+
+            $monthHpp = DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->join('product_variants', 'order_items.variant_id', '=', 'product_variants.id')
+                ->whereMonth('orders.created_at', date('m'))
+                ->whereYear('orders.created_at', date('Y'))
+                ->whereIn('orders.status', ['paid', 'completed'])
+                ->sum(DB::raw('order_items.quantity * product_variants.cost'));
+            $stats['profit_month'] = $stats['revenue_month'] - $monthHpp;
+            
             $stats['pending_orders'] = Order::where('status', 'pending')->count();
             $stats['active_products'] = Product::where('is_active', true)->count();
 
