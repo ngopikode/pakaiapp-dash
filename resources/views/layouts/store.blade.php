@@ -75,7 +75,6 @@
             <link rel="icon" type="image/x-icon" href="/favicon.ico">
             <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         @endif
-        <link rel="manifest" href="/site.webmanifest">
 
         <meta property="og:title" content="{{ $setting->og_title ?: ($storeName . ' | Menu Digital') }}"/>
         <meta property="og:description"
@@ -270,9 +269,6 @@
     </div>
 
     @livewireScripts
-    
-    @include('components.pwa-toast')
-    
     </body>
     </html>
 @endif

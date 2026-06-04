@@ -1,3 +1,12 @@
+@php
+    $isTenant = function_exists('tenant') && tenant('id');
+    $appName = 'Pakaiapp';
+    if ($isTenant) {
+        $setting = \App\Models\StoreSetting::first();
+        $appName = ($setting->name ?? tenant('id')) . ' Dashboard';
+    }
+@endphp
+
 <!-- PWA Install Toast -->
 <div id="pwa-toast" class="pwa-toast" style="display: none;">
     <div class="pwa-toast-content">
@@ -5,7 +14,7 @@
             <img src="{{ asset('android-chrome-192x192.png') }}" alt="App Icon">
         </div>
         <div class="pwa-text">
-            <strong>Install Pakaiapp</strong>
+            <strong>Install {{ $appName }}</strong>
             <span>Tambahkan ke layar utama HP kamu untuk akses super cepat!</span>
         </div>
     </div>

@@ -34,6 +34,32 @@ Route::middleware([
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
     Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
 
+    Route::get('/manifest.json', function () {
+        $setting = \App\Models\StoreSetting::first();
+        $storeName = $setting->name ?? tenant('id');
+        
+        return response()->json([
+            "name" => $storeName . " Dashboard",
+            "short_name" => substr($storeName, 0, 12),
+            "start_url" => "/dashboard",
+            "display" => "standalone",
+            "background_color" => "#ffffff",
+            "theme_color" => $setting->theme_color ?? "#22c55e",
+            "icons" => [
+                [
+                    "src" => "/android-chrome-192x192.png",
+                    "sizes" => "192x192",
+                    "type" => "image/png"
+                ],
+                [
+                    "src" => "/android-chrome-512x512.png",
+                    "sizes" => "512x512",
+                    "type" => "image/png"
+                ]
+            ]
+        ]);
+    });
+
     Route::get('/', function () {
         if (tenant('store_type') === 'retail') return view('pages.tenant.retail.index');
         return view('pages.tenant.store.resto.index');
