@@ -37,7 +37,7 @@ new class extends Component {
 
     public function with(): array
     {
-        $query = Product::with(['variants:id,product_id,name,cost,price,stock'])
+        $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
             ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
             ->when($this->search, function ($q) {
@@ -93,6 +93,7 @@ new class extends Component {
                     return [
                         'id' => $v->id,
                         'name' => $v->name,
+                        'sku' => $v->sku,
                         'cost' => (float)$v->cost,
                         'price' => (float)$v->price,
                         'stock' => (int)$v->stock,

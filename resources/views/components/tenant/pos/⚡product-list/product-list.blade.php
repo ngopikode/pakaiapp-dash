@@ -95,6 +95,11 @@
                                         style="font-size: 0.9rem;">
                                         {{ $product['name'] }}
                                     </h6>
+                                    @if(tenant('store_type') === 'retail' && count($product['variants']) > 0)
+                                        <div class="text-secondary mb-1 text-truncate" style="font-size: 0.75rem;">
+                                            <i class="bi bi-upc-scan me-1"></i>{{ $product['variants'][0]['sku'] ?? 'No SKU' }}
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="mt-2">
                                     @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))

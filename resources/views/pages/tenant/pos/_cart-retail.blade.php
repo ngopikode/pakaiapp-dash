@@ -52,6 +52,11 @@
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="pe-2">
                             <h6 class="fw-bold mb-1 text-body" x-text="item.name"></h6>
+                            <template x-if="item.sku">
+                                <div class="text-secondary mb-1" style="font-size: 0.7rem;">
+                                    <i class="bi bi-upc-scan me-1"></i><span x-text="item.sku"></span>
+                                </div>
+                            </template>
                             <template x-if="item.variant_name">
                                 <span class="badge bg-body-tertiary text-secondary border rounded-pill mb-1"
                                       style="font-size: 0.7rem; white-space: normal;" x-text="item.variant_name"></span>
