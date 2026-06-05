@@ -19,7 +19,7 @@
                 <i class="bi bi-arrow-left fs-5 text-body"></i>
             </button>
             <h5 class="fw-bold mb-0 text-truncate" style="max-width: 140px;">
-                <i class="bi bi-cart3 text-warning me-1 d-none d-lg-inline-block"></i>Pesanan
+                <i class="bi bi-shop-window text-warning me-1 d-none d-lg-inline-block"></i>Pesanan
             </h5>
         </div>
         <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-2 px-xl-3 bg-body"
