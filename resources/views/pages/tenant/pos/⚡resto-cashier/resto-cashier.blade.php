@@ -1,5 +1,5 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data="restoPos()"
-     @add-product.window="handleProductClick($event.detail.product)"
+     @add-product.window="handleProductClick($event.detail.product, $event.detail.variantId)"
      @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
      @keydown.window="handleKeydown($event)"
      @open-mobile-cart.window="isMobileCartOpen = true"
@@ -245,7 +245,7 @@
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
         },
 
-        handleProductClick(product) {
+        handleProductClick(product, variantId = null) {
             if (product.stock <= 0) {
                 showIslandToast('Stok habis!', 'warning');
                 return;
@@ -253,6 +253,13 @@
             if (!product.variants || product.variants.length === 0) {
                 showIslandToast('Produk ini belum memiliki varian harga yang valid.', 'danger');
                 return;
+            }
+            if (variantId) {
+                let variant = product.variants.find(v => v.id === variantId);
+                if (variant) {
+                    this.addToCart(product, variant);
+                    return;
+                }
             }
             if (product.selection_type === 'multiple' || (product.has_variants && product.variants.length > 1) || (product.extras && product.extras.length > 0)) {
                 this.openOptionModal(product);

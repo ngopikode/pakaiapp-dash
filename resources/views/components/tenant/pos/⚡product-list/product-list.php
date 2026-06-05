@@ -42,12 +42,21 @@ new class extends Component {
 
         $this->search = $searchTerm;
 
+        $matchedVariantId = null;
+
         // 1. Cek Exact SKU Match
         $product = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
             ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
             ->whereHas('variants', fn($q) => $q->where('sku', $searchTerm))
             ->first();
+
+        if ($product) {
+            $matchedVariant = $product->variants->where('sku', $searchTerm)->first();
+            if ($matchedVariant) {
+                $matchedVariantId = $matchedVariant->id;
+            }
+        }
 
         // 2. Jika bukan SKU exact, cek apakah query memfilter daftar menjadi TEPAT 1 produk
         if (!$product) {
@@ -77,8 +86,7 @@ new class extends Component {
                             }
                         });
                     }
-                })
-                ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
+                });
 
             if ($query->count() === 1) {
                 $product = $query->first();
@@ -118,7 +126,7 @@ new class extends Component {
                     : []
             ];
 
-            $this->dispatch('add-product', product: $formattedProduct);
+            $this->dispatch('add-product', product: $formattedProduct, variantId: $matchedVariantId);
             $this->search = ''; 
         }
     }
@@ -158,7 +166,7 @@ new class extends Component {
                     }
                 });
             })
-            ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
+            ->when($this->categoryFilter !== 'all' && empty($this->search), fn($q) => $q->where('category_id', $this->categoryFilter));
 
         $totalCount = (clone $query)->count();
 

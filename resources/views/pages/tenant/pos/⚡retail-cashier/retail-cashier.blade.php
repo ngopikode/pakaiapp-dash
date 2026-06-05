@@ -1,6 +1,6 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative"
      x-data="retailPos()"
-     @add-product.window="handleProductClick($event.detail.product)"
+     @add-product.window="handleProductClick($event.detail.product, $event.detail.variantId)"
      @barcode-scanned.window="handleBarcodeScan($event.detail.product, $event.detail.variant)"
      @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
      @keydown.window="handleKeydown($event)"
@@ -286,7 +286,7 @@
         },
 
         // === Product handling ===
-        handleProductClick(product) {
+        handleProductClick(product, variantId = null) {
             if (product.stock <= 0) {
                 showIslandToast('Stok habis!', 'warning');
                 return;
@@ -294,6 +294,13 @@
             if (!product.variants || product.variants.length === 0) {
                 showIslandToast('Produk ini belum memiliki varian harga yang valid.', 'danger');
                 return;
+            }
+            if (variantId) {
+                let variant = product.variants.find(v => v.id === variantId);
+                if (variant) {
+                    this.addToCart(product, variant);
+                    return;
+                }
             }
             if (product.has_variants && product.variants.length > 1) {
                 this.selectedProduct = product;
