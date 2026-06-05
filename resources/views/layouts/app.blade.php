@@ -94,7 +94,6 @@
                         <i x-show="theme === 'dark'" class="bi bi-sun-fill text-warning fs-5" x-cloak></i>
                         <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
                     </button>
-                    <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
             </div>
             <div class="offcanvas-body p-0">
