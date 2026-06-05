@@ -178,8 +178,8 @@
                             },
                             {
                                 target: '#tour-resto-save',
-                                title: 'Simpan Antrean (F3)',
-                                content: 'Gunakan ini untuk pesanan "Makan di Tempat" (Dine In) yang belum lunas. Pesanan akan dikirim ke dapur dan masuk Daftar Antrean.',
+                                title: 'Simpan Bill (F3)',
+                                content: 'Gunakan ini untuk pesanan "Makan di Tempat" (Dine In) yang belum lunas. Pesanan akan dikirim ke dapur dan masuk Daftar Open Bill.',
                                 position: 'left'
                             },
                             {
@@ -189,8 +189,8 @@
                                 position: 'left'
                             },
                             {
-                                target: '[title="Daftar Antrean"]',
-                                title: 'Kelola Antrean',
+                                target: '[title="Daftar Open Bill"]',
+                                title: 'Kelola Open Bill',
                                 content: 'Untuk pesanan yang disimpan tadi, buka tab ini saat pelanggan siap untuk melunasi pesanannya.',
                                 position: 'bottom'
                             },

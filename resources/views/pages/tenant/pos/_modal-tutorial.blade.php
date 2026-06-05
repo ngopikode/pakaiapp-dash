@@ -107,9 +107,9 @@
                                 position: 'bottom'
                             },
                             {
-                                target: '[title="Daftar Antrean"]',
-                                title: 'Simpan & Pelunasan Antrean',
-                                content: 'Simpan pesanan dengan tombol Simpan Sementara. Saat pelanggan siap membayar, buka Daftar Antrean dan lunasi.',
+                                target: '[title="Daftar Open Bill"]',
+                                title: 'Simpan & Pelunasan Bill',
+                                content: 'Simpan pesanan dengan tombol Simpan Bill. Saat pelanggan siap membayar, buka Daftar Open Bill dan lunasi.',
                                 position: 'bottom'
                             },
                             {
@@ -542,7 +542,7 @@
                             </div>
                         </div>
 
-                        <!-- Step 2: Antrean Pending -->
+                        <!-- Step 2: Open Bill Pending -->
                         <div class="col-md-6">
                             <div class="card h-100 p-3 border shadow-sm bg-body-tertiary"
                                  style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -583,7 +583,7 @@
                             </div>
                         </div>
 
-                        <!-- Step 4: Pelunasan Antrean -->
+                        <!-- Step 4: Pelunasan Open Bill -->
                         <div class="col-md-6">
                             <div class="card h-100 p-3 border shadow-sm bg-body-tertiary"
                                  style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -596,9 +596,8 @@
                                     <div>
                                         <h6 class="fw-bold mb-1 text-body">Pelunasan Pesanan Pending</h6>
                                         <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Ketika pelanggan
-                                            siap membayar, buka tab <strong>Daftar Antrean</strong>, cari invoice
-                                            mereka, dan klik <strong>Bayar Sekarang</strong> untuk menyelesaikan
-                                            pelunasan.</p>
+                                            siap membayar, buka tab <strong>Daftar Open Bill</strong>, cari invoice
+                                            dan tekan tombol <strong>Bayar</strong>.</p>
                                     </div>
                                 </div>
                             </div>
@@ -623,7 +622,7 @@
                                 <span
                                     class="badge bg-body border text-secondary py-2 w-100 text-start d-flex justify-content-between align-items-center">
                                     <span><kbd
-                                            class="bg-dark text-white px-1 rounded small">F3</kbd> Simpan Antrean</span>
+                                            class="bg-dark text-white px-1 rounded small">F3</kbd> Simpan Bill</span>
                                     <i class="bi bi-hourglass-split text-warning"></i>
                                 </span>
                             </div>
