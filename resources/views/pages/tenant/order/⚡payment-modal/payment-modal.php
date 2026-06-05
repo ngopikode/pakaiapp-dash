@@ -139,8 +139,10 @@ new class extends Component {
 
                 $change = max(0, (float)$this->paymentAmount - $order->total_price);
 
+                $status = in_array($order->kitchen_status, ['ready', 'completed']) ? 'completed' : 'paid';
+
                 $order->update([
-                    'status' => 'paid',
+                    'status' => $status,
                     'payment_method' => $this->paymentMethod,
                     'amount_paid' => $this->paymentAmount,
                     'change_amount' => $change

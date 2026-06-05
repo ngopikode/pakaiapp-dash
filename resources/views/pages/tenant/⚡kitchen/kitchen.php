@@ -17,7 +17,11 @@ new class extends Component {
     {
         $order = Order::find($orderId);
         if ($order && in_array($order->kitchen_status, ['waiting', 'processing'])) {
-            $order->update(['kitchen_status' => 'ready']);
+            $updateData = ['kitchen_status' => 'ready'];
+            if ($order->status === 'paid') {
+                $updateData['status'] = 'completed';
+            }
+            $order->update($updateData);
             $this->js("window.showIslandToast('Pesanan #{$order->invoice_code} siap disajikan!', 'success');");
         }
     }

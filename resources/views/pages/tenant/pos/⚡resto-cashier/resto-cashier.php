@@ -196,6 +196,7 @@ new class extends Component {
                         'amount_paid' => $paid,
                         'change_amount' => $change,
                         'status' => 'paid',
+                        'kitchen_status' => 'waiting',
                     ]);
                 } else {
                     $totalPrice = max(0, $subtotal + $serviceChargeAmount + $taxAmount - $discountAmount);
@@ -220,6 +221,7 @@ new class extends Component {
                         'amount_paid' => $paid,
                         'change_amount' => $change,
                         'status' => 'paid',
+                        'kitchen_status' => 'waiting',
                         'user_id' => Auth::id(),
                     ]);
                 }
