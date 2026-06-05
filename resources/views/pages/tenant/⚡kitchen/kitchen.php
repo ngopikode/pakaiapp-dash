@@ -39,18 +39,25 @@ new class extends Component {
         
         if ($hasWaiting) {
             $order->update(['kitchen_status' => 'waiting']);
-            if ($order->status === 'paid') {
+            if (in_array($order->status, ['paid', 'pending'])) {
                 $order->update(['status' => 'progress']);
             }
         } elseif ($hasProcessing) {
             $order->update(['kitchen_status' => 'processing']);
-            if ($order->status === 'paid') {
+            if (in_array($order->status, ['paid', 'pending'])) {
                 $order->update(['status' => 'progress']);
             }
         } else {
             $order->update(['kitchen_status' => 'ready']);
-            if (in_array($order->status, ['paid', 'progress'])) {
+            // Check if fully paid (Direct Pay vs Open Bill)
+            if ($order->amount_paid > 0 && $order->amount_paid >= $order->total_price) {
+                // Direct Pay -> completed
                 $order->update(['status' => 'completed']);
+            } else {
+                // Open bill -> remains in progress until cashier pays it
+                if ($order->status !== 'progress') {
+                    $order->update(['status' => 'progress']);
+                }
             }
         }
     }

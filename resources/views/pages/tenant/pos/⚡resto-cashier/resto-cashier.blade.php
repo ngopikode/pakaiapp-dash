@@ -187,6 +187,14 @@
             window.addEventListener('open-payment-modal', (e) => {
                 this.openPayForOrder(e.detail);
             });
+
+            window.addEventListener('start-editing-order', (e) => {
+                this.isEditingOrder = true;
+                this.editInvoiceCode = e.detail.invoice_code;
+                this.customerName = e.detail.customer;
+                this.tableNumber = e.detail.table;
+                this.orderType = e.detail.type;
+            });
         },
 
         splittingOrder: null,
@@ -489,7 +497,12 @@
                     Livewire.dispatch('stock-updated');
                     
                     if (this.isEditingOrder) {
-                        setTimeout(() => { window.location.href = '/cashier'; }, 500);
+                        setTimeout(() => { 
+                            this.isEditingOrder = false;
+                            this.editInvoiceCode = null;
+                            @this.cancelEditOrder();
+                            this.currentTab = 'queue';
+                        }, 500);
                     }
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');

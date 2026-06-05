@@ -33,7 +33,7 @@
                     <div
                         class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center py-3">
                         <div>
-                            <h5 class="mb-0 text-white fw-bold">#{{ substr($order->invoice_code, -4) }}{{ $batch['status'] === 'waiting' && $order->kitchen_status === 'processing' ? ' (Tambahan)' : '' }}</h5>
+                            <h5 class="mb-0 text-white fw-bold">#{{ str_replace('INV-', '', $order->invoice_code) }}{{ $batch['status'] === 'waiting' && $order->items->where('kitchen_status', '!=', 'waiting')->isNotEmpty() ? ' (Tambahan)' : '' }}</h5>
                             <small class="text-white-50"
                                    x-data="{ 
                                        timeAgo: '', 

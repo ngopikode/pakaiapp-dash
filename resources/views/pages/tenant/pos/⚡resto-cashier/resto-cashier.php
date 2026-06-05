@@ -33,12 +33,49 @@ new class extends Component {
         $this->addToOrder = $addToOrder;
         if ($this->addToOrder) {
             $this->existingOrder = Order::find($this->addToOrder);
-            if ($this->existingOrder && $this->existingOrder->status !== 'pending') {
-                // If it's already paid or cancelled, we shouldn't add to it.
-                $this->addToOrder = null;
-                $this->existingOrder = null;
+            // Allow editing if it's pending OR if it's progress but not fully paid
+            if ($this->existingOrder) {
+                $isEditable = $this->existingOrder->status === 'pending' || 
+                             ($this->existingOrder->status === 'progress' && $this->existingOrder->amount_paid < $this->existingOrder->total_price);
+                
+                if (!$isEditable) {
+                    $this->addToOrder = null;
+                    $this->existingOrder = null;
+                }
             }
         }
+    }
+
+    public function setEditOrder($orderId): void
+    {
+        $this->addToOrder = $orderId;
+        $this->existingOrder = Order::find($orderId);
+        
+        if ($this->existingOrder) {
+            $isEditable = $this->existingOrder->status === 'pending' || 
+                         ($this->existingOrder->status === 'progress' && $this->existingOrder->amount_paid < $this->existingOrder->total_price);
+            
+            if (!$isEditable) {
+                $this->addToOrder = null;
+                $this->existingOrder = null;
+                $this->js("window.showIslandToast('Pesanan tidak dapat diedit.', 'danger');");
+                return;
+            }
+        }
+
+        $this->activeTab = 'cashier';
+        $customer = addslashes($this->existingOrder->customer_name ?? '');
+        $table = addslashes($this->existingOrder->table_number ?? $this->existingOrder->notes ?? '');
+        $type = addslashes($this->existingOrder->order_type ?? '');
+        $invoice = addslashes($this->existingOrder->invoice_code ?? '');
+        
+        $this->js("window.dispatchEvent(new CustomEvent('start-editing-order', { detail: { invoice_code: '{$invoice}', customer: '{$customer}', table: '{$table}', type: '{$type}' } }));");
+    }
+
+    public function cancelEditOrder(): void
+    {
+        $this->addToOrder = null;
+        $this->existingOrder = null;
     }
 
     /**
@@ -83,7 +120,7 @@ new class extends Component {
                         'service_charge_amount' => $newServiceCharge,
                         'tax_amount' => $newTaxAmount,
                         'total_price' => $newTotalPrice,
-                        'kitchen_status' => 'waiting', // Reset status dapur
+                        'kitchen_status' => 'waiting', // Wajib di-reset agar muncul di dapur
                     ]);
                     $invoiceCode = $order->invoice_code;
                 } else {
@@ -197,7 +234,7 @@ new class extends Component {
                         'amount_paid' => $paid,
                         'change_amount' => $change,
                         'status' => 'paid',
-                        'kitchen_status' => 'waiting',
+                        'kitchen_status' => 'waiting', // Wajib di-reset agar muncul di dapur
                     ]);
                 } else {
                     $totalPrice = max(0, $subtotal + $serviceChargeAmount + $taxAmount - $discountAmount);
@@ -292,13 +329,15 @@ new class extends Component {
                 $paid = (float)$amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
 
+                $newStatus = ($order->kitchen_status === 'ready' || $order->kitchen_status === 'completed') ? 'completed' : 'paid';
+
                 $order->update([
                     'payment_method' => $paymentMethod,
                     'discount' => $discountAmount,
                     'total_price' => $totalPrice,
                     'amount_paid' => $paid,
                     'change_amount' => $change,
-                    'status' => 'paid',
+                    'status' => $newStatus,
                 ]);
 
                 // --- POTONG SALDO WALLET ---
@@ -657,10 +696,16 @@ new class extends Component {
         if ($storeSetting?->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
         if (empty($orderTypes)) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
 
-        // Ambil pesanan pending hari ini
+        // Ambil pesanan pending hari ini atau yang sedang diproses tapi belum lunas
         $pendingOrders = Order::with('items')
-            ->where('status', 'pending')
             ->whereDate('created_at', today())
+            ->where(function ($query) {
+                $query->where('status', 'pending')
+                      ->orWhere(function ($q) {
+                          $q->where('status', 'progress')
+                            ->whereColumn('amount_paid', '<', 'total_price');
+                      });
+            })
             ->orderByDesc('created_at')
             ->get();
 

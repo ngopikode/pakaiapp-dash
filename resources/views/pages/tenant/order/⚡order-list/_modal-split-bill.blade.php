@@ -1,4 +1,4 @@
-<div class="modal fade" id="splitBillModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
+<div class="modal fade" id="splitBillModal" tabindex="-1" aria-hidden="true" wire:ignore>
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg"
              style="border-radius: 1.5rem; background-color: var(--bs-card-bg);">

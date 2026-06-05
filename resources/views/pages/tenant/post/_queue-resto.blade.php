@@ -116,11 +116,11 @@
                                 style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Batalkan Pesanan">
                             <i class="bi bi-x-lg"></i>
                         </button>
-                        <a href="{{ route('cashier', ['add_to_order' => $order->id]) }}"
+                        <button wire:click="setEditOrder({{ $order->id }})"
                            class="btn btn-outline-primary fw-bold flex-shrink-0 bg-body"
                            style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Tambah Pesanan ke Meja Ini">
                             <i class="bi bi-plus-lg fs-5"></i>
-                        </a>
+                        </button>
                         @if($order->items->count() > 1)
                         <button @click="openSplitModal({{ json_encode([
                                     'id' => $order->id,

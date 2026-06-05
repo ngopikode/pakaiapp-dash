@@ -1,12 +1,10 @@
 <div class="card d-flex flex-column h-100 border shadow-sm bg-body text-body"
      style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
      
-    <template x-if="isEditingOrder">
-        <div class="bg-primary bg-opacity-10 text-primary px-3 py-2 border-bottom fw-medium text-center small position-relative" style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
-            <i class="bi bi-info-circle-fill me-1"></i> Menambah ke <span class="fw-bold" x-text="editInvoiceCode"></span> (<span x-text="customerName || tableNumber"></span>)
-            <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" style="font-size: 0.6rem;" @click="window.location.href='/cashier'" title="Batal Edit"></button>
-        </div>
-    </template>
+    <div x-show="isEditingOrder" class="bg-primary bg-opacity-10 text-primary px-3 py-2 border-bottom fw-medium text-center small position-relative" style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important; display: none;">
+        <i class="bi bi-info-circle-fill me-1"></i> Menambah ke <span class="fw-bold" x-text="editInvoiceCode"></span> (<span x-text="customerName || tableNumber"></span>)
+        <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" style="font-size: 0.6rem;" @click="isEditingOrder = false; @this.cancelEditOrder(); currentTab = 'queue';" title="Batal Edit"></button>
+    </div>
 
     {{-- Header (Safe Context Light/Dark) --}}
     <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-body"
@@ -30,13 +28,13 @@
 
     {{-- Cart Items --}}
     <div id="tour-cart-items" class="card-body p-3 overflow-y-auto flex-grow-1 bg-body-tertiary">
-        <template x-if="cart.length === 0">
+        <div x-show="cart.length === 0" style="display: none;">
             <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50">
                 <i class="bi bi-bag-dash mb-3" style="font-size: 3.5rem;"></i>
                 <p class="fw-bold mb-0">Keranjang Kosong</p>
                 <small>Pilih menu untuk memulai</small>
             </div>
-        </template>
+        </div>
 
         <div class="d-flex flex-column gap-3">
             <template x-for="(item, index) in cart" :key="index">
