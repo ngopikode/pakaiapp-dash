@@ -45,7 +45,7 @@
 <?php
     $userMenuRole = auth()->user()?->role ?? 'cashier';
     $storeType = \App\Models\StoreSetting::first()?->store_type ?? 'retail';
-    
+
     $allRoles = [
         ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
         ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
@@ -53,7 +53,7 @@
     if ($storeType === 'resto') {
         $allRoles[] = ['manager', 'kitchen'];
     }
-    
+
     $accessibleMenus = collect($allRoles)->filter(fn($roles) => in_array($userMenuRole, $roles))->count();
     $showSidebar = $accessibleMenus > 1;
 ?>
@@ -66,9 +66,25 @@
 
         <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar"
              aria-labelledby="mobileSidebarLabel" style="width: 280px;">
-            <div class="offcanvas-header border-bottom">
-                <h5 class="offcanvas-title font-serif fw-bold" id="mobileSidebarLabel">{{ config('app.name') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <div class="offcanvas-header border-bottom d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                    <div
+                        class="brand-avatar d-flex align-items-center justify-content-center text-white rounded-3 shadow-sm flex-shrink-0"
+                        style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
+                        <i class="bi bi-cup-hot-fill fs-5"></i>
+                    </div>
+                    <div class="d-flex flex-column min-w-0">
+                        <span class="fw-bolder fs-5 text-body text-truncate"
+                              style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px; line-height: 1.2; max-width: 140px;">
+                            {{ \App\Models\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}
+                        </span>
+                        <span class="small fw-bold text-secondary text-uppercase text-truncate"
+                              style="font-size: 0.62rem; letter-spacing: 1.5px; opacity: 0.8;">
+                            DASHBOARD TOKO
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body p-0">
                 <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>

@@ -125,13 +125,11 @@ new class extends Component {
         <style>
             /* Hide the install button if the app is already installed (standalone mode) */
             @media (display-mode: standalone) {
-                #sidebar-pwa-install {
-                    display: none !important;
-                }
+                .sidebar-pwa-install-btn { display: none !important; }
             }
         </style>
-        <button type="button" id="sidebar-pwa-install" onclick="if(window.installPwa) window.installPwa()"
-                class="btn btn-outline-success w-100 border-0 align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all shadow-sm mb-2"
+        <button type="button" onclick="if(window.installPwa) window.installPwa()"
+                class="sidebar-pwa-install-btn btn btn-outline-success w-100 border-0 align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold transition-all shadow-sm mb-2"
                 style="display: none; background-color: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2) !important; color: #16a34a; font-size: 0.88rem;">
             <i class="bi bi-download"></i> Install App
         </button>

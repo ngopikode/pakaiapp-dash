@@ -142,10 +142,9 @@
             e.preventDefault();
             window.deferredPrompt = e;
             
-            const sidebarBtn = document.getElementById('sidebar-pwa-install');
-            if (sidebarBtn) {
-                sidebarBtn.style.display = 'flex';
-            }
+            document.querySelectorAll('.sidebar-pwa-install-btn').forEach(btn => {
+                btn.style.setProperty('display', 'flex', 'important');
+            });
             
             const lastDismissed = localStorage.getItem('pwaDismissedTs');
             const delayDaysMs = 1 * 24 * 60 * 60 * 1000;
@@ -172,8 +171,9 @@
                 
                 if (outcome === 'accepted') {
                     window.deferredPrompt = null;
-                    const sidebarBtn = document.getElementById('sidebar-pwa-install');
-                    if (sidebarBtn) sidebarBtn.style.display = 'none';
+                    document.querySelectorAll('.sidebar-pwa-install-btn').forEach(btn => {
+                        btn.style.setProperty('display', 'none', 'important');
+                    });
                 }
             } else {
                 if (typeof Swal !== 'undefined') {
