@@ -744,7 +744,5 @@
 </script>
 <script src="{{ asset('js/welcome.js') }}"></script>
 
-@include('components.pwa-toast')
-
 </body>
 </html>
