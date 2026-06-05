@@ -84,6 +84,7 @@ new class extends Component {
                         'variant_name' => $item['variant_name'] ?? null,
                         'quantity' => $item['quantity'],
                         'price' => $variant->price,
+                        'cost' => $variant->cost,
                         'discount' => (float)($item['itemDiscount'] ?? 0),
                         'subtotal' => $item['subtotal'],
                         'note' => null,

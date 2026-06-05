@@ -167,25 +167,33 @@ class OrderApiController extends Controller
             ]);
 
             foreach ($request->items as $item) {
+                $variant = null;
+                $cost = 0;
+
+                if (!empty($item['variant_id'])) {
+                    $variant = \App\Models\ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
+                    if ($variant) {
+                        $cost = $variant->cost;
+                    }
+                }
+
                 $order->items()->create([
                     'product_id' => $item['product_id'],
                     'variant_id' => $item['variant_id'] ?? null,
                     'product_name' => $item['name'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
+                    'cost' => $cost,
                     'subtotal' => $item['price'] * $item['quantity'],
                 ]);
 
-                if (!empty($item['variant_id'])) {
-                    $variant = \App\Models\ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
-                    if ($variant) {
-                        $variant->decrement('stock', $item['quantity']);
-                        
-                        if (tenant('store_type') === 'resto') {
-                            foreach ($variant->recipes as $recipe) {
-                                if ($recipe->rawMaterial) {
-                                    $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
-                                }
+                if ($variant) {
+                    $variant->decrement('stock', $item['quantity']);
+
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($variant->recipes as $recipe) {
+                            if ($recipe->rawMaterial) {
+                                $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
                             }
                         }
                     }
