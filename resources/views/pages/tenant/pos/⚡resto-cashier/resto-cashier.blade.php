@@ -36,9 +36,9 @@
             </button>
 
             <!-- Tab: Open Bill -->
-            <button wire:click="changeTab('pending')" title="Daftar Open Bill"
+            <button wire:click="changeTab('queue')" title="Daftar Open Bill"
                     class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0 position-relative"
-                    :class="currentTab === 'pending' ? 'bg-body shadow-sm text-info' : 'text-secondary hover-bg-light'"
+                    :class="currentTab === 'queue' ? 'bg-body shadow-sm text-info' : 'text-secondary hover-bg-light'"
                     style="font-size: 0.9rem;">
                 <i class="bi bi-receipt fs-6"></i>
                 <span class="d-none d-sm-inline">Open Bill</span>
