@@ -298,7 +298,7 @@
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Tanggal</span>
-                <span class="fw-bold text-dark">{{ $order->created_at->format('d M Y, H:i') }}</span>
+                <span class="fw-bold text-dark">{{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Tipe Pesanan</span>

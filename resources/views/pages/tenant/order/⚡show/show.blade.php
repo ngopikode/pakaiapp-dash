@@ -96,7 +96,7 @@
 
             <div class="flex justify-between items-center text-sm">
                 <span class="text-zinc-500">Tanggal</span>
-                <span class="font-bold text-zinc-900">{{ $order->created_at->format('d M Y, H:i') }}</span>
+                <span class="font-bold text-zinc-900">{{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
             </div>
             <div class="flex justify-between items-center text-sm">
                 <span class="text-zinc-500">Tipe Pesanan</span>
