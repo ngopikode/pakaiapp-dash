@@ -9,7 +9,7 @@
     </template>
 
     {{-- Header (Safe Context Light/Dark) --}}
-    <div class="p-3 p-lg-4 border-bottom d-flex justify-content-between align-items-center bg-body"
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-body"
          :style="isEditingOrder ? 'border-radius: 0;' : 'border-radius: 1.5rem 1.5rem 0 0;'" style="border-color: var(--bs-border-color-translucent) !important;">
         <div class="d-flex align-items-center gap-2">
             <!-- Tombol Kembali Khusus HP -->
@@ -18,12 +18,13 @@
                     style="width: 36px; height: 36px;">
                 <i class="bi bi-arrow-left fs-5 text-body"></i>
             </button>
-            <h5 class="fw-bold mb-0"><i class="bi bi-cart3 text-warning me-2 d-none d-lg-inline-block"></i>Pesanan Baru
+            <h5 class="fw-bold mb-0 text-truncate" style="max-width: 140px;">
+                <i class="bi bi-cart3 text-warning me-1 d-none d-lg-inline-block"></i>Pesanan
             </h5>
         </div>
-        <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 bg-body"
-                x-show="cart.length > 0">
-            <i class="bi bi-trash3 d-lg-none"></i> <span class="d-none d-lg-inline">Bersihkan</span>
+        <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-2 px-xl-3 bg-body"
+                x-show="cart.length > 0" title="Bersihkan (F4)">
+            <i class="bi bi-trash3"></i> <span class="d-none d-xl-inline ms-1">Batal</span>
         </button>
     </div>
 

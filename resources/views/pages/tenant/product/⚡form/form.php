@@ -32,6 +32,7 @@ new class extends Component {
     public float $basePrice = 0;
     public int $baseStock = 0;
     public int $baseMinStock = 0;
+    public string $baseSku = '';
 
     public array $baseRecipes = [];
     public array $variants = [];
@@ -69,6 +70,7 @@ new class extends Component {
                     $this->variants[] = [
                         'id' => $variant->id,
                         'name' => $variant->name,
+                        'sku' => $variant->sku ?? '',
                         'cost' => (float)$variant->cost,
                         'price' => (float)$variant->price,
                         'stock' => $variant->stock,
@@ -83,6 +85,7 @@ new class extends Component {
                     $this->basePrice = (float)$defaultVariant->price;
                     $this->baseStock = $defaultVariant->stock;
                     $this->baseMinStock = $defaultVariant->min_stock;
+                    $this->baseSku = $defaultVariant->sku ?? '';
                     foreach ($defaultVariant->recipes as $recipe) {
                         $this->baseRecipes[] = [
                             'id' => $recipe->id,
@@ -111,7 +114,7 @@ new class extends Component {
 
     public function addVariant(): void
     {
-        $this->variants[] = ['id' => null, 'name' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => '', 'recipes' => []];
+        $this->variants[] = ['id' => null, 'name' => '', 'sku' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => '', 'recipes' => []];
     }
 
     public function removeVariant(int $index): void
@@ -201,6 +204,7 @@ new class extends Component {
                             ['id' => $variantData['id'] ?? null],
                             [
                                 'name' => $variantData['name'],
+                                'sku' => $variantData['sku'] ?? null,
                                 'cost' => $variantData['cost'] ?: 0,
                                 'price' => $variantData['price'] ?: 0,
                                 'stock' => $variantData['stock'] ?: 0,
@@ -233,6 +237,7 @@ new class extends Component {
                 $defaultVariant = $product->variants()->updateOrCreate(
                     ['name' => 'Default'],
                     [
+                        'sku' => $this->baseSku ?: null,
                         'cost' => $this->baseCost ?: 0,
                         'price' => $this->basePrice ?: 0,
                         'stock' => $this->baseStock ?: 0,

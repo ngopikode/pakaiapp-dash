@@ -21,7 +21,7 @@ class extends Component {
     {
         $wallet = app(TenantWalletService::class)->getWallet();
 
-        $txQuery = WalletTransaction::with('reference')
+        $txQuery = WalletTransaction::query()
             ->when($this->filter === 'credit', fn($q) => $q->where('type', 'CREDIT'))
             ->when($this->filter === 'debit',  fn($q) => $q->where('type', 'DEBIT'))
             ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))

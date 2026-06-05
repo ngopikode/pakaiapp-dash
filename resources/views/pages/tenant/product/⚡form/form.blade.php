@@ -230,24 +230,32 @@
                             {{-- NO VARIANTS: Simple Pricing --}}
                             @if(!$hasVariants)
                                 <div class="row g-3 form-item-card mx-0">
-                                    <div class="col-6 col-md-3">
+                                    @if($selectedCategoryType === 'retail')
+                                        <div class="col-12 col-md-4 col-xl-2">
+                                            <label class="form-label small fw-bold text-secondary mb-1">SKU /
+                                                Barcode</label>
+                                            <input type="text" class="form-control bg-body"
+                                                   wire:model="baseSku" placeholder="Ex: BRG-001">
+                                        </div>
+                                    @endif
+                                    <div class="col-6 col-md-4 col-xl-2">
                                         <label class="form-label small fw-bold text-secondary mb-1">Modal / HPP</label>
                                         <input type="number" class="form-control bg-body"
                                                wire:model="baseCost" placeholder="Rp 0">
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4 col-xl-3">
                                         <label class="form-label small fw-bold text-danger mb-1">Harga Jual *</label>
                                         <input type="number" class="form-control bg-body fw-bold"
                                                wire:model="basePrice" id="productPrice" placeholder="Rp 0" required
                                                style="color: var(--brand-caramel, #B67332);">
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4 col-xl-2">
                                         <label class="form-label small fw-bold text-secondary mb-1">Stok Saat
                                             Ini</label>
                                         <input type="number" class="form-control bg-body"
                                                wire:model="baseStock" placeholder="0">
                                     </div>
-                                    <div class="col-6 col-md-3">
+                                    <div class="col-6 col-md-4 col-xl-2">
                                         <label class="form-label small fw-bold text-secondary mb-1">Notif Stok
                                             Tipis</label>
                                         <input type="number" class="form-control bg-body"
@@ -259,9 +267,18 @@
                             {{-- YES VARIANTS: Card List Form --}}
                             @if($hasVariants)
                                 <div class="d-none d-md-flex row fw-bold text-secondary small px-3 mb-2 mt-4">
-                                    <div class="col-md-3">Nama Varian</div>
-                                    <div class="col-md-3">Modal (Rp)</div>
-                                    <div class="col-md-3">Harga Jual (Rp)</div>
+                                    <div class="{{ $selectedCategoryType === 'retail' ? 'col-md-2' : 'col-md-3' }}">Nama
+                                        Varian
+                                    </div>
+                                    @if($selectedCategoryType === 'retail')
+                                        <div class="col-md-2">SKU</div>
+                                    @endif
+                                    <div class="{{ $selectedCategoryType === 'retail' ? 'col-md-2' : 'col-md-3' }}">
+                                        Modal (Rp)
+                                    </div>
+                                    <div class="{{ $selectedCategoryType === 'retail' ? 'col-md-3' : 'col-md-3' }}">
+                                        Harga (Rp)
+                                    </div>
                                     <div class="col-md-2">Stok</div>
                                     <div class="col-md-1 text-center"><i class="bi bi-gear"></i></div>
                                 </div>
@@ -270,7 +287,8 @@
                                     @foreach($variants as $index => $variant)
                                         <div class="form-item-card">
                                             <div class="row g-2 align-items-center">
-                                                <div class="col-12 col-md-3">
+                                                <div
+                                                    class="col-12 {{ $selectedCategoryType === 'retail' ? 'col-md-2' : 'col-md-3' }}">
                                                     <label class="d-md-none small fw-bold text-secondary mb-1">Nama
                                                         Varian</label>
                                                     <input type="text"
@@ -278,14 +296,25 @@
                                                            wire:model="variants.{{ $index }}.name"
                                                            placeholder="Misal: Large" required>
                                                 </div>
-                                                <div class="col-6 col-md-3">
+                                                @if($selectedCategoryType === 'retail')
+                                                    <div class="col-6 col-md-2">
+                                                        <label
+                                                            class="d-md-none small fw-bold text-secondary mb-1">SKU</label>
+                                                        <input type="text"
+                                                               class="form-control shadow-sm"
+                                                               wire:model="variants.{{ $index }}.sku" placeholder="SKU">
+                                                    </div>
+                                                @endif
+                                                <div
+                                                    class="col-6 {{ $selectedCategoryType === 'retail' ? 'col-md-2' : 'col-md-3' }}">
                                                     <label
                                                         class="d-md-none small fw-bold text-secondary mb-1">Modal</label>
                                                     <input type="number"
                                                            class="form-control shadow-sm"
                                                            wire:model="variants.{{ $index }}.cost" placeholder="0">
                                                 </div>
-                                                <div class="col-6 col-md-3">
+                                                <div
+                                                    class="col-6 {{ $selectedCategoryType === 'retail' ? 'col-md-3' : 'col-md-3' }}">
                                                     <label class="d-md-none small fw-bold text-danger mb-1">Harga Jual
                                                         *</label>
                                                     <input type="number"
@@ -293,14 +322,14 @@
                                                            wire:model="variants.{{ $index }}.price" placeholder="0"
                                                            required>
                                                 </div>
-                                                <div class="col-10 col-md-2">
+                                                <div class="col-4 col-md-2">
                                                     <label
                                                         class="d-md-none small fw-bold text-secondary mb-1">Stok</label>
                                                     <input type="number"
                                                            class="form-control shadow-sm"
                                                            wire:model="variants.{{ $index }}.stock" placeholder="0">
                                                 </div>
-                                                <div class="col-2 col-md-1 text-end text-md-center">
+                                                <div class="col-2 col-md-1 text-end text-md-center mt-4 mt-md-0">
                                                     @if(count($variants) > 1)
                                                         <button type="button"
                                                                 class="btn btn-glass-danger shadow-sm d-inline-flex align-items-center justify-content-center"
@@ -335,48 +364,71 @@
                                         @foreach($baseRecipes as $rIndex => $recipe)
                                             <div class="row g-2 align-items-center mb-2">
                                                 <div class="col-6 col-md-5">
-                                                    <select class="form-select shadow-sm" wire:model="baseRecipes.{{ $rIndex }}.raw_material_id">
+                                                    <select class="form-select shadow-sm"
+                                                            wire:model="baseRecipes.{{ $rIndex }}.raw_material_id">
                                                         <option value="">-- Pilih Bahan --</option>
                                                         @foreach($rawMaterials as $rm)
-                                                            <option value="{{ $rm['id'] }}">{{ $rm['name'] }} ({{ $rm['unit'] }})</option>
+                                                            <option value="{{ $rm['id'] }}">{{ $rm['name'] }}
+                                                                ({{ $rm['unit'] }})
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="col-4 col-md-3">
-                                                    <input type="number" step="0.01" class="form-control shadow-sm" wire:model="baseRecipes.{{ $rIndex }}.quantity_used" placeholder="Takaran">
+                                                    <input type="number" step="0.01" class="form-control shadow-sm"
+                                                           wire:model="baseRecipes.{{ $rIndex }}.quantity_used"
+                                                           placeholder="Takaran">
                                                 </div>
                                                 <div class="col-2 col-md-1">
-                                                    <button type="button" class="btn btn-glass-danger shadow-sm w-100" wire:click="removeBaseRecipe({{ $rIndex }})"><i class="bi bi-trash3"></i></button>
+                                                    <button type="button" class="btn btn-glass-danger shadow-sm w-100"
+                                                            wire:click="removeBaseRecipe({{ $rIndex }})"><i
+                                                            class="bi bi-trash3"></i></button>
                                                 </div>
                                             </div>
                                         @endforeach
-                                        <button type="button" class="btn btn-sm btn-outline-brand mt-2" wire:click="addBaseRecipe"><i class="bi bi-plus"></i> Tambah Bahan</button>
+                                        <button type="button" class="btn btn-sm btn-outline-brand mt-2"
+                                                wire:click="addBaseRecipe"><i class="bi bi-plus"></i> Tambah Bahan
+                                        </button>
                                     </div>
                                 @else
                                     @foreach($variants as $vIndex => $variant)
                                         <div class="form-item-card mb-4">
-                                            <h6 class="fw-bold small mb-3 text-secondary">Bahan Baku untuk Varian: <span class="text-primary">{{ $variant['name'] ?: 'Varian '.($vIndex+1) }}</span></h6>
+                                            <h6 class="fw-bold small mb-3 text-secondary">Bahan Baku untuk Varian: <span
+                                                    class="text-primary">{{ $variant['name'] ?: 'Varian '.($vIndex+1) }}</span>
+                                            </h6>
                                             @if(isset($variant['recipes']))
                                                 @foreach($variant['recipes'] as $rIndex => $recipe)
                                                     <div class="row g-2 align-items-center mb-2">
                                                         <div class="col-6 col-md-5">
-                                                            <select class="form-select shadow-sm" wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.raw_material_id">
+                                                            <select class="form-select shadow-sm"
+                                                                    wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.raw_material_id">
                                                                 <option value="">-- Pilih Bahan --</option>
                                                                 @foreach($rawMaterials as $rm)
-                                                                    <option value="{{ $rm['id'] }}">{{ $rm['name'] }} ({{ $rm['unit'] }})</option>
+                                                                    <option value="{{ $rm['id'] }}">{{ $rm['name'] }}
+                                                                        ({{ $rm['unit'] }})
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                         <div class="col-4 col-md-3">
-                                                            <input type="number" step="0.01" class="form-control shadow-sm" wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.quantity_used" placeholder="Takaran">
+                                                            <input type="number" step="0.01"
+                                                                   class="form-control shadow-sm"
+                                                                   wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.quantity_used"
+                                                                   placeholder="Takaran">
                                                         </div>
                                                         <div class="col-2 col-md-1">
-                                                            <button type="button" class="btn btn-glass-danger shadow-sm w-100" wire:click="removeVariantRecipe({{ $vIndex }}, {{ $rIndex }})"><i class="bi bi-trash3"></i></button>
+                                                            <button type="button"
+                                                                    class="btn btn-glass-danger shadow-sm w-100"
+                                                                    wire:click="removeVariantRecipe({{ $vIndex }}, {{ $rIndex }})">
+                                                                <i class="bi bi-trash3"></i></button>
                                                         </div>
                                                     </div>
                                                 @endforeach
                                             @endif
-                                            <button type="button" class="btn btn-sm btn-outline-brand mt-2" wire:click="addVariantRecipe({{ $vIndex }})"><i class="bi bi-plus"></i> Tambah Bahan</button>
+                                            <button type="button" class="btn btn-sm btn-outline-brand mt-2"
+                                                    wire:click="addVariantRecipe({{ $vIndex }})"><i
+                                                    class="bi bi-plus"></i> Tambah Bahan
+                                            </button>
                                         </div>
                                     @endforeach
                                 @endif
@@ -452,18 +504,22 @@
                     x-show="tab !== 'general'" @click="tab = tab === 'extras' ? 'pricing' : 'general'">
                 <i class="bi bi-chevron-left"></i> Kembali
             </button>
-            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-price" x-show="tab === 'general'"
+            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-price"
+                    x-show="tab === 'general'"
                     @click="tab = 'pricing'">
                 Lanjut Harga <i class="bi bi-chevron-right"></i>
             </button>
-            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-addons"
-                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'retail'" @click="tab = 'extras'">
-                Lanjut Add-ons <i class="bi bi-chevron-right"></i>
-            </button>
-            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
-                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'resto'" @click="tab = 'recipe'">
-                Lanjut Resep <i class="bi bi-chevron-right"></i>
-            </button>
+            @if($selectedCategoryType === 'resto')
+                <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
+                        x-show="tab === 'pricing'" @click="tab = 'recipe'">
+                    Lanjut Resep <i class="bi bi-chevron-right"></i>
+                </button>
+            @else
+                <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-addons"
+                        x-show="tab === 'pricing'" @click="tab = 'extras'">
+                    Lanjut Add-ons <i class="bi bi-chevron-right"></i>
+                </button>
+            @endif
             <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
                     x-show="tab === 'recipe'" @click="tab = 'extras'">
                 Lanjut Add-ons <i class="bi bi-chevron-right"></i>
@@ -488,9 +544,9 @@
 
             <button type="button"
                     class="btn btn-back-circle shadow-sm flex-shrink-0"
-                    x-show="tab !== 'general'" 
+                    x-show="tab !== 'general'"
                     @click="
-                        if (tab === 'extras') tab = '{{ tenant('store_type') }}' === 'resto' ? 'recipe' : 'pricing';
+                        if (tab === 'extras') tab = '{{ $selectedCategoryType }}' === 'resto' ? 'recipe' : 'pricing';
                         else if (tab === 'recipe') tab = 'pricing';
                         else if (tab === 'pricing') tab = 'general';
                     ">
@@ -502,14 +558,17 @@
                 Lanjut <i class="bi bi-chevron-right"></i>
             </button>
 
-            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 tour-btn-next-addons"
-                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'retail'" @click="tab = 'extras'">
-                Lanjut <i class="bi bi-chevron-right"></i>
-            </button>
-            <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
-                    x-show="tab === 'pricing' && '{{ tenant('store_type') }}' === 'resto'" @click="tab = 'recipe'">
-                Lanjut <i class="bi bi-chevron-right"></i>
-            </button>
+            @if($selectedCategoryType === 'retail')
+                <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1 tour-btn-next-addons"
+                        x-show="tab === 'pricing'" @click="tab = 'extras'">
+                    Lanjut <i class="bi bi-chevron-right"></i>
+                </button>
+            @else
+                <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
+                        x-show="tab === 'pricing'" @click="tab = 'recipe'">
+                    Lanjut <i class="bi bi-chevron-right"></i>
+                </button>
+            @endif
             <button type="button" class="btn brand-gradient-btn fw-bold shadow-sm flex-grow-1"
                     x-show="tab === 'recipe'" @click="tab = 'extras'">
                 Lanjut <i class="bi bi-chevron-right"></i>
@@ -528,5 +587,5 @@
     </form>
 
     <!-- Product Form Interactive Guide Component -->
-    <x-tour-guide-form />
+    <x-tour-guide-form/>
 </div>

@@ -5,7 +5,7 @@
      style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
 
     {{-- Header --}}
-    <div class="p-3 p-lg-4 border-bottom d-flex justify-content-between align-items-center bg-body"
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-body"
          style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
         <div class="d-flex align-items-center gap-2">
             <!-- Tombol Kembali Khusus HP -->
@@ -14,21 +14,22 @@
                     style="width: 36px; height: 36px;">
                 <i class="bi bi-arrow-left fs-5 text-body"></i>
             </button>
-            <h5 class="fw-bold mb-0"><i class="bi bi-shop-window text-primary me-2 d-none d-lg-inline-block"></i>Pesanan
-                Baru</h5>
+            <h5 class="fw-bold mb-0 text-truncate" style="max-width: 140px;">
+                <i class="bi bi-shop-window text-primary me-1 d-none d-lg-inline-block"></i>Pesanan
+            </h5>
         </div>
-        <div class="d-flex gap-2">
-            <button @click="holdOrder" class="btn btn-sm btn-outline-warning fw-bold rounded-pill px-3 bg-body"
+        <div class="d-flex gap-1 gap-xl-2">
+            <button @click="holdOrder" class="btn btn-sm btn-outline-warning fw-bold rounded-pill px-2 px-xl-3 bg-body"
                     x-show="cart.length > 0" title="Simpan Sementara (F8)">
-                <i class="bi bi-pause-circle"></i> <span class="d-none d-lg-inline">Tunda</span>
+                <i class="bi bi-pause-circle"></i> <span class="d-none d-xl-inline ms-1">Tunda</span>
             </button>
-            <button @click="openHeldOrdersModal" class="btn btn-sm btn-outline-info fw-bold rounded-pill px-3 bg-body position-relative" title="Daftar Tunda">
-                <i class="bi bi-card-list"></i> <span class="d-none d-lg-inline">Daftar</span>
-                <span x-show="heldOrders.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;" x-text="heldOrders.length"></span>
+            <button @click="openHeldOrdersModal" class="btn btn-sm btn-outline-info fw-bold rounded-pill px-2 px-xl-3 bg-body position-relative" title="Daftar Tunda">
+                <i class="bi bi-card-list"></i> <span class="d-none d-xl-inline ms-1">Daftar</span>
+                <span x-show="heldOrders.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 0.35em 0.5em;" x-text="heldOrders.length"></span>
             </button>
-            <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 bg-body"
+            <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-2 px-xl-3 bg-body"
                     x-show="cart.length > 0" title="Bersihkan (F4)">
-                <i class="bi bi-trash3 d-lg-none"></i> <span class="d-none d-lg-inline">Batal</span>
+                <i class="bi bi-trash3"></i> <span class="d-none d-xl-inline ms-1">Batal</span>
             </button>
         </div>
     </div>
