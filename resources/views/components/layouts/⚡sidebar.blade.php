@@ -14,7 +14,7 @@ new class extends Component {
         session()->invalidate();
         session()->regenerateToken();
 
-        $this->redirect('/', true);
+        $this->redirectRoute('login');
     }
 
     public function getMenuSectionsProperty(): array
@@ -52,7 +52,7 @@ new class extends Component {
         if ($storeType === 'resto') {
             // Add Kitchen Screen to Menu Utama
             $sections[0]['items'][] = ['route' => 'kitchen', 'icon' => 'bi bi-display', 'label' => 'Layar Dapur (Kitchen)', 'roles' => ['manager', 'kitchen']];
-            
+
             // Add Bahan Baku to Katalog & Inventaris
             $sections[1]['items'][] = ['route' => 'raw-material', 'icon' => 'bi bi-box-seam', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
         }
@@ -72,10 +72,12 @@ new class extends Component {
 
 <aside id="{{ $elementId }}">
 
-    <div class="sidebar-heading px-3 py-4 border-bottom d-flex align-items-center justify-content-between gap-2" style="border-color: var(--bs-border-color) !important;">
+    <div class="sidebar-heading px-3 py-4 border-bottom d-flex align-items-center justify-content-between gap-2"
+         style="border-color: var(--bs-border-color) !important;">
         <div class="d-flex align-items-center gap-2 min-w-0">
-            <div class="brand-avatar d-flex align-items-center justify-content-center text-white rounded-3 shadow-sm flex-shrink-0"
-                 style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
+            <div
+                class="brand-avatar d-flex align-items-center justify-content-center text-white rounded-3 shadow-sm flex-shrink-0"
+                style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
                 <i class="bi bi-cup-hot-fill fs-5"></i>
             </div>
             <div class="d-flex flex-column min-w-0">
@@ -123,7 +125,9 @@ new class extends Component {
         <style>
             /* Hide the install button if the app is already installed (standalone mode) */
             @media (display-mode: standalone) {
-                #sidebar-pwa-install { display: none !important; }
+                #sidebar-pwa-install {
+                    display: none !important;
+                }
             }
         </style>
         <button type="button" id="sidebar-pwa-install" onclick="if(window.installPwa) window.installPwa()"
