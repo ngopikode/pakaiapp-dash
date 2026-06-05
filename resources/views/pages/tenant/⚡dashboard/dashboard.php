@@ -86,19 +86,17 @@ new class extends Component {
             
             $todayHpp = DB::table('orders')
                 ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                ->join('product_variants', 'order_items.variant_id', '=', 'product_variants.id')
                 ->whereDate('orders.created_at', today())
                 ->whereIn('orders.status', ['paid', 'completed'])
-                ->sum(DB::raw('order_items.quantity * product_variants.cost'));
+                ->sum(DB::raw('order_items.quantity * order_items.cost'));
             $stats['profit_today'] = $stats['revenue_today'] - $todayHpp;
 
             $monthHpp = DB::table('orders')
                 ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                ->join('product_variants', 'order_items.variant_id', '=', 'product_variants.id')
                 ->whereMonth('orders.created_at', date('m'))
                 ->whereYear('orders.created_at', date('Y'))
                 ->whereIn('orders.status', ['paid', 'completed'])
-                ->sum(DB::raw('order_items.quantity * product_variants.cost'));
+                ->sum(DB::raw('order_items.quantity * order_items.cost'));
             $stats['profit_month'] = $stats['revenue_month'] - $monthHpp;
             
             $stats['pending_orders'] = Order::where('status', 'pending')->count();
