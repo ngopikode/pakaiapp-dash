@@ -79,6 +79,7 @@
 
                         <ul class="list-group list-group-flush kds-items-list">
                             @foreach($order->items as $item)
+                                @if(in_array($item->kitchen_status, ['waiting', 'processing']))
                                 <li class="list-group-item bg-transparent text-white px-0 d-flex justify-content-between align-items-start border-secondary">
                                     <div class="ms-2 me-auto">
                                         <div class="fw-bold fs-5">{{ $item->product_name }}</div>
@@ -94,6 +95,7 @@
                                     <span
                                         class="badge bg-light text-dark rounded-pill fs-5 px-3 py-2">x{{ $item->quantity }}</span>
                                 </li>
+                                @endif
                             @endforeach
                         </ul>
                     </div>

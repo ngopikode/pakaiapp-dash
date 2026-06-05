@@ -83,6 +83,7 @@ new class extends Component {
                         'service_charge_amount' => $newServiceCharge,
                         'tax_amount' => $newTaxAmount,
                         'total_price' => $newTotalPrice,
+                        'kitchen_status' => 'waiting', // Reset status dapur
                     ]);
                     $invoiceCode = $order->invoice_code;
                 } else {

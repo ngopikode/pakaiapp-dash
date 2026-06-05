@@ -13,6 +13,10 @@ new class extends Component {
                 $updateData['status'] = 'progress';
             }
             $order->update($updateData);
+            
+            // Sync status ke semua item yang belum dimasak
+            $order->items()->where('kitchen_status', 'waiting')->update(['kitchen_status' => 'processing']);
+            
             $this->js("window.showIslandToast('Pesanan #{$order->invoice_code} mulai dimasak!', 'success');");
         }
     }
@@ -26,6 +30,10 @@ new class extends Component {
                 $updateData['status'] = 'completed';
             }
             $order->update($updateData);
+            
+            // Sync status ke semua item yang sedang dimasak/menunggu
+            $order->items()->whereIn('kitchen_status', ['waiting', 'processing'])->update(['kitchen_status' => 'ready']);
+            
             $this->js("window.showIslandToast('Pesanan #{$order->invoice_code} siap disajikan!', 'success');");
         }
     }
