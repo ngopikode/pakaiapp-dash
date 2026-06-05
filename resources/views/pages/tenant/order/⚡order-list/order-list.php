@@ -100,7 +100,7 @@ new class extends Component {
     {
         // $itemsToSplitData format: [ ['id' => order_item_id, 'qty' => split_quantity], ... ]
         $order = Order::with('items')->find($orderId);
-        
+
         if (!$order || $order->status !== 'pending') {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Hanya pesanan pending yang bisa dipisah.']);
             return;
@@ -119,7 +119,7 @@ new class extends Component {
                 $serviceRate = $order->service_charge_percentage ?? 5.00;
 
                 $newInvoiceCode = $order->invoice_code . '-' . strtoupper(\Illuminate\Support\Str::random(3));
-                
+
                 $newOrder = Order::create([
                     'invoice_code' => $newInvoiceCode,
                     'table_number' => $order->table_number,
@@ -146,8 +146,8 @@ new class extends Component {
                 // 2. Process Items
                 foreach ($itemsToSplitData as $splitData) {
                     $itemId = $splitData['id'];
-                    $splitQty = (int) $splitData['qty'];
-                    
+                    $splitQty = (int)$splitData['qty'];
+
                     if ($splitQty <= 0) continue;
 
                     $item = $order->items->where('id', $itemId)->first();
@@ -199,7 +199,7 @@ new class extends Component {
                 // 4. Recalculate Old Order Totals
                 $order->refresh(); // Reload items
                 $oldSubtotal = $order->items->sum('subtotal');
-                
+
                 // If old order has 0 items left, maybe delete it?
                 // For safety, we keep it as 0 if they moved everything, or we can delete it.
                 // Assuming they don't split 100% of the items.
@@ -221,10 +221,10 @@ new class extends Component {
 
             $this->dispatch('notify', ['type' => 'success', 'message' => 'Pesanan berhasil dipisah.']);
             $this->js("window.dispatchEvent(new CustomEvent('close-split-modal'));");
-            
+
             // Redirect to cashier queue tab to pay for the new order
-            $this->redirect(route('cashier'));
-            
+            $this->redirectRoute('cashier');
+
         } catch (\Exception $e) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Gagal memisah pesanan: ' . $e->getMessage()]);
         }

@@ -514,16 +514,11 @@
                         x-show="tab === 'pricing'" @click="tab = 'recipe'">
                     Lanjut Resep <i class="bi bi-chevron-right"></i>
                 </button>
-            @else
-                <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm tour-btn-next-addons"
-                        x-show="tab === 'pricing'" @click="tab = 'extras'">
+                <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
+                        x-show="tab === 'recipe'" @click="tab = 'extras'">
                     Lanjut Add-ons <i class="bi bi-chevron-right"></i>
                 </button>
             @endif
-            <button type="button" class="btn btn-tab btn-primary fw-bold px-5 py-2 shadow-sm"
-                    x-show="tab === 'recipe'" @click="tab = 'extras'">
-                Lanjut Add-ons <i class="bi bi-chevron-right"></i>
-            </button>
             <button type="submit"
                     class="btn brand-gradient-btn fw-bold px-5 py-2 shadow-sm d-flex align-items-center gap-2 tour-btn-submit"
                     x-show="tab === 'extras'"

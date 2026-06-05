@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Order;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 new class extends Component {
@@ -29,7 +28,7 @@ new class extends Component {
         session()->invalidate();
         session()->regenerateToken();
 
-        $this->redirect('/', true);
+        $this->redirectRoute('login');
     }
 
     public function with(): array
@@ -38,11 +37,11 @@ new class extends Component {
             ->where(function ($query) {
                 // Tampilkan pesanan yang sudah dibayar/progress
                 $query->whereIn('status', ['paid', 'progress'])
-                      // ATAU pesanan pending (belum bayar) HANYA JIKA dibuat secara internal (kasir/Dine-In)
-                      ->orWhere(function ($q) {
-                          $q->where('status', 'pending')
+                    // ATAU pesanan pending (belum bayar) HANYA JIKA dibuat secara internal (kasir/Dine-In)
+                    ->orWhere(function ($q) {
+                        $q->where('status', 'pending')
                             ->where('is_online', false);
-                      });
+                    });
             })
             ->whereIn('kitchen_status', ['waiting', 'processing'])
             ->whereDate('created_at', today())
