@@ -25,18 +25,19 @@
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-4">
-        @forelse($kitchenOrders as $order)
+        @forelse($kitchenBatches as $batch)
+            @php $order = $batch['order']; @endphp
             <div class="col">
                 <div
-                    class="card h-100 kds-card {{ $order->kitchen_status === 'processing' ? 'border-warning' : 'border-secondary' }}">
+                    class="card h-100 kds-card {{ $batch['status'] === 'processing' ? 'border-warning' : 'border-secondary' }}">
                     <div
                         class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center py-3">
                         <div>
-                            <h5 class="mb-0 text-white fw-bold">#{{ substr($order->invoice_code, -4) }}</h5>
+                            <h5 class="mb-0 text-white fw-bold">#{{ substr($order->invoice_code, -4) }}{{ $batch['status'] === 'waiting' && $order->kitchen_status === 'processing' ? ' (Tambahan)' : '' }}</h5>
                             <small class="text-white-50"
                                    x-data="{ 
                                        timeAgo: '', 
-                                       start: new Date('{{ $order->created_at->toIso8601String() }}'),
+                                       start: new Date('{{ \Carbon\Carbon::parse($batch['created_at'])->toIso8601String() }}'),
                                        updateTime() {
                                            let diff = Math.floor((new Date() - this.start) / 1000);
                                            if (diff < 60) {
@@ -53,8 +54,8 @@
                                        }
                                    }"
                                    x-init="updateTime(); setInterval(() => updateTime(), 1000)">
-                                {{ $order->created_at->format('H:i') }}
-                                (<span x-text="timeAgo">{{ $order->created_at->diffForHumans() }}</span>)
+                                {{ \Carbon\Carbon::parse($batch['created_at'])->format('H:i') }}
+                                (<span x-text="timeAgo">{{ \Carbon\Carbon::parse($batch['created_at'])->diffForHumans() }}</span>)
                             </small>
                         </div>
                         <div class="text-end">
@@ -78,8 +79,7 @@
                         @endif
 
                         <ul class="list-group list-group-flush kds-items-list">
-                            @foreach($order->items as $item)
-                                @if(in_array($item->kitchen_status, ['waiting', 'processing']))
+                            @foreach($batch['items'] as $item)
                                 <li class="list-group-item bg-transparent text-white px-0 d-flex justify-content-between align-items-start border-secondary">
                                     <div class="ms-2 me-auto">
                                         <div class="fw-bold fs-5">{{ $item->product_name }}</div>
@@ -95,17 +95,16 @@
                                     <span
                                         class="badge bg-light text-dark rounded-pill fs-5 px-3 py-2">x{{ $item->quantity }}</span>
                                 </li>
-                                @endif
                             @endforeach
                         </ul>
                     </div>
                     <div class="card-footer bg-transparent border-top border-secondary p-3">
-                        @if($order->kitchen_status === 'waiting')
+                        @if($batch['status'] === 'waiting')
                             <button wire:click="markAsProcessing({{ $order->id }})"
                                     class="btn btn-warning w-100 fw-bold py-3 fs-5" style="border-radius: 12px;">
                                 <i class="bi bi-fire me-2"></i> Mulai Masak
                             </button>
-                        @elseif($order->kitchen_status === 'processing')
+                        @elseif($batch['status'] === 'processing')
                             <button wire:click="markAsReady({{ $order->id }})"
                                     class="btn btn-success w-100 fw-bold py-3 fs-5" style="border-radius: 12px;">
                                 <i class="bi bi-check2-circle me-2"></i> Siap Disajikan
