@@ -50,16 +50,29 @@ class MigrateTenantTypeCommand extends Command
         ];
 
         if ($this->option('path')) {
+            // Jika path manual diset, jalankan path itu saja
             $options['--path'] = $this->option('path');
+            if ($this->option('seed')) {
+                $options['--seed'] = true;
+            }
+            Artisan::call('tenants:migrate', $options, $this->output);
+        } else {
+            // 1. Jalankan migrasi core
+            $this->info(">>> Menjalankan migrasi CORE untuk tipe '{$type}'...");
+            $coreOptions = $options;
+            $coreOptions['--path'] = 'database/migrations/tenant/core';
+            Artisan::call('tenants:migrate', $coreOptions, $this->output);
+
+            // 2. Jalankan migrasi spesifik (retail/resto)
+            $this->info(">>> Menjalankan migrasi SPESIFIK ({$type})...");
+            $specificOptions = $options;
+            $specificOptions['--path'] = "database/migrations/tenant/{$type}";
+            if ($this->option('seed')) {
+                $specificOptions['--seed'] = true; // Seeder hanya dijalankan di step terakhir
+            }
+            Artisan::call('tenants:migrate', $specificOptions, $this->output);
         }
 
-        if ($this->option('seed')) {
-            $options['--seed'] = true;
-        }
-
-        // Panggil command bawaan Tenancy for Laravel
-        Artisan::call('tenants:migrate', $options, $this->output);
-        
         $this->info("✅ Migrasi untuk tenant tipe '{$type}' selesai!");
     }
 }
