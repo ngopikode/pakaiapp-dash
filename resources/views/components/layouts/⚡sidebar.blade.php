@@ -72,6 +72,7 @@ new class extends Component {
 
 <aside id="{{ $elementId }}">
 
+    @if($elementId !== 'mobile-sidebar-wrapper')
     <div class="sidebar-heading px-3 py-4 border-bottom d-flex align-items-center justify-content-between gap-2"
          style="border-color: var(--bs-border-color) !important;">
         <div class="d-flex align-items-center gap-2 min-w-0">
@@ -102,6 +103,7 @@ new class extends Component {
             <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
         </button>
     </div>
+    @endif
 
     <nav class="list-group list-group-flush my-3 flex-grow-1">
         @foreach($this->menuSections as $section)
