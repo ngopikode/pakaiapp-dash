@@ -110,7 +110,7 @@
                             {
                                 target: '#tour-cart-actions',
                                 title: 'Aksi Cepat Keranjang',
-                                content: 'Sangat praktis! 🟡 TUNDA (F8): Simpan keranjang sementara. 🔵 DAFTAR: Buka kembali pesanan yang tertunda. 🔴 BATAL (F4): Hapus seluruh isi keranjang.',
+                                content: 'Sangat praktis! ⏸️ TUNDA (F8): Simpan keranjang sementara. 📋 DAFTAR: Buka kembali pesanan yang tertunda. 🗑️ BATAL (F4): Hapus seluruh isi keranjang.',
                                 position: 'left'
                             },
                             {
