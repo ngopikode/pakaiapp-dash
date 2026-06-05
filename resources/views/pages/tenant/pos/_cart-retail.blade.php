@@ -18,18 +18,19 @@
                 <i class="bi bi-cart3 text-primary me-1 d-none d-lg-inline-block"></i>Pesanan
             </h5>
         </div>
-        <div class="d-flex gap-1 gap-xl-2">
-            <button @click="holdOrder" class="btn btn-sm btn-outline-warning fw-bold rounded-pill px-2 px-xl-3 bg-body"
-                    x-show="cart.length > 0" title="Simpan Sementara (F8)">
-                <i class="bi bi-pause-circle"></i> <span class="d-none d-xl-inline ms-1">Tunda</span>
+        <div class="d-flex gap-2">
+            <button @click="holdOrder" class="btn btn-sm btn-outline-warning d-flex align-items-center justify-content-center rounded-circle bg-body shadow-sm"
+                    x-show="cart.length > 0" title="Simpan Sementara (F8)" style="width: 36px; height: 36px;">
+                <i class="bi bi-pause-circle fs-6"></i>
             </button>
-            <button @click="openHeldOrdersModal" class="btn btn-sm btn-outline-info fw-bold rounded-pill px-2 px-xl-3 bg-body position-relative" title="Daftar Tunda">
-                <i class="bi bi-card-list"></i> <span class="d-none d-xl-inline ms-1">Daftar</span>
-                <span x-show="heldOrders.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 0.35em 0.5em;" x-text="heldOrders.length"></span>
+            <button @click="openHeldOrdersModal" class="btn btn-sm btn-outline-info d-flex align-items-center justify-content-center rounded-circle bg-body position-relative shadow-sm" 
+                    title="Daftar Tunda" style="width: 36px; height: 36px;">
+                <i class="bi bi-card-list fs-6"></i>
+                <span x-show="heldOrders.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.55rem; padding: 0.35em 0.5em;" x-text="heldOrders.length"></span>
             </button>
-            <button @click="clearCart" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-2 px-xl-3 bg-body"
-                    x-show="cart.length > 0" title="Bersihkan (F4)">
-                <i class="bi bi-trash3"></i> <span class="d-none d-xl-inline ms-1">Batal</span>
+            <button @click="clearCart" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle bg-body shadow-sm"
+                    x-show="cart.length > 0" title="Bersihkan (F4)" style="width: 36px; height: 36px;">
+                <i class="bi bi-trash3 fs-6"></i>
             </button>
         </div>
     </div>
