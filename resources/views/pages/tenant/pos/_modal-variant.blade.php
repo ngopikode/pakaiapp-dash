@@ -24,6 +24,11 @@
                                     style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
                                 <div>
                                     <h6 class="fw-bold text-body mb-1" x-text="variant.name"></h6>
+                                    <template x-if="variant.sku">
+                                        <div class="text-secondary mb-2" style="font-size: 0.75rem;">
+                                            <i class="bi bi-upc-scan me-1"></i><span x-text="variant.sku"></span>
+                                        </div>
+                                    </template>
                                     <span class="small badge rounded-pill fw-medium"
                                           :class="variant.stock > 0 ? 'bg-body-tertiary text-secondary border' : 'bg-danger text-white'"
                                           x-text="variant.stock > 0 ? 'Tersedia: ' + variant.stock : 'Stok Habis'"></span>
