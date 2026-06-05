@@ -166,7 +166,7 @@
                 <button id="tour-resto-save" @click="submitNewOrder"
                         class="btn btn-warning w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center text-dark py-3"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting" style="border-radius: 1rem;">
-                    <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Antrian')"></span>
+                    <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Bill')"></span>
                 </button>
             </div>
             <div class="col-12 col-xl-6">
@@ -187,7 +187,7 @@
                 <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
                         class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F2</kbd> Bayar</span>
                 <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
-                        class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F3</kbd> Simpan Antrian</span>
+                        class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F3</kbd> Simpan Bill</span>
                 <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
                         class="bg-dark text-white px-1 rounded small"
                         style="font-size: 0.65rem;">F4</kbd> Bersihkan</span>

@@ -35,13 +35,14 @@
                 <span class="d-inline d-sm-none">Kasir</span>
             </button>
 
-            <!-- Tab: Antrian -->
-            <button wire:click="changeTab('queue')" title="Daftar Antrean"
+            <!-- Tab: Open Bill -->
+            <button wire:click="changeTab('pending')"
                     class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0 position-relative"
-                    :class="currentTab === 'queue' ? 'bg-body shadow-sm text-warning' : 'text-secondary hover-bg-light'"
+                    :class="currentTab === 'pending' ? 'bg-body shadow-sm text-info' : 'text-secondary hover-bg-light'"
                     style="font-size: 0.9rem;">
-                <i class="bi bi-hourglass-split fs-6"></i>
-                <span>Antrian</span>
+                <i class="bi bi-receipt fs-6"></i>
+                <span class="d-none d-sm-inline">Open Bill</span>
+                <span class="d-inline d-sm-none">Bill</span>
                 
                 @if($pendingOrders->count() > 0)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.65rem;">

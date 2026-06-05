@@ -553,9 +553,9 @@
                                         <i class="bi bi-hourglass-split fs-4"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-body">Simpan Antrean (Dapur)</h6>
+                                        <h6 class="fw-bold mb-1 text-body">Open Bill (Dapur)</h6>
                                         <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Gunakan tombol
-                                            <strong>Simpan Antrian</strong> jika pelanggan memesan terlebih dahulu dan
+                                            <strong>Simpan Bill</strong> jika pelanggan memesan terlebih dahulu dan
                                             akan membayar nanti setelah selesai makan. Dapur dapat langsung melihat
                                             catatan.</p>
                                     </div>
