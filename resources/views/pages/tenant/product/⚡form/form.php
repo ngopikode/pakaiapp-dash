@@ -60,12 +60,14 @@ new class extends Component {
             if ($this->hasVariants) {
                 foreach ($product->variants as $variant) {
                     $variantRecipes = [];
-                    foreach ($variant->recipes as $recipe) {
-                        $variantRecipes[] = [
-                            'id' => $recipe->id,
-                            'raw_material_id' => $recipe->raw_material_id,
-                            'quantity_used' => (float)$recipe->quantity_used,
-                        ];
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($variant->recipes as $recipe) {
+                            $variantRecipes[] = [
+                                'id' => $recipe->id,
+                                'raw_material_id' => $recipe->raw_material_id,
+                                'quantity_used' => (float)$recipe->quantity_used,
+                            ];
+                        }
                     }
                     $this->variants[] = [
                         'id' => $variant->id,
@@ -86,12 +88,14 @@ new class extends Component {
                     $this->baseStock = $defaultVariant->stock;
                     $this->baseMinStock = $defaultVariant->min_stock;
                     $this->baseSku = $defaultVariant->sku ?? '';
-                    foreach ($defaultVariant->recipes as $recipe) {
-                        $this->baseRecipes[] = [
-                            'id' => $recipe->id,
-                            'raw_material_id' => $recipe->raw_material_id,
-                            'quantity_used' => (float)$recipe->quantity_used,
-                        ];
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($defaultVariant->recipes as $recipe) {
+                            $this->baseRecipes[] = [
+                                'id' => $recipe->id,
+                                'raw_material_id' => $recipe->raw_material_id,
+                                'quantity_used' => (float)$recipe->quantity_used,
+                            ];
+                        }
                     }
                 }
             }
