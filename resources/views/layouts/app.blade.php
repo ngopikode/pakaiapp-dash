@@ -84,7 +84,18 @@
                         </span>
                     </div>
                 </div>
-                <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button"
+                            x-data="themeToggle"
+                            @click="toggleTheme()"
+                            class="btn btn-link text-body p-0 border-0 shadow-none d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle transition-all hover-bg-tertiary"
+                            style="width: 36px; height: 36px; background-color: var(--bs-tertiary-bg);"
+                            title="Ganti Tema">
+                        <i x-show="theme === 'dark'" class="bi bi-sun-fill text-warning fs-5" x-cloak></i>
+                        <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
+                    </button>
+                    <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
             </div>
             <div class="offcanvas-body p-0">
                 <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
