@@ -65,9 +65,10 @@
                             </template>
                         </div>
                         <button @click="removeFromCart(index)"
-                                class="btn btn-sm btn-secondary bg-body text-danger p-1 shadow-sm rounded-circle border">
-                            <i
-                                class="bi bi-x fs-5"></i></button>
+                                class="btn btn-sm btn-secondary bg-body text-danger p-0 shadow-sm rounded-circle border d-flex align-items-center justify-content-center"
+                                style="width: 28px; height: 28px; flex-shrink: 0;">
+                            <i class="bi bi-x fs-5"></i>
+                        </button>
                     </div>
 
                     {{-- Harga & QTY Control --}}
