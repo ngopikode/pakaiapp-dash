@@ -139,7 +139,12 @@ new class extends Component {
 
                 $change = max(0, (float)$this->paymentAmount - $order->total_price);
 
-                $status = in_array($order->kitchen_status, ['ready', 'completed']) ? 'completed' : 'paid';
+                $status = 'paid';
+                if (in_array($order->kitchen_status, ['ready', 'completed'])) {
+                    $status = 'completed';
+                } elseif ($order->kitchen_status === 'processing') {
+                    $status = 'progress';
+                }
 
                 $order->update([
                     'status' => $status,

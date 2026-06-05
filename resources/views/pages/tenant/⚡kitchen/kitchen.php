@@ -22,7 +22,7 @@ new class extends Component {
         $order = Order::find($orderId);
         if ($order && in_array($order->kitchen_status, ['waiting', 'processing'])) {
             $updateData = ['kitchen_status' => 'ready'];
-            if ($order->status === 'paid') {
+            if (in_array($order->status, ['paid', 'progress'])) {
                 $updateData['status'] = 'completed';
             }
             $order->update($updateData);
