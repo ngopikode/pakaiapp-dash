@@ -4,12 +4,19 @@
     <div class="mb-4">
         <div class="position-relative">
             <i class="bi bi-search position-absolute text-muted fs-5"
-               style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
+               style="top: 50%; left: 1.25rem; transform: translateY(-50%); pointer-events: none;"></i>
             <input type="text" id="tour-pos-search" class="form-control form-control-lg glass-search ps-5 py-2.5"
-                   style="border-radius: 2rem; font-size: 0.95rem;"
+                   style="border-radius: 2rem; font-size: 0.95rem; padding-right: 3rem;"
                    wire:model.live.debounce.300ms="search" 
                    wire:keydown.enter="handleEnter($event.target.value)"
                    placeholder="Cari menu atau produk jualan...">
+                   
+            @if(strlen(trim($search)) > 0)
+                <button type="button" wire:click="$set('search', '')" class="btn btn-link position-absolute text-muted p-0 border-0 shadow-none d-flex align-items-center justify-content-center"
+                        style="top: 50%; right: 1.25rem; transform: translateY(-50%); z-index: 5;" title="Bersihkan Pencarian">
+                    <i class="bi bi-x-circle-fill fs-5 opacity-50 hover-opacity-100 transition-all"></i>
+                </button>
+            @endif
         </div>
     </div>
 
