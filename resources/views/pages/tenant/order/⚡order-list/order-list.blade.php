@@ -233,6 +233,19 @@
                                                     @endif
                                                     <span class="d-none d-sm-inline">&bull;</span>
 
+                                                    @if($storeType === 'resto')
+                                                        @if($order->kitchen_status === 'waiting')
+                                                            <span class="badge border bg-warning bg-opacity-10 text-warning border-warning border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-hourglass-split me-1"></i>Dapur: Nunggu</span>
+                                                        @elseif($order->kitchen_status === 'processing')
+                                                            <span class="badge border bg-primary bg-opacity-10 text-primary border-primary border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-fire me-1"></i>Dapur: Dimasak</span>
+                                                        @elseif($order->kitchen_status === 'ready')
+                                                            <span class="badge border bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check2-circle me-1"></i>Dapur: Siap</span>
+                                                        @elseif($order->kitchen_status === 'completed')
+                                                            <span class="badge border bg-secondary bg-opacity-10 text-secondary border-secondary border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check-all me-1"></i>Dapur: Selesai</span>
+                                                        @endif
+                                                        <span class="d-none d-sm-inline">&bull;</span>
+                                                    @endif
+
                                                     <span>{{ $order->created_at->format('d M, H:i') }}</span>
                                                 </div>
 
