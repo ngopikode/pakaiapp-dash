@@ -49,11 +49,7 @@
 
         @this.splitOrder(this.splittingOrder.id, dataToSend);
     }
-}" wire:poll.15s>
-
-    @php
-        $storeType = \App\Models\StoreSetting::first()?->store_type ?? 'retail';
-    @endphp
+}" @if($storeType !== 'resto') wire:poll.15s @endif>
 
     {{-- Header Section (Clean & Minimalist like Product List) --}}
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3 pt-3">
