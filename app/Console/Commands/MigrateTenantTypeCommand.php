@@ -13,21 +13,29 @@ class MigrateTenantTypeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'tenants:migrate-type {type : Tipe toko tenant (misal: retail, resto)}';
+    protected $signature = 'tenants:migrate-type {type : Tipe toko tenant (misal: retail, resto, all)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Menjalankan migrasi hanya untuk tenant dengan tipe tertentu (retail atau resto)';
+    protected $description = 'Menjalankan migrasi hanya untuk tenant dengan tipe tertentu (retail, resto, atau all)';
 
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
         $type = $this->argument('type');
+
+        if ($type === 'all') {
+            $this->info("🚀 Menjalankan migrasi berjenjang untuk SEMUA tipe tenant (retail & resto)...");
+            $this->call('tenants:migrate-type', ['type' => 'retail']);
+            $this->call('tenants:migrate-type', ['type' => 'resto']);
+            $this->info("🌟 Migrasi ALL (Semua Tenant) Selesai!");
+            return;
+        }
 
         $this->info("Mencari tenant dengan tipe: $type...");
 
