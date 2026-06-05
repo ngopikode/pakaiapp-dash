@@ -108,9 +108,9 @@
                                 position: 'left'
                             },
                             {
-                                target: '[title="Daftar Tunda"]',
-                                title: 'Tunda Pesanan (F8)',
-                                content: 'Pelanggan belum selesai memilih? Klik Tunda untuk menyimpan keranjang secara aman di memori lokal, lalu panggil kembali melalui tombol Daftar.',
+                                target: '#tour-cart-actions',
+                                title: 'Aksi Cepat Keranjang',
+                                content: 'Sangat praktis!\n\n• 🟡 <b>Tunda (F8)</b>: Simpan keranjang sementara jika pelanggan lama mencari barang.\n• 🔵 <b>Daftar</b>: Panggil kembali keranjang yang ditunda.\n• 🔴 <b>Batal (F4)</b>: Kosongkan keranjang.',
                                 position: 'left'
                             },
                             {
@@ -299,7 +299,7 @@
                     const step = this.currentStepData;
                     if (!step) return;
 
-                    const cartTargets = ['#tour-cart-items', '[title="Daftar Tunda"]', '[x-model="customerPhone"]', '[x-model\\.number="globalDiscount"]', '#tour-retail-pay', '[x-model="isTaxActive"]', '#tour-resto-save', '#tour-resto-pay'];
+                    const cartTargets = ['#tour-cart-items', '#tour-cart-actions', '[x-model="customerPhone"]', '[x-model\\.number="globalDiscount"]', '#tour-retail-pay', '[x-model="isTaxActive"]', '#tour-resto-save', '#tour-resto-pay'];
                     const isCartStep = cartTargets.includes(step.target);
                     const isProductGridStep = step.target === '.tour-product-item' || step.target === '#tour-pos-search';
                     

@@ -18,7 +18,7 @@
                 <i class="bi bi-cart3 text-primary me-1 d-none d-lg-inline-block"></i>Pesanan
             </h5>
         </div>
-        <div class="d-flex gap-2">
+        <div id="tour-cart-actions" class="d-flex gap-2">
             <button @click="holdOrder" class="btn btn-sm btn-outline-warning d-flex align-items-center justify-content-center rounded-circle bg-body shadow-sm"
                     x-show="cart.length > 0" title="Simpan Sementara (F8)" style="width: 36px; height: 36px;">
                 <i class="bi bi-pause-circle fs-6"></i>
