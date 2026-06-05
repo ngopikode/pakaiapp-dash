@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+@php use App\Models\GlobalSetting; @endphp
+    <!DOCTYPE html>
 <html lang="id" class="dark" data-bs-theme="dark" id="html-root">
 <head>
     <script>
-        if (localStorage.getItem("theme") === "light") {
-            document.documentElement.classList.remove("dark");
-            document.documentElement.setAttribute("data-bs-theme", "light");
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-bs-theme', 'light');
         }
     </script>
     <meta charset="UTF-8">
@@ -12,8 +13,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @php
-        $trxFee = \App\Models\GlobalSetting::where('key', 'default_trx_fee')->first()?->value ?? 300;
-        $cappingLimit = \App\Models\GlobalSetting::where('key', 'default_capping_limit')->first()?->value ?? 150000;
+        $trxFee = GlobalSetting::where('key', 'default_trx_fee')->first()?->value ?? 300;
+        $cappingLimit = GlobalSetting::where('key', 'default_capping_limit')->first()?->value ?? 150000;
         $cappingLimitFormatted = number_format($cappingLimit, 0, ',', '.');
         $cappingLimitShort = ($cappingLimit / 1000) . 'rb';
     @endphp
@@ -23,8 +24,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="title" content="Pakaiapp - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
-    <meta name="description" content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
-    <meta name="keywords" content="aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
+    <meta name="description"
+          content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
+    <meta name="keywords"
+          content="aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Indonesian">
@@ -33,17 +36,19 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pakaiapp.online/">
     <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
-    <meta property="og:description" content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
+    <meta property="og:description"
+          content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
     <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://pakaiapp.online/">
     <meta property="twitter:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
-    <meta property="twitter:description" content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">
+    <meta property="twitter:description"
+          content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">
     <meta property="twitter:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
 
     <script type="application/ld+json">
-    {
-        "@@context": "https://schema.org",
+        {
+            "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Pakaiapp.online",
         "operatingSystem": "Web, Android, iOS (PWA)",
@@ -67,7 +72,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 </head>
@@ -84,9 +91,9 @@
         <!-- Nav -->
         <nav class="header-nav">
             <a href="#cara-daftar" class="nav-link">Cara Daftar</a>
-            <a href="#fitur"       class="nav-link">Fitur</a>
-            <a href="#harga"       class="nav-link">Harga</a>
-            <a href="#faq"         class="nav-link">FAQ</a>
+            <a href="#fitur" class="nav-link">Fitur</a>
+            <a href="#harga" class="nav-link">Harga</a>
+            <a href="#faq" class="nav-link">FAQ</a>
         </nav>
 
         <!-- Actions -->
@@ -98,7 +105,8 @@
                 <i class="bi bi-box-arrow-in-right"></i>
                 <span class="d-none d-sm-inline">Masuk</span>
             </a>
-            <a href="/register" class="btn-register text-decoration-none d-inline-flex align-items-center justify-content-center">
+            <a href="/register"
+               class="btn-register text-decoration-none d-inline-flex align-items-center justify-content-center">
                 Daftar Gratis
             </a>
         </div>
@@ -120,19 +128,25 @@
     </h1>
 
     <p class="hero-desc">
-        Sepi? Gratis. Ramai? Bayar Suka-suka. Kelola penjualan, menu, laporan, dan pembayaran QRIS dari HP, tablet, atau laptop. Cuma bayar <strong style="color:var(--text)">Rp {{ $trxFee }}</strong> per transaksi sukses, otomatis <strong style="color:var(--green)">GRATIS sepenuhnya</strong> setelah Rp {{ $cappingLimitFormatted }}/bulan.
+        Sepi? Gratis. Ramai? Bayar Suka-suka. Kelola penjualan, menu, laporan, dan pembayaran QRIS dari HP, tablet, atau
+        laptop. Cuma bayar <strong style="color:var(--text)">Rp {{ $trxFee }}</strong> per transaksi sukses, otomatis
+        <strong style="color:var(--green)">GRATIS sepenuhnya</strong> setelah Rp {{ $cappingLimitFormatted }}/bulan.
     </p>
 
-    <div class="text-warning fw-bold mb-3 mt-2" style="font-size: 0.85rem; letter-spacing: 0.5px; display: flex; justify-content: center; width: 100%;">
+    <div class="text-warning fw-bold mb-3 mt-2"
+         style="font-size: 0.85rem; letter-spacing: 1px; display: flex; justify-content: center; width: 100%;">
         <i class="bi bi-gift-fill me-1"></i> Spesial Hari Ini: Gratis Kuota 100 Transaksi Pertama!
     </div>
 
     <div class="hero-cta-group align-items-center">
-        <a href="/register" class="btn-hero-primary text-decoration-none d-inline-flex align-items-center justify-content-center" id="cta-hero-register">
+        <a href="/register"
+           class="btn-hero-primary text-decoration-none d-inline-flex align-items-center justify-content-center"
+           id="cta-hero-register">
             <i class="bi bi-shop me-2"></i>
             Buat Toko Sekarang — Gratis
         </a>
-        <a href="#cara-daftar" class="btn-hero-secondary text-decoration-none d-inline-flex align-items-center justify-content-center">
+        <a href="#cara-daftar"
+           class="btn-hero-secondary text-decoration-none d-inline-flex align-items-center justify-content-center">
             <i class="bi bi-play-circle me-2"></i>
             Lihat Cara Kerja
         </a>
@@ -159,7 +173,6 @@
 </section>
 
 
-
 <!-- ============================================
      CARA DAFTAR (How it Works)
 ============================================ -->
@@ -168,26 +181,30 @@
         <div data-aos="fade-up">
             <div class="section-label"><i class="bi bi-lightning-charge-fill"></i> Cara Kerja</div>
             <h2 class="section-title">Jualan dalam <span class="accent">3 Langkah Mudah</span></h2>
-            <p class="section-sub">Tidak perlu install aplikasi, tidak perlu keahlian teknis. Buka browser, daftar, dan langsung terima pesanan.</p>
+            <p class="section-sub">Tidak perlu install aplikasi, tidak perlu keahlian teknis. Buka browser, daftar, dan
+                langsung terima pesanan.</p>
         </div>
 
         <div class="how-grid" data-aos="fade-up" data-aos-delay="100">
             <div class="how-step">
                 <div class="step-number">1</div>
                 <p class="step-title">Daftar & Buat Toko</p>
-                <p class="step-desc">Klik "Daftar Gratis", isi nama toko, email, dan password. Verifikasi email via kode OTP yang dikirim otomatis. Selesai — akun toko Anda langsung aktif.</p>
+                <p class="step-desc">Klik "Daftar Gratis", isi nama toko, email, dan password. Verifikasi email via kode
+                    OTP yang dikirim otomatis. Selesai — akun toko Anda langsung aktif.</p>
                 <span class="step-time"><i class="bi bi-clock"></i> ~2 menit</span>
             </div>
             <div class="how-step">
                 <div class="step-number">2</div>
                 <p class="step-title">Input Menu & Produk</p>
-                <p class="step-desc">Tambahkan produk atau menu Anda lengkap dengan nama, harga, kategori, dan foto. Bisa tambah variasi ukuran, rasa, atau topping juga.</p>
+                <p class="step-desc">Tambahkan produk atau menu Anda lengkap dengan nama, harga, kategori, dan foto.
+                    Bisa tambah variasi ukuran, rasa, atau topping juga.</p>
                 <span class="step-time"><i class="bi bi-clock"></i> ~10 menit</span>
             </div>
             <div class="how-step">
                 <div class="step-number">3</div>
                 <p class="step-title">Langsung Terima Order</p>
-                <p class="step-desc">Kasir Anda siap! Terima pesanan dari staf, atau biarkan pelanggan scan QR dan pesan sendiri. Dana masuk otomatis ke dompet toko Anda.</p>
+                <p class="step-desc">Kasir Anda siap! Terima pesanan dari staf, atau biarkan pelanggan scan QR dan pesan
+                    sendiri. Dana masuk otomatis ke dompet toko Anda.</p>
                 <span class="step-time"><i class="bi bi-check-circle-fill"></i> Siap Jualan</span>
             </div>
         </div>
@@ -212,9 +229,11 @@
             </div>
             <div>
                 <p class="feat-title">Kasir Web Real-Time</p>
-                <p class="feat-desc">Proses transaksi penjualan dari browser HP atau PC. Data sinkron ke cloud secara real-time — semua staf bisa akses bersamaan.</p>
+                <p class="feat-desc">Proses transaksi penjualan dari browser HP atau PC. Data sinkron ke cloud secara
+                    real-time — semua staf bisa akses bersamaan.</p>
             </div>
-            <div class="feat-badge" style="background:var(--accent-bg); border:1px solid var(--accent-border); color:var(--accent-light);">
+            <div class="feat-badge"
+                 style="background:var(--accent-bg); border:1px solid var(--accent-border); color:var(--accent-light);">
                 <i class="bi bi-stars"></i> Fitur Utama
             </div>
         </div>
@@ -225,7 +244,8 @@
             </div>
             <div>
                 <p class="feat-title">QR Self-Order (Meja)</p>
-                <p class="feat-desc">Pelanggan scan QR di meja, pilih menu, bayar sendiri. Pesanan masuk otomatis ke layar kasir tanpa perlu staf keliling.</p>
+                <p class="feat-desc">Pelanggan scan QR di meja, pilih menu, bayar sendiri. Pesanan masuk otomatis ke
+                    layar kasir tanpa perlu staf keliling.</p>
             </div>
         </div>
 
@@ -235,7 +255,8 @@
             </div>
             <div>
                 <p class="feat-title">Terima QRIS & E-Wallet</p>
-                <p class="feat-desc">GoPay, OVO, Dana, ShopeePay, BCA/Mandiri VA — semua terhubung. Dana langsung masuk ke dompet toko Anda.</p>
+                <p class="feat-desc">GoPay, OVO, Dana, ShopeePay, BCA/Mandiri VA — semua terhubung. Dana langsung masuk
+                    ke dompet toko Anda.</p>
             </div>
         </div>
 
@@ -245,7 +266,8 @@
             </div>
             <div>
                 <p class="feat-title">Laporan & Analitik</p>
-                <p class="feat-desc">Pantau omset harian, mingguan, dan bulanan. Lihat produk terlaris, jam ramai, dan performa staf dalam satu dashboard.</p>
+                <p class="feat-desc">Pantau omset harian, mingguan, dan bulanan. Lihat produk terlaris, jam ramai, dan
+                    performa staf dalam satu dashboard.</p>
             </div>
         </div>
 
@@ -255,7 +277,8 @@
             </div>
             <div>
                 <p class="feat-title">Multi-Staf & Role</p>
-                <p class="feat-desc">Tambahkan akun kasir, manajer, atau admin. Atur hak akses masing-masing agar data keuangan tetap aman terkontrol.</p>
+                <p class="feat-desc">Tambahkan akun kasir, manajer, atau admin. Atur hak akses masing-masing agar data
+                    keuangan tetap aman terkontrol.</p>
             </div>
         </div>
 
@@ -265,7 +288,8 @@
             </div>
             <div>
                 <p class="feat-title">Manajemen Stok</p>
-                <p class="feat-desc">Track stok bahan baku dan produk jadi. Dapat notifikasi otomatis saat stok hampir habis supaya tidak kehabisan di jam sibuk.</p>
+                <p class="feat-desc">Track stok bahan baku dan produk jadi. Dapat notifikasi otomatis saat stok hampir
+                    habis supaya tidak kehabisan di jam sibuk.</p>
             </div>
         </div>
 
@@ -275,7 +299,8 @@
             </div>
             <div>
                 <p class="feat-title">Cetak Struk & KDS</p>
-                <p class="feat-desc">Koneksikan printer thermal untuk cetak struk pelanggan, dan tampilkan Kitchen Display System (KDS) di dapur untuk atur pesanan.</p>
+                <p class="feat-desc">Koneksikan printer thermal untuk cetak struk pelanggan, dan tampilkan Kitchen
+                    Display System (KDS) di dapur untuk atur pesanan.</p>
             </div>
         </div>
 
@@ -285,7 +310,8 @@
             </div>
             <div>
                 <p class="feat-title">Varian & Modifier</p>
-                <p class="feat-desc">Atur variasi menu seperti ukuran (S/M/L), tingkat kemanisan, tambahan topping — dengan penyesuaian harga otomatis.</p>
+                <p class="feat-desc">Atur variasi menu seperti ukuran (S/M/L), tingkat kemanisan, tambahan topping —
+                    dengan penyesuaian harga otomatis.</p>
             </div>
         </div>
 
@@ -295,7 +321,8 @@
             </div>
             <div>
                 <p class="feat-title">PWA — Bisa Offline</p>
-                <p class="feat-desc">Pasang Pakaiapp ke homescreen HP seperti aplikasi native. Beberapa fitur tetap berjalan walau koneksi internet tidak stabil.</p>
+                <p class="feat-desc">Pasang Pakaiapp ke homescreen HP seperti aplikasi native. Beberapa fitur tetap
+                    berjalan walau koneksi internet tidak stabil.</p>
             </div>
         </div>
 
@@ -342,9 +369,12 @@
                 </span>
             </div>
 
-            <div style="margin-top:1rem; padding:1rem; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); font-size:0.8rem; color:var(--text-muted); line-height:1.65;">
+            <div
+                style="margin-top:1rem; padding:1rem; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); font-size:0.8rem; color:var(--text-muted); line-height:1.65;">
                 <strong style="color:var(--text); display:block; margin-bottom:0.35rem;">🎉 Cara Hitung:</strong>
-                Rp {{ $trxFee }} per transaksi sukses. Kalau total tagihan <strong style="color:var(--text)">sudah tembus Rp {{ $cappingLimitFormatted }}</strong> di bulan itu, <strong style="color:var(--green)">semua transaksi berikutnya di bulan itu jadi GRATIS</strong> sampai akhir bulan!
+                Rp {{ $trxFee }} per transaksi sukses. Kalau total tagihan <strong style="color:var(--text)">sudah
+                    tembus Rp {{ $cappingLimitFormatted }}</strong> di bulan itu, <strong style="color:var(--green)">semua
+                    transaksi berikutnya di bulan itu jadi GRATIS</strong> sampai akhir bulan!
             </div>
         </div>
 
@@ -414,9 +444,13 @@
     <div class="testi-grid">
         <div class="testi-card" data-aos="fade-up" data-aos-delay="0">
             <div class="testi-stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
             </div>
-            <p class="testi-text">"Alhamdulillah, sejak pakai sistem ini di Sama Roti Kukus (Seruput & Gigit), operasional cafe jadi jauh lebih mudah. Dari aplikasi kasir pintar (POS), manajemen stok, hingga urusan toko online ada di satu platform praktis. Pelayanan makin cepat dan transaksi lebih rapi. Cocok banget buat UMKM kuliner!"</p>
+            <p class="testi-text">"Alhamdulillah, sejak pakai sistem ini di Sama Roti Kukus (Seruput & Gigit),
+                operasional cafe jadi jauh lebih mudah. Dari aplikasi kasir pintar (POS), manajemen stok, hingga urusan
+                toko online ada di satu platform praktis. Pelayanan makin cepat dan transaksi lebih rapi. Cocok banget
+                buat UMKM kuliner!"</p>
             <div class="testi-author">
                 <div class="testi-avatar" style="background:#1A3E25;">M</div>
                 <div>
@@ -428,9 +462,11 @@
 
         <div class="testi-card" data-aos="fade-up" data-aos-delay="80">
             <div class="testi-stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
             </div>
-            <p class="testi-text">"Fitur QR self-order di meja sangat membantu. Pelanggan pesan sendiri, staf saya bisa fokus di dapur. Omset naik karena antrian berkurang drastis."</p>
+            <p class="testi-text">"Fitur QR self-order di meja sangat membantu. Pelanggan pesan sendiri, staf saya bisa
+                fokus di dapur. Omset naik karena antrian berkurang drastis."</p>
             <div class="testi-author">
                 <div class="testi-avatar" style="background:#1A2B3E;">SH</div>
                 <div>
@@ -442,9 +478,11 @@
 
         <div class="testi-card" data-aos="fade-up" data-aos-delay="160">
             <div class="testi-stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
             </div>
-            <p class="testi-text">"Dashboard laporannya simple dan langsung ngerti. Saya bisa cek omset dari HP kapan saja, bahkan pas saya lagi di rumah. Support-nya juga cepat respons via WA."</p>
+            <p class="testi-text">"Dashboard laporannya simple dan langsung ngerti. Saya bisa cek omset dari HP kapan
+                saja, bahkan pas saya lagi di rumah. Support-nya juga cepat respons via WA."</p>
             <div class="testi-author">
                 <div class="testi-avatar" style="background:#3D2010;">DP</div>
                 <div>
@@ -475,7 +513,10 @@
                     Apakah benar-benar gratis untuk daftar?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan dikenakan biaya Rp {{ $trxFee }} per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada transaksi, tidak ada biaya sama sekali.</div>
+                <div class="faq-answer">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan
+                    dikenakan biaya Rp {{ $trxFee }} per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada
+                    transaksi, tidak ada biaya sama sekali.
+                </div>
             </div>
 
             <div class="faq-item">
@@ -483,7 +524,11 @@
                     Apa itu "Otomatis Gratis Unlimited"?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai Rp {{ $cappingLimitFormatted }} (setara {{ floor($cappingLimit / $trxFee) }} transaksi), maka semua transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp dalam sebulan adalah Rp {{ $cappingLimitFormatted }}, berapapun jumlah transaksinya.</div>
+                <div class="faq-answer">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai
+                    Rp {{ $cappingLimitFormatted }} (setara {{ floor($cappingLimit / $trxFee) }} transaksi), maka semua
+                    transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp
+                    dalam sebulan adalah Rp {{ $cappingLimitFormatted }}, berapapun jumlah transaksinya.
+                </div>
             </div>
 
             <div class="faq-item">
@@ -491,7 +536,10 @@
                     Apakah perlu install aplikasi di HP?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Tidak perlu! Pakaiapp berbasis web dan berjalan langsung di browser HP, tablet, atau PC. Anda bisa menambahkan shortcut ke homescreen HP layaknya aplikasi (PWA) untuk kemudahan akses.</div>
+                <div class="faq-answer">Tidak perlu! Pakaiapp berbasis web dan berjalan langsung di browser HP, tablet,
+                    atau PC. Anda bisa menambahkan shortcut ke homescreen HP layaknya aplikasi (PWA) untuk kemudahan
+                    akses.
+                </div>
             </div>
 
             <div class="faq-item">
@@ -499,7 +547,10 @@
                     Apakah data toko saya aman?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Data Anda disimpan di server cloud terenkripsi dan dibackup secara rutin. Setiap akun toko memiliki subdomain dan database terisolasi, sehingga data Anda tidak bercampur dengan toko lain.</div>
+                <div class="faq-answer">Data Anda disimpan di server cloud terenkripsi dan dibackup secara rutin. Setiap
+                    akun toko memiliki subdomain dan database terisolasi, sehingga data Anda tidak bercampur dengan toko
+                    lain.
+                </div>
             </div>
 
             <div class="faq-item">
@@ -507,7 +558,10 @@
                     Bagaimana cara top-up dan cairkan dana penjualan?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Dana hasil penjualan dari pelanggan yang bayar via QRIS/E-Wallet langsung masuk ke wallet toko Anda di Pakaiapp. Proses penarikan ke rekening bank dilakukan secara manual oleh tim kami — hubungi support via WhatsApp untuk proses pencairan.</div>
+                <div class="faq-answer">Dana hasil penjualan dari pelanggan yang bayar via QRIS/E-Wallet langsung masuk
+                    ke wallet toko Anda di Pakaiapp. Proses penarikan ke rekening bank dilakukan secara manual oleh tim
+                    kami — hubungi support via WhatsApp untuk proses pencairan.
+                </div>
             </div>
 
             <div class="faq-item">
@@ -515,7 +569,10 @@
                     Apakah ada biaya tambahan untuk fitur QRIS atau QR Self-Order?
                     <i class="bi bi-chevron-down faq-chevron"></i>
                 </button>
-                <div class="faq-answer">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan manajemen stok sudah termasuk dalam satu biaya flat Rp {{ $trxFee }}/transaksi. Tidak ada paket berbeda atau fitur yang dikunci di balik paywall.</div>
+                <div class="faq-answer">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan
+                    manajemen stok sudah termasuk dalam satu biaya flat Rp {{ $trxFee }}/transaksi. Tidak ada paket
+                    berbeda atau fitur yang dikunci di balik paywall.
+                </div>
             </div>
 
         </div>
@@ -532,9 +589,12 @@
             <span class="accent">Lebih Efisien Hari Ini?</span>
         </h2>
         <p class="cta-desc">
-            Bergabung bersama 15.000+ toko yang sudah pakai Pakaiapp. Daftar gratis, setup dalam 2 menit, langsung bisa terima pesanan.
+            Bergabung bersama 15.000+ toko yang sudah pakai Pakaiapp. Daftar gratis, setup dalam 2 menit, langsung bisa
+            terima pesanan.
         </p>
-        <a href="/register" class="btn-hero-primary text-decoration-none d-inline-flex align-items-center justify-content-center" style="margin: 0 auto; font-size:1.05rem; padding: 1rem 2.5rem;">
+        <a href="/register"
+           class="btn-hero-primary text-decoration-none d-inline-flex align-items-center justify-content-center"
+           style="margin: 0 auto; font-size:1.05rem; padding: 1rem 2.5rem;">
             <i class="bi bi-shop me-2"></i>
             Buat Akun Toko — Gratis
         </a>
@@ -553,7 +613,8 @@
     <div class="footer-inner">
         <div class="footer-brand">
             <a href="/" class="footer-logo">pakaiapp<span class="logo-dot">.online</span></a>
-            <p class="footer-tagline">Sistem kasir berbasis web untuk UMKM F&B dan Retail — tanpa biaya langganan bulanan.</p>
+            <p class="footer-tagline">Sistem kasir berbasis web untuk UMKM F&B dan Retail — tanpa biaya langganan
+                bulanan.</p>
             <div class="footer-contact-item">
                 <i class="bi bi-whatsapp" style="color:var(--green);"></i>
                 <a href="https://wa.me/6285172441544" target="_blank">0851-7244-1544</a>
@@ -593,7 +654,8 @@
     </div>
 
     <div class="footer-bottom">
-        <span>&copy; {{ date('Y') }} pakaiapp.online &mdash; Produk dari <a href="https://www.ngopikode.com" target="_blank">ngopikode</a> (PT Sinergi Kode Kreatif)</span>
+        <span>&copy; {{ date('Y') }} pakaiapp.online &mdash; Produk dari <a href="https://www.ngopikode.com"
+                                                                            target="_blank">ngopikode</a> (PT Sinergi Kode Kreatif)</span>
         <span style="display:flex; align-items:center; gap:0.5rem; font-size:0.72rem;">
             <i class="bi bi-shield-check" style="color:var(--green);"></i> Platform Aman & Terenkripsi
         </span>
@@ -611,23 +673,28 @@
                 <div class="chat-avatar"><i class="bi bi-robot"></i></div>
                 <div>
                     <h6 class="mb-0 fw-bold" style="font-size:0.95rem; color:#fff;">Asisten Pakaiapp</h6>
-                    <small style="color:rgba(255,255,255,0.8); font-size:0.75rem;"><span class="chat-online-dot"></span> Selalu Online</small>
+                    <small style="color:rgba(255,255,255,0.8); font-size:0.75rem;"><span class="chat-online-dot"></span>
+                        Selalu Online</small>
                 </div>
             </div>
             <button class="chat-close" onclick="toggleChat()" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
         </div>
-        
+
         <div class="chat-body">
             <div class="chat-msg bot-msg">
                 Halo! 👋 Saya asisten virtual Pakaiapp. Ada yang ingin ditanyakan seputar pendaftaran atau fitur kami?
             </div>
         </div>
-        
+
         <div class="chat-footer">
-            <a href="https://wa.me/6285172441544" target="_blank" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2" style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
+            <a href="https://wa.me/6285172441544" target="_blank"
+               class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2"
+               style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
                 <i class="bi bi-whatsapp"></i> Chat Admin (WA)
             </a>
-            <a href="#faq" onclick="toggleChat()" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 mt-2" style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
+            <a href="#faq" onclick="toggleChat()"
+               class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 mt-2"
+               style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
                 <i class="bi bi-question-circle"></i> Lihat FAQ
             </a>
         </div>
@@ -639,7 +706,6 @@
         <span class="fab-pulse"></span>
     </button>
 </div>
-
 
 
 <!-- ============================================
@@ -655,37 +721,62 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-4">Selamat datang di <strong style="color:var(--text)">Pakaiapp</strong>. Harap membaca Syarat & Ketentuan ini dengan saksama sebelum mendaftar dan menggunakan platform kami.</p>
+                <p class="mb-4">Selamat datang di <strong style="color:var(--text)">Pakaiapp</strong>. Harap membaca
+                    Syarat & Ketentuan ini dengan saksama sebelum mendaftar dan menggunakan platform kami.</p>
                 <h6 class="fw-bold">1. KETENTUAN UMUM & DEFINISI</h6>
                 <ul>
-                    <li><strong style="color:var(--text)">Pakaiapp</strong> adalah platform Software-as-a-Service (SaaS) aplikasi kasir pintar (Point of Sales) berbasis web cloud yang dikembangkan oleh PT Sinergi Kode Kreatif.</li>
-                    <li><strong style="color:var(--text)">Pengguna</strong> adalah pemilik usaha (merchant), beserta staf/admin yang ditunjuk, yang mendaftarkan diri.</li>
-                    <li><strong style="color:var(--text)">Layanan</strong> mencakup penyediaan sistem kasir, manajemen varian menu, etalase online (QR self-order), dan pelaporan.</li>
+                    <li><strong style="color:var(--text)">Pakaiapp</strong> adalah platform Software-as-a-Service (SaaS)
+                        aplikasi kasir pintar (Point of Sales) berbasis web cloud yang dikembangkan oleh PT Sinergi Kode
+                        Kreatif.
+                    </li>
+                    <li><strong style="color:var(--text)">Pengguna</strong> adalah pemilik usaha (merchant), beserta
+                        staf/admin yang ditunjuk, yang mendaftarkan diri.
+                    </li>
+                    <li><strong style="color:var(--text)">Layanan</strong> mencakup penyediaan sistem kasir, manajemen
+                        varian menu, etalase online (QR self-order), dan pelaporan.
+                    </li>
                 </ul>
                 <h6 class="fw-bold mt-4">2. PENDAFTARAN AKUN DAN KEAMANAN</h6>
                 <ul>
-                    <li>Pengguna wajib memberikan data informasi bisnis yang akurat, benar, dan terbaru pada saat proses pendaftaran.</li>
-                    <li>Pengguna bertanggung jawab penuh atas keamanan kredensial akun dan hak akses karyawan masing-masing.</li>
+                    <li>Pengguna wajib memberikan data informasi bisnis yang akurat, benar, dan terbaru pada saat proses
+                        pendaftaran.
+                    </li>
+                    <li>Pengguna bertanggung jawab penuh atas keamanan kredensial akun dan hak akses karyawan
+                        masing-masing.
+                    </li>
                 </ul>
                 <h6 class="fw-bold mt-4">3. FUNGSI DOMPET DIGITAL (WALLET) & BIAYA TRANSAKSI</h6>
                 <ul>
-                    <li>Platform menggunakan sistem Dompet Digital terpusat untuk: (1) menampung saldo Top-Up prabayar untuk pemotongan biaya sistem, dan (2) menampung dana hasil penjualan dari Payment Gateway.</li>
+                    <li>Platform menggunakan sistem Dompet Digital terpusat untuk: (1) menampung saldo Top-Up prabayar
+                        untuk pemotongan biaya sistem, dan (2) menampung dana hasil penjualan dari Payment Gateway.
+                    </li>
                     <li>Pendaftaran akun dan penggunaan dasar aplikasi tidak dikenakan biaya langganan bulanan.</li>
-                    <li>Setiap transaksi penjualan yang berstatus sukses/selesai akan dikenakan biaya sistem sebesar <strong style="color:var(--text)">Rp {{ $trxFee }}</strong> yang dipotong otomatis dari Saldo Wallet Pengguna.</li>
+                    <li>Setiap transaksi penjualan yang berstatus sukses/selesai akan dikenakan biaya sistem sebesar
+                        <strong style="color:var(--text)">Rp {{ $trxFee }}</strong> yang dipotong otomatis dari Saldo
+                        Wallet Pengguna.
+                    </li>
                 </ul>
                 <h6 class="fw-bold mt-4">4. PENARIKAN DANA (WITHDRAWAL) & PENGEMBALIAN DANA</h6>
                 <ul>
-                    <li>Saldo yang bersumber dari hasil penjualan (Payment Gateway) dapat ditarik oleh Pengguna ke rekening bank yang didaftarkan.</li>
+                    <li>Saldo yang bersumber dari hasil penjualan (Payment Gateway) dapat ditarik oleh Pengguna ke
+                        rekening bank yang didaftarkan.
+                    </li>
                     <li>Proses penarikan saat ini dilakukan secara manual oleh tim admin.</li>
-                    <li>Saldo yang bersumber dari Top-Up prabayar bersifat non-refundable (tidak dapat ditarik atau diuangkan kembali).</li>
+                    <li>Saldo yang bersumber dari Top-Up prabayar bersifat non-refundable (tidak dapat ditarik atau
+                        diuangkan kembali).
+                    </li>
                 </ul>
                 <h6 class="fw-bold mt-4">5. HUKUM YANG BERLAKU</h6>
                 <ul class="mb-0">
-                    <li>Syarat & Ketentuan ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum negara Republik Indonesia.</li>
+                    <li>Syarat & Ketentuan ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum negara Republik
+                        Indonesia.
+                    </li>
                 </ul>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-hero-primary w-100 py-2 rounded-pill" data-bs-dismiss="modal">Saya Setuju</button>
+                <button type="button" class="btn-hero-primary w-100 py-2 rounded-pill" data-bs-dismiss="modal">Saya
+                    Setuju
+                </button>
             </div>
         </div>
     </div>
@@ -704,18 +795,28 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-4">Sebagai bagian dari kepatuhan operasional kami di <strong style="color:var(--text)">Pakaiapp</strong>, berikut adalah kebijakan resmi terkait pengembalian dana (refund):</p>
+                <p class="mb-4">Sebagai bagian dari kepatuhan operasional kami di <strong style="color:var(--text)">Pakaiapp</strong>,
+                    berikut adalah kebijakan resmi terkait pengembalian dana (refund):</p>
                 <h6 class="fw-bold">1. FINALITAS TRANSAKSI TOP-UP</h6>
-                <p class="mb-4">Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh sistem bersifat final dan mengikat.</p>
+                <p class="mb-4">Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh
+                    sistem bersifat final dan mengikat.</p>
                 <h6 class="fw-bold mt-4">2. PEMISAHAN JENIS SALDO & PENARIKAN</h6>
-                <p class="mb-4"><strong style="color:var(--text)">Saldo Top-Up prabayar bersifat mutlak non-refundable</strong>. Namun, <strong style="color:var(--text)">Saldo Pendapatan</strong> dari hasil transaksi penjualan online dapat ditarik secara manual ke rekening bank pemilik usaha yang telah diverifikasi.</p>
+                <p class="mb-4"><strong style="color:var(--text)">Saldo Top-Up prabayar bersifat mutlak
+                        non-refundable</strong>. Namun, <strong style="color:var(--text)">Saldo Pendapatan</strong> dari
+                    hasil transaksi penjualan online dapat ditarik secara manual ke rekening bank pemilik usaha yang
+                    telah diverifikasi.</p>
                 <h6 class="fw-bold mt-4">3. SALDO ABADI</h6>
-                <p class="mb-4">Saldo top-up pada wallet Pakaiapp bersifat abadi dan tidak memiliki masa kedaluwarsa.</p>
+                <p class="mb-4">Saldo top-up pada wallet Pakaiapp bersifat abadi dan tidak memiliki masa
+                    kedaluwarsa.</p>
                 <h6 class="fw-bold mt-4">4. HUBUNGI KAMI</h6>
-                <p class="mb-0">Hubungi kami melalui WhatsApp di <strong style="color:var(--accent)">085172441544</strong> atau email ke <strong style="color:var(--text)">support@pakaiapp.online</strong>.</p>
+                <p class="mb-0">Hubungi kami melalui WhatsApp di <strong
+                        style="color:var(--accent)">085172441544</strong> atau email ke <strong
+                        style="color:var(--text)">support@pakaiapp.online</strong>.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-hero-primary w-100 py-2 rounded-pill" data-bs-dismiss="modal">Saya Mengerti</button>
+                <button type="button" class="btn-hero-primary w-100 py-2 rounded-pill" data-bs-dismiss="modal">Saya
+                    Mengerti
+                </button>
             </div>
         </div>
     </div>
@@ -728,10 +829,14 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if(config('midtrans.is_production'))
-    <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-@else
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@if(config('midtrans.enabled'))
+    @if(config('midtrans.is_production'))
+        <script src="https://app.midtrans.com/snap/snap.js"
+                data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @else
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+                data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endif
 @endif
 
 <script>
