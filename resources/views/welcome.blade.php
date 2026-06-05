@@ -38,13 +38,13 @@
     <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
     <meta property="og:description"
           content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
-    <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
+    <meta property="og:image" content="{{ asset('images/og-banner.png') }}">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://pakaiapp.online/">
     <meta property="twitter:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
     <meta property="twitter:description"
           content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">
-    <meta property="twitter:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
+    <meta property="twitter:image" content="{{ asset('images/og-banner.png') }}">
 
     <script type="application/ld+json">
         {

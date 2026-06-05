@@ -16,6 +16,18 @@
     <link rel="canonical" href="https://pakaiapp.online/register">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pakaiapp.online/register">
+    <meta property="og:title" content="Daftar Aplikasi Kasir POS Online Gratis | Pakaiapp">
+    <meta property="og:description" content="Daftar aplikasi kasir POS pintar dari Pakaiapp. Tingkatkan omzet bisnis F&B dan Retail Anda dengan fitur pencatatan otomatis, stok, dan laporan realtime.">
+    <meta property="og:image" content="{{ asset('images/og-banner.png') }}">
+    
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://pakaiapp.online/register">
+    <meta property="twitter:title" content="Daftar Aplikasi Kasir POS Online Gratis | Pakaiapp">
+    <meta property="twitter:description" content="Daftar aplikasi kasir POS pintar dari Pakaiapp. Tingkatkan omzet bisnis F&B dan Retail Anda dengan fitur pencatatan otomatis, stok, dan laporan realtime.">
+    <meta property="twitter:image" content="{{ asset('images/og-banner.png') }}">
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
