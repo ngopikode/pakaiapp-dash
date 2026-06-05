@@ -244,13 +244,42 @@
             this.heldOrdersModalInstance.show();
         },
         recallOrder(index) {
+            if (this.cart.length > 0) {
+                Swal.fire({
+                    title: 'Keranjang Sedang Terisi',
+                    text: 'Anda sedang melayani pesanan yang belum selesai. Apa yang ingin dilakukan dengan pesanan tersebut?',
+                    icon: 'question',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-pause-circle"></i> Tunda',
+                    denyButtonText: '<i class="bi bi-trash3"></i> Timpa (Hapus)',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#ffc107',
+                    denyButtonColor: '#dc3545',
+                    color: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000',
+                    background: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#212529' : '#fff',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.holdOrder();
+                        this._executeRecall(index);
+                    } else if (result.isDenied) {
+                        this._executeRecall(index);
+                    }
+                });
+            } else {
+                this._executeRecall(index);
+            }
+        },
+        _executeRecall(index) {
             let order = this.heldOrders[index];
             this.cart = order.cart;
             this.customerName = order.customerName;
             this.customerPhone = order.customerPhone;
             this.globalDiscount = order.globalDiscount;
             this.heldOrders.splice(index, 1);
-            this.heldOrdersModalInstance.hide();
+            if (this.heldOrdersModalInstance) {
+                this.heldOrdersModalInstance.hide();
+            }
             showIslandToast('Pesanan dilanjutkan', 'info');
         },
         removeHeldOrder(index) {
