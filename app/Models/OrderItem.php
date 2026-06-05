@@ -19,6 +19,7 @@ class OrderItem extends Model
         'price',
         'subtotal',
         'note',
+        'kitchen_status',
         'discount',
         'created_at',
         'updated_at'
