@@ -35,6 +35,94 @@ new class extends Component {
         $this->limit += 8;
     }
 
+    public function handleEnter($value = null): void
+    {
+        $searchTerm = trim($value ?? $this->search);
+        if (empty($searchTerm)) return;
+
+        $this->search = $searchTerm;
+
+        // 1. Cek Exact SKU Match
+        $product = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
+            ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
+            ->where('is_active', true)
+            ->whereHas('variants', fn($q) => $q->where('sku', $searchTerm))
+            ->first();
+
+        // 2. Jika bukan SKU exact, cek apakah query memfilter daftar menjadi TEPAT 1 produk
+        if (!$product) {
+            $words = array_filter(explode(' ', $searchTerm));
+            $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
+                ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
+                ->where('is_active', true)
+                ->where(function ($q) use ($words, $searchTerm) {
+                    $q->where('name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhereHas('variants', fn($v) => 
+                            $v->where('sku', 'like', '%' . $searchTerm . '%')
+                              ->orWhere('name', 'like', '%' . $searchTerm . '%')
+                        );
+
+                    if (count($words) > 1) {
+                        $q->orWhere(function ($multiWordQuery) use ($words) {
+                            foreach ($words as $word) {
+                                $multiWordQuery->where(function ($wordQuery) use ($word) {
+                                    $wordQuery->where('name', 'like', '%' . $word . '%')
+                                        ->orWhere('description', 'like', '%' . $word . '%')
+                                        ->orWhereHas('variants', fn($v) => 
+                                            $v->where('sku', 'like', '%' . $word . '%')
+                                              ->orWhere('name', 'like', '%' . $word . '%')
+                                        );
+                                });
+                            }
+                        });
+                    }
+                })
+                ->when($this->categoryFilter !== 'all', fn($q) => $q->where('category_id', $this->categoryFilter));
+
+            if ($query->count() === 1) {
+                $product = $query->first();
+            }
+        }
+
+        if ($product) {
+            $formattedProduct = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'category_id' => $product->category_id,
+                'image_url' => $product->image ? \Storage::url($product->image) : null,
+                'has_variants' => (bool)$product->has_variants,
+                'selection_type' => $product->selection_type ?? 'single',
+                'max_selections' => (int)($product->max_selections ?? 1),
+                'price' => (float)$product->variants->min('price'),
+                'stock' => (int)$product->variants->sum('stock'),
+                'variants' => $product->variants->map(function ($v) {
+                    return [
+                        'id' => $v->id,
+                        'name' => $v->name,
+                        'sku' => $v->sku,
+                        'cost' => (float)$v->cost,
+                        'price' => (float)$v->price,
+                        'stock' => (int)$v->stock,
+                    ];
+                })->toArray(),
+                'extras' => tenant('store_type') === 'resto'
+                    ? $product->extras->map(function ($e) {
+                        return [
+                            'id' => $e->id,
+                            'name' => $e->name,
+                            'price' => (float)$e->price,
+                            'is_active' => (bool)$e->is_active,
+                        ];
+                    })->toArray()
+                    : []
+            ];
+
+            $this->dispatch('add-product', product: $formattedProduct);
+            $this->search = ''; 
+        }
+    }
+
     public function with(): array
     {
         $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])

@@ -7,7 +7,9 @@
                style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
             <input type="text" id="tour-pos-search" class="form-control form-control-lg glass-search ps-5 py-2.5"
                    style="border-radius: 2rem; font-size: 0.95rem;"
-                   wire:model.live.debounce.300ms="search" placeholder="Cari menu atau produk jualan...">
+                   wire:model.live.debounce.300ms="search" 
+                   wire:keydown.enter="handleEnter($event.target.value)"
+                   placeholder="Cari menu atau produk jualan...">
         </div>
     </div>
 
