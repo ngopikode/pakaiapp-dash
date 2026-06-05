@@ -96,8 +96,9 @@
                                         {{ $product['name'] }}
                                     </h6>
                                     @if(tenant('store_type') === 'retail' && count($product['variants']) > 0)
-                                        <div class="text-secondary mb-1 text-truncate" style="font-size: 0.75rem;">
-                                            <i class="bi bi-upc-scan me-1"></i>{{ $product['variants'][0]['sku'] ?? 'No SKU' }}
+                                        <div class="text-secondary mb-1 text-truncate" style="font-size: 0.75rem;" title="{{ collect($product['variants'])->pluck('sku')->filter()->join(', ') }}">
+                                            <i class="bi bi-upc-scan me-1"></i>
+                                            {{ collect($product['variants'])->pluck('sku')->filter()->join(', ') ?: 'No SKU' }}
                                         </div>
                                     @endif
                                 </div>
