@@ -137,6 +137,7 @@ new class extends Component {
                     'amount_paid' => 0,
                     'change_amount' => 0,
                     'status' => 'pending',
+                    'kitchen_status' => $order->kitchen_status,
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]);
 
