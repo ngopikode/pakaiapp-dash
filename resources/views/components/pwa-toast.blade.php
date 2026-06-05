@@ -9,19 +9,19 @@
 @endphp
 
 <!-- PWA Install Toast -->
-<div id="pwa-toast" class="pwa-toast" style="display: none;">
-    <div class="pwa-toast-content">
-        <div class="pwa-icon">
-            <img src="{{ asset('android-chrome-192x192.png') }}" alt="App Icon">
+<div id="pwa-toast" class="pwa-toast bg-body-tertiary border shadow-lg" style="display: none;">
+    <div class="d-flex align-items-center gap-3">
+        <div class="pwa-icon flex-shrink-0" style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; background: var(--bs-secondary-bg);">
+            <img src="{{ asset('android-chrome-192x192.png') }}" alt="App Icon" class="w-100 h-100 object-fit-cover">
         </div>
-        <div class="pwa-text">
-            <strong>Install {{ $appName }}</strong>
-            <span>Tambahkan ke layar utama HP kamu untuk akses super cepat!</span>
+        <div class="d-flex flex-column">
+            <strong class="text-body fw-bold mb-1" style="font-size: 0.95rem;">Install {{ $appName }}</strong>
+            <span class="text-secondary" style="font-size: 0.8rem; line-height: 1.3;">Tambahkan ke layar utama HP kamu untuk akses super cepat!</span>
         </div>
     </div>
-    <div class="pwa-toast-actions">
-        <button id="pwa-dismiss" class="pwa-btn-dismiss">Nanti</button>
-        <button id="pwa-install" class="pwa-btn-install">Install App</button>
+    <div class="d-flex gap-2 mt-1">
+        <button id="pwa-dismiss" class="btn border fw-bold px-3 py-2 rounded-3 text-body flex-grow-1" style="font-size: 0.85rem; background-color: var(--bs-body-bg);">Nanti</button>
+        <button id="pwa-install" class="btn btn-success fw-bold px-3 py-2 rounded-3 flex-grow-1 text-white shadow-sm" style="font-size: 0.85rem;">Install App</button>
     </div>
 </div>
 
@@ -33,85 +33,19 @@
     transform: translate(-50%, 150%);
     width: calc(100% - 48px);
     max-width: 400px;
-    background: #ffffff;
     border-radius: 16px;
     padding: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     z-index: 99999;
     display: flex;
     flex-direction: column;
     gap: 14px;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 1px solid rgba(0,0,0,0.05);
     font-family: inherit;
+    border-color: var(--bs-border-color-translucent) !important;
 }
 .pwa-toast.show {
     transform: translate(-50%, 0);
 }
-.pwa-toast-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.pwa-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: inherit;
-}
-.pwa-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.pwa-icon {
-    width: 48px;
-    height: 48px;
-    background: #fdf4ff;
-    color: #c026d3;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-}
-.pwa-title {
-    font-weight: 700;
-    margin: 0;
-    font-size: 15px;
-    color: #1f2937;
-}
-.pwa-desc {
-    margin: 0;
-    font-size: 13px;
-    color: #6b7280;
-    line-height: 1.4;
-}
-.pwa-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-}
-.pwa-btn-dismiss, .pwa-btn-install {
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.pwa-btn-dismiss {
-    background: #f3f4f6;
-    color: #4b5563;
-}
-.pwa-btn-dismiss:hover { background: #e5e7eb; }
-.pwa-btn-install {
-    background: #22c55e;
-    color: white;
-}
-.pwa-btn-install:hover { background: #16a34a; }
 
 @media (max-width: 768px) {
     .pwa-toast {
