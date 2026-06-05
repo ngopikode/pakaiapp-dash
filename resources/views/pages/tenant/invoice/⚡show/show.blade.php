@@ -5,18 +5,18 @@
         Tersalin!
     </div>
 
-    <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
+    <div class="mx-auto mb-4 d-flex flex-nowrap justify-content-center align-items-center gap-2 no-print w-100"
          style="max-width: 450px;">
         <button wire:click="markAsPrinted" onclick="setTimeout(() => window.print(), 300)"
-                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2">
+                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-1 gap-sm-2 px-2 py-2 flex-grow-1" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
             <i class="bi bi-printer"></i> Cetak
         </button>
         <button onclick="downloadReceipt()"
-                class="btn btn-primary rounded-3 shadow-sm px-3 py-2 d-flex align-items-center gap-2">
-            <i class="bi bi-download"></i> Download
+                class="btn btn-primary rounded-3 shadow-sm px-2 py-2 d-flex justify-content-center align-items-center gap-1 gap-sm-2 flex-grow-1 fw-bold" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
+            <i class="bi bi-download"></i> Simpan
         </button>
         <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank"
-           class="btn btn-success rounded-3 shadow-sm px-3 py-2 d-flex align-items-center gap-2">
+           class="btn btn-success rounded-3 shadow-sm px-2 py-2 d-flex justify-content-center align-items-center gap-1 gap-sm-2 flex-grow-1 fw-bold" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
             <i class="bi bi-whatsapp"></i> Bagikan
         </a>
     </div>
