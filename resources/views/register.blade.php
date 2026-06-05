@@ -97,6 +97,12 @@
     </div>
 </div>
 
+<script>
+    window.PAKAIAAPP_CONFIG = {
+        duitkuEnabled: {{ config('duitku.enabled') ? 'true' : 'false' }},
+        midtransEnabled: {{ config('midtrans.server_key') ? 'true' : 'false' }}
+    };
+</script>
 <script src="{{ asset('js/welcome.js') }}?v={{ time() }}"></script>
 </body>
 </html>

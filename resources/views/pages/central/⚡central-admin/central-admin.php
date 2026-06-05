@@ -142,8 +142,8 @@ class extends Component {
     {
         $registration = TenantRegistration::findOrFail($id);
 
-        if ($registration->status !== 'paid') {
-            $this->dispatch('swal:error', message: 'Hanya pendaftaran berstatus PAID (Gagal Aktivasi Otomatis) yang bisa diproses ulang.');
+        if ($registration->status !== 'paid' && !($registration->status === 'pending' && $registration->payment_method === 'manual')) {
+            $this->dispatch('swal:error', message: 'Hanya pendaftaran PAID (Gagal Setup) atau MANUAL yang bisa diproses.');
             return;
         }
 
@@ -209,7 +209,12 @@ class extends Component {
         return [
             'tenants' => $this->isAuthenticated ? Tenant::orderBy('id')->get() : [],
             'pendingRegistrations' => $this->isAuthenticated
-                ? TenantRegistration::where('status', 'paid')->orderBy('created_at', 'desc')->get()
+                ? TenantRegistration::where(function($q) {
+                    $q->where('status', 'paid')
+                      ->orWhere(function($q2) {
+                          $q2->where('status', 'pending')->where('payment_method', 'manual');
+                      });
+                  })->orderBy('created_at', 'desc')->get()
                 : []
         ];
     }

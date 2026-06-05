@@ -282,22 +282,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             aiSubQuestion.innerText = step.sub;
                if (step.type === 'choice') {
                 if (step.id === 'TanyaPayment') {
-                    choicesContainer.innerHTML = `
-                        <div class="payment-methods-panel" style="width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 10px; max-width: 540px; margin-left: auto; margin-right: auto; text-align: left;">
-                            
-                            <!-- Opsi 1: Manual -->
-                            <div class="payment-card-option manual-opt" onclick="selectPaymentOption(event, 'manual', 'manual-opt')">
-                                <div class="payment-card-header">
-                                    <div class="payment-card-icon wa-icon">
-                                        <i class="bi bi-whatsapp"></i>
-                                    </div>
-                                    <div class="payment-card-content">
-                                        <h4 class="payment-card-title">Transfer Manual (Bantuan WA Admin)</h4>
-                                        <p class="payment-card-desc">Konfirmasi pembayaran manual secara personal. Admin aktif 5-10 menit.</p>
-                                    </div>
-                                </div>
-                            </div>
-
+                    let midtransHtml = '';
+                    if (window.PAKAIAAPP_CONFIG && window.PAKAIAAPP_CONFIG.midtransEnabled) {
+                        midtransHtml = `
                             <!-- Opsi 2: Midtrans -->
                             <div class="payment-card-option midtrans-opt" onclick="selectPaymentOption(event, 'midtrans', 'midtrans-opt')">
                                 <div class="payment-card-header">
@@ -317,7 +304,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     </div>
                                 </div>
                             </div>
+                        `;
+                    }
 
+                    let duitkuHtml = '';
+                    if (window.PAKAIAAPP_CONFIG && window.PAKAIAAPP_CONFIG.duitkuEnabled) {
+                        duitkuHtml = `
                             <!-- Opsi 3: Duitku -->
                             <div class="payment-card-option duitku-opt-card" id="optionDuitkuCard" onclick="expandDuitkuOptions(event)">
                                 <div class="payment-card-header">
@@ -349,6 +341,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     </div>
                                 </div>
                             </div>
+                        `;
+                    }
+
+                    choicesContainer.innerHTML = `
+                        <div class="payment-methods-panel" style="width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 10px; max-width: 540px; margin-left: auto; margin-right: auto; text-align: left;">
+                            
+                            <!-- Opsi 1: Manual -->
+                            <div class="payment-card-option manual-opt" onclick="selectPaymentOption(event, 'manual', 'manual-opt')">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon wa-icon">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </div>
+                                    <div class="payment-card-content">
+                                        <h4 class="payment-card-title">Transfer Manual (Bantuan WA Admin)</h4>
+                                        <p class="payment-card-desc">Konfirmasi pembayaran manual secara personal. Admin aktif 5-10 menit.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${midtransHtml}
+                            ${duitkuHtml}
 
                         </div>
                     `;

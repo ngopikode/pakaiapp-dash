@@ -221,9 +221,9 @@
                                 </form>
                             @elseif($activeTab === 'pending_activations')
                                 <div>
-                                    <h5 class="mb-3 border-bottom pb-2">Antrean Aktivasi Toko Berbayar (PAID tapi Gagal Setup)</h5>
+                                    <h5 class="mb-3 border-bottom pb-2">Antrean Aktivasi Toko (Manual & Gagal Setup)</h5>
                                     <p class="text-muted small mb-4">
-                                        Daftar di bawah adalah merchant yang telah <strong>berhasil membayar</strong> via payment gateway (Midtrans/Duitku) namun proses otomatisasi setup server terganggu (misal: database host down, kuota limit, dll). Gunakan tombol <strong>Aktivasi Paksa</strong> untuk memicu pembuatan database ulang secara manual.
+                                        Daftar di bawah mencakup merchant yang mendaftar via <strong>Manual Transfer (WhatsApp)</strong> dan perlu persetujuan, serta merchant yang sudah membayar secara otomatis (PAID) namun proses setup servernya terganggu. Klik tombol aksi untuk memicu setup.
                                     </p>
 
                                     @if(count($pendingRegistrations) === 0)
@@ -248,6 +248,7 @@
                                                         <tr>
                                                             <td>
                                                                 <span class="badge bg-secondary font-monospace">{{ $reg->invoice_code }}</span>
+                                                                <span class="badge {{ $reg->status === 'pending' ? 'bg-warning text-dark' : 'bg-danger' }} ms-1" style="font-size: 0.65rem;">{{ strtoupper($reg->status) }}</span>
                                                                 <div class="text-muted small mt-1" style="font-size: 0.72rem;">{{ $reg->created_at->format('d/m/Y H:i') }}</div>
                                                             </td>
                                                             <td>
@@ -272,7 +273,7 @@
                                                                         wire:loading.attr="disabled"
                                                                         wire:target="retryCreateTenant({{ $reg->id }})">
                                                                     <span wire:loading.remove wire:target="retryCreateTenant({{ $reg->id }})">
-                                                                        <i class="bi bi-arrow-clockwise"></i> Aktivasi Paksa
+                                                                        <i class="bi bi-play-circle"></i> {{ $reg->payment_method === 'manual' ? 'Approve & Generate' : 'Aktivasi Paksa' }}
                                                                     </span>
                                                                     <span wire:loading wire:target="retryCreateTenant({{ $reg->id }})">
                                                                         <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Memproses...
