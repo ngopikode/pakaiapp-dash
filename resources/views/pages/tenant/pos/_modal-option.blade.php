@@ -1,4 +1,4 @@
-<div class="modal fade modal-bottom-mobile" id="optionModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade modal-bottom-mobile" id="optionModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg bg-body text-body"
              style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">

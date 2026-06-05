@@ -1,5 +1,5 @@
 {{-- ===== VARIANT MODAL (Shared between Resto & Retail) ===== --}}
-<div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg bg-body text-body"
              style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">

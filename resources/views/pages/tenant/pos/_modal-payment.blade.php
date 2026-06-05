@@ -1,6 +1,6 @@
 {{-- ===== PAYMENT MODAL (Shared between Resto & Retail) ===== --}}
 <div class="modal fade modal-bottom-mobile" id="paymentModal" tabindex="-1" aria-hidden="true"
-     data-bs-backdrop="static">
+     data-bs-backdrop="static" wire:ignore.self>
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
              style="border-radius: 1.5rem; max-height: 95vh; border-color: var(--bs-border-color-translucent) !important;">

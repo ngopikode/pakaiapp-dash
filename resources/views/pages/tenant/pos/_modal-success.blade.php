@@ -1,5 +1,5 @@
 {{-- ===== SUCCESS MODAL (Shared between Resto & Retail) ===== --}}
-<div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow-lg text-center p-4 bg-body text-body"
              style="border-radius: 1.25rem; border: 1px solid var(--bs-border-color-translucent) !important;">
