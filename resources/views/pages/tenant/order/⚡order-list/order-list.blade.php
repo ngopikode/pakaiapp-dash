@@ -303,43 +303,27 @@
                                                         Detail
                                                     </button>
 
-                                                    @if($order->status == 'pending')
-                                                        @if($storeType === 'resto')
-                                                            <a href="{{ route('cashier', ['add_to_order' => $order->id]) }}"
-                                                               class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-sm hover-lift"
-                                                               title="Tambah Pesanan ke Meja Ini">
-                                                                <i class="bi bi-plus-circle me-1"></i> Tambah
-                                                            </a>
-                                                            @if($order->items->count() > 1)
-                                                                <button @click="openSplitModal({{ json_encode([
-                                                                    'id' => $order->id,
-                                                                    'invoice_code' => $order->invoice_code,
-                                                                    'items' => $order->items
-                                                                ]) }})"
-                                                                        class="btn btn-sm btn-outline-warning text-dark fw-bold rounded-pill px-3 shadow-sm hover-lift"
-                                                                        title="Pisah Bill (Bayar Sebagian)">
-                                                                    <i class="bi bi-scissors me-1"></i> Pisah
-                                                                </button>
-                                                            @endif
+                                                    @if($storeType !== 'resto')
+                                                        @if($order->status == 'pending')
+                                                            <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
+                                                                    class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                Bayar
+                                                            </button>
+                                                            <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
+                                                                    class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                Batal
+                                                            </button>
+                                                        @elseif($order->status == 'paid')
+                                                            <button wire:click="updateStatus({{ $order->id }}, 'progress')"
+                                                                    class="btn btn-sm btn-primary text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                Proses
+                                                            </button>
+                                                        @elseif($order->status == 'progress')
+                                                            <button wire:click="updateStatus({{ $order->id }}, 'completed')"
+                                                                    class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                Selesai
+                                                            </button>
                                                         @endif
-                                                        <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
-                                                                class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
-                                                            Bayar
-                                                        </button>
-                                                        <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
-                                                                class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 shadow-sm hover-lift">
-                                                            Batal
-                                                        </button>
-                                                    @elseif($order->status == 'paid')
-                                                        <button wire:click="updateStatus({{ $order->id }}, 'progress')"
-                                                                class="btn btn-sm btn-primary text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
-                                                            Proses
-                                                        </button>
-                                                    @elseif($order->status == 'progress')
-                                                        <button wire:click="updateStatus({{ $order->id }}, 'completed')"
-                                                                class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
-                                                            Selesai
-                                                        </button>
                                                     @endif
                                                 </div>
                                             </div>

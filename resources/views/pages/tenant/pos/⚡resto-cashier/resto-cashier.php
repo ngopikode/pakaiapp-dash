@@ -320,7 +320,10 @@ new class extends Component {
                 // lockForUpdate memastikan pesanan tidak dibayar 2 kali di waktu bersamaan
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
-                if (!$order || $order->status !== 'pending') {
+                $isPayable = $order->status === 'pending' || 
+                             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
+
+                if (!$order || !$isPayable) {
                     throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                 }
 
@@ -380,7 +383,10 @@ new class extends Component {
             return DB::transaction(function () use ($orderId, $paymentMethod, $resolvedEmail) {
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
-                if (!$order || $order->status !== 'pending') {
+                $isPayable = $order->status === 'pending' || 
+                             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
+
+                if (!$order || !$isPayable) {
                     throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                 }
 
@@ -441,7 +447,10 @@ new class extends Component {
             return DB::transaction(function () use ($orderId, $resolvedEmail) {
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
-                if (!$order || $order->status !== 'pending') {
+                $isPayable = $order->status === 'pending' || 
+                             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
+
+                if (!$order || !$isPayable) {
                     throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                 }
 
