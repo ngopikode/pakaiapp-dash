@@ -90,4 +90,18 @@ https://sweetalert2.github.io/#ajax-request`),Qr(e),typeof e.title==`string`&&(e
             <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 1px;">
                 ${e}
             </span>
-        `,document.body.appendChild(i),setTimeout(()=>{i.style.transform=`translate(-50%, 0) scale(1)`,i.style.opacity=`1`},10),setTimeout(()=>{i.style.transform=`translate(-50%, -100px) scale(0.85)`,i.style.opacity=`0`,setTimeout(()=>i.remove(),600)},3e3)},Livewire.on(`notify`,e=>{let t=Array.isArray(e)?e[0]:e;window.showIslandToast(t.message,t.type)}),Livewire.hook(`commit`,({commit:e,succeed:t,fail:n})=>{let r=[`save`,`deleteProduct`,`deleteCategory`,`processPayment`,`updateStatus`,`openPaymentModal`];e.calls.some(e=>r.includes(e.method))&&(window.showLoader(),t(()=>window.hideLoader()),n(()=>window.hideLoader()))}),window.addEventListener(`openModal`,()=>window.showLoader()),window.addEventListener(`trigger-payment-modal`,()=>window.showLoader()),window.addEventListener(`show-bootstrap-modal`,()=>window.hideLoader())});
+        `,document.body.appendChild(i),setTimeout(()=>{i.style.transform=`translate(-50%, 0) scale(1)`,i.style.opacity=`1`},10),setTimeout(()=>{i.style.transform=`translate(-50%, -100px) scale(0.85)`,i.style.opacity=`0`,setTimeout(()=>i.remove(),600)},3e3)},Livewire.on(`notify`,e=>{let t=Array.isArray(e)?e[0]:e;window.showIslandToast(t.message,t.type)}),Livewire.hook(`commit`,({commit:e,succeed:t,fail:n})=>{let r=[`save`,`deleteProduct`,`deleteCategory`,`processPayment`,`updateStatus`,`openPaymentModal`];e.calls.some(e=>r.includes(e.method))&&(window.showLoader(),t(()=>window.hideLoader()),n(()=>window.hideLoader()))}),window.addEventListener(`openModal`,()=>window.showLoader()),window.addEventListener(`trigger-payment-modal`,()=>window.showLoader()),window.addEventListener(`show-bootstrap-modal`,()=>window.hideLoader())});var Qs=null;window.addEventListener(`offline`,()=>{Qs||(Qs=document.createElement(`div`),Qs.id=`global-offline-banner`,Qs.style.cssText=`
+        position: fixed;
+        top: 15px;
+        left: 50%;
+        transform: translate(-50%, -50px);
+        z-index: 1060;
+        pointer-events: none;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `,Qs.innerHTML=`
+        <div class="px-4 py-2 rounded-pill shadow-lg d-flex align-items-center fw-bold text-white border border-light border-opacity-25" 
+             style="background: rgba(220, 53, 69, 0.95); backdrop-filter: blur(10px); font-size: 0.85rem; letter-spacing: 0.5px;">
+            <i class="bi bi-wifi-off fs-5 me-2"></i> Koneksi Terputus...
+        </div>
+    `,document.body.appendChild(Qs),setTimeout(()=>{Qs.style.transform=`translate(-50%, 0)`,Qs.style.opacity=`1`},10))}),window.addEventListener(`online`,()=>{Qs&&(Qs.style.transform=`translate(-50%, -50px)`,Qs.style.opacity=`0`,setTimeout(()=>{Qs&&=(Qs.remove(),null)},400),typeof window.showIslandToast==`function`&&window.showIslandToast(`Koneksi internet kembali stabil`,`success`))});

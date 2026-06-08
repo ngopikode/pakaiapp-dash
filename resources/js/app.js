@@ -188,3 +188,57 @@ document.addEventListener('livewire:navigated', () => {
     window.addEventListener('show-bootstrap-modal', () => window.hideLoader());
 
 });
+
+// ==========================================
+// OFFLINE / ONLINE NETWORK HANDLER
+// ==========================================
+let offlineBanner = null;
+
+window.addEventListener('offline', () => {
+    if (offlineBanner) return;
+    
+    offlineBanner = document.createElement('div');
+    offlineBanner.id = 'global-offline-banner';
+    offlineBanner.style.cssText = `
+        position: fixed;
+        top: 15px;
+        left: 50%;
+        transform: translate(-50%, -50px);
+        z-index: 1060;
+        pointer-events: none;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    offlineBanner.innerHTML = `
+        <div class="px-4 py-2 rounded-pill shadow-lg d-flex align-items-center fw-bold text-white border border-light border-opacity-25" 
+             style="background: rgba(220, 53, 69, 0.95); backdrop-filter: blur(10px); font-size: 0.85rem; letter-spacing: 0.5px;">
+            <i class="bi bi-wifi-off fs-5 me-2"></i> Koneksi Terputus...
+        </div>
+    `;
+    document.body.appendChild(offlineBanner);
+    
+    // Animate in
+    setTimeout(() => {
+        offlineBanner.style.transform = 'translate(-50%, 0)';
+        offlineBanner.style.opacity = '1';
+    }, 10);
+});
+
+window.addEventListener('online', () => {
+    if (offlineBanner) {
+        // Animate out
+        offlineBanner.style.transform = 'translate(-50%, -50px)';
+        offlineBanner.style.opacity = '0';
+        setTimeout(() => {
+            if (offlineBanner) {
+                offlineBanner.remove();
+                offlineBanner = null;
+            }
+        }, 400);
+        
+        // Tampilkan toast bahwa koneksi kembali
+        if (typeof window.showIslandToast === 'function') {
+            window.showIslandToast('Koneksi internet kembali stabil', 'success');
+        }
+    }
+});
