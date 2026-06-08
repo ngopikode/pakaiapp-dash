@@ -28,30 +28,30 @@ new class extends Component {
 };
 ?>
 
-<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm navbar-dashboard d-none d-md-flex"
+<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm navbar-dashboard"
      id="mainNavbar" style="min-height: 70px;">
 
     <div class="d-flex align-items-center justify-content-between w-100 flex-nowrap">
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
-            <!-- Mobile Toggle (Offcanvas) -->
-            <button class="btn text-primary border-0 p-2 d-md-none" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-
-            <!-- Desktop Toggle -->
-            <button class="btn text-primary border-0 p-2 d-none d-md-block" id="sidebarToggle">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-
-            <h5 class="m-0 font-serif fw-bold d-none d-md-block text-truncate" style="max-width: 300px;">
-                {{ $header ?? 'Dashboard' }}
-            </h5>
-
-            <span class="fs-6 fw-bold font-serif d-md-none text-truncate" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
-                {{ $header ?? 'Dashboard' }}
-            </span>
+            @if($isMobile ?? false)
+                <!-- Mobile/Tablet Toggle (Offcanvas) -->
+                <button class="btn text-primary border-0 p-2" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <span class="fs-6 fw-bold font-serif text-truncate" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
+                    {{ $header ?? 'Dashboard' }}
+                </span>
+            @else
+                <!-- Desktop Toggle -->
+                <button class="btn text-primary border-0 p-2" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="m-0 font-serif fw-bold text-truncate" style="max-width: 300px;">
+                    {{ $header ?? 'Dashboard' }}
+                </h5>
+            @endif
         </div>
 
         <ul class="navbar-nav ms-auto flex-row align-items-center gap-2 gap-lg-3">
@@ -125,20 +125,24 @@ new class extends Component {
                         <span class="fw-bold">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
                     </div>
 
-                    <div class="d-none d-lg-block text-start lh-1">
-                        <div class="fw-bold small text-dark text-truncate" style="max-width: 120px;">
-                            {{ Auth::user()->name ?? 'User' }}
+                    @if(!($isMobile ?? false))
+                        <div class="text-start lh-1">
+                            <div class="fw-bold small text-dark text-truncate" style="max-width: 120px;">
+                                {{ Auth::user()->name ?? 'User' }}
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">Admin</small>
                         </div>
-                        <small class="text-muted" style="font-size: 0.7rem;">Admin</small>
-                    </div>
+                    @endif
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2"
                     aria-labelledby="navbarDropdown">
-                    <li class="d-lg-none px-3 py-2 border-bottom mb-2">
-                        <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
-                        <small class="text-muted">Admin</small>
-                    </li>
+                    @if($isMobile ?? false)
+                        <li class="px-3 py-2 border-bottom mb-2">
+                            <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
+                            <small class="text-muted">Admin</small>
+                        </li>
+                    @endif
 
                     <li>
                         <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate><i

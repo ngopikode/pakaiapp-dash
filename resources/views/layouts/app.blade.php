@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@php use App\Models\StoreSetting; @endphp
+    <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -28,6 +29,15 @@
             src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
             data-client-key="{{ config('midtrans.client_key') }}"></script>
     @endif
+
+    <script>
+        // iPadOS 13+ requests desktop site by default and spoofs User-Agent as Macintosh.
+        // We detect touch support on MacIntel to identify iPads, set a cookie, and reload once.
+        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 && document.cookie.indexOf('is_ipad=1') === -1) {
+            document.cookie = 'is_ipad=1; path=/; max-age=31536000'; // 1 year
+            window.location.reload();
+        }
+    </script>
 </head>
 <body>
 
@@ -43,76 +53,44 @@
 </div>
 
 <?php
-    $userMenuRole = auth()->user()?->role ?? 'cashier';
-    $storeType = \App\Models\StoreSetting::first()?->store_type ?? 'retail';
+$userMenuRole = auth()->user()?->role ?? 'cashier';
+$storeType = StoreSetting::first()?->store_type ?? 'retail';
 
-    $allRoles = [
-        ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
-        ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
-    ];
-    if ($storeType === 'resto') {
-        $allRoles[] = ['manager', 'kitchen'];
-    }
+$allRoles = [
+    ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
+    ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
+];
+if ($storeType === 'resto') {
+    $allRoles[] = ['manager', 'kitchen'];
+}
 
-    $accessibleMenus = collect($allRoles)->filter(fn($roles) => in_array($userMenuRole, $roles))->count();
-    $showSidebar = $accessibleMenus > 1;
+$accessibleMenus = collect($allRoles)->filter(fn($roles) => in_array($userMenuRole, $roles))->count();
+$showSidebar = $accessibleMenus > 1;
 ?>
 
 <div id="wrapper">
     @if($showSidebar)
-        <div class="d-none d-md-flex">
-            <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
-        </div>
-
-        <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar"
-             aria-labelledby="mobileSidebarLabel" style="width: 280px;">
-            <div class="offcanvas-header border-bottom d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2 min-w-0">
-                    <div
-                        class="brand-avatar d-flex align-items-center justify-content-center text-white rounded-3 shadow-sm flex-shrink-0"
-                        style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
-                        <i class="bi bi-cup-hot-fill fs-5"></i>
-                    </div>
-                    <div class="d-flex flex-column min-w-0">
-                        <span class="fw-bolder fs-5 text-body text-truncate"
-                              style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px; line-height: 1.2; max-width: 140px;">
-                            {{ \App\Models\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}
-                        </span>
-                        <span class="small fw-bold text-secondary text-uppercase text-truncate"
-                              style="font-size: 0.62rem; letter-spacing: 1.5px; opacity: 0.8;">
-                            DASHBOARD TOKO
-                        </span>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button type="button"
-                            x-data="themeToggle"
-                            @click="toggleTheme()"
-                            class="btn btn-link text-body p-0 border-0 shadow-none d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle transition-all hover-bg-tertiary"
-                            style="width: 36px; height: 36px; background-color: var(--bs-tertiary-bg);"
-                            title="Ganti Tema">
-                        <i x-show="theme === 'dark'" class="bi bi-sun-fill text-warning fs-5" x-cloak></i>
-                        <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
-                    </button>
-                </div>
+        @if(!($isMobile ?? false))
+            {{-- HANYA DI-RENDER DI DESKTOP --}}
+            <div class="desktop-sidebar-container h-100">
+                <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
             </div>
-            <div class="offcanvas-body p-0">
-                <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
-            </div>
-        </div>
+        @endif
     @endif
 
-    <div id="page-content-wrapper" @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
-        @if($showSidebar)
+    <div id="page-content-wrapper"
+         @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
+        @if($showSidebar && !($isMobile ?? false))
             <livewire:layouts.navbar :header="$header ?? null"/>
         @endif
 
-        <main class="container-fluid @if($showSidebar) p-3 @else p-0 @endif">
+        <main class="container-fluid @if($showSidebar) p-3 @else @endif">
             {{ $slot }}
         </main>
     </div>
 
-    @if($showSidebar)
+    @if($showSidebar && ($isMobile ?? false))
+        {{-- HANYA DI-RENDER DI MOBILE --}}
         <livewire:layouts.bottom-navbar/>
     @endif
 </div>

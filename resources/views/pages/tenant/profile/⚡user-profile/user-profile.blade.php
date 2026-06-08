@@ -137,4 +137,7 @@
             </div>
         </div>
     </div>
+    
+    <!-- Extra spacing for mobile bottom navbar -->
+    <div style="height: 100px;" class="d-block d-md-none"></div>
 </div>

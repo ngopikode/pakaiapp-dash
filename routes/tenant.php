@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\RestaurantApiController;
 use App\Http\Controllers\MenuController;
 use App\Http\Middleware\FileUrlMiddleware;
 use App\Models\Product;
+use App\Models\StoreSetting;
+use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -35,9 +37,9 @@ Route::middleware([
     Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
 
     Route::get('/manifest.json', function () {
-        $setting = \App\Models\StoreSetting::first();
+        $setting = StoreSetting::first();
         $storeName = $setting->name ?? tenant('id');
-        
+
         return response()->json([
             "name" => $storeName . " Dashboard",
             "short_name" => substr($storeName, 0, 12),
@@ -81,6 +83,7 @@ Route::middleware([
             Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
             Route::view('order', 'pages.tenant.order.index')->name('order');
             Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
+            Route::livewire('menu', 'pages::tenant.mobile-menu')->name('menu');
         });
 
         // Routes accessible by manager AND kitchen
@@ -115,7 +118,7 @@ Route::middleware([
             }
             $request->validate(['amount' => 'required|numeric|min:1']);
             try {
-                $service = new \App\Services\DuitkuService();
+                $service = new DuitkuService();
                 $methods = $service->getPaymentMethods((int)$request->amount);
                 return response()->json(['success' => true, 'data' => $methods]);
             } catch (Throwable $e) {
