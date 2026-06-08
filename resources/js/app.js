@@ -190,55 +190,101 @@ document.addEventListener('livewire:navigated', () => {
 });
 
 // ==========================================
-// OFFLINE / ONLINE NETWORK HANDLER
+// ADVANCED NETWORK STATE HANDLER
 // ==========================================
 let offlineBanner = null;
 
-window.addEventListener('offline', () => {
-    if (offlineBanner) return;
-    
-    offlineBanner = document.createElement('div');
-    offlineBanner.id = 'global-offline-banner';
-    offlineBanner.style.cssText = `
-        position: fixed;
-        top: 15px;
-        left: 50%;
-        transform: translate(-50%, -50px);
-        z-index: 1060;
-        pointer-events: none;
-        opacity: 0;
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    `;
+function updateNetworkBanner(state) {
+    // state = 'offline', 'slow', 'online', 'reconnecting'
+    const messages = {
+        'offline': { text: 'Koneksi Terputus...', icon: 'bi-wifi-off', bg: 'rgba(220, 53, 69, 0.95)' },
+        'slow': { text: 'Koneksi Lambat...', icon: 'bi-reception-1', bg: 'rgba(249, 115, 22, 0.95)' },
+        'reconnecting': { text: 'Menghubungkan kembali...', icon: 'bi-arrow-repeat', bg: 'rgba(13, 110, 253, 0.95)' }
+    };
+
+    if (state === 'online') {
+        if (offlineBanner) {
+            // Animasi keluar
+            offlineBanner.style.transform = 'translate(-50%, -50px)';
+            offlineBanner.style.opacity = '0';
+            setTimeout(() => {
+                if (offlineBanner) {
+                    offlineBanner.remove();
+                    offlineBanner = null;
+                }
+            }, 400);
+            
+            if (typeof window.showIslandToast === 'function') {
+                window.showIslandToast('Koneksi internet stabil', 'success');
+            }
+        }
+        return;
+    }
+
+    const cfg = messages[state];
+
+    if (!offlineBanner) {
+        offlineBanner = document.createElement('div');
+        offlineBanner.id = 'global-offline-banner';
+        offlineBanner.style.cssText = `
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translate(-50%, -50px);
+            z-index: 1060;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        `;
+        document.body.appendChild(offlineBanner);
+        
+        setTimeout(() => {
+            if(offlineBanner) {
+                offlineBanner.style.transform = 'translate(-50%, 0)';
+                offlineBanner.style.opacity = '1';
+            }
+        }, 10);
+    }
+
     offlineBanner.innerHTML = `
         <div class="px-4 py-2 rounded-pill shadow-lg d-flex align-items-center fw-bold text-white border border-light border-opacity-25" 
-             style="background: rgba(220, 53, 69, 0.95); backdrop-filter: blur(10px); font-size: 0.85rem; letter-spacing: 0.5px;">
-            <i class="bi bi-wifi-off fs-5 me-2"></i> Koneksi Terputus...
+             style="background: ${cfg.bg}; backdrop-filter: blur(10px); font-size: 0.85rem; letter-spacing: 0.5px; transition: background 0.4s ease;">
+            <i class="bi ${cfg.icon} fs-5 me-2 ${state === 'reconnecting' ? 'spin-icon' : ''}"></i> 
+            <span>${cfg.text}</span>
         </div>
+        <style>
+            @keyframes spin-icon { 100% { transform: rotate(360deg); } }
+            .spin-icon { display: inline-block; animation: spin-icon 1.2s linear infinite; }
+        </style>
     `;
-    document.body.appendChild(offlineBanner);
-    
-    // Animate in
-    setTimeout(() => {
-        offlineBanner.style.transform = 'translate(-50%, 0)';
-        offlineBanner.style.opacity = '1';
-    }, 10);
-});
+}
 
-window.addEventListener('online', () => {
-    if (offlineBanner) {
-        // Animate out
-        offlineBanner.style.transform = 'translate(-50%, -50px)';
-        offlineBanner.style.opacity = '0';
-        setTimeout(() => {
-            if (offlineBanner) {
-                offlineBanner.remove();
-                offlineBanner = null;
-            }
-        }, 400);
-        
-        // Tampilkan toast bahwa koneksi kembali
-        if (typeof window.showIslandToast === 'function') {
-            window.showIslandToast('Koneksi internet kembali stabil', 'success');
+function checkNetworkSpeed() {
+    if (!navigator.onLine) {
+        updateNetworkBanner('offline');
+        return;
+    }
+    
+    if (navigator.connection) {
+        const type = navigator.connection.effectiveType;
+        if (type === 'slow-2g' || type === '2g') {
+            updateNetworkBanner('slow');
+            return;
         }
     }
+    
+    updateNetworkBanner('online');
+}
+
+window.addEventListener('offline', () => updateNetworkBanner('offline'));
+
+window.addEventListener('online', () => {
+    // Tampilkan state reconnecting sebentar
+    updateNetworkBanner('reconnecting');
+    // Cek ulang speed setelah delay kecil
+    setTimeout(() => checkNetworkSpeed(), 2000); 
 });
+
+if (navigator.connection) {
+    navigator.connection.addEventListener('change', checkNetworkSpeed);
+}
