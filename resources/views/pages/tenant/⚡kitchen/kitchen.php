@@ -7,7 +7,7 @@ new class extends Component {
     public function markAsProcessing($orderId): void
     {
         $order = Order::find($orderId);
-        if ($order) {
+        if ($order && $order->status !== 'cancelled') {
             // Update only waiting items
             $order->items()->where('kitchen_status', 'waiting')->update(['kitchen_status' => 'processing']);
             
@@ -15,13 +15,15 @@ new class extends Component {
             $this->recalculateOrderStatus($order);
             
             $this->js("window.showIslandToast('Pesanan tambahan #{$order->invoice_code} mulai dimasak!', 'success');");
+        } else {
+            $this->js("window.showIslandToast('Pesanan sudah dibatalkan atau tidak ditemukan.', 'danger');");
         }
     }
 
     public function markAsReady($orderId): void
     {
         $order = Order::find($orderId);
-        if ($order) {
+        if ($order && $order->status !== 'cancelled') {
             // Update only processing items
             $order->items()->where('kitchen_status', 'processing')->update(['kitchen_status' => 'ready']);
             
@@ -29,29 +31,31 @@ new class extends Component {
             $this->recalculateOrderStatus($order);
             
             $this->js("window.showIslandToast('Kloter pesanan #{$order->invoice_code} siap disajikan!', 'success');");
+        } else {
+            $this->js("window.showIslandToast('Pesanan sudah dibatalkan atau tidak ditemukan.', 'danger');");
         }
     }
     public function markItemAsProcessing($itemId): void
     {
         $item = \App\Models\OrderItem::with('order')->find($itemId);
-        if ($item && $item->kitchen_status === 'waiting') {
+        if ($item && $item->kitchen_status === 'waiting' && $item->order && $item->order->status !== 'cancelled') {
             $item->update(['kitchen_status' => 'processing']);
-            if ($item->order) {
-                $this->recalculateOrderStatus($item->order);
-                $this->js("window.showIslandToast('Item {$item->product_name} mulai dimasak!', 'success');");
-            }
+            $this->recalculateOrderStatus($item->order);
+            $this->js("window.showIslandToast('Item {$item->product_name} mulai dimasak!', 'success');");
+        } elseif ($item && $item->order && $item->order->status === 'cancelled') {
+            $this->js("window.showIslandToast('Pesanan sudah dibatalkan.', 'danger');");
         }
     }
 
     public function markItemAsReady($itemId): void
     {
         $item = \App\Models\OrderItem::with('order')->find($itemId);
-        if ($item && $item->kitchen_status === 'processing') {
+        if ($item && $item->kitchen_status === 'processing' && $item->order && $item->order->status !== 'cancelled') {
             $item->update(['kitchen_status' => 'ready']);
-            if ($item->order) {
-                $this->recalculateOrderStatus($item->order);
-                $this->js("window.showIslandToast('Item {$item->product_name} siap disajikan!', 'success');");
-            }
+            $this->recalculateOrderStatus($item->order);
+            $this->js("window.showIslandToast('Item {$item->product_name} siap disajikan!', 'success');");
+        } elseif ($item && $item->order && $item->order->status === 'cancelled') {
+            $this->js("window.showIslandToast('Pesanan sudah dibatalkan.', 'danger');");
         }
     }
     

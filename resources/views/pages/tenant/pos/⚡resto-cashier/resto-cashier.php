@@ -175,6 +175,15 @@ new class extends Component {
 
                 if ($this->addToOrder && $this->existingOrder) {
                     $order = $this->existingOrder;
+                    
+                    // VALIDASI KEAMANAN: Pastikan pesanan belum selesai/dibatalkan saat tambah menu
+                    $isEditable = $order->status === 'pending' || 
+                                 ($order->status === 'progress' && $order->amount_paid < $order->total_price);
+                    
+                    if (!$isEditable) {
+                        throw new Exception("Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.");
+                    }
+
                     // Update total for the existing order
                     $newSubtotal = $order->subtotal + $subtotal;
                     $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
