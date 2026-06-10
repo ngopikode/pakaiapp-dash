@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\DuitkuApiController;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\OrderHistoryApiController;
 use App\Http\Controllers\Api\RestaurantApiController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\TenantManifestController;
 use App\Http\Middleware\FileUrlMiddleware;
-use App\Models\Product;
-use App\Models\StoreSetting;
-use App\Services\DuitkuService;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -36,45 +36,14 @@ Route::middleware([
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
     Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
 
-    Route::get('/manifest.json', function () {
-        $setting = StoreSetting::first();
-        $storeName = $setting->name ?? tenant('id');
+    Route::get('/manifest.json', TenantManifestController::class);
 
-        return response()->json([
-            "name" => $storeName . " Dashboard",
-            "short_name" => substr($storeName, 0, 12),
-            "start_url" => "/dashboard",
-            "display" => "standalone",
-            "background_color" => "#ffffff",
-            "theme_color" => $setting->theme_color ?? "#22c55e",
-            "icons" => [
-                [
-                    "src" => "/android-chrome-192x192.png",
-                    "sizes" => "192x192",
-                    "type" => "image/png"
-                ],
-                [
-                    "src" => "/android-chrome-512x512.png",
-                    "sizes" => "512x512",
-                    "type" => "image/png"
-                ]
-            ]
-        ]);
+    Route::get('/', HomeController::class)->name('index');
+
+    Route::controller(MenuController::class)->prefix('menu')->name('product.')->group(function () {
+        Route::get('/{product}', 'show')->name('show');
+        Route::get('/{product}/story', 'shareAsStory')->name('story');
     });
-
-    Route::get('/', function () {
-        if (tenant('store_type') === 'retail') return view('pages.tenant.retail.index');
-        return view('pages.tenant.store.resto.index');
-    })->name('index');
-
-    // routes/web.php
-
-    Route::get('/menu/{product}',
-        fn(Product $product) => view('pages.tenant.store.resto.product', compact('product'))
-            ->with('product', $product->load(['variants', 'extras']))
-    )->name('product.show');
-
-    Route::get('/menu/{product}/story', [MenuController::class, 'shareAsStory'])->name('product.story');
 
     Route::middleware('auth')->group(function () {
 
@@ -106,26 +75,18 @@ Route::middleware([
     });
 
     Route::prefix('api')->middleware(['api'])->group(function () {
-        Route::get('/restaurant', RestaurantApiController::class);
-        Route::post('/orders', [OrderApiController::class, 'store'])->middleware('throttle:orders');
-        Route::post('/orders/history', [OrderHistoryApiController::class, 'index'])->middleware('throttle:30,1');
+        Route::get('/restaurant', RestaurantApiController::class)->name('api.restaurant');
+        
+        Route::prefix('orders')->name('api.orders.')->group(function () {
+            Route::post('/', [OrderApiController::class, 'store'])->middleware('throttle:orders')->name('store');
+            Route::post('/history', [OrderHistoryApiController::class, 'index'])->middleware('throttle:30,1')->name('history');
+        });
 
         // ─── Duitku — callback/return/status sudah pindah ke central domain ────
         // Payment methods: tetap di tenant karena butuh context tenant untuk amount
-        Route::get('/duitku/payment-methods', function (\Illuminate\Http\Request $request) {
-            if (!config('duitku.enabled')) {
-                abort(403, 'Duitku payment gateway is disabled.');
-            }
-            $request->validate(['amount' => 'required|numeric|min:1']);
-            try {
-                $service = new DuitkuService();
-                $methods = $service->getPaymentMethods((int)$request->amount);
-                return response()->json(['success' => true, 'data' => $methods]);
-            } catch (Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('[Duitku] getPaymentMethods error', ['error' => $e->getMessage()]);
-                return response()->json(['success' => false, 'message' => 'Gagal mengambil metode pembayaran.'], 500);
-            }
-        })->name('duitku.payment-methods');
+        Route::prefix('duitku')->name('duitku.')->group(function () {
+            Route::get('/payment-methods', [DuitkuApiController::class, 'getPaymentMethods'])->name('payment-methods');
+        });
     });
 
     require __DIR__ . '/auth.php';

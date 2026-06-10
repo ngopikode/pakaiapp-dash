@@ -9,6 +9,13 @@ use Illuminate\Support\Str;
 
 class MenuController extends Controller
 {
+    public function show(Product $product)
+    {
+        return view('pages.tenant.store.resto.product', [
+            'product' => $product->load(['variants', 'extras'])
+        ]);
+    }
+
     public function shareAsStory(Product $product)
     {
         $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
