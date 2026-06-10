@@ -31,6 +31,29 @@ new class extends Component {
             $this->js("window.showIslandToast('Kloter pesanan #{$order->invoice_code} siap disajikan!', 'success');");
         }
     }
+    public function markItemAsProcessing($itemId): void
+    {
+        $item = \App\Models\OrderItem::with('order')->find($itemId);
+        if ($item && $item->kitchen_status === 'waiting') {
+            $item->update(['kitchen_status' => 'processing']);
+            if ($item->order) {
+                $this->recalculateOrderStatus($item->order);
+                $this->js("window.showIslandToast('Item {$item->product_name} mulai dimasak!', 'success');");
+            }
+        }
+    }
+
+    public function markItemAsReady($itemId): void
+    {
+        $item = \App\Models\OrderItem::with('order')->find($itemId);
+        if ($item && $item->kitchen_status === 'processing') {
+            $item->update(['kitchen_status' => 'ready']);
+            if ($item->order) {
+                $this->recalculateOrderStatus($item->order);
+                $this->js("window.showIslandToast('Item {$item->product_name} siap disajikan!', 'success');");
+            }
+        }
+    }
     
     private function recalculateOrderStatus($order)
     {

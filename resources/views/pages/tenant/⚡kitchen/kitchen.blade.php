@@ -6,6 +6,9 @@
             <p class="text-white-50 small mb-0">Monitor Pesanan Dapur secara Real-time</p>
         </div>
         <div class="d-flex gap-2">
+            <button wire:click="$refresh" wire:loading.attr="disabled" class="btn btn-outline-info btn-sm d-flex align-items-center gap-2" title="Refresh Data (Tanpa Reload Halaman)">
+                <i class="bi bi-arrow-clockwise" wire:loading.class="spin-icon" wire:target="$refresh"></i> Refresh
+            </button>
             <div class="badge bg-dark border border-secondary px-3 py-2 d-flex align-items-center gap-2">
                 <span class="spinner-grow spinner-grow-sm text-success" role="status"
                       style="width: 10px; height: 10px;"></span>
@@ -92,8 +95,18 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <span
-                                        class="badge bg-light text-dark rounded-pill fs-5 px-3 py-2">x{{ $item->quantity }}</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-light text-dark rounded-pill fs-5 px-3 py-2">x{{ $item->quantity }}</span>
+                                        @if($batch['status'] === 'waiting')
+                                            <button wire:click="markItemAsProcessing({{ $item->id }})" class="btn btn-warning btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; padding: 0;" title="Mulai Masak Item Ini">
+                                                <i class="bi bi-play-fill fs-4"></i>
+                                            </button>
+                                        @elseif($batch['status'] === 'processing')
+                                            <button wire:click="markItemAsReady({{ $item->id }})" class="btn btn-success btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; padding: 0;" title="Item Ini Siap">
+                                                <i class="bi bi-check-lg fs-5"></i>
+                                            </button>
+                                        @endif
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>
@@ -101,13 +114,13 @@
                     <div class="card-footer bg-transparent border-top border-secondary p-3">
                         @if($batch['status'] === 'waiting')
                             <button wire:click="markAsProcessing({{ $order->id }})"
-                                    class="btn btn-warning w-100 fw-bold py-3 fs-5" style="border-radius: 12px;">
-                                <i class="bi bi-fire me-2"></i> Mulai Masak
+                                    class="btn btn-outline-warning w-100 fw-bold py-3 fs-5" style="border-radius: 12px; border-width: 2px;">
+                                <i class="bi bi-fire me-2"></i> Mulai Masak Semua
                             </button>
                         @elseif($batch['status'] === 'processing')
                             <button wire:click="markAsReady({{ $order->id }})"
-                                    class="btn btn-success w-100 fw-bold py-3 fs-5" style="border-radius: 12px;">
-                                <i class="bi bi-check2-circle me-2"></i> Siap Disajikan
+                                    class="btn btn-outline-success w-100 fw-bold py-3 fs-5" style="border-radius: 12px; border-width: 2px;">
+                                <i class="bi bi-check2-all me-2"></i> Semua Siap
                             </button>
                         @endif
                     </div>

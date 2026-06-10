@@ -276,7 +276,10 @@ function checkNetworkSpeed() {
     updateNetworkBanner('online');
 }
 
-window.addEventListener('offline', () => updateNetworkBanner('offline'));
+window.addEventListener('offline', () => {
+    updateNetworkBanner('offline');
+    if (typeof window.hideLoader === 'function') window.hideLoader();
+});
 
 window.addEventListener('online', () => {
     // Tampilkan state reconnecting sebentar

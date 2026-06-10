@@ -109,4 +109,4 @@ https://sweetalert2.github.io/#ajax-request`),$r(e),typeof e.title==`string`&&(e
             @keyframes spin-icon { 100% { transform: rotate(360deg); } }
             .spin-icon { display: inline-block; animation: spin-icon 1.2s linear infinite; }
         </style>
-    `}function ec(){if(!navigator.onLine){$s(`offline`);return}if(navigator.connection){let e=navigator.connection.effectiveType;if(e===`slow-2g`||e===`2g`){$s(`slow`);return}}$s(`online`)}window.addEventListener(`offline`,()=>$s(`offline`)),window.addEventListener(`online`,()=>{$s(`reconnecting`),setTimeout(()=>ec(),2e3)}),navigator.connection&&navigator.connection.addEventListener(`change`,ec);
+    `}function ec(){if(!navigator.onLine){$s(`offline`);return}if(navigator.connection){let e=navigator.connection.effectiveType;if(e===`slow-2g`||e===`2g`){$s(`slow`);return}}$s(`online`)}window.addEventListener(`offline`,()=>{$s(`offline`),typeof window.hideLoader==`function`&&window.hideLoader()}),window.addEventListener(`online`,()=>{$s(`reconnecting`),setTimeout(()=>ec(),2e3)}),navigator.connection&&navigator.connection.addEventListener(`change`,ec);
