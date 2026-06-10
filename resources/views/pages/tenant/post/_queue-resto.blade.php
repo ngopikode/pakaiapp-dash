@@ -118,36 +118,38 @@
                     </div>
  
                     {{-- Actions Footer --}}
-                    <div class="p-3 border-top bg-body-tertiary d-flex gap-2"
+                    <div class="p-3 border-top bg-body-tertiary d-flex flex-column gap-2"
                          style="border-color: var(--bs-border-color-translucent) !important;">
-                        <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
-                                class="btn btn-outline-danger fw-bold flex-shrink-0 bg-body"
-                                style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Batalkan Pesanan">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                        <button wire:click="setEditOrder({{ $order->id }})"
-                           class="btn btn-outline-primary fw-bold flex-shrink-0 bg-body"
-                           style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Tambah Pesanan ke Meja Ini">
-                            <i class="bi bi-plus-lg fs-5"></i>
-                        </button>
-                        @if($order->items->count() > 1)
-                        <button @click="openSplitModal({{ json_encode([
-                                    'id' => $order->id,
-                                    'invoice_code' => $order->invoice_code,
-                                    'items' => $order->items
-                                ]) }})"
-                                class="btn btn-outline-warning fw-bold flex-shrink-0 bg-body"
-                                style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Pisah Bill (Bayar Sebagian)">
-                            <i class="bi bi-scissors fs-5 text-warning" style="filter: brightness(0.8);"></i>
-                        </button>
-                        @endif
-                        @if($pendingOrders->where('id', '!=', $order->id)->where('amount_paid', 0)->count() > 0 && $order->amount_paid == 0)
-                        <button @click="openMergeModal({{ json_encode(['id' => $order->id, 'invoice_code' => $order->invoice_code]) }})"
-                                class="btn btn-outline-info fw-bold flex-shrink-0 bg-body"
-                                style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Gabung Struk / Merge Bill">
-                            <i class="bi bi-arrows-collapse fs-5 text-info" style="filter: brightness(0.9);"></i>
-                        </button>
-                        @endif
+                        <div class="d-flex gap-2">
+                            <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
+                                    class="btn btn-outline-danger fw-bold flex-grow-1 bg-body"
+                                    style="border-radius: 0.75rem; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Batalkan Pesanan">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            <button wire:click="setEditOrder({{ $order->id }})"
+                               class="btn btn-outline-primary fw-bold flex-grow-1 bg-body"
+                               style="border-radius: 0.75rem; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Tambah Pesanan ke Meja Ini">
+                                <i class="bi bi-plus-lg fs-5"></i>
+                            </button>
+                            @if($order->items->count() > 1)
+                            <button @click="openSplitModal({{ json_encode([
+                                        'id' => $order->id,
+                                        'invoice_code' => $order->invoice_code,
+                                        'items' => $order->items
+                                    ]) }})"
+                                    class="btn btn-outline-warning fw-bold flex-grow-1 bg-body"
+                                    style="border-radius: 0.75rem; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Pisah Bill (Bayar Sebagian)">
+                                <i class="bi bi-scissors fs-5 text-warning" style="filter: brightness(0.8);"></i>
+                            </button>
+                            @endif
+                            @if($pendingOrders->where('id', '!=', $order->id)->where('amount_paid', 0)->count() > 0 && $order->amount_paid == 0)
+                            <button @click="openMergeModal({{ json_encode(['id' => $order->id, 'invoice_code' => $order->invoice_code]) }})"
+                                    class="btn btn-outline-info fw-bold flex-grow-1 bg-body"
+                                    style="border-radius: 0.75rem; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Gabung Struk / Merge Bill">
+                                <i class="bi bi-arrows-collapse fs-5 text-info" style="filter: brightness(0.9);"></i>
+                            </button>
+                            @endif
+                        </div>
                         <button @click="openPayForOrder({{ json_encode([
                                             'id' => $order->id,
                                             'invoice_code' => $order->invoice_code,
@@ -155,9 +157,9 @@
                                             'subtotal' => $order->subtotal,
                                             'total_price' => $order->total_price ?? $order->subtotal,
                                         ]) }})"
-                                class="btn btn-primary fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 text-white border-0"
+                                class="btn btn-primary fw-bold w-100 d-flex align-items-center justify-content-center gap-2 text-white border-0 py-2"
                                 style="border-radius: 0.75rem; background-color: #F97316;">
-                            <i class="bi bi-cash-coin"></i> Bayar Sekarang
+                            <i class="bi bi-cash-coin fs-5"></i> Bayar Sekarang
                         </button>
                     </div>
                 </div>
