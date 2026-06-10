@@ -92,6 +92,10 @@ new class extends Component {
                     throw new Exception("Pesanan sudah selesai atau dibatalkan, tidak bisa void.");
                 }
 
+                if (in_array($item->kitchen_status, ['processing', 'ready', 'completed'])) {
+                    throw new Exception("Item sedang/sudah diproses oleh dapur dan tidak bisa dibatalkan.");
+                }
+
                 // Increment stock
                 if ($item->variant_id) {
                     $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item->variant_id);
