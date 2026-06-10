@@ -102,9 +102,9 @@
     @include('pages.tenant.pos._modal-success')
     @include('pages.tenant.pos._pos-tour-guide', ['mode' => 'resto'])
 
-    {{-- ===== OPTION MODAL ===== --}}
     @include('pages.tenant.pos._modal-option')
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
+    @include('pages.tenant.pos._modal-merge-resto')
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -126,6 +126,8 @@
         paymentModalInstance: null,
         successModalInstance: null,
         optionModalInstance: null,
+        splitBillModalInstance: null,
+        mergeModalInstance: null,
 
         optionProduct: null,
         optionSelected: [],
@@ -183,6 +185,7 @@
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
             this.splitBillModalInstance = new bootstrap.Modal(document.getElementById('splitBillModal'));
+            this.mergeModalInstance = new bootstrap.Modal(document.getElementById('mergeModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
 
             window.addEventListener('open-payment-modal', (e) => {
@@ -232,6 +235,24 @@
             }));
             
             @this.splitOrder(this.splittingOrder.id, dataToSend);
+        },
+
+        mergeTargetId: null,
+        mergeTargetInvoice: '',
+        mergeSourceId: '',
+        openMergeModal(order) {
+            this.mergeTargetId = order.id;
+            this.mergeTargetInvoice = order.invoice_code;
+            this.mergeSourceId = '';
+            this.mergeModalInstance.show();
+        },
+        submitMergeOrder() {
+            if (!this.mergeSourceId) {
+                showIslandToast('Pilih pesanan yang akan digabungkan.', 'warning');
+                return;
+            }
+            @this.mergeOrder(this.mergeSourceId, this.mergeTargetId);
+            this.mergeModalInstance.hide();
         },
 
         get subTotal() {

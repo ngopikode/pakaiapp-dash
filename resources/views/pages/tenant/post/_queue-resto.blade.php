@@ -141,6 +141,13 @@
                             <i class="bi bi-scissors fs-5 text-warning" style="filter: brightness(0.8);"></i>
                         </button>
                         @endif
+                        @if($pendingOrders->where('id', '!=', $order->id)->where('amount_paid', 0)->count() > 0 && $order->amount_paid == 0)
+                        <button @click="openMergeModal({{ json_encode(['id' => $order->id, 'invoice_code' => $order->invoice_code]) }})"
+                                class="btn btn-outline-info fw-bold flex-shrink-0 bg-body"
+                                style="border-radius: 0.75rem; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Gabung Struk / Merge Bill">
+                            <i class="bi bi-arrows-collapse fs-5 text-info" style="filter: brightness(0.9);"></i>
+                        </button>
+                        @endif
                         <button @click="openPayForOrder({{ json_encode([
                                             'id' => $order->id,
                                             'invoice_code' => $order->invoice_code,

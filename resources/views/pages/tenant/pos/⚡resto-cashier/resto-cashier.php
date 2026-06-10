@@ -769,6 +769,78 @@ new class extends Component {
         }
     }
 
+    /**
+     * Gabung Struk (Merge Bill)
+     * Menggabungkan Order Source ke dalam Order Target.
+     */
+    public function mergeOrder($sourceOrderId, $targetOrderId)
+    {
+        if ($sourceOrderId == $targetOrderId) {
+            $this->js("window.showIslandToast('Pilih pesanan yang berbeda untuk digabungkan.', 'warning');");
+            return;
+        }
+
+        try {
+            DB::transaction(function () use ($sourceOrderId, $targetOrderId) {
+                $sourceOrder = Order::with('items')->lockForUpdate()->find($sourceOrderId);
+                $targetOrder = Order::with('items')->lockForUpdate()->find($targetOrderId);
+
+                if (!$sourceOrder || !$targetOrder) {
+                    throw new \Exception("Pesanan tidak ditemukan.");
+                }
+
+                if (in_array($sourceOrder->status, ['completed', 'cancelled']) || in_array($targetOrder->status, ['completed', 'cancelled'])) {
+                    throw new \Exception("Tidak bisa menggabungkan pesanan yang sudah selesai atau dibatalkan.");
+                }
+
+                if ($sourceOrder->amount_paid > 0 || $targetOrder->amount_paid > 0) {
+                    throw new \Exception("Tidak bisa menggabungkan pesanan yang sudah dicicil/memiliki pembayaran masuk.");
+                }
+
+                // 1. Pindahkan semua OrderItem ke Target Order
+                foreach ($sourceOrder->items as $item) {
+                    $item->update(['order_id' => $targetOrder->id]);
+                }
+
+                // 2. Gabungkan catatan dan nama pelanggan
+                $newNotes = trim(($targetOrder->notes ? $targetOrder->notes . ' | ' : '') . ($sourceOrder->notes ?? ''));
+                $newCustomerName = trim(($targetOrder->customer_name ? $targetOrder->customer_name . ' & ' : '') . ($sourceOrder->customer_name ?? ''));
+
+                $targetOrder->notes = substr($newNotes, 0, 255);
+                $targetOrder->customer_name = substr($newCustomerName, 0, 100);
+
+                // 3. Kalkulasi ulang Target Order
+                $targetOrder->refresh();
+                $taxRate = (float)$targetOrder->tax_percentage;
+                $serviceRate = (float)$targetOrder->service_charge_percentage;
+
+                $newSubtotal = $targetOrder->items->sum('subtotal');
+                $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
+                $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
+                
+                $targetOrder->update([
+                    'subtotal' => $newSubtotal,
+                    'service_charge_amount' => $newServiceCharge,
+                    'tax_amount' => $newTaxAmount,
+                    'total_price' => $newSubtotal + $newServiceCharge + $newTaxAmount - $targetOrder->discount
+                ]);
+
+                // 4. Hapus Source Order
+                $sourceOrder->delete();
+            });
+
+            $this->js("window.showIslandToast('Pesanan berhasil digabungkan.', 'success');");
+            
+            // Refresh current order if it was the target
+            if ($this->existingOrder && $this->existingOrder->id == $targetOrderId) {
+                $this->existingOrder->refresh();
+            }
+
+        } catch (\Exception $e) {
+            $this->js("window.showIslandToast('Gagal menggabungkan pesanan: " . addslashes($e->getMessage()) . "', 'danger');");
+        }
+    }
+
     public function updateCustomerPhone($invoiceCode, $phone): void
     {
         Order::where('invoice_code', $invoiceCode)->update(['customer_phone' => $phone]);
