@@ -78,6 +78,68 @@ new class extends Component {
         $this->existingOrder = null;
     }
 
+    public function voidItem($orderItemId): void
+    {
+        try {
+            DB::transaction(function () use ($orderItemId) {
+                $item = OrderItem::with('order')->lockForUpdate()->find($orderItemId);
+                if (!$item) {
+                    throw new Exception("Item tidak ditemukan.");
+                }
+
+                $order = $item->order;
+                if (!$order || in_array($order->status, ['completed', 'cancelled'])) {
+                    throw new Exception("Pesanan sudah selesai atau dibatalkan, tidak bisa void.");
+                }
+
+                // Increment stock
+                if ($item->variant_id) {
+                    $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item->variant_id);
+                    if ($variant) {
+                        $variant->increment('stock', $item->quantity);
+                        
+                        if (tenant('store_type') === 'resto') {
+                            foreach ($variant->recipes as $recipe) {
+                                if ($recipe->rawMaterial) {
+                                    $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Delete item
+                $subtotalToDeduct = $item->subtotal;
+                $item->delete();
+
+                // Recalculate order totals
+                $taxRate = (float)$order->tax_percentage;
+                $serviceRate = (float)$order->service_charge_percentage;
+
+                $newSubtotal = max(0, $order->subtotal - $subtotalToDeduct);
+                $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
+                $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
+                $newTotalPrice = max(0, $newSubtotal + $newServiceCharge + $newTaxAmount - $order->discount);
+
+                $order->update([
+                    'subtotal' => $newSubtotal,
+                    'service_charge_amount' => $newServiceCharge,
+                    'tax_amount' => $newTaxAmount,
+                    'total_price' => $newTotalPrice,
+                ]);
+                
+                // Refresh existing order
+                if ($this->existingOrder && $this->existingOrder->id === $order->id) {
+                    $this->existingOrder->refresh();
+                }
+
+                $this->js("window.showIslandToast('Item berhasil dibatalkan dan stok dikembalikan.', 'success');");
+            });
+        } catch (Exception $e) {
+            $this->js("window.showIslandToast('Gagal membatalkan item: " . addslashes($e->getMessage()) . "', 'danger');");
+        }
+    }
+
     /**
      * Buat pesanan baru (status: pending, belum bayar).
      * TIDAK ADA POTONGAN KREDIT DI SINI.
@@ -328,17 +390,29 @@ new class extends Component {
                 }
 
                 $discountAmount = (float)$discount;
-                $totalPrice = max(0, (isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal) - $discountAmount);
+                // Hitung ulang dari subtotal awal pesanan + service + tax agar diskon tidak terpotong dobel
+                // Tapi karena ini proses dinamis, kita asumsikan total_price saat ini adalah base
+                $baseTotal = isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal;
+                
+                // Jika total_price masih sama dengan yang ada di DB, berarti diskon baru ditambahkan
+                // Tapi mari kita ambil aman: total yang harus dibayar adalah total akhir
+                $totalPrice = max(0, $baseTotal - $discountAmount);
                 $paid = (float)$amountPaid ?: $totalPrice;
-                $change = max(0, $paid - $totalPrice);
+                
+                $accumulatedPaid = $order->amount_paid + $paid;
+                $change = max(0, $accumulatedPaid - $totalPrice);
 
-                $newStatus = ($order->kitchen_status === 'ready' || $order->kitchen_status === 'completed') ? 'completed' : 'paid';
+                if ($accumulatedPaid >= $totalPrice) {
+                    $newStatus = ($order->kitchen_status === 'ready' || $order->kitchen_status === 'completed') ? 'completed' : 'paid';
+                } else {
+                    $newStatus = 'progress'; // Masih nyicil (Partial)
+                }
 
                 $order->update([
                     'payment_method' => $paymentMethod,
-                    'discount' => $discountAmount,
+                    'discount' => $order->discount + $discountAmount, // Akumulasi diskon jika ada beberapa pembayaran dengan diskon
                     'total_price' => $totalPrice,
-                    'amount_paid' => $paid,
+                    'amount_paid' => $accumulatedPaid,
                     'change_amount' => $change,
                     'status' => $newStatus,
                 ]);
@@ -560,8 +634,13 @@ new class extends Component {
     {
         $order = Order::with('items')->find($orderId);
         
-        if (!$order || $order->status !== 'pending') {
-            $this->js("window.showIslandToast('Hanya pesanan pending yang bisa dipisah.', 'danger');");
+        if (!$order || in_array($order->status, ['completed', 'cancelled', 'paid'])) {
+            $this->js("window.showIslandToast('Pesanan yang sudah lunas/selesai tidak bisa dipisah.', 'danger');");
+            return;
+        }
+
+        if ($order->amount_paid > 0) {
+            $this->js("window.showIslandToast('Pesanan yang sudah dicicil bayar tidak bisa dipisah per item.', 'danger');");
             return;
         }
 

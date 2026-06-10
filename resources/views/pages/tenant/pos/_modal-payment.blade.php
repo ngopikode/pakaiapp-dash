@@ -304,7 +304,7 @@
                             class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white"
                             style="background: #F97316; border: none;"
                             :disabled="isSubmitting
-                                || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))
+                                || (paymentMethod === 'cash' && !amountPaid)
                                 || (paymentMethod === 'duitku' && !duitkuMethod)"
                     >
                         <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">

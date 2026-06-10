@@ -249,7 +249,10 @@
             return this.subTotal + this.serviceChargeAmount + this.taxAmount;
         },
         get payTotal() {
-            return this.payingOrder ? Math.max(0, (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) - (parseFloat(this.payDiscount) || 0)) : this.subTotalWithCharges;
+            let t = this.payingOrder ? (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) : this.subTotalWithCharges;
+            let p = this.payingOrder ? (parseFloat(this.payingOrder.amount_paid) || 0) : 0;
+            let d = this.payDiscount || 0;
+            return Math.max(0, t - p - d);
         },
         get getChange() {
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
@@ -543,8 +546,8 @@
         },
 
         async submitPayment() {
-            if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
-                showIslandToast('Uang tidak cukup!', 'warning');
+            if (this.paymentMethod === 'cash' && !this.amountPaid) {
+                showIslandToast('Masukkan nominal pembayaran untuk Cash.', 'warning');
                 return;
             }
 

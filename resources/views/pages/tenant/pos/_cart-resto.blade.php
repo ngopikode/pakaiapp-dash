@@ -161,14 +161,14 @@
         </div>
 
         <div class="row g-2">
-            <div class="col-12 col-xl-6">
+            <div class="col-12" :class="isEditingOrder ? '' : 'col-xl-6'">
                 <button id="tour-resto-save" @click="submitNewOrder"
                         class="btn btn-warning w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center text-dark py-3"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting" style="border-radius: 1rem;">
                     <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Bill')"></span>
                 </button>
             </div>
-            <div class="col-12 col-xl-6">
+            <div class="col-12 col-xl-6" x-show="!isEditingOrder">
                 <button id="tour-resto-pay" @click="openDirectPaymentModal"
                         class="btn w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center py-3 text-white"
                         :disabled="cart.length === 0 || stockError !== '' || isSubmitting"

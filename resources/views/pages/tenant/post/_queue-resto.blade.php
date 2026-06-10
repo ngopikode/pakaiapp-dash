@@ -78,9 +78,18 @@
                                                     class="bi bi-chat-dots me-1"></i>{{ $item->note }}</small>
                                         @endif
                                     </span>
-                                    <span class="fw-bold text-nowrap" style="color: var(--brand-caramel, #b45309);">
-                                        Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold text-nowrap" style="color: var(--brand-caramel, #b45309);">
+                                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                                        </span>
+                                        @if($order->status !== 'completed' && $order->status !== 'paid')
+                                        <button wire:click="voidItem({{ $item->id }})"
+                                                wire:confirm="Yakin ingin membatalkan item ini? Stok akan dikembalikan otomatis."
+                                                class="btn btn-sm btn-outline-danger border-0 p-1" title="Batal (Void) Item">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                             @endforeach
 

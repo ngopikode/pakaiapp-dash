@@ -50,7 +50,7 @@ new class extends Component {
         } else {
             $order->update(['kitchen_status' => 'ready']);
             // Check if fully paid (Direct Pay vs Open Bill)
-            if ($order->amount_paid > 0 && $order->amount_paid >= $order->total_price) {
+            if ($order->amount_paid >= $order->total_price) {
                 // Direct Pay -> completed
                 $order->update(['status' => 'completed']);
             } else {
