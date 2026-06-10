@@ -1,10 +1,10 @@
-# Analisa Alur Sistem Kasir Resto
+# Analisa Alur Sistem Kasir Resto Terkini
 
-Dokumen ini berisi pemetaan lengkap sistem kasir restoran Anda, terbagi menjadi dua bagian: **Alur Bisnis (Operasional)** dan **Alur Teknis (Code & Database)**.
+Dokumen ini berisi pemetaan lengkap sistem kasir restoran setelah perombakan skalabilitas dan keamanan tingkat *Enterprise*.
 
 ---
 
-## 1. Alur Bisnis (Business Logic)
+## 1. Alur Bisnis (Business Logic) Terkini
 *Sudut pandang kasir dan operasional di lapangan.*
 
 ```mermaid
@@ -16,158 +16,117 @@ flowchart TD
     classDef bayar fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
     classDef selesai fill:#ffebee,stroke:#c62828,stroke-width:2px;
     classDef loop fill:#fff8e1,stroke:#fbc02d,stroke-width:2px,stroke-dasharray: 5 5;
-    classDef split fill:#e1bee7,stroke:#8e24aa,stroke-width:2px;
+    classDef adv fill:#e1bee7,stroke:#8e24aa,stroke-width:2px;
 
     Mulai([Kasir Membuka Halaman POS]) --> InputData
-    
     InputData["👤 Kasir Memasukkan:<br>1. Nama Pelanggan<br>2. Nomor Meja<br>3. Jenis Order"]:::kasir --> PilihMenu
-    
     PilihMenu["🍔 Kasir Memilih Menu"]:::kasir --> Hitung
-    
-    Hitung["💻 Sistem Menghitung otomatis:<br>Subtotal + Pajak + Service Charge"]:::sistem --> KeputusanCheckout
+    Hitung["💻 Sistem Menghitung otomatis:<br>Subtotal + PB1 + Service Charge"]:::sistem --> KeputusanCheckout
     
     KeputusanCheckout{"Pilih Metode Checkout"}
     
-    %% --- SKENARIO A: BUKA BILL / DINE-IN (OPEN BILL) ---
+    %% --- SKENARIO BUKA BILL (OPEN BILL) ---
     KeputusanCheckout -- "Simpan Pesanan / Buka Bill" --> DapurDineIn
     
-    DapurDineIn["🍳 Pesanan Muncul di Layar Dapur"]:::dapur --> Makan
+    DapurDineIn["🍳 Item Pesanan Muncul di Layar Dapur (Waiting)"]:::dapur --> Makan
     Makan["🍽️ Pelanggan Menikmati Makanan"]:::sistem --> KeputusanPelanggan
     
-    KeputusanPelanggan{"Keinginan Pelanggan"}
+    KeputusanPelanggan{"Tindakan di Tengah Jalan"}
     
     %% 1. Siklus Tambah Pesanan (Loop)
-    KeputusanPelanggan -- "Ingin Nambah Makanan" --> PanggilKasir
-    PanggilKasir["🙋‍♂️ Memanggil Kasir"]:::kasir --> EditBill
-    EditBill["📝 Kasir Membuka Kembali Bill (Edit Order)<br>dan Menambahkan Menu Baru"]:::loop --> DapurDineInTambahan
-    DapurDineInTambahan["🍳 Item TAMBAHAN Muncul di Dapur"]:::dapur --> Makan
+    KeputusanPelanggan -- "Tambah Menu" --> EditBill
+    EditBill["📝 Kasir Tambah Menu (Asal nota belum Lunas/Batal)"]:::loop --> DapurDineInTambahan
+    DapurDineInTambahan["🍳 Item TAMBAHAN Saja yang Muncul di Dapur"]:::dapur --> Makan
     
-    %% 2. Minta Bill Akhir
-    KeputusanPelanggan -- "Selesai & Minta Bill" --> BukaTagihan
-    BukaTagihan["📄 Kasir Membuka Tagihan Akhir"]:::kasir --> CekDiskon
+    %% 2. Void Item (Batal Menu)
+    KeputusanPelanggan -- "Batal Menu Tertentu" --> CekVoid
+    CekVoid{"Apakah Koki Sudah Masak?"}
+    CekVoid -- "Belum (Waiting)" --> VoidAman
+    VoidAman["🗑️ Kasir Void Item & Stok Otomatis Kembali"]:::kasir --> Makan
+    CekVoid -- "Sudah (Processing/Ready)" --> VoidDitolak
+    VoidDitolak["🛑 Sistem Menolak Void (Anti-Fraud)"]:::sistem --> Makan
     
-    CekDiskon{"Ada Diskon/Promo?"}
-    CekDiskon -- "Ya" --> TerapkanDiskon
-    TerapkanDiskon["🏷️ Kasir Menginput Diskon"]:::kasir --> ModeBayar
-    CekDiskon -- "Tidak" --> ModeBayar
+    %% 3. Pisah/Gabung Meja
+    KeputusanPelanggan -- "Urusan Tagihan Lanjutan" --> UrusanStruk
+    UrusanStruk{"Pilih Aksi Tagihan"}:::adv
     
-    ModeBayar{"Metode Pelunasan Tagihan?"}
+    UrusanStruk -- "Split Bill (Pisah Nota)" --> SplitItem
+    SplitItem["✂️ Kasir Memecah Menu ke Sub-Nota Baru"]:::adv --> MintaBill
     
-    ModeBayar -- "Bayar Penuh (1 Orang)" --> ProsesBayarAkhir
-    ProsesBayarAkhir["💰 Kasir Memproses Pembayaran"]:::bayar --> LunasA
+    UrusanStruk -- "Gabung Struk (Merge Bill)" --> MergeBill
+    MergeBill["🔗 Nota B Disedot ke Nota A (Nota B Hilang)"]:::adv --> MintaBill
     
-    ModeBayar -- "Split Bill (Pisah Tagihan)" --> JenisSplit
-    JenisSplit{"Pilih Cara Split Bill"}:::split
+    UrusanStruk -- "Selesai Makan" --> MintaBill
     
-    JenisSplit -- "Split by Nominal / Bagi Rata" --> SplitNominal
-    SplitNominal["💳 Kasir Memproses Pembayaran Sebagian<br>(Partial Payment)"]:::split --> CekSisaTagihan
+    %% Pelunasan
+    MintaBill["📄 Kasir Membuka Tagihan Akhir"]:::kasir --> ModeBayar
+    ModeBayar{"Metode Pelunasan?"}
     
-    JenisSplit -- "Split by Item (Pisah Menu)" --> SplitItem
-    SplitItem["📋 Kasir Memecah Tagihan Berdasarkan Menu<br>(Membuat Sub-struk)"]:::split --> CekSisaTagihan
+    ModeBayar -- "Bayar Penuh" --> LunasA
+    ModeBayar -- "Partial Payment (Cicil Nominal)" --> Cicil
     
+    Cicil["💳 Kasir Menginput Pembayaran Sebagian<br>(Tombol Tetap Aktif)"]:::bayar --> CekSisaTagihan
     CekSisaTagihan{"Masih Ada Sisa Tagihan?"}
-    CekSisaTagihan -- "Ya" --> ModeBayar
-    CekSisaTagihan -- "Tidak (Saldo Rp 0)" --> LunasA
+    CekSisaTagihan -- "Ya (Status Progress)" --> ModeBayar
+    CekSisaTagihan -- "Tidak (Lunas)" --> LunasA
     
     LunasA["✅ Transaksi Selesai & Lunas"]:::selesai
-    
-    %% --- SKENARIO B: BAYAR LANGSUNG / TAKEAWAY ---
-    KeputusanCheckout -- "Bayar Langsung" --> CekDiskonAwal
-    
-    CekDiskonAwal{"Ada Diskon/Promo?"}
-    CekDiskonAwal -- "Ya" --> TerapkanDiskonAwal
-    TerapkanDiskonAwal["🏷️ Kasir Menginput Diskon"]:::kasir --> ProsesBayarAwal
-    CekDiskonAwal -- "Tidak" --> ProsesBayarAwal
-    
-    ProsesBayarAwal["💰 Kasir Memproses Pembayaran"]:::bayar --> DapurTakeaway
-    
-    DapurTakeaway["🍳 Pesanan Muncul di Layar Dapur"]:::dapur --> TungguMakanan
-    TungguMakanan["⏳ Pelanggan Menunggu Makanan Siap"]:::sistem --> AmbilMakanan
-    
-    AmbilMakanan["🛍️ Pelanggan Mengambil Pesanan"]:::sistem --> LunasB
-    LunasB["✅ Transaksi Selesai & Lunas"]:::selesai
 ```
 
 ---
 
-## 2. Alur Teknis (Code & Database Logic)
-*Bagaimana kode Laravel (`resto-cashier.php`), Livewire, dan Database memproses alur bisnis di atas.*
+## 2. Alur Teknis (Code & Database Logic) Terkini
 
 ```mermaid
 flowchart TD
     %% Styling
     classDef method fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
     classDef db fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef svc fill:#fff3e0,stroke:#e65100,stroke-width:2px;
     classDef check fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-    classDef warning fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#c62828;
+    classDef security fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#c62828;
 
-    UI[UI: Livewire Submit Cart] --> Branch{Pilih Action Method}
-
-    %% ==========================================
-    %% JALUR A: createOrder() -> OPEN BILL
-    %% ==========================================
-    Branch -- "Simpan Antrean" --> M1["Method: createOrder()"]:::method
-    
-    M1 --> CekEdit{Apakah 'addToOrder' aktif?}
-    
-    %% Jika Tambah Pesanan
-    CekEdit -- "Ya (Tambah Pesanan)" --> M1_A["Update Order Exists:<br/>subtotal += new_subtotal<br/>kitchen_status = 'waiting'"]:::db
-    
-    %% Jika Buat Baru
-    CekEdit -- "Tidak (Buat Baru)" --> M1_B["Order::create()<br/>status = 'pending'<br/>kitchen_status = 'waiting'"]:::db
-    
-    M1_A --> DB_Items1
-    M1_B --> DB_Items1
-    
-    DB_Items1["OrderItem::create()<br/>kitchen_status = 'waiting'"]:::db --> DB_Stock1
-    
-    DB_Stock1["ProductVariant->decrement('stock')<br/>RawMaterial->decrement('stock')"]:::db --> SelesaiA["Response: Success<br/>(Belum potong Wallet Tenant!)"]
-
-    %% Pelunasan Open Bill
-    UIPay[UI: Modal Pelunasan] --> M3["Method: processPayment()"]:::method
-    M3 --> DB_Lock["Order::lockForUpdate()->find()"]:::db
-    DB_Lock --> DB_PayUpdate["Order->update()<br/>payment_method, discount, amount_paid"]:::db
-    
-    DB_PayUpdate --> CheckPaid{"amount_paid >= total_price?"}:::check
-    
-    CheckPaid -- "False (Cicil/Split Nominal)" --> SplitDB["Order->status = 'progress'"]:::db
-    SplitDB --> UIPay
-    
-    CheckPaid -- "True (Lunas)" --> StatusLunas{"Status Dapur (kitchen_status)?"}:::check
-    StatusLunas -- "'ready' / 'completed'" --> DB_Compl["Order->status = 'completed'"]:::db
-    StatusLunas -- "'waiting' / 'processing'" --> DB_Paid["Order->status = 'paid'"]:::db
-    
-    DB_Compl --> SVC1
-    DB_Paid --> SVC1
-    
-    SVC1["BillingService::chargeTransactionFee()<br/>(Potong Saldo Wallet Tenant)"]:::svc --> SelesaiA2["Response: Payment Success"]
+    UI[UI: Livewire Aksi Kasir] --> Branch{Pilih Action Method}
 
     %% ==========================================
-    %% JALUR B: processDirectCheckout() -> BAYAR LANGSUNG
+    %% JALUR VOID & KEAMANAN
     %% ==========================================
-    Branch -- "Bayar Langsung" --> M4["Method: processDirectCheckout()"]:::method
-    M4 --> DB_CreateDirect["Order::create()<br/>status = 'paid'<br/>kitchen_status = 'waiting'<br/>amount_paid = total_price"]:::db
-    DB_CreateDirect --> DB_Items2["OrderItem::create()<br/>kitchen_status = 'waiting'"]:::db
-    DB_Items2 --> DB_Stock2["ProductVariant->decrement('stock')<br/>RawMaterial->decrement('stock')"]:::db
-    DB_Stock2 --> SVC2["BillingService::chargeTransactionFee()"]:::svc
-    SVC2 --> SelesaiB["Response: Checkout Success"]
+    Branch -- "Hapus / Void Item" --> M_Void["voidItem(itemId)"]:::method
+    M_Void --> CekFraud1{"Apakah item->kitchen_status<br>sedang processing/ready?"}:::security
+    CekFraud1 -- "Ya (Bahaya)" --> Reject1["Tolak Aksi Kasir!"]:::security
+    CekFraud1 -- "Tidak (Aman)" --> RestoreStock["Item Dihapus &<br>ProductVariant->increment()<br>RawMaterial->increment()"]:::db
+    
+    %% ==========================================
+    %% JALUR CREATE / TAMBAH MENU
+    %% ==========================================
+    Branch -- "Simpan / Tambah Menu" --> M1["createOrder()"]:::method
+    M1 --> CekEdit{Apakah addToOrder aktif?}
+    
+    CekEdit -- "Ya (Tambah Pesanan)" --> CekFraud2{"Apakah Order sudah Lunas/Batal?"}:::security
+    CekFraud2 -- "Ya (Bahaya)" --> Reject2["Tolak Aksi Kasir!"]:::security
+    CekFraud2 -- "Aman" --> M1_A["Update Subtotal & PB1 Order<br/>(TANPA me-reset kitchen_status Induk)"]:::db
+    
+    CekEdit -- "Tidak (Buat Baru)" --> M1_B["Order::create()"]:::db
+    
+    M1_A --> DB_Items
+    M1_B --> DB_Items
+    DB_Items["OrderItem::create() -> waiting<br/>ProductVariant->decrement()"]:::db --> SelesaiCreate["Success"]
+
+    %% ==========================================
+    %% JALUR PELUNASAN / PARTIAL
+    %% ==========================================
+    Branch -- "Proses Pembayaran" --> M_Pay["processPayment()"]:::method
+    M_Pay --> Accumulate["Hitung akumulasi amount_paid"]:::method
+    Accumulate --> CheckPaid{"amount_paid >= total_price?"}:::check
+    CheckPaid -- "False (Partial)" --> StatusProgress["Order->status = 'progress'"]:::db
+    CheckPaid -- "True (Lunas)" --> StatusLunas["Order->status = 'completed' / 'paid'"]:::db
 ```
 
-## Analisa Logika Kode Saat Ini (Code Flaws & Bugs)
-
-Pemetaan kode di atas mengungkapkan beberapa kelemahan pada implementasi teknis saat ini:
-
-### 🔴 1. Bug Dapur Ter-Reset (Double Cook Bug)
-- **Titik Lemah**: Di `createOrder()` (jalur *Tambah Pesanan*), saat kasir mengedit pesanan yang sudah ada, *parent* tabel `Order` langsung dipaksa diperbarui menjadi `kitchen_status = 'waiting'` (terlihat di kotak `M1_A`). 
-- **Dampak**: Jika pesanan pelanggan gelombang pertama sedang digoreng (`processing`) oleh koki, namun pelanggan menambah pesanan es teh manis, koki akan kebingungan karena di layar rekap pesanan utama statusnya kembali menjadi *waiting*.
-- **Solusi**: Biarkan `kitchen_status` pada tabel `Order` tetap pada status *progress* tertingginya, dan biarkan modul Dapur mengacu murni pada `kitchen_status` yang ada di tabel *child* (`OrderItem`).
-
-### 🟡 2. Void Menu & Pengembalian Stok (Restock) Tidak Ada
-- **Titik Lemah**: Terlihat pada kotak eksekusi `ProductVariant->decrement('stock')` di kedua metode. Pemotongan stok **langsung terjadi seketika** di sisi *database*.
-- **Dampak**: Secara kode, sistem Anda murni melakukan pengurangan (*decrement*). Tidak ada *method* atau *endpoint* untuk `increment('stock')`. Jika pesanan pelanggan dibatalkan atau diretur, stok barang dan bahan baku mentah dapur yang sudah terpotong tidak akan pernah bisa kembali, mengacaukan *inventory* restoran.
-
-### 🟡 3. Split by Nominal Berjalan Tanpa Disadari
-- **Titik Lemah**: Pada kotak pengecekan `amount_paid >= total_price?`, sistem menetapkan status `'progress'` jika pembayaran kurang dari total.
-- **Dampak Positif**: *Backend* Anda secara teknis **sudah mendukung pembayaran parsial/cicilan (Split by Nominal)** secara tidak sengaja.
-- **Kekurangan**: UI di Livewire kasir Anda belum mendukung hal ini secara sadar. UI hanya mengirimkan nominal penuh (seringkali melempar sisa sebagai kembalian). Perlu ada modifikasi UI untuk mengizinkan kasir menginput "Bayar Sebagian".
+## Solusi Inovatif yang Telah Diterapkan
+1. **Keamanan Lintas Tab (Anti-Fraud Resto)**
+   - Kasir tidak bisa mem-void item yang diam-diam sudah dimasak koki.
+   - Kasir tidak bisa menambah pesanan ke meja yang ternyata sudah dibayar lunas melalui ponsel (*Digital Payment*) atau oleh kasir rekanannya.
+2. **Fleksibilitas Pelunasan (Partial & Split/Merge)**
+   - Mendukung pembayaran sebagian (*Partial Payment*). Tombol bayar tidak lagi diblokir jika uang pelanggan kurang, sistem otomatis mencatatnya sebagai cicilan (status `progress`).
+   - Fitur Gunting (*Split Bill*) dan Fitur Panah (*Merge Bill*) saling melengkapi untuk mengizinkan kasir "Bongkar-Pasang" isi nota kapanpun dibutuhkan sebelum pelunasan akhir.
+3. **Pengembalian Stok Akurat (Smart Restock)**
+   - Fitur pembatalan (*Void/Cancel*) kini mendeteksi tipe toko. Pada Kasir Resto, sistem akan menelusuri resi resep (`recipes`) dan mengembalikan persis bahan mentah (`RawMaterial`) ke dalam gudang, membebaskan manajer inventaris dari audit manual.
