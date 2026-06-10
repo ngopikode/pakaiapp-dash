@@ -121,11 +121,13 @@
                     <div class="p-3 border-top bg-body-tertiary d-flex flex-column gap-2"
                          style="border-color: var(--bs-border-color-translucent) !important;">
                         <div class="d-flex gap-2">
+                            @if(!in_array($order->kitchen_status, ['processing', 'ready', 'completed']))
                             <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
                                     class="btn btn-outline-danger fw-bold flex-grow-1 bg-body"
                                     style="border-radius: 0.75rem; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Batalkan Pesanan">
                                 <i class="bi bi-x-lg"></i>
                             </button>
+                            @endif
                             <button wire:click="setEditOrder({{ $order->id }})"
                                class="btn btn-outline-primary fw-bold flex-grow-1 bg-body"
                                style="border-radius: 0.75rem; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Tambah Pesanan ke Meja Ini">
