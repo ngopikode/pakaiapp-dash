@@ -85,7 +85,7 @@ new #[Layout('layouts.app')] class extends \Livewire\Component {
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                     <div class="list-group list-group-flush">
                         @foreach($section['items'] as $item)
-                            <a href="{{ route($item['route']) }}" wire:navigate class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-3 px-3 border-bottom border-light">
+                            <a href="{{ route($item['route']) }}" wire:navigate.hover class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-3 px-3 border-bottom border-light">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="bg-body-tertiary rounded-3 d-flex align-items-center justify-content-center text-primary" style="width: 36px; height: 36px;">
                                         <i class="{{ $item['icon'] }} fs-5"></i>

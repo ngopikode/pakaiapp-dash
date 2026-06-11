@@ -27,7 +27,7 @@
             </div>
             
             <div class="d-grid mt-2">
-                <a href="{{ route('login') }}" class="btn btn-enterprise text-center" wire:navigate>
+                <a href="{{ route('login') }}" class="btn btn-enterprise text-center" wire:navigate.hover>
                     Masuk Sekarang <i class="bi bi-arrow-right ms-2"></i>
                 </a>
             </div>

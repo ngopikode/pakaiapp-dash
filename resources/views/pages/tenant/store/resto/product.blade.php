@@ -233,7 +233,7 @@
         >
             <a
                 href="/"
-                wire:navigate
+                wire:navigate.hover
                 class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border"
                 :class="scrolled ? 'bg-white text-zinc-900 border-zinc-200' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
                 aria-label="Kembali ke menu"

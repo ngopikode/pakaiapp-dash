@@ -128,7 +128,7 @@
                     style="animation-delay: {{ $delay }}ms"
                 >
                     {{-- Detail Overlay Link --}}
-                    <a href="{{ route('product.show', new Product($item)) }}" wire:navigate class="absolute inset-0 z-10"></a>
+                    <a href="{{ route('product.show', new Product($item)) }}" wire:navigate.hover class="absolute inset-0 z-10"></a>
 
                     {{-- Image --}}
                     <div class="bg-zinc-50 overflow-hidden relative w-full aspect-square">

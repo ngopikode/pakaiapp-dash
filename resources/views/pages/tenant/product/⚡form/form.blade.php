@@ -15,7 +15,7 @@
     <div class="mb-4">
         <a href="{{ route('product') }}"
            class="btn-back-link text-decoration-none"
-           wire:navigate>
+           wire:navigate.hover>
             <i class="bi bi-chevron-left"></i> Kembali ke Produk
         </a>
         <div class="d-flex justify-content-between align-items-center mt-2">
@@ -34,7 +34,7 @@
                 </button>
                 <a href="{{ route('product') }}"
                    class="btn btn-back-premium d-none d-md-inline-flex"
-                   wire:navigate>
+                   wire:navigate.hover>
                     <i class="bi bi-x-lg"></i> Batal
                 </a>
             </div>
@@ -533,7 +533,7 @@
             <a href="{{ route('product') }}"
                class="btn btn-back-circle shadow-sm flex-shrink-0"
                x-show="tab === 'general'"
-               wire:navigate>
+               wire:navigate.hover>
                 <i class="bi bi-chevron-left"></i>
             </a>
 

@@ -4,7 +4,7 @@
     Uses Alpine + Livewire window events. No external JS needed.
       • Initial load   : visible from first HTML paint (style="display:flex"), hidden
                          once livewire:initialized fires → x-show fades it out.
-      • wire:navigate  : re-shown on livewire:navigating, hidden on livewire:navigated.
+      • wire:navigate.hover  : re-shown on livewire:navigating, hidden on livewire:navigate.hoverd.
 
     Placed OUTSIDE x-data="storeApp" so Alpine errors in storeApp can never
     prevent this from hiding.

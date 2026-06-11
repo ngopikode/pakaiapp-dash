@@ -19,7 +19,7 @@
                     <i class="bi bi-box-arrow-right"></i> Keluar
                 </button>
             @else
-                <a href="{{ route('dashboard') }}" wire:navigate
+                <a href="{{ route('dashboard') }}" wire:navigate.hover
                    class="btn btn-outline-light btn-sm d-flex align-items-center gap-2">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>

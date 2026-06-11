@@ -180,7 +180,7 @@
                 >
 
                     {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
-                    <a href="{{ route('product.show', new Product($item)) }}" wire:navigate
+                    <a href="{{ route('product.show', new Product($item)) }}" wire:navigate.hover
                        class="absolute inset-0 z-10"></a>
 
                     {{-- 1. Image Wrapper --}}

@@ -65,7 +65,7 @@
                             class="bi bi-file-earmark-excel-fill text-success fs-6 me-1"></i> Export</span>
                     <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm me-1"></span> Proses...</span>
                 </button>
-                <a href="{{ route('cashier') }}" wire:navigate
+                <a href="{{ route('cashier') }}" wire:navigate.hover
                    class="btn btn-caramel-solid text-white flex-grow-1 py-2 px-3 d-flex align-items-center justify-content-center gap-1"
                    style="font-size: 0.85rem; border-radius: 12px;">
                     <i class="bi bi-cart-check-fill fs-6"></i> Kasir
@@ -548,7 +548,7 @@
                             <h6 class="fw-bold mb-3 text-body" style="font-family: var(--font-serif), sans-serif;">Aksi
                                 Cepat</h6>
                             <div class="d-flex flex-column gap-2">
-                                <a href="{{ route('product.create') }}" wire:navigate
+                                <a href="{{ route('product.create') }}" wire:navigate.hover
                                    class="quick-action-btn d-flex align-items-center text-start gap-3 p-3 text-decoration-none text-body">
                                     <div
                                         class="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-circle p-2 flex-shrink-0 d-flex justify-content-center align-items-center"

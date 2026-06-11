@@ -92,7 +92,7 @@ new class extends Component {
 
                     @if($this->pendingOrdersCount > 0)
                         <li>
-                            <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate>
+                            <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate.hover>
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <span class="fw-bold text-body fs-6"><i class="bi bi-bag-check-fill text-primary me-2"></i>Pesanan Baru</span>
                                     <small class="text-primary fw-bold"><i class="bi bi-arrow-right"></i></small>
@@ -110,7 +110,7 @@ new class extends Component {
                     @endif
 
                     <li class="border-top">
-                        <a href="{{ route('order') }}" wire:navigate class="dropdown-item text-center py-2 text-primary fw-bold small rounded-bottom-4">Lihat Semua Pesanan</a>
+                        <a href="{{ route('order') }}" wire:navigate.hover class="dropdown-item text-center py-2 text-primary fw-bold small rounded-bottom-4">Lihat Semua Pesanan</a>
                     </li>
                 </ul>
             </li>
@@ -145,7 +145,7 @@ new class extends Component {
                     @endif
 
                     <li>
-                        <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate><i
+                        <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate.hover><i
                                 class="bi bi-person me-2"></i>
                             Edit Profil
                         </a>

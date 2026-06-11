@@ -27,7 +27,7 @@
             </div>
             
             <div class="d-grid mt-2">
-                <a href="{{ route('login') }}" class="btn btn-enterprise text-center" wire:navigate>
+                <a href="{{ route('login') }}" class="btn btn-enterprise text-center" wire:navigate.hover>
                     <i class="bi bi-arrow-left me-2"></i> Kembali ke Login
                 </a>
             </div>
@@ -58,7 +58,7 @@
                         </span>
                     </button>
                     
-                    <a href="{{ route('login') }}" class="text-decoration-none small fw-bold text-primary text-center" wire:navigate>
+                    <a href="{{ route('login') }}" class="text-decoration-none small fw-bold text-primary text-center" wire:navigate.hover>
                         <i class="bi bi-arrow-left me-1"></i> Kembali ke Login
                     </a>
                 </div>

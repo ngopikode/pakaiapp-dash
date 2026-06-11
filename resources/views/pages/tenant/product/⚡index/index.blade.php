@@ -56,7 +56,7 @@
                     <i class="bi bi-plus-lg"></i> <span>Tambah Produk</span>
                 </button>
             @else
-                <a id="tour-add-product" href="{{ route('product.create') }}" wire:navigate
+                <a id="tour-add-product" href="{{ route('product.create') }}" wire:navigate.hover
                    class="btn brand-gradient-btn fw-bold px-4 py-2.5 rounded-pill shadow-sm flex-grow-1 flex-md-grow-0 d-flex justify-content-center align-items-center gap-1.5"
                    style="font-size: 0.9rem;">
                     <i class="bi bi-plus-lg"></i> <span>Tambah Produk</span>
@@ -186,7 +186,7 @@
                                                     {{-- Beautiful Clean Action Bar --}}
                                                     <div class="card-action-bar mt-auto @if($loop->first) tour-accordion-product-actions @endif">
                                                         <a href="{{ route('product.edit', $product->id) }}"
-                                                           wire:navigate
+                                                           wire:navigate.hover
                                                            class="btn-action-primary">
                                                             <i class="bi bi-pencil-square"></i>
                                                             <span>Edit</span>
@@ -273,7 +273,7 @@
                                                     <i class="bi {{ $product->is_active ? 'bi-check-circle-fill' : 'bi-pause-circle-fill' }}"></i>
                                                 </button>
 
-                                                <a href="{{ route('product.edit', $product->id) }}" wire:navigate
+                                                <a href="{{ route('product.edit', $product->id) }}" wire:navigate.hover
                                                    class="btn btn-sm btn-action-secondary"
                                                    style="width: 36px; height: 36px;"
                                                    title="Edit">

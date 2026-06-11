@@ -47,7 +47,7 @@
                     <span wire:loading.remove wire:target="exportLaporan"><i class="bi bi-file-earmark-excel-fill text-success fs-6 me-1"></i> Rekap</span>
                     <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm"></span></span>
                 </button>
-                <a href="{{ route('cashier') }}" wire:navigate
+                <a href="{{ route('cashier') }}" wire:navigate.hover
                    class="btn btn-caramel-solid text-white flex-grow-1 py-2 px-3 d-flex align-items-center justify-content-center gap-1 rounded-4 shadow-sm"
                    style="font-size: 0.85rem;">
                     <i class="bi bi-cart-check-fill fs-6"></i> Kasir
@@ -279,7 +279,7 @@
             <div class="card dash-card p-2 bg-body border" style="border-color: var(--bs-border-color-translucent) !important;">
                 <div class="card-body p-3 bg-body">
                     <h6 class="fw-bold mb-3 text-body" style="font-family: var(--font-serif), sans-serif;">Aksi Cepat</h6>
-                    <a href="{{ route('product.create') }}" wire:navigate class="quick-action-btn d-flex align-items-center gap-3 p-3 text-decoration-none text-body rounded-4 border bg-body-tertiary shadow-sm">
+                    <a href="{{ route('product.create') }}" wire:navigate.hover class="quick-action-btn d-flex align-items-center gap-3 p-3 text-decoration-none text-body rounded-4 border bg-body-tertiary shadow-sm">
                         <div class="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-circle p-2 flex-shrink-0 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
                             <i class="bi bi-plus-lg fs-5"></i>
                         </div>
