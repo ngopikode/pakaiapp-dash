@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             DetectDevice::class,
         ]);
-        $middleware->validateCsrfTokens(except: [
+        $middleware->preventRequestForgery(except: [
             'duitku/callback',
             'midtrans/notification',
         ]);
