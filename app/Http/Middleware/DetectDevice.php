@@ -16,14 +16,18 @@ class DetectDevice
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $userAgent = $request->userAgent();
+        $userAgent = $request->userAgent() ?? '';
 
-        // Simple regex to detect common mobile/tablet user agents
-        $isMobile = preg_match('/Mobile|Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i', $userAgent);
+        // Check explicitly for tablets:
+        // 1. iPad (its user agent often contains "Mobile", so we must catch it first)
+        // 2. Android tablets (contains "Android" but usually lacks "Mobile")
+        $isTablet = preg_match('/iPad/i', $userAgent) || (preg_match('/Android/i', $userAgent) && !preg_match('/Mobile/i', $userAgent));
 
-        // Fallback for iPadOS 13+ which requests desktop site by default and spoofs as Mac
-        if ($request->hasCookie('is_ipad') && $request->cookie('is_ipad') == '1') {
-            $isMobile = true;
+        if ($isTablet) {
+            $isMobile = false;
+        } else {
+            // Check for strictly mobile phones
+            $isMobile = preg_match('/Mobile|iPhone|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i', $userAgent);
         }
 
         // Share a global variable to all Blade views
