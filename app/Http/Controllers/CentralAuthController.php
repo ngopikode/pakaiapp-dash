@@ -347,7 +347,7 @@ class CentralAuthController extends Controller
 
                 // Send Welcome Email
                 $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                $emailBody = "Halo $registration->owner_name,\n\nSelamat bergabung di Pakaiapp! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan.\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
+                $emailBody = "Halo $registration->owner_name,\n\nSelamat bergabung di Pakaiapp! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan.\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan klik link URL Dashboard di atas untuk login. Jangan lupa untuk segera mengubah password Anda setelah berhasil login demi keamanan akun Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
                 Mail::to($registration->email)->send(
                     new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")

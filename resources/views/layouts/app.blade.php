@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name') }}</title>
+    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Models\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">

@@ -201,6 +201,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentStepIndex = 0;
         let formData = { namaToko: '', jenisBisnis: '', namaOwner: '', noWa: '', email: '', paket: '', payment_method: '' };
         let isEmailVerified = false;
+
+        // Coba load state dari localStorage
+        const savedProgress = localStorage.getItem('register_progress');
+        if (savedProgress) {
+            try {
+                const parsed = JSON.parse(savedProgress);
+                if (parsed && parsed.formData) {
+                    formData = parsed.formData;
+                    currentStepIndex = parsed.currentStepIndex || 0;
+                    isEmailVerified = parsed.isEmailVerified || false;
+                }
+            } catch (e) {}
+        }
+
+        function saveProgress() {
+            localStorage.setItem('register_progress', JSON.stringify({
+                formData: formData,
+                currentStepIndex: currentStepIndex,
+                isEmailVerified: isEmailVerified
+            }));
+        }
+
         let isProcessing = false;
         let toastTimeout;
         let modalCallback = null;
@@ -258,6 +280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (index < 0) return;
             const step = steps[index];
             currentStepIndex = index;
+            saveProgress();
 
             selectedPaymentMethod = '';
             const btnContainer = document.getElementById('confirmPaymentContainer');
@@ -476,6 +499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         hideLoading();
                         if (data.status === 'success') {
                             isEmailVerified = true;
+                            saveProgress();
                             askStep(currentStepIndex + 1);
                         } else {
                             showToast('Kode OTP salah atau kedaluwarsa.');
@@ -525,22 +549,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 hideLoading();
                 
                 if (data.status === 'success') {
+                    localStorage.removeItem('register_progress');
                     showCustomAlert(
                         'success',
                         'Toko Berhasil Dibuat!',
-                        'Selamat! Toko kasir Anda telah berhasil dibuat. Kami telah mengirimkan detail URL login, email, beserta password acak yang aman ke alamat email Anda: ' + formData.email + '. Silakan cek kotak masuk atau folder spam email Anda untuk login.',
+                        'Selamat! Akun dan toko Anda telah berhasil dibuat. Silakan cek kotak masuk atau folder spam email Anda (' + formData.email + ') untuk mendapatkan link login, email, dan password Anda. Jangan lupa untuk segera mengubah password setelah berhasil login demi keamanan.',
                         () => {
                             window.location.href = data.redirect_url;
                         },
                         'Buka Dashboard Toko'
                     );
                 } else if (data.status === 'manual') {
+                    localStorage.removeItem('register_progress');
                     showCustomAlert('info', 'Pendaftaran Dicatat', 'Selesaikan pembayaran manual via WhatsApp.', () => {
                         window.open(data.redirect_url, '_blank'); window.location.href = '/';
                     }, 'Buka WhatsApp');
                 } else if (data.status === 'payment_required_duitku') {
+                    localStorage.removeItem('register_progress');
                     window.location.href = data.payment_url;
                 } else if (data.status === 'payment_required_midtrans') {
+                    localStorage.removeItem('register_progress');
                     window.snap.pay(data.snap_token, {
                         onSuccess: () => window.location.href = '/register/status/' + data.invoice_code,
                         onPending: () => window.location.href = '/register/status/' + data.invoice_code,
@@ -678,6 +706,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         // Initialize First Step
-        setTimeout(() => askStep(0), 100);
+        setTimeout(() => askStep(currentStepIndex), 100);
     }
 });
