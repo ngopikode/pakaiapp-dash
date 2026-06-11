@@ -158,12 +158,13 @@ class CentralAuthController extends Controller
         Cache::put('otp_register_' . $email, $otp, now()->addMinutes(5));
 
         // Send Email
+        $resumeUrl = url('/register?resume_email=' . urlencode($email));
         $emailTitle = "Kode Verifikasi (OTP) Pendaftaran";
-        $emailBody = "Halo,\n\nTerima kasih telah mendaftar di Pakaiapp. Berikut adalah kode OTP Anda untuk verifikasi email:\n\n$otp\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapa pun.";
+        $emailBody = "Halo,\n\nTerima kasih telah mendaftar di Pakaiapp. Berikut adalah kode OTP Anda untuk verifikasi email:\n\n$otp\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapa pun.\n\nJika halaman pendaftaran Anda tidak sengaja tertutup, Anda dapat mengklik tautan berikut untuk melanjutkannya:\n$resumeUrl";
 
         try {
             Mail::to($email)->send(
-                new SystemEmail($emailTitle, $emailBody)
+                new SystemEmail($emailTitle, $emailBody, 'Lanjutkan Pendaftaran', $resumeUrl)
             );
             return response()->json(['status' => 'success', 'message' => 'OTP berhasil dikirim ke email Anda.']);
         } catch (Exception $e) {

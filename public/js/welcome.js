@@ -202,7 +202,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         let formData = { namaToko: '', jenisBisnis: '', namaOwner: '', noWa: '', email: '', paket: '', payment_method: '' };
         let isEmailVerified = false;
 
-        // Coba load state dari localStorage
         const savedProgress = localStorage.getItem('register_progress');
         if (savedProgress) {
             try {
@@ -213,6 +212,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                     isEmailVerified = parsed.isEmailVerified || false;
                 }
             } catch (e) {}
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeEmail = urlParams.get('resume_email');
+        if (resumeEmail) {
+            formData.email = resumeEmail;
+            if (formData.namaToko) {
+                // Have localstorage (same device)
+                if (currentStepIndex < 5 && !isEmailVerified) {
+                    currentStepIndex = 5; // TanyaOTP
+                }
+            } else {
+                // No localstorage (different device) - MUST start from 0 because backend requires all fields
+                currentStepIndex = 0;
+                showToast('Lanjutkan pendaftaran Anda.');
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
 
         function saveProgress() {
@@ -276,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadingOverlay.style.display = 'none';
         }
 
-        async function askStep(index) {
+        async function askStep(index, instant = false) {
             if (index < 0) return;
             const step = steps[index];
             currentStepIndex = index;
@@ -292,13 +308,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Force clear chat input before changing steps
             if (chatInput) chatInput.value = '';
             
-            // Fade out
-            questionArea.classList.add('fade-out');
-            inputContainer.style.display = 'none';
-            choicesContainer.style.display = 'none';
-            btnStepBack.style.display = index > 0 ? 'inline-flex' : 'none';
+            if (!instant) {
+                // Fade out
+                questionArea.classList.add('fade-out');
+                inputContainer.style.display = 'none';
+                choicesContainer.style.display = 'none';
+                btnStepBack.style.display = index > 0 ? 'inline-flex' : 'none';
 
-            await new Promise(r => setTimeout(r, 400)); // wait for fade out
+                await new Promise(r => setTimeout(r, 400)); // wait for fade out
+            } else {
+                inputContainer.style.display = 'none';
+                choicesContainer.style.display = 'none';
+                btnStepBack.style.display = index > 0 ? 'inline-flex' : 'none';
+            }
             
             // Update text
             aiQuestion.innerText = step.q;
@@ -411,10 +433,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 inputContainer.style.display = 'flex';
             }
 
-            // Fade in
-            questionArea.classList.remove('fade-out');
-            if (step.type !== 'choice') {
-                setTimeout(() => chatInput.focus(), 400);
+            if (!instant) {
+                // Fade in
+                questionArea.classList.remove('fade-out');
+                if (step.type !== 'choice') {
+                    setTimeout(() => chatInput.focus(), 400);
+                }
+            } else {
+                if (step.type !== 'choice') {
+                    chatInput.focus();
+                }
             }
         }
 
@@ -706,6 +734,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         // Initialize First Step
-        setTimeout(() => askStep(currentStepIndex), 100);
+        if (currentStepIndex > 0) {
+            askStep(currentStepIndex, true);
+        } else {
+            setTimeout(() => askStep(0), 100);
+        }
     }
 });
