@@ -56,6 +56,12 @@ class CentralAuthController extends Controller
         $centralDomain = config('tenancy.central_domains')[2] ?? 'pakaiapp.online';
         $domainUrl = 'https://' . $registration->tenant_id . '.' . $centralDomain . '/auth/login';
 
+        if ($registration->status === 'created') {
+            $autoLoginToken = Str::random(40);
+            Cache::put('auto_login_' . $autoLoginToken, $registration->email, now()->addMinutes(15));
+            $domainUrl = 'https://' . $registration->tenant_id . '.' . $centralDomain . '/auth/auto-login?token=' . $autoLoginToken;
+        }
+
         return response()->json([
             'status' => $registration->status,
             'redirect_url' => $domainUrl,
@@ -354,10 +360,13 @@ class CentralAuthController extends Controller
                 );
 
                 $cookie = cookie()->forever('pakaiapp_free_trial_claimed', '1');
+                $autoLoginToken = Str::random(40);
+                Cache::put('auto_login_' . $autoLoginToken, $registration->email, now()->addMinutes(15));
+
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Toko berhasil dibuat! Anda akan dialihkan ke dashboard.',
-                    'redirect_url' => 'https://' . $domainUrl . '/auth/login'
+                    'redirect_url' => 'https://' . $domainUrl . '/auth/auto-login?token=' . $autoLoginToken
                 ])->withCookie($cookie);
             } catch (Exception $e) {
                 Log::error("Free registration failed: " . $e->getMessage());
