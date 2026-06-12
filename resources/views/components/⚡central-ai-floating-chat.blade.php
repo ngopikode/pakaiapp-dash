@@ -77,7 +77,7 @@ new class extends Component
             <div class="flex-grow-1 overflow-y-auto p-3" 
                  style="background-color: var(--chat-msg-area-bg); min-height: 0; overscroll-behavior: contain;" 
                  id="central-chat-messages-container"
-                 @scroll="showScroll = ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
+                 @scroll.debounce.150ms="showScroll = ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
                 <div class="text-center mb-4 mt-1">
                     <span class="badge rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px; color: var(--chat-text); opacity: 0.7; background-color: var(--chat-badge-bg);">Ngobrol dengan AI Kami</span>
                 </div>
@@ -122,8 +122,8 @@ new class extends Component
                         x-show="showScroll" 
                         x-transition.opacity
                         @click="let c = document.getElementById('central-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
-                        class="position-absolute end-0 top-0 translate-middle-y me-3 mt-n2 btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white"
-                        style="width: 36px; height: 36px; z-index: 20;">
+                        class="position-absolute btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white"
+                        style="width: 36px; height: 36px; z-index: 20; bottom: calc(100% + 12px); right: 16px;">
                     <i class="bi bi-chevron-down"></i>
                 </button>
                 
