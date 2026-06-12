@@ -3,12 +3,13 @@
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\AiPricingRule;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new class extends Component
-{
+new #[Title("AI - Hidup Jok**")]
+class extends Component {
     // Mode Auto-Pilot Global Toggle
-    public $isEngineActive = false;
+    public bool $isEngineActive = false;
 
     // Form inputs
     public $aiPrompt = '';
@@ -53,7 +54,7 @@ new class extends Component
     public function products()
     {
         return Product::where('is_active', true)
-            ->with(['variants' => function($query) {
+            ->with(['variants' => function ($query) {
                 $query->where('stock', '>', 0);
             }])->get();
     }
@@ -117,7 +118,7 @@ new class extends Component
             $this->endTime = $suggestion['endTime'] ?? $this->endTime;
             $this->activeDays = $suggestion['activeDays'] ?? $this->activeDays;
             $this->selectedVariants = $suggestion['suggestedVariantIds'] ?? [];
-            
+
             session()->flash('ai_success', 'AI berhasil membuatkan strategi untuk Anda! Silakan review sebelum menyimpan.');
         } else {
             session()->flash('ai_error', 'AI gagal memberikan saran. Silakan coba lagi.');
@@ -145,7 +146,7 @@ new class extends Component
         $rule->productVariants()->attach($syncData);
 
         session()->flash('success', 'AI Pricing Rule berhasil disimpan!');
-        
+
         $this->reset(['ruleName', 'ruleType', 'discountValue', 'startTime', 'endTime', 'activeDays', 'selectedVariants']);
     }
 };
@@ -158,7 +159,8 @@ new class extends Component
                 <i class="bi bi-robot text-primary me-2"></i> AI Menu Engine Manager
             </h3>
             <div class="form-check form-switch fs-4">
-                <input class="form-check-input" type="checkbox" role="switch" id="engineToggle" wire:model.live="isEngineActive">
+                <input class="form-check-input" type="checkbox" role="switch" id="engineToggle"
+                       wire:model.live="isEngineActive">
                 <label class="form-check-label fs-6 mt-1 ms-2" for="engineToggle">
                     {{ $isEngineActive ? 'Auto-Pilot Aktif' : 'Auto-Pilot Mati' }}
                 </label>
@@ -184,20 +186,29 @@ new class extends Component
                     <div class="card shadow-none border border-primary mb-4" style="background-color: #f8fbff;">
                         <div class="card-body p-3">
                             <h6 class="text-primary fw-bold mb-2"><i class="bi bi-stars"></i> Asisten AI Promosi</h6>
-                            <p class="small text-muted mb-2">Ketik tujuan bisnismu hari ini, dan AI akan otomatis mengisi form di bawah dengan strategi yang paling cocok.</p>
+                            <p class="small text-muted mb-2">Ketik tujuan bisnismu hari ini, dan AI akan otomatis
+                                mengisi form di bawah dengan strategi yang paling cocok.</p>
                             <div class="input-group">
-                                <input type="text" class="form-control border-primary" wire:model="aiPrompt" placeholder="Misal: Bikin promo gila-gilaan buat ngabisin stok dimsum malam ini...">
-                                <button class="btn btn-primary px-4" type="button" wire:click="generateAiSuggestion" wire:loading.attr="disabled" wire:target="generateAiSuggestion">
+                                <input type="text" class="form-control border-primary" wire:model="aiPrompt"
+                                       placeholder="Misal: Bikin promo gila-gilaan buat ngabisin stok dimsum malam ini...">
+                                <button class="btn btn-primary px-4" type="button" wire:click="generateAiSuggestion"
+                                        wire:loading.attr="disabled" wire:target="generateAiSuggestion">
                                     <span wire:loading.remove wire:target="generateAiSuggestion">Tanya AI ✨</span>
-                                    <span wire:loading wire:target="generateAiSuggestion"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span>
+                                    <span wire:loading wire:target="generateAiSuggestion"><span
+                                            class="spinner-border spinner-border-sm" role="status"
+                                            aria-hidden="true"></span></span>
                                 </button>
                             </div>
-                            @error('aiPrompt') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            @error('aiPrompt')
+                            <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             @if (session()->has('ai_success'))
-                                <div class="alert alert-success mt-2 mb-0 py-2 small"><i class="bi bi-check-circle-fill me-1"></i> {{ session('ai_success') }}</div>
+                                <div class="alert alert-success mt-2 mb-0 py-2 small"><i
+                                        class="bi bi-check-circle-fill me-1"></i> {{ session('ai_success') }}</div>
                             @endif
                             @if (session()->has('ai_error'))
-                                <div class="alert alert-danger mt-2 mb-0 py-2 small"><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ session('ai_error') }}</div>
+                                <div class="alert alert-danger mt-2 mb-0 py-2 small"><i
+                                        class="bi bi-exclamation-triangle-fill me-1"></i> {{ session('ai_error') }}
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -206,7 +217,8 @@ new class extends Component
                         <div class="row mb-3">
                             <div class="col-md-12">
                                 <label class="form-label">Nama Rule</label>
-                                <input type="text" class="form-control" wire:model="ruleName" placeholder="Contoh: Happy Hour Anti Sepi">
+                                <input type="text" class="form-control" wire:model="ruleName"
+                                       placeholder="Contoh: Happy Hour Anti Sepi">
                                 @error('ruleName') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
@@ -222,7 +234,8 @@ new class extends Component
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Nilai Diskon</label>
-                                <input type="number" class="form-control" wire:model="discountValue" placeholder="Contoh: 20">
+                                <input type="number" class="form-control" wire:model="discountValue"
+                                       placeholder="Contoh: 20">
                                 @error('discountValue') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
@@ -248,7 +261,8 @@ new class extends Component
                             <div class="d-flex flex-wrap gap-3">
                                 @foreach($days as $val => $label)
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="{{ $val }}" id="day_{{ $val }}" wire:model="activeDays">
+                                        <input class="form-check-input" type="checkbox" value="{{ $val }}"
+                                               id="day_{{ $val }}" wire:model="activeDays">
                                         <label class="form-check-label" for="day_{{ $val }}">
                                             {{ $label }}
                                         </label>
@@ -269,9 +283,14 @@ new class extends Component
                                                 <div class="ms-3 mt-2">
                                                     @foreach($product->variants as $variant)
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" value="{{ $variant->id }}" id="var_{{ $variant->id }}" wire:model="selectedVariants">
-                                                            <label class="form-check-label" for="var_{{ $variant->id }}">
-                                                                {{ $variant->name }} (Rp {{ number_format($variant->price, 0, ',', '.') }})
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   value="{{ $variant->id }}"
+                                                                   id="var_{{ $variant->id }}"
+                                                                   wire:model="selectedVariants">
+                                                            <label class="form-check-label"
+                                                                   for="var_{{ $variant->id }}">
+                                                                {{ $variant->name }}
+                                                                (Rp {{ number_format($variant->price, 0, ',', '.') }})
                                                             </label>
                                                         </div>
                                                     @endforeach
@@ -300,14 +319,16 @@ new class extends Component
             <div class="card shadow-sm bg-primary text-white mb-4">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-magic me-2"></i> Preset Cerdas AI</h5>
-                    <p class="card-text small mb-3">Gunakan template strategi harga yang terbukti meningkatkan penjualan di jam-jam tertentu.</p>
+                    <p class="card-text small mb-3">Gunakan template strategi harga yang terbukti meningkatkan penjualan
+                        di jam-jam tertentu.</p>
                     <button class="btn btn-light w-100 mb-2 text-start" wire:click="loadPresetConfig('happy_hour')">
                         <strong>🍻 Happy Hour Anti Sepi</strong>
                         <div class="small text-muted mt-1">Diskon 20% jam 14:00 - 16:00 (Senin-Jumat)</div>
                     </button>
                     <button class="btn btn-outline-light w-100 text-start" disabled>
                         <strong>🌙 Flash Sale Midnight</strong>
-                        <div class="small mt-1">Potongan 10rb jam 21:00 - 23:59 (Weekend) - <em class="text-warning">Coming Soon</em></div>
+                        <div class="small mt-1">Potongan 10rb jam 21:00 - 23:59 (Weekend) - <em class="text-warning">Coming
+                                Soon</em></div>
                     </button>
                 </div>
             </div>
@@ -325,50 +346,54 @@ new class extends Component
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">Nama Rule</th>
-                                    <th>Diskon</th>
-                                    <th>Jadwal Aktif</th>
-                                    <th>Target Menu</th>
-                                    <th class="text-end pe-4">Aksi</th>
-                                </tr>
+                            <tr>
+                                <th class="ps-4">Nama Rule</th>
+                                <th>Diskon</th>
+                                <th>Jadwal Aktif</th>
+                                <th>Target Menu</th>
+                                <th class="text-end pe-4">Aksi</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @forelse($this->savedRules as $savedRule)
-                                    <tr>
-                                        <td class="ps-4 fw-bold text-primary">{{ $savedRule->rule_name }}</td>
-                                        <td>
-                                            @if($savedRule->rule_type === 'percentage')
-                                                <span class="badge bg-success">{{ $savedRule->productVariants->first()?->pivot->discount_value ?? 0 }}%</span>
-                                            @else
-                                                <span class="badge bg-info">Rp {{ number_format($savedRule->productVariants->first()?->pivot->discount_value ?? 0, 0, ',', '.') }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="small fw-bold">
-                                                <i class="bi bi-clock me-1 text-muted"></i> {{ substr($savedRule->start_time, 0, 5) }} - {{ substr($savedRule->end_time, 0, 5) }}
-                                            </div>
-                                            <div class="small text-muted mt-1" style="font-size: 0.75rem;">
-                                                {{ is_array($savedRule->active_days) ? implode(', ', $savedRule->active_days) : $savedRule->active_days }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-secondary rounded-pill">{{ $savedRule->productVariants->count() }} Varian</span>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <button class="btn btn-sm btn-outline-danger" wire:click="deleteRule({{ $savedRule->id }})" wire:confirm="Yakin ingin menghapus aturan promo ini?">
-                                                <i class="bi bi-trash"></i> Hapus
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted">
-                                            <i class="bi bi-inbox fs-2 d-block mb-2"></i> 
-                                            Belum ada aturan diskon AI yang aktif.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                            @forelse($this->savedRules as $savedRule)
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">{{ $savedRule->rule_name }}</td>
+                                    <td>
+                                        @if($savedRule->rule_type === 'percentage')
+                                            <span class="badge bg-success">{{ $savedRule->productVariants->first()?->pivot->discount_value ?? 0 }}%</span>
+                                        @else
+                                            <span
+                                                class="badge bg-info">Rp {{ number_format($savedRule->productVariants->first()?->pivot->discount_value ?? 0, 0, ',', '.') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">
+                                            <i class="bi bi-clock me-1 text-muted"></i> {{ substr($savedRule->start_time, 0, 5) }}
+                                            - {{ substr($savedRule->end_time, 0, 5) }}
+                                        </div>
+                                        <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+                                            {{ is_array($savedRule->active_days) ? implode(', ', $savedRule->active_days) : $savedRule->active_days }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary rounded-pill">{{ $savedRule->productVariants->count() }} Varian</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                wire:click="deleteRule({{ $savedRule->id }})"
+                                                wire:confirm="Yakin ingin menghapus aturan promo ini?">
+                                            <i class="bi bi-trash"></i> Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                        Belum ada aturan diskon AI yang aktif.
+                                    </td>
+                                </tr>
+                            @endforelse
                             </tbody>
                         </table>
                     </div>

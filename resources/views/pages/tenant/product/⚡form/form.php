@@ -6,10 +6,12 @@ use App\Models\RawMaterial;
 use App\Models\StoreSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-new class extends Component {
+new #[Title("Form Produk")]
+class extends Component {
     use WithFileUploads;
 
     public ?Product $product = null;

@@ -81,7 +81,7 @@ $showSidebar = $accessibleMenus > 1;
     <div id="page-content-wrapper"
          @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
         @if($showSidebar && !($isMobile ?? false))
-            <livewire:layouts.navbar :header="$header ?? null"/>
+            <livewire:layouts.navbar :header="$title ?? null"/>
         @endif
 
         <main class="container-fluid @if($showSidebar) p-3 @else @endif">

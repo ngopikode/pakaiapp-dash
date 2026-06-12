@@ -1,4 +1,4 @@
-<x-layouts::app header="Menu & Produk">
+<x-layouts::app title="Menu & Produk">
 
     @push('styles')
         <style>
@@ -6,7 +6,7 @@
                 bottom: 2rem;
                 right: 2rem;
             }
-            
+
             .help-fab-btn {
                 width: 56px;
                 height: 56px;

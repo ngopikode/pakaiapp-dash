@@ -17,7 +17,7 @@ new class extends Component {
 
     public string $activeTab = 'cashier';
     public ?int $addToOrder = null;
-    
+
     public ?Order $existingOrder = null;
 
     // Tarif potong kredit per transaksi sukses
@@ -35,9 +35,9 @@ new class extends Component {
             $this->existingOrder = Order::find($this->addToOrder);
             // Allow editing if it's pending OR if it's progress but not fully paid
             if ($this->existingOrder) {
-                $isEditable = $this->existingOrder->status === 'pending' || 
+                $isEditable = $this->existingOrder->status === 'pending' ||
                              ($this->existingOrder->status === 'progress' && $this->existingOrder->amount_paid < $this->existingOrder->total_price);
-                
+
                 if (!$isEditable) {
                     $this->addToOrder = null;
                     $this->existingOrder = null;
@@ -50,11 +50,11 @@ new class extends Component {
     {
         $this->addToOrder = $orderId;
         $this->existingOrder = Order::find($orderId);
-        
+
         if ($this->existingOrder) {
-            $isEditable = $this->existingOrder->status === 'pending' || 
+            $isEditable = $this->existingOrder->status === 'pending' ||
                          ($this->existingOrder->status === 'progress' && $this->existingOrder->amount_paid < $this->existingOrder->total_price);
-            
+
             if (!$isEditable) {
                 $this->addToOrder = null;
                 $this->existingOrder = null;
@@ -68,7 +68,7 @@ new class extends Component {
         $table = addslashes($this->existingOrder->table_number ?? $this->existingOrder->notes ?? '');
         $type = addslashes($this->existingOrder->order_type ?? '');
         $invoice = addslashes($this->existingOrder->invoice_code ?? '');
-        
+
         $this->js("window.dispatchEvent(new CustomEvent('start-editing-order', { detail: { invoice_code: '{$invoice}', customer: '{$customer}', table: '{$table}', type: '{$type}' } }));");
     }
 
@@ -101,7 +101,7 @@ new class extends Component {
                     $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item->variant_id);
                     if ($variant) {
                         $variant->increment('stock', $item->quantity);
-                        
+
                         if (tenant('store_type') === 'resto') {
                             foreach ($variant->recipes as $recipe) {
                                 if ($recipe->rawMaterial) {
@@ -131,7 +131,7 @@ new class extends Component {
                     'tax_amount' => $newTaxAmount,
                     'total_price' => $newTotalPrice,
                 ]);
-                
+
                 // Refresh existing order
                 if ($this->existingOrder && $this->existingOrder->id === $order->id) {
                     $this->existingOrder->refresh();
@@ -175,11 +175,11 @@ new class extends Component {
 
                 if ($this->addToOrder && $this->existingOrder) {
                     $order = $this->existingOrder;
-                    
+
                     // VALIDASI KEAMANAN: Pastikan pesanan belum selesai/dibatalkan saat tambah menu
-                    $isEditable = $order->status === 'pending' || 
+                    $isEditable = $order->status === 'pending' ||
                                  ($order->status === 'progress' && $order->amount_paid < $order->total_price);
-                    
+
                     if (!$isEditable) {
                         throw new Exception("Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.");
                     }
@@ -289,12 +289,12 @@ new class extends Component {
 
                 if ($this->addToOrder && $this->existingOrder) {
                     $order = $this->existingOrder;
-                    
+
                     $newSubtotal = $order->subtotal + $subtotal;
                     $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
                     $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
                     $newTotalPrice = max(0, $newSubtotal + $newServiceCharge + $newTaxAmount - $discountAmount);
-                    
+
                     $paid = (float)$amountPaid ?: $newTotalPrice;
                     $change = max(0, $paid - $newTotalPrice);
                     $invoiceCode = $order->invoice_code;
@@ -395,7 +395,7 @@ new class extends Component {
                 // lockForUpdate memastikan pesanan tidak dibayar 2 kali di waktu bersamaan
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
-                $isPayable = $order->status === 'pending' || 
+                $isPayable = $order->status === 'pending' ||
                              ($order->status === 'progress' && $order->amount_paid < $order->total_price);
 
                 if (!$order || !$isPayable) {
@@ -406,12 +406,12 @@ new class extends Component {
                 // Hitung ulang dari subtotal awal pesanan + service + tax agar diskon tidak terpotong dobel
                 // Tapi karena ini proses dinamis, kita asumsikan total_price saat ini adalah base
                 $baseTotal = isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal;
-                
+
                 // Jika total_price masih sama dengan yang ada di DB, berarti diskon baru ditambahkan
                 // Tapi mari kita ambil aman: total yang harus dibayar adalah total akhir
                 $totalPrice = max(0, $baseTotal - $discountAmount);
                 $paid = (float)$amountPaid ?: $totalPrice;
-                
+
                 $accumulatedPaid = $order->amount_paid + $paid;
                 $change = max(0, $accumulatedPaid - $totalPrice);
 
@@ -470,7 +470,7 @@ new class extends Component {
             return DB::transaction(function () use ($orderId, $paymentMethod, $resolvedEmail) {
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
-                $isPayable = $order->status === 'pending' || 
+                $isPayable = $order->status === 'pending' ||
                              ($order->status === 'progress' && $order->amount_paid < $order->total_price);
 
                 if (!$order || !$isPayable) {
@@ -534,7 +534,7 @@ new class extends Component {
             return DB::transaction(function () use ($orderId, $resolvedEmail) {
                 $order = Order::with('items')->lockForUpdate()->find($orderId);
 
-                $isPayable = $order->status === 'pending' || 
+                $isPayable = $order->status === 'pending' ||
                              ($order->status === 'progress' && $order->amount_paid < $order->total_price);
 
                 if (!$order || !$isPayable) {
@@ -647,7 +647,7 @@ new class extends Component {
     public function splitOrder($orderId, $itemsToSplitData)
     {
         $order = Order::with('items')->find($orderId);
-        
+
         if (!$order || in_array($order->status, ['completed', 'cancelled', 'paid'])) {
             $this->js("window.showIslandToast('Pesanan yang sudah lunas/selesai tidak bisa dipisah.', 'danger');");
             return;
@@ -671,7 +671,7 @@ new class extends Component {
                 $serviceRate = $order->service_charge_percentage ?? 5.00;
 
                 $newInvoiceCode = $order->invoice_code . '-' . strtoupper(Str::random(3));
-                
+
                 $newOrder = Order::create([
                     'invoice_code' => $newInvoiceCode,
                     'table_number' => $order->table_number,
@@ -699,7 +699,7 @@ new class extends Component {
                 foreach ($itemsToSplitData as $splitData) {
                     $itemId = $splitData['id'];
                     $splitQty = (int) $splitData['qty'];
-                    
+
                     if ($splitQty <= 0) continue;
 
                     $item = $order->items->where('id', $itemId)->first();
@@ -747,7 +747,7 @@ new class extends Component {
                 // 4. Recalculate Old Order Totals
                 $order->refresh();
                 $oldSubtotal = $order->items->sum('subtotal');
-                
+
                 if ($oldSubtotal == 0 && $order->items->count() == 0) {
                     $order->delete();
                 } else {
@@ -767,7 +767,7 @@ new class extends Component {
             // For resto-cashier, we want to open the payment modal automatically for the new order
             $this->js("bootstrap.Modal.getInstance(document.getElementById('splitBillModal'))?.hide();");
             $this->js("window.showIslandToast('Pesanan berhasil dipisah.', 'success');");
-            
+
             // To auto-open payment modal, we can dispatch to Alpine
             $orderData = json_encode([
                 'id' => $newOrderId->id,
@@ -777,7 +777,7 @@ new class extends Component {
                 'total_price' => $newOrderId->total_price,
             ]);
             $this->js("window.dispatchEvent(new CustomEvent('open-payment-modal', { detail: $orderData }));");
-            
+
         } catch (\Exception $e) {
             $this->js("window.showIslandToast('Gagal memisah pesanan: " . addslashes($e->getMessage()) . "', 'danger');");
         }
@@ -831,7 +831,7 @@ new class extends Component {
                 $newSubtotal = $targetOrder->items->sum('subtotal');
                 $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
                 $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
-                
+
                 $targetOrder->update([
                     'subtotal' => $newSubtotal,
                     'service_charge_amount' => $newServiceCharge,
@@ -844,7 +844,7 @@ new class extends Component {
             });
 
             $this->js("window.showIslandToast('Pesanan berhasil digabungkan.', 'success');");
-            
+
             // Refresh current order if it was the target
             if ($this->existingOrder && $this->existingOrder->id == $targetOrderId) {
                 $this->existingOrder->refresh();

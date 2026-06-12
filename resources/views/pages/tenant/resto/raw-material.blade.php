@@ -1,88 +1,77 @@
 <?php
 
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 use App\Models\RawMaterial;
-use Livewire\Attributes\Layout;
 
-new #[Layout('layouts.app')] class extends Component {
-    public $materials = [];
-    public $name = '';
-    public $unit = 'pcs';
-    public $stock = 0;
-    public $cost_per_unit = 0;
-    public $min_stock_alert = 0;
-    public $editingId = null;
+new #[Title("Resep")]
+class extends Component {
+    #[Validate('required|string|max:255')]
+    public string $name = '';
 
-    public function mount()
+    #[Validate('required|string|max:50')]
+    public string $unit = 'pcs';
+
+    #[Validate('required|numeric|min:0')]
+    public float $stock = 0;
+
+    #[Validate('required|numeric|min:0')]
+    public float $costPerUnit = 0;
+
+    #[Validate('required|numeric|min:0')]
+    public float $minStockAlert = 0;
+
+    public ?int $editingId = null;
+
+    public int $perPage = 10;
+
+    #[Computed]
+    public function materials(): RawMaterial|Collection
     {
-        $this->loadMaterials();
+        return RawMaterial::latest()->take($this->perPage)->get();
     }
 
-    public function loadMaterials()
+    public function loadMore(): void
     {
-        $this->materials = RawMaterial::all();
+        $this->perPage += 10;
     }
 
-    public function save()
+    public function save(): void
     {
-        $this->validate([
-            'name' => 'required|string|max:255',
-            'unit' => 'required|string|max:50',
-            'stock' => 'required|numeric|min:0',
-            'cost_per_unit' => 'required|numeric|min:0',
-            'min_stock_alert' => 'required|numeric|min:0',
-        ]);
+        $validated = $this->validate();
 
-        if ($this->editingId) {
-            $material = RawMaterial::findOrFail($this->editingId);
-            $material->update([
-                'name' => $this->name,
-                'unit' => $this->unit,
-                'stock' => $this->stock,
-                'cost_per_unit' => $this->cost_per_unit,
-                'min_stock_alert' => $this->min_stock_alert,
-            ]);
-        } else {
-            RawMaterial::create([
-                'name' => $this->name,
-                'unit' => $this->unit,
-                'stock' => $this->stock,
-                'cost_per_unit' => $this->cost_per_unit,
-                'min_stock_alert' => $this->min_stock_alert,
-            ]);
-        }
+        RawMaterial::updateOrCreate(
+            ['id' => $this->editingId],
+            $validated
+        );
 
         $this->resetInput();
-        $this->loadMaterials();
         session()->flash('message', 'Bahan baku berhasil disimpan.');
     }
 
-    public function edit($id)
+    public function edit(RawMaterial $material): void
     {
-        $material = collect($this->materials)->firstWhere('id', $id);
         $this->editingId = $material->id;
         $this->name = $material->name;
         $this->unit = $material->unit;
-        $this->stock = $material->stock;
-        $this->cost_per_unit = $material->cost_per_unit;
-        $this->min_stock_alert = $material->min_stock_alert;
+        $this->stock = (float)$material->stock;
+        $this->costPerUnit = (float)$material->costPerUnit;
+        $this->minStockAlert = (float)$material->minStockAlert;
     }
 
-    public function delete($id)
+    public function delete(RawMaterial $material): void
     {
-        RawMaterial::destroy($id);
-        $this->loadMaterials();
+        $material->delete();
         session()->flash('message', 'Bahan baku dihapus.');
     }
 
-    public function resetInput()
+    public function resetInput(): void
     {
-        $this->editingId = null;
-        $this->name = '';
+        $this->reset(['name', 'stock', 'costPerUnit', 'minStockAlert', 'editingId']);
         $this->unit = 'pcs';
-        $this->stock = 0;
-        $this->cost_per_unit = 0;
-        $this->min_stock_alert = 0;
     }
 }; ?>
 
@@ -100,7 +89,8 @@ new #[Layout('layouts.app')] class extends Component {
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Nama Bahan</label>
-                        <input type="text" wire:model="name" class="form-control" placeholder="Cth: Kopi Biji, Gula Aren">
+                        <input type="text" wire:model="name" class="form-control"
+                               placeholder="Cth: Kopi Biji, Gula Aren">
                         @error('name') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
                     <div class="col-md-2 mb-3">
@@ -121,13 +111,13 @@ new #[Layout('layouts.app')] class extends Component {
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Harga Modal (/satuan)</label>
-                        <input type="number" step="0.01" wire:model="cost_per_unit" class="form-control">
-                        @error('cost_per_unit') <span class="text-danger small">{{ $message }}</span> @enderror
+                        <input type="number" step="0.01" wire:model="costPerUnit" class="form-control">
+                        @error('costPerUnit') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Min. Stok (Alert)</label>
-                        <input type="number" step="0.01" wire:model="min_stock_alert" class="form-control">
-                        @error('min_stock_alert') <span class="text-danger small">{{ $message }}</span> @enderror
+                        <input type="number" step="0.01" wire:model="minStockAlert" class="form-control">
+                        @error('minStockAlert') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
                 </div>
                 <div class="d-flex gap-2">
@@ -151,41 +141,51 @@ new #[Layout('layouts.app')] class extends Component {
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead>
-                        <tr>
-                            <th>Nama Bahan</th>
-                            <th>Stok</th>
-                            <th>Satuan</th>
-                            <th>Harga Modal/Satuan</th>
-                            <th>Alert Stok</th>
-                            <th>Aksi</th>
-                        </tr>
+                    <tr>
+                        <th>Nama Bahan</th>
+                        <th>Stok</th>
+                        <th>Satuan</th>
+                        <th>Harga Modal/Satuan</th>
+                        <th>Alert Stok</th>
+                        <th>Aksi</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @forelse($materials as $item)
+                    @forelse($this->materials as $item)
                         <tr>
                             <td class="fw-bold">{{ $item->name }}</td>
                             <td>
-                                @if($item->stock <= $item->min_stock_alert)
+                                @if($item->stock <= $item->minStockAlert)
                                     <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> {{ $item->stock }}</span>
                                 @else
                                     <span class="text-success">{{ $item->stock }}</span>
                                 @endif
                             </td>
                             <td>{{ $item->unit }}</td>
-                            <td>Rp {{ number_format($item->cost_per_unit, 0, ',', '.') }}</td>
-                            <td>{{ $item->min_stock_alert }}</td>
+                            <td>Rp {{ number_format($item->costPerUnit, 0, ',', '.') }}</td>
+                            <td>{{ $item->minStockAlert }}</td>
                             <td>
-                                <button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
-                                <button wire:click="delete({{ $item->id }})" onclick="confirm('Yakin ingin menghapus?') || event.stopImmediatePropagation()" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                <button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-outline-secondary"><i
+                                        class="bi bi-pencil"></i></button>
+                                <button wire:click="delete({{ $item->id }})"
+                                        wire:confirm="Yakin ingin menghapus?"
+                                        class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
-                        @empty
+                    @empty
                         <tr>
                             <td colspan="6" class="text-center text-muted py-3">Belum ada bahan baku.</td>
                         </tr>
-                        @endforelse
+                    @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div x-intersect="$wire.loadMore()" class="text-center mt-3">
+                <div wire:loading wire:target="loadMore" class="spinner-border spinner-border-sm text-primary"
+                     role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </div>
     </div>

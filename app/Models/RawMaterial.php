@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RawMaterial extends Model
 {
-    use HasFactory;
 
     protected $fillable = [
+        'id',
         'name',
         'unit',
         'stock',
@@ -17,7 +17,7 @@ class RawMaterial extends Model
         'min_stock_alert'
     ];
 
-    public function recipes()
+    public function recipes(): HasMany
     {
         return $this->hasMany(VariantRecipe::class);
     }

@@ -1,10 +1,12 @@
 <?php
 
 use App\Models\StoreSetting;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new class extends Component {
+new #[Title("Kasir")]
+class extends Component {
     public string $storeType = 'resto';
 
     #[Url(as: 'add_to_order')]
