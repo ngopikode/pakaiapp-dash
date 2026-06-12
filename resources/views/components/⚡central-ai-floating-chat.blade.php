@@ -147,6 +147,9 @@ new class extends Component
                         <div wire:loading wire:target="sendMessage" class="spinner-border spinner-border-sm text-white" role="status"></div>
                     </button>
                 </form>
+                <div class="text-center mt-2 text-muted" style="font-size: 10px; opacity: 0.6;">
+                    Asisten AI dapat membuat kesalahan.<br>Harap periksa kembali informasi penting Anda.
+                </div>
             </div>
         </div>
 
