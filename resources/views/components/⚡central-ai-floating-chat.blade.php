@@ -1,70 +1,45 @@
 <?php
 
 use Livewire\Component;
-use App\Models\AiChatSession;
-use App\Services\OpenAiMenuService;
-use Illuminate\Support\Str;
+use App\Services\OpenAiSupportService;
 
 new class extends Component
 {
-    public $sessionId = null;
     public $messages = [];
     public $userInput = '';
 
     public function mount()
     {
-        $token = session()->get('ai_chat_session_token');
-        
-        if (!$token) {
-            $token = Str::uuid()->toString();
-            session()->put('ai_chat_session_token', $token);
-        }
-
-        $chatSession = AiChatSession::firstOrCreate(
-            ['session_token' => $token],
-            ['table_number' => session('table_number', '1'), 'turn_count' => 0]
-        );
-
-        $this->sessionId = $chatSession->id;
-        
-        $this->loadMessages();
+        $this->messages = session()->get('central_ai_chat_messages', []);
             
         if (empty($this->messages)) {
-            $this->messages[] = ['role' => 'assistant', 'content' => 'Halo! Ada yang bisa saya bantu untuk pesanan hari ini?'];
+            $this->messages[] = ['role' => 'assistant', 'content' => 'Halo! 👋 Saya asisten virtual Pakaiapp. Ada yang ingin ditanyakan seputar pendaftaran atau fitur kami?'];
+            session()->put('central_ai_chat_messages', $this->messages);
         }
-    }
-
-    public function loadMessages()
-    {
-        $chatSession = AiChatSession::find($this->sessionId);
-        $this->messages = $chatSession->messages()
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->map(function ($msg) {
-                return ['role' => $msg->role, 'content' => $msg->content];
-            })
-            ->toArray();
     }
 
     public function sendMessage()
     {
         $this->validate(['userInput' => 'required|string|max:500']);
         
-        $this->loadMessages();
-        
         $userMsg = $this->userInput;
         $this->userInput = '';
         
-        // Add optimistic UI message
         $this->messages[] = ['role' => 'user', 'content' => $userMsg];
+        session()->put('central_ai_chat_messages', $this->messages);
         
-        $session = AiChatSession::find($this->sessionId);
-        $service = app(OpenAiMenuService::class);
+        $service = app(OpenAiSupportService::class);
         
-        // Ambil balasan utuh (tanpa stream)
-        $fullReply = $service->generateResponse($session, $userMsg);
+        // Send last 10 messages for context (excluding the very new user message which is appended in the service)
+        $historyForAi = collect($this->messages)
+            ->take(-11) // take 11 because we just added the user message, we want previous + current
+            ->slice(0, -1) // remove the very last one because the service appends it
+            ->toArray();
+
+        $fullReply = $service->generateResponse($historyForAi, $userMsg);
         
         $this->messages[] = ['role' => 'assistant', 'content' => $fullReply];
+        session()->put('central_ai_chat_messages', $this->messages);
     }
 };
 ?>
@@ -89,7 +64,7 @@ new class extends Component
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
                 </div>
                 <div class="leading-tight">
-                    <span class="font-bold block text-[15px]">{{ ucwords(str_replace('-', ' ', tenant('id'))) }} AI</span>
+                    <span class="font-bold block text-[15px]">Asisten Pakaiapp</span>
                     <span class="text-[11px] text-zinc-400 tracking-wide">Selalu siap membantu</span>
                 </div>
             </div>
@@ -99,38 +74,21 @@ new class extends Component
         </div>
         
         <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" id="chat-messages-container">
+        <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" id="central-chat-messages-container">
             <div class="text-center mb-5 mt-1">
-                <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Konteks menu hari ini aktif</span>
+                <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Ngobrol dengan AI Kami</span>
             </div>
 
             @foreach($messages as $msg)
-                @if($msg['role'] !== 'system')
-                    <div class="flex mb-4 {{ $msg['role'] === 'user' ? 'justify-end' : 'justify-start' }}">
-                        <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
-                            @if($msg['role'] === 'assistant')
-                                @php
-                                    $htmlContent = str($msg['content'])->markdown(['html_input' => 'escape']);
-                                    $htmlContent = preg_replace_callback('/\[VARIANT_ID:\s*\{?(\d+)\}?\]/', function($matches) {
-                                        $variantId = $matches[1];
-                                        $variant = \App\Models\ProductVariant::with('product')->find($variantId);
-                                        if (!$variant || !$variant->product) return '';
-                                        $productJson = htmlspecialchars(json_encode([
-                                            'id' => $variant->product->id,
-                                            'name' => $variant->product->name,
-                                            'price' => $variant->active_discount_price ?? $variant->price,
-                                            'image' => $variant->product->image ? \Storage::url($variant->product->image) : null
-                                        ]), ENT_QUOTES, 'UTF-8');
-                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \''.$variant->name.'\', 1, '.$variantId.')" class="bg-zinc-900 text-white text-xs px-4 py-2 rounded-lg font-bold shadow-md hover:bg-black w-full flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Tambah ke Keranjang</button></div>';
-                                    }, $htmlContent);
-                                @endphp
-                                {!! $htmlContent !!}
-                            @else
-                                {{ $msg['content'] }}
-                            @endif
-                        </div>
+                <div class="flex mb-4 {{ $msg['role'] === 'user' ? 'justify-end' : 'justify-start' }}">
+                    <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
+                        @if($msg['role'] === 'assistant')
+                            {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
+                        @else
+                            {{ $msg['content'] }}
+                        @endif
                     </div>
-                @endif
+                </div>
             @endforeach
             
             <!-- Target for Loading state -->
@@ -161,12 +119,12 @@ new class extends Component
              x-transition.opacity.duration.500ms
              class="bg-white text-zinc-800 text-sm font-bold px-4 py-3 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-center gap-2 cursor-pointer animate-[bounce_3s_infinite] relative"
              @click="isOpen = true">
-            <span>✨ Hai, butuh rekomendasi menu?</span>
+            <span>👋 Tanya-tanya Pakaiapp?</span>
             <!-- Segitiga penunjuk -->
             <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r border-t border-zinc-100 transform rotate-45"></div>
         </div>
 
-        <button class="bg-[var(--primary-color,bg-zinc-900)] bg-zinc-900 text-white rounded-full shadow-2xl shadow-zinc-900/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white relative z-10" @click="isOpen = !isOpen">
+        <button class="bg-[#1A2B3E] text-white rounded-full shadow-2xl shadow-[#1A2B3E]/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white relative z-10" @click="isOpen = !isOpen">
             <template x-if="isOpen">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </template>
@@ -180,7 +138,7 @@ new class extends Component
         document.addEventListener('livewire:initialized', () => {
             Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
                 succeed(({ snapshot, effect }) => {
-                    const container = document.getElementById('chat-messages-container');
+                    const container = document.getElementById('central-chat-messages-container');
                     if (container) {
                         setTimeout(() => {
                             container.scrollTop = container.scrollHeight;

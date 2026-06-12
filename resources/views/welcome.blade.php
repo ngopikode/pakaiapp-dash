@@ -665,48 +665,7 @@
 <!-- ============================================
      CHATBOT WIDGET
 ============================================ -->
-<div class="fab-container" id="fabContainer">
-    <!-- Chat Widget Panel -->
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-header">
-            <div class="d-flex align-items-center gap-2">
-                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
-                <div>
-                    <h6 class="mb-0 fw-bold" style="font-size:0.95rem; color:#fff;">Asisten Pakaiapp</h6>
-                    <small style="color:rgba(255,255,255,0.8); font-size:0.75rem;"><span class="chat-online-dot"></span>
-                        Selalu Online</small>
-                </div>
-            </div>
-            <button class="chat-close" onclick="toggleChat()" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
-        </div>
-
-        <div class="chat-body">
-            <div class="chat-msg bot-msg">
-                Halo! 👋 Saya asisten virtual Pakaiapp. Ada yang ingin ditanyakan seputar pendaftaran atau fitur kami?
-            </div>
-        </div>
-
-        <div class="chat-footer">
-            <a href="https://wa.me/6285172441544" target="_blank"
-               class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2"
-               style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
-                <i class="bi bi-whatsapp"></i> Chat Admin (WA)
-            </a>
-            <a href="#faq" onclick="toggleChat()"
-               class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 mt-2"
-               style="border-radius: 20px; font-weight:600; font-size:0.85rem;">
-                <i class="bi bi-question-circle"></i> Lihat FAQ
-            </a>
-        </div>
-    </div>
-
-    <!-- Main FAB Button -->
-    <button class="fab-main" id="fabMainBtn" onclick="toggleChat()" aria-label="Bantuan">
-        <i class="bi bi-chat-dots-fill" id="fabMainIcon"></i>
-        <span class="fab-pulse"></span>
-    </button>
-</div>
-
+<livewire:central-ai-floating-chat />
 
 <!-- ============================================
      MODAL TNC
