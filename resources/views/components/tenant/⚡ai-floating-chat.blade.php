@@ -87,9 +87,8 @@ new class extends Component
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh] relative"
-         style="display: none;"
-         x-data="{ showScroll: false }">
+         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh]"
+         style="display: none;">
         <!-- Header -->
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
             <div class="flex items-center gap-3">
@@ -107,7 +106,7 @@ new class extends Component
         </div>
         
         <!-- Messages Area Wrapper -->
-        <div class="flex-1 min-h-0 relative flex flex-col">
+        <div class="flex-1 min-h-0 relative flex flex-col" x-data="{ showScroll: false }">
             <!-- Messages Area -->
             <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" 
                  id="tenant-chat-messages-container"
