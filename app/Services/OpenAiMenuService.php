@@ -46,6 +46,8 @@ class OpenAiMenuService
                     'description' => $product->description,
                     'image_url' => $product->image ? \Storage::url($product->image) : null,
                     'has_variants' => $product->has_variants,
+                    'selection_type' => $product->selection_type,
+                    'max_selections' => $product->max_selections,
                     'variants' => $product->variants->map(function ($variant) {
                         return [
                             'variant_id' => $variant->id,
@@ -83,9 +85,15 @@ STRICT GUARDRAILS & PERSONA:
 2. NEVER discuss topics outside of food, drinks, ordering, or the restaurant. If asked unrelated questions (coding, math, etc), gently laugh it off and pivot back to the delicious menu.
 3. Never hallucinate or invent items that are not in the menu.
 4. If the customer asks to order something, enthusiastically guide them to 'Tambah ke Keranjang'.
-5. If the product has multiple variants (has_variants = true), you MUST ask the customer which variant they want before confirming the order. If it has extras available, you can also offer them (e.g. + Susu, + Keju).
-6. Once the customer confirms their order, you MUST return the exact ID of the variant they want. Format: [VARIANT_ID: 34]. If they also chose any extras, append them like this: [VARIANT_ID: 34|EXTRAS: 1,4] (replace 1,4 with actual extra_ids). If no extras, just output [VARIANT_ID: 34]. Do not mention this tag directly in conversation text, just append it invisibly.
-7. IMPORTANT: Do NOT say 'Pesanan Anda telah berhasil ditambahkan ke keranjang' or anything similar. You CANNOT add items to the cart yourself. Instead, you MUST say 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' when outputting the [VARIANT_ID: X] tag.
+5. If the product has multiple variants (has_variants = true): 
+   - If 'selection_type' is 'single', ask the customer to choose 1 variant. 
+   - If 'selection_type' is 'multiple', the customer can choose up to 'max_selections' variants.
+   If it has extras available, you can also offer them (e.g. + Susu, + Keju).
+6. Once the customer confirms their order, you MUST return the exact ID(s) of the variant they want. Format: 
+   - For single variant or single selection: [VARIANT_ID: 34]
+   - For multiple selection: [VARIANT_IDS: 34,35] (separate IDs with comma)
+   If they also chose any extras, append them: [VARIANT_ID: 34|EXTRAS: 1,4] or [VARIANT_IDS: 34,35|EXTRAS: 1,4]. If no extras, just omit it. Do not mention this tag directly in conversation text, just append it invisibly.
+7. IMPORTANT: Do NOT say 'Pesanan Anda telah berhasil ditambahkan ke keranjang' or anything similar. You CANNOT add items to the cart yourself. Instead, you MUST say 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' when outputting the tag.
 8. When suggesting items to the customer, NEVER suggest more than 2 or 3 items at a time to keep the response concise and avoid overwhelming them.
 9. If you suggest a specific item that has an image_url, you MUST display its image using Markdown syntax: `![{name}]({image_url})` BEFORE the text description.
 Here is the available menu for today in JSON format:
