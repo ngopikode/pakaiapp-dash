@@ -41,13 +41,13 @@
                                 <span class="text-xs font-bold text-zinc-900 bg-[var(--primary-color)]/20 px-2 py-1 rounded-md"
                                       x-text="optionProduct.formatted_price"></span>
                                 <span class="text-[10px] font-medium text-zinc-400 uppercase tracking-wide">
-                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && isMulti">
+                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && isMulti && optionProduct.has_variants">
                                         <span x-text="`Pilih Maks ${maxSel} Varian`"></span>
                                     </template>
-                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && !isMulti">
+                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && !isMulti && optionProduct.has_variants">
                                         <span>Pilih 1 Varian</span>
                                     </template>
-                                    <template x-if="!optionProduct.variants || optionProduct.variants.length === 0">
+                                    <template x-if="!optionProduct.variants || optionProduct.variants.length === 0 || !optionProduct.has_variants">
                                         <span>Pilih Add-On</span>
                                     </template>
                                 </span>
@@ -81,7 +81,7 @@
                     <div class="flex flex-col gap-2.5">
 
                         {{-- ----- VARIANTS ----- --}}
-                        <template x-if="optionProduct.variants && optionProduct.variants.length > 0">
+                        <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
                             <div class="flex flex-col gap-2.5">
                                 <template x-for="variant in optionProduct.variants" :key="variant.id">
                                     <div
@@ -130,7 +130,7 @@
                         <template x-if="optionProduct.extras && optionProduct.extras.length > 0">
                             <div>
                                 {{-- Divider hanya jika ada variants di atas --}}
-                                <template x-if="optionProduct.variants && optionProduct.variants.length > 0">
+                                <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
                                     <div class="flex items-center gap-3 my-3">
                                         <div class="flex-1 h-px bg-zinc-100"></div>
                                         <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Tambahan</span>

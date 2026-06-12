@@ -230,7 +230,7 @@ document.addEventListener('alpine:init', () => {
             } else {
                 // Single: pre-select first variant for better UX
                 this.optionSelected =
-                    product.variants && product.variants.length > 0
+                    product.variants && product.variants.length > 0 && product.has_variants
                         ? [product.variants[0].name]
                         : [];
             }
@@ -284,14 +284,14 @@ document.addEventListener('alpine:init', () => {
         },
         get optionValid() {
             // Valid kalau ada variant yang dipilih (atau produk tidak punya variant)
-            return this.optionProduct?.variants?.length
+            return (this.optionProduct?.variants?.length && this.optionProduct.has_variants)
                 ? this.optionSelected.length > 0
                 : true;
         },
         get optionTotalPrice() {
             if (!this.optionProduct) return 0;
             let basePrice;
-            if (!this.optionProduct.variants?.length) {
+            if (!this.optionProduct.variants?.length || !this.optionProduct.has_variants) {
                 basePrice = parseFloat(this.optionProduct.price) || 0;
             } else if (this.isMulti) {
                 basePrice = parseFloat(this.optionProduct.price) || 0;
@@ -310,10 +310,10 @@ document.addEventListener('alpine:init', () => {
             let finalVariantLabel = '';
             let variantId = null;
 
-            if (!this.optionProduct.variants?.length) {
+            if (!this.optionProduct.variants?.length || !this.optionProduct.has_variants) {
                 // No variant product
                 finalPrice = parseFloat(this.optionProduct.price) || 0;
-                variantId = this.optionProduct.default_variant_id || null;
+                variantId = this.optionProduct.default_variant_id || (this.optionProduct.variants?.[0]?.id || null);
             } else if (this.isMulti) {
                 // Multi selection (Checkbox)
                 finalPrice = parseFloat(this.optionProduct.price) || 0;

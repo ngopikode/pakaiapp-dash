@@ -13,9 +13,9 @@
                             <div class="flex items-center gap-2 mt-2">
                                 <span class="text-xs font-bold text-zinc-900 bg-[var(--primary-color)]/20 px-2 py-1 rounded-md" x-text="optionProduct.formatted_price"></span>
                                 <span class="text-[10px] font-medium text-zinc-400 uppercase tracking-wide">
-                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && isMulti"><span x-text="`Pilih Maks ${maxSel} Varian`"></span></template>
-                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && !isMulti"><span>Pilih 1 Varian</span></template>
-                                    <template x-if="!optionProduct.variants || optionProduct.variants.length === 0"><span>Pilih Opsi</span></template>
+                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && isMulti && optionProduct.has_variants"><span x-text="`Pilih Maks ${maxSel} Varian`"></span></template>
+                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && !isMulti && optionProduct.has_variants"><span>Pilih 1 Varian</span></template>
+                                    <template x-if="!optionProduct.variants || optionProduct.variants.length === 0 || !optionProduct.has_variants"><span>Pilih Opsi</span></template>
                                 </span>
                             </div>
                         </div>
@@ -27,7 +27,7 @@
 
                 <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4">
                     <div class="flex flex-col gap-2.5">
-                        <template x-if="optionProduct.variants && optionProduct.variants.length > 0">
+                        <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
                             <div class="flex flex-col gap-2.5">
                                 <template x-for="variant in optionProduct.variants" :key="variant.id">
                                     <div @click="toggleOption(variant.name)" class="relative flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all active:scale-[0.98]" :class="isOptionSelected(variant.name) ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/10 shadow-sm shadow-[var(--primary-color)]/10' : 'border-zinc-100 bg-zinc-50 hover:bg-zinc-100'">
