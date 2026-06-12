@@ -43,7 +43,8 @@ new class extends Component
     }
 };
 ?><div class="position-fixed" style="z-index: 1050;" 
-     x-data="{ isOpen: false }"
+     x-data="{ isOpen: false, showTooltip: true }"
+     x-init="setTimeout(() => showTooltip = false, 8000)"
      :class="isOpen && window.innerWidth < 576 ? 'top-0 start-0 w-100 h-100' : 'bottom-0 end-0 p-3 p-sm-4'"
      x-effect="document.body.style.overflow = isOpen && window.innerWidth < 576 ? 'hidden' : ''">
     
@@ -65,7 +66,7 @@ new class extends Component
                     <span class="text-white-50" style="font-size: 11px; letter-spacing: 0.5px;">Selalu siap membantu</span>
                 </div>
             </div>
-            <button class="btn btn-link text-white-50 p-1 m-0 text-decoration-none" @click="isOpen = false" aria-label="Tutup">
+            <button type="button" class="btn btn-link text-white-50 p-1 m-0 text-decoration-none" @click="isOpen = false" aria-label="Tutup">
                 <i class="bi bi-x-lg fs-5"></i>
             </button>
         </div>
@@ -118,17 +119,19 @@ new class extends Component
     <!-- Floating Button & CTA -->
     <div class="d-flex justify-content-end align-items-center gap-3 position-relative" :class="isOpen && window.innerWidth < 576 ? 'd-none' : ''">
         <!-- CTA Tooltip -->
-        <div x-show="!isOpen"
+        <div x-show="!isOpen && showTooltip"
              x-transition.opacity.duration.500ms
-             class="bg-white text-dark px-3 py-2 rounded-4 shadow-lg border d-flex align-items-center gap-2 fw-bold"
-             style="font-size: 14px; cursor: pointer; animation: floatBounce 3s infinite;"
-             @click="isOpen = true">
-            <span>✨ Hai, butuh bantuan?</span>
+             class="bg-white text-dark pl-3 pr-2 py-2 rounded-4 shadow-lg border d-flex align-items-center gap-2 fw-bold"
+             style="font-size: 14px; animation: floatBounce 3s infinite;">
+            <span class="cursor-pointer" @click="isOpen = true; showTooltip = false">✨ Hai, butuh bantuan?</span>
+            <button class="btn btn-link text-secondary p-0 m-0 ms-1 text-decoration-none d-flex align-items-center" @click.stop="showTooltip = false" style="line-height: 1;">
+                <i class="bi bi-x" style="font-size: 18px;"></i>
+            </button>
             <!-- Segitiga penunjuk -->
             <div class="position-absolute bg-white border-end border-top" style="width: 12px; height: 12px; right: -6px; top: 50%; transform: translateY(-50%) rotate(45deg);"></div>
         </div>
 
-        <button class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white" style="width: 56px; height: 56px; z-index: 10;" @click="isOpen = !isOpen">
+        <button type="button" class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white" style="width: 56px; height: 56px; z-index: 10;" @click="isOpen = !isOpen; showTooltip = false">
             <i class="bi bi-chat-dots-fill fs-4" x-show="!isOpen"></i>
             <i class="bi bi-x-lg fs-4" x-show="isOpen" style="display: none;"></i>
         </button>
