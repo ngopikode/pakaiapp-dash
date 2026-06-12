@@ -54,7 +54,7 @@ new class extends Component
                            const c = document.getElementById('central-chat-messages-container'); 
                            if (c) {
                                c.scrollTop = c.scrollHeight; 
-                               showScroll = (c.scrollHeight - c.scrollTop - c.clientHeight) > 150;
+                               showScroll = c.clientHeight > 100 && (c.scrollHeight - c.scrollTop - c.clientHeight) > 150;
                            }
                        }, 350); 
                    } else {
@@ -88,7 +88,7 @@ new class extends Component
             <div class="flex-grow-1 overflow-y-auto p-3" 
                  style="background-color: var(--chat-msg-area-bg); min-height: 0; overscroll-behavior: contain;" 
                  id="central-chat-messages-container"
-                 @scroll.debounce.150ms="showScroll = $el.clientHeight > 0 && ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
+                 @scroll.debounce.150ms="showScroll = $el.clientHeight > 100 && ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
                 <div class="text-center mb-4 mt-1">
                     <span class="badge rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px; color: var(--chat-text); opacity: 0.7; background-color: var(--chat-badge-bg);">Ngobrol dengan AI Kami</span>
                 </div>
