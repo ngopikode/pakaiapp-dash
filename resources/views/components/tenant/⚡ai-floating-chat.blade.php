@@ -78,7 +78,7 @@ new class extends Component
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[320px] sm:w-[380px] h-[480px]"
+         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[75vh] max-h-[600px] sm:h-[550px]"
          style="display: none;">
         <!-- Header -->
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center">
@@ -152,9 +152,19 @@ new class extends Component
         </div>
     </div>
 
-    <!-- Floating Button -->
-    <div class="flex justify-end">
-        <button class="bg-[var(--primary-color,bg-zinc-900)] bg-zinc-900 text-white rounded-full shadow-2xl shadow-zinc-900/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white" @click="isOpen = !isOpen">
+    <!-- Floating Button & CTA -->
+    <div class="flex justify-end items-center gap-4 relative">
+        <!-- CTA Tooltip -->
+        <div x-show="!isOpen" 
+             x-transition.opacity.duration.500ms
+             class="bg-white text-zinc-800 text-sm font-bold px-4 py-3 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-center gap-2 cursor-pointer animate-[bounce_3s_infinite] relative"
+             @click="isOpen = true">
+            <span>✨ Hai, butuh rekomendasi menu?</span>
+            <!-- Segitiga penunjuk -->
+            <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r border-t border-zinc-100 transform rotate-45"></div>
+        </div>
+
+        <button class="bg-[var(--primary-color,bg-zinc-900)] bg-zinc-900 text-white rounded-full shadow-2xl shadow-zinc-900/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white relative z-10" @click="isOpen = !isOpen">
             <template x-if="isOpen">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </template>
