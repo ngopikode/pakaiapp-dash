@@ -86,7 +86,7 @@ new class extends Component
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh]"
+         class="bg-white flex flex-col overflow-hidden w-full h-full sm:shadow-2xl sm:rounded-3xl sm:mb-4 sm:border sm:border-zinc-200 sm:w-[400px] sm:h-[550px] sm:max-h-[80vh]"
          style="display: none;">
         <!-- Header -->
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
@@ -134,8 +134,8 @@ new class extends Component
         </div>
         
         <!-- Input Area -->
-        <div class="bg-white border-t border-zinc-100 p-3.5 relative">
-            <!-- Scroll to Bottom Button (positioned absolute relative to the Chat Window because its parent will be the Chat Window if we put it here... wait, if I put it in Input Area, relative to Input Area) -->
+        <div class="bg-white border-t border-zinc-100 p-3.5 relative shrink-0">
+            <!-- Scroll to Bottom Button -->
             <div x-data="{ showScroll: false }" @chat-scrolled.window="showScroll = $event.detail">
                 <button type="button" 
                         x-show="showScroll" 
