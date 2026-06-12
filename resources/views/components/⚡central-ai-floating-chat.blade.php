@@ -71,35 +71,51 @@ new class extends Component
             </button>
         </div>
         
-        <!-- Messages Area -->
-        <div class="flex-grow-1 overflow-y-auto p-3" style="background-color: #f8f9fa; min-height: 0; overscroll-behavior: contain;" id="central-chat-messages-container">
-            <div class="text-center mb-4 mt-1">
-                <span class="badge text-secondary bg-secondary bg-opacity-10 rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Ngobrol dengan AI Kami</span>
-            </div>
+        <!-- Messages Area Wrapper -->
+        <div class="flex-grow-1 position-relative d-flex flex-column" style="min-height: 0;" x-data="{ showScroll: false }">
+            <!-- Messages Area -->
+            <div class="flex-grow-1 overflow-y-auto p-3" 
+                 style="background-color: #f8f9fa; overscroll-behavior: contain;" 
+                 id="central-chat-messages-container"
+                 @scroll="showScroll = ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
+                <div class="text-center mb-4 mt-1">
+                    <span class="badge text-secondary bg-secondary bg-opacity-10 rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Ngobrol dengan AI Kami</span>
+                </div>
 
-            @foreach($messages as $msg)
-                @if($msg['role'] !== 'system')
-                    <div class="d-flex mb-3 {{ $msg['role'] === 'user' ? 'justify-content-end' : 'justify-content-start' }}">
-                        <div class="p-3 shadow-sm {{ $msg['role'] === 'user' ? 'bg-dark text-white rounded-4 rounded-bottom-0' : 'bg-white text-dark rounded-4 rounded-start-0 border markdown-content' }}" style="font-size: 14px; line-height: 1.6; max-width: 85%;">
-                            @if($msg['role'] === 'assistant')
-                                {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
-                            @else
-                                {{ $msg['content'] }}
-                            @endif
+                @foreach($messages as $msg)
+                    @if($msg['role'] !== 'system')
+                        <div class="d-flex mb-3 {{ $msg['role'] === 'user' ? 'justify-content-end' : 'justify-content-start' }}">
+                            <div class="p-3 shadow-sm {{ $msg['role'] === 'user' ? 'bg-dark text-white rounded-4 rounded-bottom-0' : 'bg-white text-dark rounded-4 rounded-start-0 border markdown-content' }}" style="font-size: 14px; line-height: 1.6; max-width: 85%;">
+                                @if($msg['role'] === 'assistant')
+                                    {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
+                                @else
+                                    {{ $msg['content'] }}
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                @endif
-            @endforeach
-            
-            <!-- Target for Loading state -->
-            <div class="d-flex mb-3 justify-content-start d-none" wire:loading.class.remove="d-none" wire:target="sendMessage">
-                <div class="p-3 shadow-sm bg-white text-dark rounded-4 rounded-start-0 border d-flex align-items-center gap-2" style="font-size: 14px; max-width: 85%;">
-                    <span class="text-secondary fst-italic">Sedang berpikir...</span>
-                    <div class="spinner-border spinner-border-sm text-secondary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                    @endif
+                @endforeach
+                
+                <!-- Target for Loading state -->
+                <div class="d-flex mb-3 justify-content-start d-none" wire:loading.class.remove="d-none" wire:target="sendMessage">
+                    <div class="p-3 shadow-sm bg-white text-dark rounded-4 rounded-start-0 border d-flex align-items-center gap-2" style="font-size: 14px; max-width: 85%;">
+                        <span class="text-secondary fst-italic">Sedang berpikir...</span>
+                        <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <!-- Scroll to Bottom Button -->
+            <button type="button" 
+                    x-show="showScroll" 
+                    x-transition.opacity
+                    @click="let c = document.getElementById('central-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
+                    class="position-absolute end-0 bottom-0 mb-3 me-3 btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white"
+                    style="width: 36px; height: 36px; z-index: 20;">
+                <i class="bi bi-chevron-down"></i>
+            </button>
         </div>
         
         <!-- Input Area -->

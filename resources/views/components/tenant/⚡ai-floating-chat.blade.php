@@ -87,8 +87,9 @@ new class extends Component
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh]"
-         style="display: none;">
+         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh] relative"
+         style="display: none;"
+         x-data="{ showScroll: false }">
         <!-- Header -->
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
             <div class="flex items-center gap-3">
@@ -105,31 +106,45 @@ new class extends Component
             </button>
         </div>
         
-        <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" id="tenant-chat-messages-container">
-            <div class="text-center mb-5 mt-1">
-                <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Ngobrol dengan AI Kami</span>
-            </div>
+        <!-- Messages Area Wrapper -->
+        <div class="flex-1 min-h-0 relative flex flex-col">
+            <!-- Messages Area -->
+            <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" 
+                 id="tenant-chat-messages-container"
+                 @scroll="showScroll = ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
+                <div class="text-center mb-5 mt-1">
+                    <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Ngobrol dengan AI Kami</span>
+                </div>
 
-            @foreach($messages as $msg)
-                <div class="flex mb-4 {{ $msg['role'] === 'user' ? 'justify-end' : 'justify-start' }}">
-                    <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
-                        @if($msg['role'] === 'assistant')
-                            {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
-                        @else
-                            {{ $msg['content'] }}
-                        @endif
+                @foreach($messages as $msg)
+                    <div class="flex mb-4 {{ $msg['role'] === 'user' ? 'justify-end' : 'justify-start' }}">
+                        <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
+                            @if($msg['role'] === 'assistant')
+                                {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
+                            @else
+                                {{ $msg['content'] }}
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+                
+                <!-- Target for Loading state -->
+                <div class="flex mb-4 justify-start hidden" wire:loading.class.remove="hidden" wire:target="sendMessage">
+                    <div class="p-3.5 text-[14px] leading-relaxed bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 shadow-sm max-w-[85%] flex items-center gap-2">
+                        <span class="text-zinc-500 italic">Sedang berpikir...</span>
+                        <svg class="animate-spin h-4 w-4 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </div>
                 </div>
-            @endforeach
-            
-            <!-- Target for Loading state -->
-            <div class="flex mb-4 justify-start hidden" wire:loading.class.remove="hidden" wire:target="sendMessage">
-                <div class="p-3.5 text-[14px] leading-relaxed bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 shadow-sm max-w-[85%] flex items-center gap-2">
-                    <span class="text-zinc-500 italic">Sedang berpikir...</span>
-                    <svg class="animate-spin h-4 w-4 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                </div>
             </div>
+            
+            <!-- Scroll to Bottom Button -->
+            <button type="button" 
+                    x-show="showScroll" 
+                    x-transition.opacity
+                    @click="let c = document.getElementById('tenant-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
+                    class="absolute bottom-4 right-4 bg-zinc-900 text-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors z-20 border-2 border-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
         </div>
         
         <!-- Input Area -->
@@ -151,7 +166,7 @@ new class extends Component
              x-transition.opacity.duration.500ms
              class="bg-white text-zinc-800 text-sm font-bold pl-4 pr-2 py-3 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-center gap-2 animate-[bounce_3s_infinite] relative">
             <span class="cursor-pointer" @click="isOpen = true; showTooltip = false">✨ Hai, butuh rekomendasi menu?</span>
-            <button class="text-zinc-400 hover:text-zinc-600 p-1 flex items-center justify-center transition-colors" @click.stop="showTooltip = false">
+            <button type="button" class="text-zinc-400 hover:text-zinc-600 p-1 flex items-center justify-center transition-colors" @click.stop="showTooltip = false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
             <!-- Segitiga penunjuk -->
@@ -167,7 +182,7 @@ new class extends Component
         document.addEventListener('livewire:initialized', () => {
             Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
                 succeed(({ snapshot, effect }) => {
-                    const container = document.getElementById('chat-messages-container');
+                    const container = document.getElementById('tenant-chat-messages-container');
                     if (container) {
                         setTimeout(() => {
                             container.scrollTop = container.scrollHeight;
