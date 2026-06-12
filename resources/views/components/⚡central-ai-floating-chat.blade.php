@@ -43,17 +43,19 @@ new class extends Component
     }
 };
 ?><div class="position-fixed" style="z-index: 1050;" 
-     x-data="{ isOpen: false, showTooltip: true }"
+     wire:ignore.self
+     x-data="{ isOpen: false, showTooltip: true, isMobile: window.innerWidth < 576 }"
+     @resize.window="isMobile = window.innerWidth < 576"
      x-init="setTimeout(() => showTooltip = false, 8000)"
-     :class="isOpen && window.innerWidth < 576 ? 'top-0 start-0 w-100 h-100' : 'bottom-0 end-0 p-3 p-sm-4'"
-     x-effect="document.body.style.overflow = isOpen && window.innerWidth < 576 ? 'hidden' : ''">
+     :class="isOpen && isMobile ? 'top-0 bottom-0 start-0 end-0' : 'bottom-0 end-0 p-3 p-sm-4'"
+     x-effect="document.body.style.overflow = isOpen && isMobile ? 'hidden' : ''">
     
     <!-- Chat Window -->
     <div x-show="isOpen" 
          x-transition.opacity.duration.300ms
-         class="bg-white d-flex flex-column overflow-hidden border"
-         :class="isOpen && window.innerWidth < 576 ? 'w-100 h-100 border-0 rounded-0' : 'shadow-lg rounded-4 mb-3'"
-         style="display: none; width: 400px; max-width: calc(100vw - 32px); height: 550px; max-height: 80vh;">
+         class="bg-white d-flex flex-column overflow-hidden"
+         :class="isOpen && isMobile ? 'w-100 h-100 border-0 rounded-0' : 'shadow-lg rounded-4 mb-3 border'"
+         style="display: none; width: 400px; max-width: 100vw; height: 550px; max-height: 85vh;">
         
         <!-- Header -->
         <div class="bg-dark text-white p-3 d-flex justify-content-between align-items-center flex-shrink-0">
@@ -132,7 +134,7 @@ new class extends Component
     </div>
 
     <!-- Floating Button & CTA -->
-    <div class="d-flex justify-content-end align-items-center gap-3 position-relative" :class="isOpen && window.innerWidth < 576 ? 'd-none' : ''">
+    <div class="d-flex justify-content-end align-items-center gap-3 position-relative" :class="isOpen && isMobile ? 'd-none' : ''">
         <!-- CTA Tooltip -->
         <div x-show="!isOpen && showTooltip"
              x-transition.opacity.duration.500ms
