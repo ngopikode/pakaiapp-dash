@@ -30,13 +30,17 @@ class OpenAiMenuService
             'content' => $userMessage,
         ]);
 
-        // 2. Tarik list menu aktif
+        // 2. Tarik list menu aktif (OPTIMASI MEMORY: Pilih kolom yang relevan saja)
         $activeMenu = Product::where('is_active', true)
+            ->select('id', 'name', 'description', 'image', 'has_variants', 'selection_type', 'max_selections')
             ->with(['variants' => function ($query) {
-                // Filter hanya varian yang ada stoknya
-                $query->where('stock', '>', 0);
+                // Filter hanya varian yang ada stoknya, ambil kolom penting saja
+                $query->select('id', 'product_id', 'name', 'price', 'stock')
+                      ->where('stock', '>', 0);
             }, 'extras' => function ($query) {
-                $query->where('is_active', true);
+                // Ambil kolom penting saja
+                $query->select('id', 'product_id', 'name', 'price')
+                      ->where('is_active', true);
             }])
             ->get()
             ->map(function ($product) {
