@@ -42,95 +42,94 @@ new class extends Component
         session()->put('central_ai_chat_messages', $this->messages);
     }
 };
-?>
-
-<div class="fixed bottom-6 right-4 sm:right-6 z-[1050]" 
+?><div class="position-fixed" style="z-index: 1050;" 
      x-data="{ isOpen: false }"
-     x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : ''">
+     :class="isOpen && window.innerWidth < 576 ? 'top-0 start-0 w-100 h-100' : 'bottom-0 end-0 p-3 p-sm-4'"
+     x-effect="document.body.style.overflow = isOpen && window.innerWidth < 576 ? 'hidden' : ''">
+    
     <!-- Chat Window -->
     <div x-show="isOpen" 
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 translate-y-4"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh]"
-         style="display: none;">
+         x-transition.opacity.duration.300ms
+         class="bg-white d-flex flex-column overflow-hidden border"
+         :class="isOpen && window.innerWidth < 576 ? 'w-100 h-100 border-0 rounded-0' : 'shadow-lg rounded-4 mb-3'"
+         style="display: none; width: 400px; max-width: calc(100vw - 32px); height: 550px; max-height: 80vh;">
+        
         <!-- Header -->
-        <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="bg-white text-zinc-900 w-9 h-9 rounded-full flex items-center justify-center shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+        <div class="bg-dark text-white p-3 d-flex justify-content-between align-items-center flex-shrink-0">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-white text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i class="bi bi-robot fs-5"></i>
                 </div>
-                <div class="leading-tight">
-                    <span class="font-bold block text-[15px]">Asisten Pakaiapp</span>
-                    <span class="text-[11px] text-zinc-400 tracking-wide">Selalu siap membantu</span>
+                <div class="lh-sm">
+                    <span class="fw-bold d-block" style="font-size: 15px;">Asisten Pakaiapp</span>
+                    <span class="text-white-50" style="font-size: 11px; letter-spacing: 0.5px;">Selalu siap membantu</span>
                 </div>
             </div>
-            <button class="text-zinc-400 hover:text-white transition-colors" @click="isOpen = false">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <button class="btn btn-link text-white-50 p-1 m-0 text-decoration-none" @click="isOpen = false" aria-label="Tutup">
+                <i class="bi bi-x-lg fs-5"></i>
             </button>
         </div>
         
         <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" id="central-chat-messages-container">
-            <div class="text-center mb-5 mt-1">
-                <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Ngobrol dengan AI Kami</span>
+        <div class="flex-grow-1 overflow-y-auto p-3" style="background-color: #f8f9fa; min-height: 0; overscroll-behavior: contain;" id="central-chat-messages-container">
+            <div class="text-center mb-4 mt-1">
+                <span class="badge text-secondary bg-secondary bg-opacity-10 rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Ngobrol dengan AI Kami</span>
             </div>
 
             @foreach($messages as $msg)
-                <div class="flex mb-4 {{ $msg['role'] === 'user' ? 'justify-end' : 'justify-start' }}">
-                    <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
-                        @if($msg['role'] === 'assistant')
-                            {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
-                        @else
-                            {{ $msg['content'] }}
-                        @endif
+                @if($msg['role'] !== 'system')
+                    <div class="d-flex mb-3 {{ $msg['role'] === 'user' ? 'justify-content-end' : 'justify-content-start' }}">
+                        <div class="p-3 shadow-sm {{ $msg['role'] === 'user' ? 'bg-dark text-white rounded-4 rounded-bottom-0' : 'bg-white text-dark rounded-4 rounded-start-0 border markdown-content' }}" style="font-size: 14px; line-height: 1.6; max-width: 85%;">
+                            @if($msg['role'] === 'assistant')
+                                {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
+                            @else
+                                {{ $msg['content'] }}
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @endif
             @endforeach
             
             <!-- Target for Loading state -->
-            <div class="flex mb-4 justify-start hidden" wire:loading.class.remove="hidden" wire:target="sendMessage">
-                <div class="p-3.5 text-[14px] leading-relaxed bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 shadow-sm max-w-[85%] flex items-center gap-2">
-                    <span class="text-zinc-500 italic">Sedang berpikir...</span>
-                    <svg class="animate-spin h-4 w-4 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <div class="d-flex mb-3 justify-content-start d-none" wire:loading.class.remove="d-none" wire:target="sendMessage">
+                <div class="p-3 shadow-sm bg-white text-dark rounded-4 rounded-start-0 border d-flex align-items-center gap-2" style="font-size: 14px; max-width: 85%;">
+                    <span class="text-secondary fst-italic">Sedang berpikir...</span>
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Input Area -->
-        <div class="bg-white border-t border-zinc-100 p-3.5">
-            <form wire:submit="sendMessage" class="flex items-center gap-2 m-0">
-                <input type="text" class="flex-1 bg-zinc-100 border-transparent rounded-full px-5 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-zinc-900 focus:border-transparent outline-none transition-all" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>
-                <button type="submit" class="bg-zinc-900 text-white rounded-full w-11 h-11 flex items-center justify-center shrink-0 hover:bg-zinc-800 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
-                    <svg wire:loading.remove wire:target="sendMessage" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="-ml-1 mt-0.5"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                    <svg wire:loading wire:target="sendMessage" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <div class="bg-white border-top p-3 flex-shrink-0">
+            <form wire:submit="sendMessage" class="d-flex align-items-center gap-2 m-0">
+                <input type="text" class="form-control rounded-pill px-4" style="font-size: 14px; padding-top: 0.65rem; padding-bottom: 0.65rem; background-color: #f1f3f5; border: none;" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>
+                <button type="submit" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;" wire:loading.attr="disabled">
+                    <div wire:loading.remove wire:target="sendMessage">
+                        <i class="bi bi-send-fill"></i>
+                    </div>
+                    <div wire:loading wire:target="sendMessage" class="spinner-border spinner-border-sm text-white" role="status"></div>
                 </button>
             </form>
         </div>
     </div>
 
     <!-- Floating Button & CTA -->
-    <div class="flex justify-end items-center gap-4 relative">
+    <div class="d-flex justify-content-end align-items-center gap-3 position-relative" x-show="!isOpen" :class="isOpen && window.innerWidth < 576 ? 'd-none' : ''">
         <!-- CTA Tooltip -->
-        <div x-show="!isOpen" 
-             x-transition.opacity.duration.500ms
-             class="bg-white text-zinc-800 text-sm font-bold px-4 py-3 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-center gap-2 cursor-pointer animate-[bounce_3s_infinite] relative"
+        <div x-transition.opacity.duration.500ms
+             class="bg-white text-dark px-3 py-2 rounded-4 shadow-lg border d-flex align-items-center gap-2 fw-bold"
+             style="font-size: 14px; cursor: pointer; animation: floatBounce 3s infinite;"
              @click="isOpen = true">
-            <span>👋 Tanya-tanya Pakaiapp?</span>
+            <span>✨ Hai, butuh bantuan?</span>
             <!-- Segitiga penunjuk -->
-            <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r border-t border-zinc-100 transform rotate-45"></div>
+            <div class="position-absolute bg-white border-end border-top" style="width: 12px; height: 12px; right: -6px; top: 50%; transform: translateY(-50%) rotate(45deg);"></div>
         </div>
 
-        <button class="bg-[#1A2B3E] text-white rounded-full shadow-2xl shadow-[#1A2B3E]/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white relative z-10" @click="isOpen = !isOpen">
-            <template x-if="isOpen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </template>
-            <template x-if="!isOpen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-            </template>
+        <button class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white" style="width: 56px; height: 56px; z-index: 10;" @click="isOpen = !isOpen">
+            <i class="bi bi-chat-dots-fill fs-4" x-show="!isOpen"></i>
+            <i class="bi bi-x-lg fs-4" x-show="isOpen" style="display: none;"></i>
         </button>
     </div>
     
@@ -150,12 +149,16 @@ new class extends Component
     </script>
 
     <style>
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
         .markdown-content p { margin-bottom: 0.5rem; }
         .markdown-content p:last-child { margin-bottom: 0; }
-        .markdown-content strong { font-weight: 700; color: #18181b; }
+        .markdown-content strong { font-weight: 700; color: #212529; }
         .markdown-content ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
         .markdown-content ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
         .markdown-content li { margin-bottom: 0.25rem; }
-        .markdown-content img { width: 100%; height: 160px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #f4f4f5; }
+        .markdown-content img { width: 100%; height: auto; max-height: 160px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #dee2e6; }
     </style>
 </div>

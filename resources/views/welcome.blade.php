@@ -77,6 +77,7 @@
         rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
+    @livewireStyles
 </head>
 <body>
 

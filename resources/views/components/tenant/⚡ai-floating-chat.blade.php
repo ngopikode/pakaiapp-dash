@@ -69,7 +69,8 @@ new class extends Component
 };
 ?>
 
-<div class="fixed bottom-6 right-4 sm:right-6 z-[1050]" 
+<div class="fixed z-[1050] transition-all" 
+     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-6 right-4 sm:right-6'"
      x-data="{ isOpen: false }"
      x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : ''">
     <!-- Chat Window -->
@@ -80,7 +81,7 @@ new class extends Component
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh]"
+         class="bg-white flex flex-col overflow-hidden w-full h-full sm:shadow-2xl sm:rounded-3xl sm:mb-4 sm:border sm:border-zinc-200 sm:w-[400px] sm:h-[550px] sm:max-h-[80vh]"
          style="display: none;">
         <!-- Header -->
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
@@ -93,13 +94,13 @@ new class extends Component
                     <span class="text-[11px] text-zinc-400 tracking-wide">Selalu siap membantu</span>
                 </div>
             </div>
-            <button class="text-zinc-400 hover:text-white transition-colors" @click="isOpen = false">
+            <button class="text-zinc-400 hover:text-white transition-colors p-2 -mr-2" @click="isOpen = false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
         </div>
         
         <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" id="chat-messages-container">
+        <div class="flex-1 min-h-0 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" id="chat-messages-container">
             <div class="text-center mb-5 mt-1">
                 <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Konteks menu hari ini aktif</span>
             </div>
@@ -143,7 +144,7 @@ new class extends Component
         </div>
         
         <!-- Input Area -->
-        <div class="bg-white border-t border-zinc-100 p-3.5">
+        <div class="bg-white border-t border-zinc-100 p-3.5 shrink-0">
             <form wire:submit="sendMessage" class="flex items-center gap-2 m-0">
                 <input type="text" class="flex-1 bg-zinc-100 border-transparent rounded-full px-5 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-zinc-900 focus:border-transparent outline-none transition-all" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>
                 <button type="submit" class="bg-zinc-900 text-white rounded-full w-11 h-11 flex items-center justify-center shrink-0 hover:bg-zinc-800 transition-colors disabled:opacity-50" wire:loading.attr="disabled">
@@ -155,10 +156,9 @@ new class extends Component
     </div>
 
     <!-- Floating Button & CTA -->
-    <div class="flex justify-end items-center gap-4 relative">
+    <div class="flex justify-end items-center gap-4 absolute sm:static bottom-0 right-0 w-max" x-show="!isOpen">
         <!-- CTA Tooltip -->
-        <div x-show="!isOpen" 
-             x-transition.opacity.duration.500ms
+        <div x-transition.opacity.duration.500ms
              class="bg-white text-zinc-800 text-sm font-bold px-4 py-3 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-zinc-100 flex items-center gap-2 cursor-pointer animate-[bounce_3s_infinite] relative"
              @click="isOpen = true">
             <span>✨ Hai, butuh rekomendasi menu?</span>
@@ -167,12 +167,7 @@ new class extends Component
         </div>
 
         <button class="bg-[var(--primary-color,bg-zinc-900)] bg-zinc-900 text-white rounded-full shadow-2xl shadow-zinc-900/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white relative z-10" @click="isOpen = !isOpen">
-            <template x-if="isOpen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </template>
-            <template x-if="!isOpen">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-            </template>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
         </button>
     </div>
     
