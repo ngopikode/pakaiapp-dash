@@ -69,9 +69,14 @@ new class extends Component
 };
 ?>
 
-<div class="fixed transition-all" style="z-index: 90;"
-     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6'"
-     x-data="{ isOpen: false, showTooltip: true }"
+<div class="fixed transition-all" style="z-index: 1050;" 
+     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'right-4 sm:bottom-6 sm:right-6'"
+     :style="!isOpen && window.innerWidth < 640 ? 'bottom: 105px;' : ''"
+     x-data="{ isOpen: false, showTooltip: true, contactModalOpen: false }"
+     @open-contact-modal.window="contactModalOpen = true"
+     @close-contact-modal.window="contactModalOpen = false"
+     @keydown.escape.window="if(!isOpen) { contactModalOpen = false }"
+     x-show="!(typeof qrOpen !== 'undefined' && qrOpen) && !(typeof optionOpen !== 'undefined' && optionOpen) && !(typeof checkoutOpen !== 'undefined' && checkoutOpen) && !(typeof historyOpen !== 'undefined' && historyOpen) && !contactModalOpen"
      x-init="setTimeout(() => showTooltip = false, 8000)"
      x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : ''">
     <!-- Chat Window -->

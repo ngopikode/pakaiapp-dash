@@ -135,7 +135,7 @@
         <div
             x-data="{ contactOpen: false }"
             @open-contact-modal.window="contactOpen = true"
-            @keydown.escape.window="contactOpen = false"
+            @keydown.escape.window="contactOpen = false; $dispatch('close-contact-modal')"
             x-show="contactOpen"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0"
@@ -146,7 +146,7 @@
             class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm z-[200] flex items-center justify-center p-6"
             style="display:none"
         >
-            <div @click.outside="contactOpen = false" class="bg-white w-full max-w-sm rounded-3xl p-6 text-center relative overflow-hidden shadow-2xl">
+            <div @click.outside="contactOpen = false; $dispatch('close-contact-modal')" class="bg-white w-full max-w-sm rounded-3xl p-6 text-center relative overflow-hidden shadow-2xl">
                 <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-900">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 </div>
@@ -187,7 +187,7 @@
                     <p class="text-[10px] text-zinc-400">Platform dikembangkan oleh <span class="font-bold text-zinc-500">pakaiapp.online</span></p>
                 </div>
                 
-                <button @click="contactOpen = false" class="mt-6 w-full bg-zinc-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors">
+                <button @click="contactOpen = false; $dispatch('close-contact-modal')" class="mt-6 w-full bg-zinc-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors">
                     Tutup
                 </button>
             </div>
