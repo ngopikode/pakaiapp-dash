@@ -31,16 +31,16 @@
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Indonesian">
-    <link rel="canonical" href="https://pakaiapp.online/">
+    <link rel="canonical" href="https://www.pakaiapp.online/">
 
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://pakaiapp.online/">
+    <meta property="og:url" content="https://www.pakaiapp.online/">
     <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
     <meta property="og:description"
           content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
     <meta property="og:image" content="{{ asset('images/og-banner.png') }}">
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://pakaiapp.online/">
+    <meta property="twitter:url" content="https://www.pakaiapp.online/">
     <meta property="twitter:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
     <meta property="twitter:description"
           content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">

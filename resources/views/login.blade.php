@@ -17,7 +17,7 @@
     <meta name="description"
           content="Masuk ke dashboard Pakaiapp POS untuk mengelola toko, melihat laporan penjualan realtime, dan pantau performa bisnis dari mana saja.">
     <meta name="keywords" content="login pakaiapp, dashboard kasir, masuk pos online">
-    <link rel="canonical" href="https://pakaiapp.online/login">
+    <link rel="canonical" href="https://www.pakaiapp.online/login">
     <!-- Fonts & Icons -->
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"

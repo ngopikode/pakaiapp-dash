@@ -13,18 +13,18 @@
     <title>Daftar Aplikasi Kasir POS Online Gratis | Pakaiapp</title>
     <meta name="description" content="Daftar aplikasi kasir POS pintar dari Pakaiapp. Tingkatkan omzet bisnis F&B dan Retail Anda dengan fitur pencatatan otomatis, stok, dan laporan realtime.">
     <meta name="keywords" content="daftar aplikasi kasir, kasir online, pos system, aplikasi toko, pakaiapp pos">
-    <link rel="canonical" href="https://pakaiapp.online/register">
+    <link rel="canonical" href="https://www.pakaiapp.online/register">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://pakaiapp.online/register">
+    <meta property="og:url" content="https://www.pakaiapp.online/register">
     <meta property="og:title" content="Daftar Aplikasi Kasir POS Online Gratis | Pakaiapp">
     <meta property="og:description" content="Daftar aplikasi kasir POS pintar dari Pakaiapp. Tingkatkan omzet bisnis F&B dan Retail Anda dengan fitur pencatatan otomatis, stok, dan laporan realtime.">
     <meta property="og:image" content="{{ asset('images/og-banner.png') }}">
     
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://pakaiapp.online/register">
+    <meta property="twitter:url" content="https://www.pakaiapp.online/register">
     <meta property="twitter:title" content="Daftar Aplikasi Kasir POS Online Gratis | Pakaiapp">
     <meta property="twitter:description" content="Daftar aplikasi kasir POS pintar dari Pakaiapp. Tingkatkan omzet bisnis F&B dan Retail Anda dengan fitur pencatatan otomatis, stok, dan laporan realtime.">
     <meta property="twitter:image" content="{{ asset('images/og-banner.png') }}">
