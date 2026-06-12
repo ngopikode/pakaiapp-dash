@@ -70,7 +70,7 @@ new class extends Component
 ?>
 
 <div class="fixed z-[1050] transition-all" 
-     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-6 right-4 sm:right-6'"
+     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6'"
      x-data="{ isOpen: false }"
      x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : ''">
     <!-- Chat Window -->
