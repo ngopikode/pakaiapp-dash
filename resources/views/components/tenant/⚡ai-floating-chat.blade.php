@@ -138,9 +138,10 @@ new class extends Component
                         @if($msg['role'] === 'assistant')
                             @php
                                 $htmlContent = str($msg['content'])->markdown(['html_input' => 'escape']);
-                                $htmlContent = preg_replace_callback('/\[VARIANT_IDS?:\s*([\d, ]+)(?:\|EXTRAS:\s*([\d, ]+))?\]/', function($matches) {
+                                $htmlContent = preg_replace_callback('/\[VARIANT_IDS?:\s*([\d, ]+)(?:\|EXTRAS:\s*([\d, ]+))?(?:\|QTY:\s*(\d+))?\]/', function($matches) {
                                     $variantIds = array_filter(array_map('trim', explode(',', $matches[1])));
-                                    $extraIds = isset($matches[2]) ? array_filter(array_map('trim', explode(',', $matches[2]))) : [];
+                                    $extraIds = !empty($matches[2]) ? array_filter(array_map('trim', explode(',', $matches[2]))) : [];
+                                    $qty = !empty($matches[3]) && is_numeric($matches[3]) ? (int)$matches[3] : 1;
                                     
                                     if (empty($variantIds)) return '';
                                     
@@ -191,12 +192,13 @@ new class extends Component
                                         }
                                         $combinedLabel = implode(' + ', $labels);
                                         
-                                        $buttonText = 'Tambah ' . ($combinedLabel ?: 'Pesanan');
+                                        $buttonText = 'Tambah ' . $qty . ' ' . ($combinedLabel ?: 'Pesanan');
 
-                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \''.$combinedLabel.'\', 1, '.$variantIdToPass.')" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> '.$buttonText.'</button></div>';
+                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \''.$combinedLabel.'\', '.$qty.', '.$variantIdToPass.')" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> '.$buttonText.'</button></div>';
                                     } else {
                                         // Single Varian & tanpa ekstra: abaikan nama varian dan id varian
-                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'))" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Tambah ke Keranjang</button></div>';
+                                        $buttonText = 'Tambah ' . $qty . ' ' . $product->name;
+                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \'\', '.$qty.')" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> '.$buttonText.'</button></div>';
                                     }
                                 }, $htmlContent);
                             @endphp

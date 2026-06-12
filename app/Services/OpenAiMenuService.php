@@ -94,9 +94,9 @@ STRICT GUARDRAILS & PERSONA:
    - If 'selection_type' is 'multiple', the customer can choose up to 'max_selections' variants.
    If it has extras available, you can also offer them (e.g. + Susu, + Keju).
 6. Once the customer confirms their order, you MUST return the exact ID(s) of the variant they want. Format: 
-   - For single variant or single selection: [VARIANT_ID: 34]
-   - For multiple selection: [VARIANT_IDS: 34,35] (separate IDs with comma)
-   If they also chose any extras, append them: [VARIANT_ID: 34|EXTRAS: 1,4] or [VARIANT_IDS: 34,35|EXTRAS: 1,4]. If no extras, just omit it. Do not mention this tag directly in conversation text, just append it invisibly.
+   - For single variant or single selection: [VARIANT_ID: 34|QTY: 1]
+   - For multiple selection: [VARIANT_IDS: 34,35|QTY: 2] (separate IDs with comma, QTY indicates the number of portions)
+   If they also chose any extras, append them: [VARIANT_ID: 34|EXTRAS: 1,4|QTY: 1] or [VARIANT_IDS: 34,35|EXTRAS: 1,4|QTY: 3]. If no extras, omit the EXTRAS part. Do not mention this tag directly in conversation text, just append it invisibly. If they order multiple different items, you can output multiple tags.
 7. IMPORTANT: Do NOT say 'Pesanan Anda telah berhasil ditambahkan ke keranjang' or anything similar. You CANNOT add items to the cart yourself. Instead, you MUST say 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' when outputting the tag.
 8. When suggesting items to the customer, NEVER suggest more than 2 or 3 items at a time to keep the response concise and avoid overwhelming them.
 9. If you suggest a specific item that has an image_url, you MUST display its image using Markdown syntax: `![{name}]({image_url})` BEFORE the text description.
@@ -185,5 +185,50 @@ Here is the available menu:
         }
 
         return [];
+    }
+
+    /**
+     * Generate an AI Daily Briefing for the merchant's dashboard.
+     * 
+     * @param array $dashboardData
+     * @return string
+     */
+    public function generateDashboardInsight(array $dashboardData): string
+    {
+        $systemPrompt = "Anda adalah Business Analyst AI cerdas untuk bisnis F&B / Retail.
+Tugas Anda adalah membaca data metrik penjualan hari ini dan memberikan 'Daily Briefing' yang sangat singkat, padat, dan intuitif bagi pemilik toko.
+
+Aturan ketat penulisan:
+1. Balas dengan format Markdown yang rapi menggunakan bullet points.
+2. JANGAN gunakan paragraf pengantar atau penutup. Langsung ke 3 poin utama.
+3. Gunakan kalimat yang sangat pendek dan padat (maksimal 1-2 kalimat pendek per poin). Hindari kalimat yang panjang dan bertele-tele.
+4. Struktur balasan HARUS terdiri dari 3 poin utama berikut secara berurutan:
+   - 🔥 **Performa Saat Ini**: [1 kalimat analisis singkat tentang omset/pesanan hari ini dibanding kemarin]
+   - ⚠️ **Perhatian Operasional**: [1 kalimat tentang isu operasional, produk lambat terjual, atau jam tersibuk]
+   - 💡 **Rekomendasi Promosi**: [1 saran konkret promosi/bundling yang bisa langsung dipasang]
+5. Jika menyebutkan jam operasional, gunakan format waktu dengan titik dua seperti '14:00' atau deskripsi waktu ('siang hari', 'sore hari').
+6. Gunakan data JSON berikut sebagai acuan metrik hari ini:
+" . json_encode($dashboardData);
+
+        try {
+            $response = Http::withToken($this->apiKey)
+                ->timeout(45)
+                ->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => 'gpt-4o-mini',
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => 'Berikan insight singkat untuk hari ini berdasarkan data tersebut.']
+                    ],
+                    'temperature' => 0.6,
+                ]);
+
+            if ($response->successful()) {
+                return $response->json('choices.0.message.content') ?? 'Tidak dapat memuat wawasan AI saat ini.';
+            }
+            
+            return 'Terjadi gangguan saat memuat wawasan AI (Error: ' . $response->status() . ').';
+        } catch (\Exception $e) {
+            return 'Gagal terhubung ke layanan AI: ' . $e->getMessage();
+        }
     }
 }

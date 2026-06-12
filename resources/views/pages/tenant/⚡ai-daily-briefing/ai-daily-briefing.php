@@ -1,0 +1,50 @@
+<?php
+
+use App\Services\OpenAiMenuService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Lazy;
+use Livewire\Component;
+
+new #[Lazy]
+class extends Component {
+    public array $stats = [];
+    public Collection $topProducts;
+    public Collection $slowMovingProducts;
+
+    public string $insightText = '';
+
+    public function mount(array $stats, Collection $topProducts, Collection $slowMovingProducts): void
+    {
+        $this->stats = $stats;
+        $this->topProducts = $topProducts;
+        $this->slowMovingProducts = $slowMovingProducts;
+
+        $dashboardData = [
+            'stats' => $stats,
+            'top_products' => $topProducts,
+            'slow_moving_products' => $slowMovingProducts
+        ];
+
+        // Cache insight per pengguna (tenant) selama 3 jam (180 menit)
+        $cacheKey = 'ai_insight_tenant_' . auth()->id() . '_' . date('Y-m-d_H');
+
+        $this->insightText = Cache::remember($cacheKey, 180 * 60, function () use ($dashboardData) {
+            return app(OpenAiMenuService::class)->generateDashboardInsight($dashboardData);
+        });
+    }
+
+    public function placeholder(): string
+    {
+        return <<<'HTML'
+        <div class="card dash-card bg-body border w-100 p-4 mb-4 text-center" style="border-color: var(--bs-border-color-translucent) !important; min-height: 180px;">
+            <div class="d-flex flex-column align-items-center justify-content-center py-3 gap-3 h-100">
+                <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem; animation-duration: 0.8s;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="text-secondary small fw-bold animate-pulse" style="letter-spacing: 1px;">✨ AI sedang menganalisis performa toko Anda...</div>
+            </div>
+        </div>
+        HTML;
+    }
+};
