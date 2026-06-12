@@ -55,7 +55,7 @@ new class extends Component
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-4"
-         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[500px] max-h-[calc(100dvh-120px)] sm:h-[550px]"
+         class="bg-white shadow-2xl rounded-3xl mb-4 flex flex-col overflow-hidden border border-zinc-200 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[80vh]"
          style="display: none;">
         <!-- Header -->
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
