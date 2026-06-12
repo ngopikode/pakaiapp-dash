@@ -116,7 +116,32 @@ new class extends Component
                 <div class="flex mb-4 {{ $msg['role'] === 'user' ? 'justify-end' : 'justify-start' }}">
                     <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
                         @if($msg['role'] === 'assistant')
-                            {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
+                            @php
+                                $htmlContent = str($msg['content'])->markdown(['html_input' => 'escape']);
+                                $htmlContent = preg_replace_callback('/\[VARIANT_ID:\s*(\d+)\]/', function($matches) {
+                                    $variantId = $matches[1];
+                                    $variant = \App\Models\ProductVariant::with('product')->find($variantId);
+                                    if (!$variant || !$variant->product) return '';
+                                    
+                                    $productJson = htmlspecialchars(json_encode([
+                                        'id' => $variant->product->id,
+                                        'name' => $variant->product->name,
+                                        'price' => $variant->active_discount_price ?? $variant->price,
+                                        'image' => $variant->product->image ? \Storage::url($variant->product->image) : null,
+                                        'has_variants' => $variant->product->has_variants,
+                                        'extras' => [] // Simplifikasi jika extras tidak diload di AI
+                                    ]), ENT_QUOTES, 'UTF-8');
+
+                                    if ($variant->product->has_variants) {
+                                        // Multi Varian: kirim selectedVariants dan variantId
+                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \''.$variant->name.'\', 1, '.$variantId.')" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Tambah '.$variant->name.'</button></div>';
+                                    } else {
+                                        // Single Varian: abaikan nama varian dan id varian, persis seperti behavior tombol addToCart(product) biasa
+                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'))" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Tambah ke Keranjang</button></div>';
+                                    }
+                                }, $htmlContent);
+                            @endphp
+                            {!! $htmlContent !!}
                         @else
                             {{ $msg['content'] }}
                         @endif
