@@ -27,7 +27,7 @@ Didevelop oleh **ngopikode**.
 Ikuti langkah-langkah di bawah ini untuk menjalankan *project* ini di *local machine*.
 
 ### 1. Kebutuhan Sistem
-- PHP >= 8.4
+- PHP >= 8.3
 - Composer >= 2.0
 - Node.js & NPM
 - MySQL (User *database* harus memiliki hak akses `CREATE DATABASE`)
