@@ -2,15 +2,15 @@
 
 namespace App\Services;
 
-use OpenAI;
+use Illuminate\Support\Facades\Http;
 
 class OpenAiSupportService
 {
-    protected $client;
+    protected string $apiKey;
 
     public function __construct()
     {
-        $this->client = OpenAI::client(config('services.openai.api_key'));
+        $this->apiKey = config('services.openai.key') ?? config('services.openai.api_key') ?? '';
     }
 
     public function generateResponse(array $history, string $userMessage): string
@@ -42,13 +42,19 @@ STRICT GUARDRAILS & PERSONA:
 
         $messages[] = ['role' => 'user', 'content' => $userMessage];
 
-        $response = $this->client->chat()->create([
-            'model' => 'gpt-4o-mini',
-            'messages' => $messages,
-            'temperature' => 0.7,
-            'max_tokens' => 500,
-        ]);
+        $response = Http::withToken($this->apiKey)
+            ->timeout(60)
+            ->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4o-mini',
+                'messages' => $messages,
+                'temperature' => 0.7,
+                'max_tokens' => 500,
+            ]);
 
-        return $response->choices[0]->message->content;
+        if ($response->successful()) {
+            return $response->json('choices.0.message.content') ?? 'Maaf, sistem sedang sibuk. Silakan coba lagi.';
+        }
+
+        return 'Maaf, saya sedang mengalami gangguan koneksi. Silakan coba beberapa saat lagi atau hubungi WhatsApp Support.';
     }
 }
