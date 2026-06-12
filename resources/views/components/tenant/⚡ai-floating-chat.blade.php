@@ -80,13 +80,24 @@ new class extends Component
 
 <div class="fixed z-[1050] transition-all" 
      :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6'"
-     x-data="{ isOpen: false, showTooltip: true, contactModalOpen: false }"
+     x-data="{ isOpen: false, showTooltip: true, contactModalOpen: false, showScroll: false }"
      @open-contact-modal.window="contactModalOpen = true"
      @close-contact-modal.window="contactModalOpen = false"
      @keydown.escape.window="if(!isOpen) { contactModalOpen = false }"
      x-show="!(typeof qrOpen !== 'undefined' && qrOpen) && !(typeof optionOpen !== 'undefined' && optionOpen) && !(typeof checkoutOpen !== 'undefined' && checkoutOpen) && !(typeof historyOpen !== 'undefined' && historyOpen) && !contactModalOpen"
      x-init="setTimeout(() => showTooltip = false, 8000)"
-     x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : ''">
+     x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : '';
+               if (isOpen) {
+                   setTimeout(() => {
+                       const c = document.getElementById('tenant-chat-messages-container');
+                       if (c) {
+                           c.scrollTop = c.scrollHeight;
+                           showScroll = c.clientHeight > 100 && (c.scrollHeight - c.scrollTop - c.clientHeight) > 150;
+                       }
+                   }, 350);
+               } else {
+                   showScroll = false;
+               }">
     <!-- Chat Window -->
     <div x-show="isOpen" 
          x-transition:enter="transition ease-out duration-200"
@@ -116,7 +127,7 @@ new class extends Component
         <!-- Messages Area -->
         <div class="flex-1 overflow-y-auto p-4 bg-zinc-50 overscroll-contain" 
              id="tenant-chat-messages-container"
-             @scroll="$dispatch('chat-scrolled', ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150)">
+             @scroll.debounce.150ms="showScroll = $el.clientHeight > 100 && ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
             <div class="text-center mb-5 mt-1">
                 <span class="inline-block bg-zinc-200/50 text-zinc-500 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">Ngobrol dengan AI Kami</span>
             </div>
@@ -209,15 +220,14 @@ new class extends Component
         <!-- Input Area -->
         <div class="bg-white border-t border-zinc-100 p-3.5 relative shrink-0">
             <!-- Scroll to Bottom Button -->
-            <div x-data="{ showScroll: false }" @chat-scrolled.window="showScroll = $event.detail">
-                <button type="button" 
-                        x-show="showScroll" 
-                        x-transition.opacity
-                        @click="let c = document.getElementById('tenant-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
-                        class="absolute -top-12 right-4 bg-zinc-900 text-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors z-20 border-2 border-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-            </div>
+            <button type="button" 
+                    x-show="showScroll" 
+                    x-transition.opacity
+                    @click="let c = document.getElementById('tenant-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
+                    class="absolute -top-12 right-4 bg-zinc-900 text-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors z-20 border-2 border-white"
+                    style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
             
             <form wire:submit="sendMessage" class="flex items-center gap-2 m-0">
                 <input type="text" class="flex-1 bg-zinc-100 border-transparent rounded-full px-5 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>

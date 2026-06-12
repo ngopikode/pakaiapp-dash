@@ -134,7 +134,7 @@ new class extends Component
                         x-transition.opacity
                         @click="let c = document.getElementById('central-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
                         class="position-absolute btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white"
-                        style="width: 36px; height: 36px; z-index: 20; bottom: calc(100% + 12px); right: 16px;">
+                        style="display: none; width: 36px; height: 36px; z-index: 20; bottom: calc(100% + 12px); right: 16px;">
                     <i class="bi bi-chevron-down"></i>
                 </button>
                 
