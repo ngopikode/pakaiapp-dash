@@ -43,19 +43,19 @@ new class extends Component
     }
 };
 ?><div>
-    <div class="position-fixed" style="z-index: 1050;" 
+    <div class="central-chat-wrapper"
+         wire:ignore.self
          x-data="{ isOpen: window.innerWidth >= 992, showTooltip: window.innerWidth < 992, isMobile: window.innerWidth < 576 }"
          @resize.window="isMobile = window.innerWidth < 576"
          x-init="setTimeout(() => showTooltip = false, 8000)"
-         :class="isOpen && isMobile ? 'top-0 bottom-0 start-0 end-0' : 'bottom-0 end-0 p-3 p-sm-4'"
          x-effect="document.body.style.overflow = isOpen && isMobile ? 'hidden' : ''">
         
         <!-- Chat Window -->
         <div x-show="isOpen" 
              x-transition.opacity.duration.300ms
-             class="bg-white d-flex flex-column overflow-hidden"
-             :class="isOpen && isMobile ? 'w-100 h-100 border-0 rounded-0' : 'shadow-lg rounded-4 mb-3 border'"
-             style="display: none; width: 400px; max-width: 100vw; height: 550px; max-height: 85vh;">
+             class="central-chat-window"
+             :class="isOpen && isMobile ? 'border-0 rounded-0' : 'shadow-lg rounded-4 mb-3 border'"
+             style="display: none; background-color: var(--chat-bg); color: var(--chat-text); border-color: var(--chat-border) !important;">
             
             <!-- Header -->
             <div class="bg-dark text-white p-3 d-flex justify-content-between align-items-center flex-shrink-0">
@@ -75,17 +75,17 @@ new class extends Component
             
             <!-- Messages Area -->
             <div class="flex-grow-1 overflow-y-auto p-3" 
-                 style="background-color: #f8f9fa; min-height: 0; overscroll-behavior: contain;" 
+                 style="background-color: var(--chat-msg-area-bg); min-height: 0; overscroll-behavior: contain;" 
                  id="central-chat-messages-container"
                  @scroll="$dispatch('chat-scrolled', ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150)">
                 <div class="text-center mb-4 mt-1">
-                    <span class="badge text-secondary bg-secondary bg-opacity-10 rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Ngobrol dengan AI Kami</span>
+                    <span class="badge rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px; color: var(--chat-text); opacity: 0.7; background-color: var(--chat-badge-bg);">Ngobrol dengan AI Kami</span>
                 </div>
 
                 @foreach($messages as $msg)
                     @if($msg['role'] !== 'system')
                         <div class="d-flex mb-3 {{ $msg['role'] === 'user' ? 'justify-content-end' : 'justify-content-start' }}">
-                            <div class="p-3 shadow-sm {{ $msg['role'] === 'user' ? 'bg-dark text-white rounded-4 rounded-bottom-0' : 'bg-white text-dark rounded-4 rounded-start-0 border markdown-content' }}" style="font-size: 14px; line-height: 1.6; max-width: 85%;">
+                            <div class="p-3 shadow-sm {{ $msg['role'] === 'user' ? 'user-msg-bubble' : 'bot-msg-bubble markdown-content' }}" style="font-size: 14px; line-height: 1.6; max-width: 85%;">
                                 @if($msg['role'] === 'assistant')
                                     {!! str($msg['content'])->markdown(['html_input' => 'escape']) !!}
                                 @else
@@ -98,8 +98,8 @@ new class extends Component
                 
                 <!-- Target for Loading state -->
                 <div class="d-flex mb-3 justify-content-start d-none" wire:loading.class.remove="d-none" wire:target="sendMessage">
-                    <div class="p-3 shadow-sm bg-white text-dark rounded-4 rounded-start-0 border d-flex align-items-center gap-2" style="font-size: 14px; max-width: 85%;">
-                        <span class="text-secondary fst-italic">Sedang berpikir...</span>
+                    <div class="p-3 shadow-sm bot-msg-bubble d-flex align-items-center gap-2" style="font-size: 14px; max-width: 85%;">
+                        <span class="text-muted fst-italic">Sedang berpikir...</span>
                         <div class="spinner-border spinner-border-sm text-secondary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
@@ -108,7 +108,15 @@ new class extends Component
             </div>
             
             <!-- Input Area -->
-            <div class="bg-white border-top p-3 flex-shrink-0 position-relative">
+            <div class="border-top p-3 flex-shrink-0 position-relative" style="background-color: var(--chat-input-area-bg); border-color: var(--chat-border) !important;">
+                
+                <!-- WhatsApp Fallback Button -->
+                <div class="text-center mb-2">
+                    <a href="https://wa.me/6285172441544" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-2" style="font-size: 12px; border-width: 1.5px;">
+                        <i class="bi bi-whatsapp"></i> Hubungi Admin via WhatsApp
+                    </a>
+                </div>
+
                 <!-- Scroll to Bottom Button -->
                 <div x-data="{ showScroll: false }" @chat-scrolled.window="showScroll = $event.detail">
                     <button type="button" 
@@ -122,8 +130,8 @@ new class extends Component
                 </div>
                 
                 <form wire:submit="sendMessage" class="d-flex align-items-center gap-2 m-0">
-                    <input type="text" class="form-control rounded-pill px-4" style="font-size: 14px; padding-top: 0.65rem; padding-bottom: 0.65rem; background-color: #f1f3f5; border: none;" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>
-                    <button type="submit" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;" wire:loading.attr="disabled">
+                    <input type="text" class="form-control rounded-pill px-4" style="font-size: 14px; padding-top: 0.65rem; padding-bottom: 0.65rem; background-color: var(--chat-input-bg); color: var(--chat-input-text); border: none;" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>
+                    <button type="submit" class="btn central-chat-send-btn rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;" wire:loading.attr="disabled">
                         <div wire:loading.remove wire:target="sendMessage">
                             <i class="bi bi-send-fill"></i>
                         </div>
@@ -138,14 +146,14 @@ new class extends Component
             <!-- CTA Tooltip -->
             <div x-show="!isOpen && showTooltip"
                  x-transition.opacity.duration.500ms
-                 class="bg-white text-dark pl-3 pr-2 py-2 rounded-4 shadow-lg border d-flex align-items-center gap-2 fw-bold"
-                 style="font-size: 14px; animation: floatBounce 3s infinite;">
+                 class="central-chat-tooltip border d-flex align-items-center gap-2 fw-bold"
+                 style="animation: floatBounce 3s infinite;">
                 <span class="cursor-pointer" @click="isOpen = true; showTooltip = false">✨ Hai, butuh bantuan?</span>
-                <button class="btn btn-link text-secondary p-0 m-0 ms-1 text-decoration-none d-flex align-items-center" @click.stop="showTooltip = false" style="line-height: 1;">
+                <button class="btn btn-link p-0 m-0 ms-1 text-decoration-none d-flex align-items-center" @click.stop="showTooltip = false" style="line-height: 1; color: inherit; opacity: 0.7;">
                     <i class="bi bi-x" style="font-size: 18px;"></i>
                 </button>
                 <!-- Segitiga penunjuk -->
-                <div class="position-absolute bg-white border-end border-top" style="width: 12px; height: 12px; right: -6px; top: 50%; transform: translateY(-50%) rotate(45deg);"></div>
+                <div class="tooltip-arrow"></div>
             </div>
 
             <button type="button" class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white" style="width: 56px; height: 56px; z-index: 10;" @click="isOpen = !isOpen; showTooltip = false">
@@ -170,17 +178,140 @@ new class extends Component
         </script>
 
         <style>
+            .central-chat-wrapper {
+                position: fixed;
+                z-index: 1050;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                align-items: flex-end;
+                
+                /* Theme CSS variables - LIGHT MODE (default) */
+                --chat-bg: #ffffff;
+                --chat-border: #dee2e6;
+                --chat-text: #212529;
+                --chat-badge-bg: rgba(108, 117, 125, 0.1);
+                --chat-msg-area-bg: #f8f9fa;
+                --chat-msg-user-bg: #212529;
+                --chat-msg-user-text: #ffffff;
+                --chat-msg-bot-bg: #ffffff;
+                --chat-msg-bot-text: #212529;
+                --chat-input-area-bg: #ffffff;
+                --chat-input-bg: #f1f3f5;
+                --chat-input-text: #212529;
+                --chat-tooltip-bg: #ffffff;
+                --chat-tooltip-text: #212529;
+            }
+            
+            /* Theme CSS variables - DARK MODE */
+            html.dark .central-chat-wrapper,
+            [data-bs-theme="dark"] .central-chat-wrapper {
+                --chat-bg: #1a1c1e;
+                --chat-border: #2f3337;
+                --chat-text: #e2e2e6;
+                --chat-badge-bg: rgba(226, 226, 230, 0.1);
+                --chat-msg-area-bg: #0f1113;
+                --chat-msg-user-bg: #e2e2e6;
+                --chat-msg-user-text: #1a1c1e;
+                --chat-msg-bot-bg: #1f2225;
+                --chat-msg-bot-text: #e2e2e6;
+                --chat-input-area-bg: #1a1c1e;
+                --chat-input-bg: #26292c;
+                --chat-input-text: #e2e2e6;
+                --chat-tooltip-bg: #1f2225;
+                --chat-tooltip-text: #e2e2e6;
+            }
+
+            .central-chat-wrapper * {
+                pointer-events: auto;
+            }
+            .central-chat-window {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                width: 400px;
+                max-width: 100vw;
+                height: 550px;
+                max-height: 85vh;
+                background-color: var(--chat-bg);
+            }
+            .user-msg-bubble {
+                background-color: var(--chat-msg-user-bg);
+                color: var(--chat-msg-user-text);
+                border-radius: 1rem 1rem 0 1rem;
+            }
+            .bot-msg-bubble {
+                background-color: var(--chat-msg-bot-bg);
+                color: var(--chat-msg-bot-text);
+                border: 1px solid var(--chat-border);
+                border-radius: 1rem 1rem 1rem 0;
+            }
+            .central-chat-send-btn {
+                background-color: var(--chat-msg-user-bg);
+                color: var(--chat-msg-user-text);
+                border: none;
+            }
+            .central-chat-send-btn:hover {
+                opacity: 0.9;
+                background-color: var(--chat-msg-user-bg);
+                color: var(--chat-msg-user-text);
+            }
+            .central-chat-tooltip {
+                background-color: var(--chat-tooltip-bg);
+                color: var(--chat-tooltip-text);
+                border-color: var(--chat-border) !important;
+                padding: 0.5rem 0.5rem 0.5rem 1rem;
+                border-radius: 1rem;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                font-size: 14px;
+                position: relative;
+            }
+            .tooltip-arrow {
+                position: absolute;
+                background-color: var(--chat-tooltip-bg);
+                border-right: 1px solid var(--chat-border);
+                border-top: 1px solid var(--chat-border);
+                width: 12px;
+                height: 12px;
+                right: -6px;
+                top: 50%;
+                transform: translateY(-50%) rotate(45deg);
+            }
+
+            @media (min-width: 576px) {
+                .central-chat-wrapper {
+                    bottom: 0;
+                    right: 0;
+                    padding: 1.5rem;
+                }
+            }
+            @media (max-width: 575.98px) {
+                .central-chat-wrapper {
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 0;
+                }
+                .central-chat-window {
+                    width: 100% !important;
+                    height: 100% !important;
+                    max-width: 100% !important;
+                    max-height: 100% !important;
+                }
+            }
             @keyframes floatBounce {
                 0%, 100% { transform: translateY(0); }
                 50% { transform: translateY(-8px); }
             }
             .markdown-content p { margin-bottom: 0.5rem; }
             .markdown-content p:last-child { margin-bottom: 0; }
-            .markdown-content strong { font-weight: 700; color: #212529; }
+            .markdown-content strong { font-weight: 700; color: inherit; }
             .markdown-content ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
             .markdown-content ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
             .markdown-content li { margin-bottom: 0.25rem; }
-            .markdown-content img { width: 100%; height: auto; max-height: 160px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #dee2e6; }
+            .markdown-content img { width: 100%; height: auto; max-height: 160px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; border: 1px solid var(--chat-border); }
         </style>
     </div>
 </div>
