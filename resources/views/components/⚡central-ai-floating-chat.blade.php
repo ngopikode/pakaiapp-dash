@@ -112,7 +112,7 @@ new class extends Component
                 
                 <!-- WhatsApp Fallback Button -->
                 <div class="text-center mb-2">
-                    <a href="https://wa.me/6285172441544" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-2" style="font-size: 12px; border-width: 1.5px;">
+                    <a href="https://wa.me/6285172441544" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center justify-content-center gap-2 w-100" style="font-size: 12px; border-width: 1.5px;">
                         <i class="bi bi-whatsapp"></i> Hubungi Admin via WhatsApp
                     </a>
                 </div>
