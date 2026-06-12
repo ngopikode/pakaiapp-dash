@@ -116,9 +116,10 @@ new class extends Component
     </div>
 
     <!-- Floating Button & CTA -->
-    <div class="d-flex justify-content-end align-items-center gap-3 position-relative" x-show="!isOpen" :class="isOpen && window.innerWidth < 576 ? 'd-none' : ''">
+    <div class="d-flex justify-content-end align-items-center gap-3 position-relative" :class="isOpen && window.innerWidth < 576 ? 'd-none' : ''">
         <!-- CTA Tooltip -->
-        <div x-transition.opacity.duration.500ms
+        <div x-show="!isOpen"
+             x-transition.opacity.duration.500ms
              class="bg-white text-dark px-3 py-2 rounded-4 shadow-lg border d-flex align-items-center gap-2 fw-bold"
              style="font-size: 14px; cursor: pointer; animation: floatBounce 3s infinite;"
              @click="isOpen = true">
