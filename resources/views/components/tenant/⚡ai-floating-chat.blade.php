@@ -150,22 +150,34 @@ new class extends Component
                                     
                                     $product = $variants->first()->product;
                                     
-                                    $extraPrice = 0;
-                                    $extraNames = [];
-                                    if (!empty($extraIds)) {
-                                        $extras = \App\Models\ProductExtra::whereIn('id', $extraIds)->get();
-                                        $extraPrice = $extras->sum('price');
-                                        $extraNames = $extras->pluck('name')->toArray();
-                                    }
+                                    $validVariants = $variants->where('product_id', $product->id);
+                                    if ($validVariants->isEmpty()) return '';
                                     
                                     $isMulti = $product->selection_type === 'multiple';
-
+                                    if ($isMulti && $product->max_selections > 0 && $validVariants->count() > $product->max_selections) {
+                                        $validVariants = $validVariants->take($product->max_selections);
+                                    }
+                                    
+                                    $validVariantIds = $validVariants->pluck('id')->values()->toArray();
+                                    
+                                    $extraPrice = 0;
+                                    $extraNames = [];
+                                    $validExtraIds = [];
+                                    if (!empty($extraIds)) {
+                                        $extras = \App\Models\ProductExtra::whereIn('id', $extraIds)
+                                            ->where('product_id', $product->id)
+                                            ->get();
+                                        $extraPrice = $extras->sum('price');
+                                        $extraNames = $extras->pluck('name')->toArray();
+                                        $validExtraIds = $extras->pluck('id')->values()->toArray();
+                                    }
+                                    
                                     if ($isMulti) {
                                         $finalPrice = $product->price + $extraPrice;
-                                        $combinedVariantName = $variants->pluck('name')->join(', ');
+                                        $combinedVariantName = $validVariants->pluck('name')->join(', ');
                                         $variantIdToPass = 'null';
                                     } else {
-                                        $variant = $variants->first();
+                                        $variant = $validVariants->first();
                                         $finalPrice = ($variant->active_discount_price ?? $variant->price) + $extraPrice;
                                         $combinedVariantName = $variant->name;
                                         $variantIdToPass = $variant->id;
@@ -177,7 +189,9 @@ new class extends Component
                                         'price' => $finalPrice,
                                         'image' => $product->image ? \Storage::url($product->image) : null,
                                         'has_variants' => $product->has_variants,
-                                        'extras' => [] // Sudah dihitung harganya, tidak perlu ditambahkan lagi
+                                        'extras' => [],
+                                        'variant_ids' => $validVariantIds,
+                                        'extra_ids' => $validExtraIds
                                     ]), ENT_QUOTES, 'UTF-8');
 
                                     if ($product->has_variants || !empty($extraNames)) {

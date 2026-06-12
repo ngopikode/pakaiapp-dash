@@ -309,15 +309,20 @@ document.addEventListener('alpine:init', () => {
             let finalPrice = 0;
             let finalVariantLabel = '';
             let variantId = null;
+            let variantIds = [];
 
             if (!this.optionProduct.variants?.length || !this.optionProduct.has_variants) {
                 // No variant product
                 finalPrice = parseFloat(this.optionProduct.price) || 0;
                 variantId = this.optionProduct.default_variant_id || (this.optionProduct.variants?.[0]?.id || null);
+                if (variantId) variantIds.push(variantId);
             } else if (this.isMulti) {
                 // Multi selection (Checkbox)
                 finalPrice = parseFloat(this.optionProduct.price) || 0;
                 finalVariantLabel = this.optionSelected.join(', ');
+                variantIds = this.optionProduct.variants
+                    .filter(v => this.optionSelected.includes(v.name))
+                    .map(v => v.id);
             } else {
                 // Single selection (Radio)
                 const selectedVariant = this.optionProduct.variants.find(
@@ -328,6 +333,7 @@ document.addEventListener('alpine:init', () => {
                     : parseFloat(this.optionProduct.price) || 0;
                 finalVariantLabel = this.optionSelected[0] || '';
                 variantId = selectedVariant ? selectedVariant.id : null;
+                if (variantId) variantIds.push(variantId);
             }
 
             finalPrice += this.extrasTotal;
@@ -335,12 +341,20 @@ document.addEventListener('alpine:init', () => {
             const finalExtraLabel = this.extrasSelected.length
                 ? this.extrasSelected.join(', ')
                 : '';
+                
+            let extraIds = [];
+            if (this.optionProduct.extras && this.extrasSelected.length > 0) {
+                extraIds = this.optionProduct.extras
+                    .filter(e => this.extrasSelected.includes(e.name))
+                    .map(e => e.id);
+            }
+
             const combinedLabel = [finalVariantLabel, finalExtraLabel]
                 .filter(Boolean)
                 .join(' + ');
 
             this.addToCart(
-                {...this.optionProduct, price: finalPrice},
+                {...this.optionProduct, price: finalPrice, variant_ids: variantIds, extra_ids: extraIds},
                 combinedLabel,
                 this.optionQty,
                 variantId
@@ -512,6 +526,8 @@ document.addEventListener('alpine:init', () => {
                 items: this.cart.map((item) => ({
                     product_id: item.id,
                     variant_id: item.variant_id || null,
+                    variant_ids: item.variant_ids || [],
+                    extra_ids: item.extra_ids || [],
                     name: item.cartName,
                     quantity: item.qty,
                     price: parseFloat(item.price)

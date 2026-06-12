@@ -21,6 +21,8 @@ class OrderItem extends Model
         'note',
         'kitchen_status',
         'discount',
+        'selected_variants',
+        'selected_extras',
         'created_at',
         'updated_at'
     ];
