@@ -19,7 +19,7 @@
 
 <div class="blog-header">
     <div class="container">
-        <a href="{{ route('blog.index') }}" class="btn btn-outline-secondary btn-sm mb-3"><i class="bi bi-arrow-left"></i> Semua Artikel</a>
+        <a href="{{ route('blog.index', [], false) }}" class="btn btn-outline-secondary btn-sm mb-3"><i class="bi bi-arrow-left"></i> Semua Artikel</a>
         <h1 class="fw-bold">{{ $article->title }}</h1>
         <p class="text-muted"><i class="bi bi-calendar3"></i> Dipublikasikan pada {{ $article->published_at->format('d F Y') }}</p>
     </div>

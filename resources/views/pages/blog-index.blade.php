@@ -32,7 +32,7 @@
                     <div class="card-body">
                         <small class="text-muted">{{ $article->published_at->format('d M Y') }}</small>
                         <h5 class="card-title mt-2">
-                            <a href="{{ route('blog.show', $article->slug) }}" class="text-decoration-none text-dark stretched-link">
+                            <a href="{{ route('blog.show', $article->slug, false) }}" class="text-decoration-none text-dark stretched-link">
                                 {{ $article->title }}
                             </a>
                         </h5>
