@@ -45,7 +45,7 @@ new class extends Component
 ?><div>
     <div class="central-chat-wrapper"
          wire:ignore.self
-         x-data="{ isOpen: window.innerWidth >= 992, showTooltip: window.innerWidth < 992, isMobile: window.innerWidth < 576 }"
+         x-data="{ isOpen: window.innerWidth >= 992, showTooltip: window.innerWidth < 992, isMobile: window.innerWidth < 576, showScroll: false }"
          @resize.window="isMobile = window.innerWidth < 576"
          x-init="setTimeout(() => showTooltip = false, 8000)"
          x-effect="document.body.style.overflow = isOpen && isMobile ? 'hidden' : ''">
@@ -77,7 +77,7 @@ new class extends Component
             <div class="flex-grow-1 overflow-y-auto p-3" 
                  style="background-color: var(--chat-msg-area-bg); min-height: 0; overscroll-behavior: contain;" 
                  id="central-chat-messages-container"
-                 @scroll="$dispatch('chat-scrolled', ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150)">
+                 @scroll="showScroll = ($el.scrollHeight - $el.scrollTop - $el.clientHeight) > 150">
                 <div class="text-center mb-4 mt-1">
                     <span class="badge rounded-pill px-3 py-2 text-uppercase" style="font-size: 10px; letter-spacing: 1px; color: var(--chat-text); opacity: 0.7; background-color: var(--chat-badge-bg);">Ngobrol dengan AI Kami</span>
                 </div>
@@ -118,16 +118,14 @@ new class extends Component
                 </div>
 
                 <!-- Scroll to Bottom Button -->
-                <div x-data="{ showScroll: false }" @chat-scrolled.window="showScroll = $event.detail">
-                    <button type="button" 
-                            x-show="showScroll" 
-                            x-transition.opacity
-                            @click="let c = document.getElementById('central-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
-                            class="position-absolute end-0 top-0 translate-middle-y me-3 mt-n2 btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white"
-                            style="width: 36px; height: 36px; z-index: 20;">
-                        <i class="bi bi-chevron-down"></i>
-                    </button>
-                </div>
+                <button type="button" 
+                        x-show="showScroll" 
+                        x-transition.opacity
+                        @click="let c = document.getElementById('central-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
+                        class="position-absolute end-0 top-0 translate-middle-y me-3 mt-n2 btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-2 border-white"
+                        style="width: 36px; height: 36px; z-index: 20;">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
                 
                 <form wire:submit="sendMessage" class="d-flex align-items-center gap-2 m-0">
                     <input type="text" class="form-control rounded-pill px-4" style="font-size: 14px; padding-top: 0.65rem; padding-bottom: 0.65rem; background-color: var(--chat-input-bg); color: var(--chat-input-text); border: none;" wire:model="userInput" placeholder="Tanya sesuatu..." autocomplete="off" required>
