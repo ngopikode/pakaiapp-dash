@@ -19,19 +19,19 @@
         $cappingLimitShort = ($cappingLimit / 1000) . 'rb';
     @endphp
 
-    <title>Pakaiapp (Pakai App Online) - Kasir Web UMKM Tanpa Biaya Langganan</title>
+    <title>Aplikasi Kasir Toko Kelontong & Retail Web - Pakaiapp</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    <meta name="title" content="Pakaiapp (Pakai App Online) - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
+    <meta name="title" content="Aplikasi Kasir Toko Kelontong & Ritel Terbaik Tanpa Langganan - Pakaiapp">
     <meta name="description"
-          content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
+          content="Cari aplikasi kasir toko kelontong atau ritel? Pakaiapp adalah POS berbasis web cloud tanpa biaya langganan. Cukup bayar Rp {{ $trxFee }} per transaksi sukses, otomatis GRATIS sepenuhnya setelah Rp {{ $cappingLimitShort }}/bulan.">
     <meta name="keywords"
-          content="pakai app, pakai app online, pakaiapp online, aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
+          content="aplikasi kasir toko kelontong, kasir ritel, aplikasi pos minimarket, aplikasi kasir toko baju, kasir toko web, aplikasi kasir tanpa langganan, pakaiapp">
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Indonesian">
-    <link rel="canonical" href="https://pakaiapp.online/">
+    <link rel="canonical" href="https://pakaiapp.online/kasir-toko-kelontong">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pakaiapp.online/">
@@ -119,7 +119,7 @@
 <section class="hero" data-aos="fade-up">
     <div class="hero-label">
         <span class="live-dot"></span>
-        Aplikasi Kasir Web UMKM · Tanpa Biaya Langganan
+        Aplikasi Kasir Toko Kelontong · Tanpa Biaya Langganan
     </div>
 
     <h1 class="hero-headline">

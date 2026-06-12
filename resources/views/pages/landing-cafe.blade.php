@@ -19,19 +19,19 @@
         $cappingLimitShort = ($cappingLimit / 1000) . 'rb';
     @endphp
 
-    <title>Pakaiapp (Pakai App Online) - Kasir Web UMKM Tanpa Biaya Langganan</title>
+    <title>Aplikasi Kasir Cafe & Resto (F&B) Web - Pakaiapp Tanpa Langganan</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    <meta name="title" content="Pakaiapp (Pakai App Online) - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
+    <meta name="title" content="Aplikasi Kasir Cafe & Resto Terbaik Tanpa Biaya Bulanan - Pakaiapp">
     <meta name="description"
-          content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
+          content="Cari aplikasi kasir cafe dan restoran? Pakaiapp adalah POS F&B berbasis web cloud tanpa biaya langganan bulanan. Bayar Rp {{ $trxFee }} per transaksi sukses, otomatis GRATIS setelah Rp {{ $cappingLimitShort }}/bulan.">
     <meta name="keywords"
-          content="pakai app, pakai app online, pakaiapp online, aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
+          content="aplikasi kasir cafe, aplikasi pos restoran, kasir f&b, kasir cafe web, aplikasi kasir tanpa langganan untuk cafe, sistem kasir resto, pakaiapp">
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Indonesian">
-    <link rel="canonical" href="https://pakaiapp.online/">
+    <link rel="canonical" href="https://pakaiapp.online/kasir-cafe">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pakaiapp.online/">
@@ -119,7 +119,7 @@
 <section class="hero" data-aos="fade-up">
     <div class="hero-label">
         <span class="live-dot"></span>
-        Aplikasi Kasir Web UMKM · Tanpa Biaya Langganan
+        Aplikasi Kasir Cafe & Resto · Tanpa Biaya Langganan
     </div>
 
     <h1 class="hero-headline">

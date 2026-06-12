@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Route;
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
         Route::view('/', 'welcome')->name('home');
+        Route::view('/kasir-cafe', 'pages.landing-cafe')->name('landing.cafe');
+        Route::view('/kasir-toko-kelontong', 'pages.landing-retail')->name('landing.retail');
+        
+        Route::get('/blog', [\App\Http\Controllers\ArticleController::class, 'index'])->name('blog.index');
+        Route::get('/blog/{slug}', [\App\Http\Controllers\ArticleController::class, 'show'])->name('blog.show');
+        
         Route::livewire('central-admin', 'pages::central.central-admin')->name('central-admin');
 
         // Central Pages (Register, Login, Status Onboarding)
