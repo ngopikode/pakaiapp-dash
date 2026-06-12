@@ -1,4 +1,4 @@
-<div wire:poll.15s class="pb-5 min-vh-100">
+<div class="pb-5 min-vh-100">
 
     @if(app('isMobile'))
         @include('pages.tenant.⚡dashboard.mobile-view')

@@ -9,9 +9,17 @@
             </div>
             <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.3px;">AI Daily Briefing</h6>
         </div>
-        <span class="badge rounded-pill bg-body-tertiary border text-secondary shadow-sm" style="font-size: 0.65rem;">
-            Update Terkini
-        </span>
+        <div class="d-flex align-items-center gap-2">
+            <button wire:click="regenerate" wire:loading.attr="disabled" class="btn btn-sm btn-light border rounded-pill shadow-sm py-1 px-2 d-flex align-items-center gap-1" style="font-size: 0.65rem; transition: all 0.2s;">
+                <i wire:loading.remove wire:target="regenerate" class="bi bi-arrow-clockwise text-primary"></i>
+                <span wire:loading wire:target="regenerate" class="spinner-border text-primary" style="width: 0.7rem; height: 0.7rem; border-width: 0.15em;" role="status" aria-hidden="true"></span>
+                <span wire:loading.remove wire:target="regenerate" class="fw-bold text-secondary">Muat Ulang</span>
+                <span wire:loading wire:target="regenerate" class="fw-bold text-primary">Menganalisis...</span>
+            </button>
+            <span class="badge rounded-pill bg-body-tertiary border text-secondary shadow-sm" style="font-size: 0.65rem;">
+                Update Terkini
+            </span>
+        </div>
     </div>
     
     <div class="card-body p-3 pt-1 position-relative z-1">

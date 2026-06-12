@@ -20,10 +20,15 @@ class extends Component {
         $this->topProducts = $topProducts;
         $this->slowMovingProducts = $slowMovingProducts;
 
+        $this->loadInsight();
+    }
+
+    public function loadInsight(): void
+    {
         $dashboardData = [
-            'stats' => $stats,
-            'top_products' => $topProducts,
-            'slow_moving_products' => $slowMovingProducts
+            'stats' => $this->stats,
+            'top_products' => $this->topProducts,
+            'slow_moving_products' => $this->slowMovingProducts
         ];
 
         // Cache insight per pengguna (tenant) selama 3 jam (180 menit)
@@ -32,6 +37,13 @@ class extends Component {
         $this->insightText = Cache::remember($cacheKey, 180 * 60, function () use ($dashboardData) {
             return app(OpenAiMenuService::class)->generateDashboardInsight($dashboardData);
         });
+    }
+
+    public function regenerate(): void
+    {
+        $cacheKey = 'ai_insight_tenant_' . auth()->id() . '_' . date('Y-m-d_H');
+        Cache::forget($cacheKey);
+        $this->loadInsight();
     }
 
     public function placeholder(): string
