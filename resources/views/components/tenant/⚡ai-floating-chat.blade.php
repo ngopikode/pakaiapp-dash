@@ -127,25 +127,49 @@ new class extends Component
                         @if($msg['role'] === 'assistant')
                             @php
                                 $htmlContent = str($msg['content'])->markdown(['html_input' => 'escape']);
-                                $htmlContent = preg_replace_callback('/\[VARIANT_ID:\s*(\d+)\]/', function($matches) {
+                                $htmlContent = preg_replace_callback('/\[VARIANT_ID:\s*(\d+)(?:\|EXTRAS:\s*([\d, ]+))?\]/', function($matches) {
                                     $variantId = $matches[1];
+                                    $extraIds = isset($matches[2]) ? array_map('trim', explode(',', $matches[2])) : [];
+                                    
                                     $variant = \App\Models\ProductVariant::with('product')->find($variantId);
                                     if (!$variant || !$variant->product) return '';
+                                    
+                                    $extraPrice = 0;
+                                    $extraNames = [];
+                                    if (!empty($extraIds)) {
+                                        $extras = \App\Models\ProductExtra::whereIn('id', $extraIds)->get();
+                                        $extraPrice = $extras->sum('price');
+                                        $extraNames = $extras->pluck('name')->toArray();
+                                    }
+                                    
+                                    $finalPrice = ($variant->active_discount_price ?? $variant->price) + $extraPrice;
                                     
                                     $productJson = htmlspecialchars(json_encode([
                                         'id' => $variant->product->id,
                                         'name' => $variant->product->name,
-                                        'price' => $variant->active_discount_price ?? $variant->price,
+                                        'price' => $finalPrice,
                                         'image' => $variant->product->image ? \Storage::url($variant->product->image) : null,
                                         'has_variants' => $variant->product->has_variants,
-                                        'extras' => [] // Simplifikasi jika extras tidak diload di AI
+                                        'extras' => [] // Sudah dihitung harganya, tidak perlu ditambahkan lagi
                                     ]), ENT_QUOTES, 'UTF-8');
 
-                                    if ($variant->product->has_variants) {
-                                        // Multi Varian: kirim selectedVariants dan variantId
-                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \''.$variant->name.'\', 1, '.$variantId.')" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Tambah '.$variant->name.'</button></div>';
+                                    if ($variant->product->has_variants || !empty($extraNames)) {
+                                        // Jika Multi Varian ATAU punya ekstra: 
+                                        // Gabungkan nama varian dan ekstra untuk jadi cart label
+                                        $labels = [];
+                                        if ($variant->product->has_variants) {
+                                            $labels[] = $variant->name;
+                                        }
+                                        if (!empty($extraNames)) {
+                                            $labels[] = implode(', ', $extraNames);
+                                        }
+                                        $combinedLabel = implode(' + ', $labels);
+                                        
+                                        $buttonText = 'Tambah ' . ($combinedLabel ?: 'Pesanan');
+
+                                        return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'), \''.$combinedLabel.'\', 1, '.$variantId.')" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> '.$buttonText.'</button></div>';
                                     } else {
-                                        // Single Varian: abaikan nama varian dan id varian, persis seperti behavior tombol addToCart(product) biasa
+                                        // Single Varian & tanpa ekstra: abaikan nama varian dan id varian
                                         return '<div class="mt-3"><button @click="addToCart(JSON.parse(\''.$productJson.'\'))" class="bg-[var(--primary-color,bg-zinc-900)] text-zinc-900 text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm border border-[var(--primary-color)] hover:brightness-110 w-full flex items-center justify-center gap-2 transition-all active:scale-95"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Tambah ke Keranjang</button></div>';
                                     }
                                 }, $htmlContent);

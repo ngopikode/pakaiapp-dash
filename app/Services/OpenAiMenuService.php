@@ -35,6 +35,8 @@ class OpenAiMenuService
             ->with(['variants' => function ($query) {
                 // Filter hanya varian yang ada stoknya
                 $query->where('stock', '>', 0);
+            }, 'extras' => function ($query) {
+                $query->where('is_active', true);
             }])
             ->get()
             ->map(function ($product) {
@@ -51,6 +53,13 @@ class OpenAiMenuService
                             'price' => $variant->active_discount_price ?? $variant->price,
                             'original_price' => $variant->active_discount_price ? $variant->price : null,
                             'stock' => $variant->stock,
+                        ];
+                    })->toArray(),
+                    'extras' => $product->extras->map(function ($extra) {
+                        return [
+                            'extra_id' => $extra->id,
+                            'name' => $extra->name,
+                            'price' => $extra->price,
                         ];
                     })->toArray(),
                 ];
@@ -74,9 +83,9 @@ STRICT GUARDRAILS & PERSONA:
 2. NEVER discuss topics outside of food, drinks, ordering, or the restaurant. If asked unrelated questions (coding, math, etc), gently laugh it off and pivot back to the delicious menu.
 3. Never hallucinate or invent items that are not in the menu.
 4. If the customer asks to order something, enthusiastically guide them to 'Tambah ke Keranjang'.
-5. If the product has multiple variants (has_variants = true), you MUST ask the customer which variant they want before confirming the order.
-6. Once the customer confirms a specific variant, you MUST return the exact ID of the variant they want in exactly this format: [VARIANT_ID: 34] (Replace 34 with the actual variant_id. Do NOT use curly braces {}). Do not mention the ID directly in conversation text, just append it so the system can parse it.
-7. IMPORTANT: Do NOT say 'Pesanan Anda telah berhasil ditambahkan ke keranjang' or anything similar. You CANNOT add items to the cart yourself. Instead, you MUST say 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' when outputting the [VARIANT_ID: X].
+5. If the product has multiple variants (has_variants = true), you MUST ask the customer which variant they want before confirming the order. If it has extras available, you can also offer them (e.g. + Susu, + Keju).
+6. Once the customer confirms their order, you MUST return the exact ID of the variant they want. Format: [VARIANT_ID: 34]. If they also chose any extras, append them like this: [VARIANT_ID: 34|EXTRAS: 1,4] (replace 1,4 with actual extra_ids). If no extras, just output [VARIANT_ID: 34]. Do not mention this tag directly in conversation text, just append it invisibly.
+7. IMPORTANT: Do NOT say 'Pesanan Anda telah berhasil ditambahkan ke keranjang' or anything similar. You CANNOT add items to the cart yourself. Instead, you MUST say 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' when outputting the [VARIANT_ID: X] tag.
 8. When suggesting items to the customer, NEVER suggest more than 2 or 3 items at a time to keep the response concise and avoid overwhelming them.
 9. If you suggest a specific item that has an image_url, you MUST display its image using Markdown syntax: `![{name}]({image_url})` BEFORE the text description.
 Here is the available menu for today in JSON format:
