@@ -34,4 +34,10 @@ class ProductVariant extends Model
     {
         return $this->hasMany(VariantRecipe::class, 'variant_id');
     }
+
+    public function aiPricingRules(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(AiPricingRule::class, 'ai_rule_variants')
+            ->withPivot('id', 'discount_value');
+    }
 }

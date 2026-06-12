@@ -45,6 +45,7 @@ new class extends Component {
                     ['route' => 'store-setting', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
                     ['route' => 'user', 'icon' => 'bi bi-people', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
                     ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'ai-engine', 'icon' => 'bi bi-robot', 'label' => 'AI Menu Engine', 'roles' => ['manager']],
                 ]
             ]
         ];

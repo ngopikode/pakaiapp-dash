@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\AiChatSession;
+use App\Models\Product;
+use Illuminate\Support\Facades\Http;
+
+class OpenAiMenuService
+{
+    protected string $apiKey;
+
+    public function __construct()
+    {
+        $this->apiKey = config('services.openai.key') ?? '';
+    }
+
+    /**
+     * Generate response from OpenAI API
+     *
+     * @param AiChatSession $session
+     * @param string $userMessage
+     * @return string
+     */
+    public function generateResponse(AiChatSession $session, string $userMessage): string
+    {
+        // 1. Simpan pesan user
+        $session->messages()->create([
+            'role' => 'user',
+            'content' => $userMessage,
+        ]);
+
+        // 2. Tarik list menu aktif
+        $activeMenu = Product::where('is_active', true)
+            ->with(['variants' => function ($query) {
+                // Filter hanya varian yang ada stoknya
+                $query->where('stock', '>', 0);
+            }])
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'image_url' => $product->image ? \Storage::url($product->image) : null,
+                    'has_variants' => $product->has_variants,
+                    'variants' => $product->variants->map(function ($variant) {
+                        return [
+                            'variant_id' => $variant->id,
+                            'name' => $variant->name,
+                            'price' => $variant->active_discount_price ?? $variant->price,
+                            'original_price' => $variant->active_discount_price ? $variant->price : null,
+                            'stock' => $variant->stock,
+                        ];
+                    })->toArray(),
+                ];
+            })->toArray();
+
+        $menuJson = json_encode($activeMenu);
+
+        // 3. Meracik System Prompt yang sangat ketat (dengan Jailbreak Guard)
+        $systemPrompt = "You are a warm, fun, and enthusiastic digital barista/waiter for Pakaiapp POS.
+Your job is to assist customers with their orders based ONLY on the provided menu.
+STRICT GUARDRAILS & PERSONA:
+1. ALWAYS be friendly, conversational, and persuasive! Treat the customer like a friend. If they ask 'Why should I choose this?', hype up the menu item with exciting adjectives instead of sounding like a robot.
+2. NEVER discuss topics outside of food, drinks, ordering, or the restaurant. If asked unrelated questions (coding, math, etc), gently laugh it off and pivot back to the delicious menu.
+3. Never hallucinate or invent items that are not in the menu.
+4. If the customer asks to order something, enthusiastically guide them to 'Tambah ke Keranjang'.
+5. If the product has multiple variants (has_variants = true), you MUST ask the customer which variant they want before confirming the order.
+6. Once the customer confirms a specific variant, you MUST return the exact ID of the variant they want in exactly this format: [VARIANT_ID: 34] (Replace 34 with the actual variant_id. Do NOT use curly braces {}). Do not mention the ID directly in conversation text, just append it so the system can parse it.
+7. IMPORTANT: Do NOT say 'Pesanan Anda telah berhasil ditambahkan ke keranjang' or anything similar. You CANNOT add items to the cart yourself. Instead, you MUST say 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' when outputting the [VARIANT_ID: X].
+8. When suggesting items to the customer, NEVER suggest more than 2 or 3 items at a time to keep the response concise and avoid overwhelming them.
+9. If you suggest a specific item that has an image_url, you MUST display its image using Markdown syntax: `![{name}]({image_url})` BEFORE the text description.
+Here is the available menu for today in JSON format:
+" . $menuJson;
+
+        // 4. Bangun history chat
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt]
+        ];
+
+        // Ambil histori 10 pesan terakhir agar token tidak membengkak
+        $history = $session->messages()->orderBy('created_at', 'desc')->take(10)->get()->reverse();
+        foreach ($history as $msg) {
+            $messages[] = [
+                'role' => $msg->role,
+                'content' => $msg->content,
+            ];
+        }
+
+        // 5. Hit OpenAI API (tanpa stream)
+        $response = Http::withToken($this->apiKey)
+            ->timeout(60)
+            ->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4o-mini',
+                'messages' => $messages,
+                'temperature' => 0.7,
+            ]);
+
+        $fullContent = 'Maaf, sistem sedang sibuk. Silakan coba lagi.';
+        
+        if ($response->successful()) {
+            $fullContent = $response->json('choices.0.message.content');
+        }
+
+        // 6. Simpan pesan assistant
+        $session->increment('turn_count');
+
+        $session->messages()->create([
+            'role' => 'assistant',
+            'content' => $fullContent,
+            'tokens_used' => str_word_count($fullContent) * 2, // Perkiraan token kasar
+        ]);
+        
+        return $fullContent;
+    }
+
+    /**
+     * Generate an AI pricing strategy based on merchant's goal
+     * 
+     * @param string $goal
+     * @param array $menuData
+     * @return array
+     */
+    public function generateMerchantStrategy(string $goal, array $menuData): array
+    {
+        $systemPrompt = "You are a revenue optimization AI for an F&B business.
+Your goal is to suggest a smart pricing strategy based on the merchant's prompt.
+You MUST respond ONLY with a valid JSON object matching this schema:
+{
+  \"ruleName\": \"String (e.g. Promo Hujan)\",
+  \"ruleType\": \"percentage\" or \"fixed_cut\",
+  \"discountValue\": Integer (e.g. 15 for 15% or 10000 for Rp10.000),
+  \"startTime\": \"HH:MM\" (24h format),
+  \"endTime\": \"HH:MM\" (24h format),
+  \"activeDays\": [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"],
+  \"suggestedVariantIds\": [Array of integer variant_ids that match the goal. ONLY use variant_ids from the provided menu]
+}
+Here is the available menu:
+" . json_encode($menuData);
+
+        $response = Http::withToken($this->apiKey)
+            ->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4o-mini',
+                'response_format' => ['type' => 'json_object'],
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => "My goal: " . $goal]
+                ],
+                'temperature' => 0.7,
+            ]);
+
+        if ($response->successful()) {
+            $content = $response->json('choices.0.message.content');
+            return json_decode($content, true) ?? [];
+        }
+
+        return [];
+    }
+}

@@ -266,6 +266,9 @@
 
         {{-- ===== RIWAYAT MODAL (100% Client-Side) ===== --}}
         @include('pages.tenant.store.resto.history-modal')
+
+        {{-- ===== AI FLOATING CHAT ===== --}}
+        <livewire:components::tenant.ai-floating-chat />
     </div>
 
     @livewireScripts
