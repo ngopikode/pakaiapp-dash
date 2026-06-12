@@ -59,7 +59,15 @@ class OpenAiMenuService
         $menuJson = json_encode($activeMenu);
 
         // 3. Meracik System Prompt yang sangat ketat (dengan Jailbreak Guard)
-        $systemPrompt = "You are a warm, fun, and enthusiastic digital barista/waiter for Pakaiapp POS.
+        $storeName = 'Restoran Kami';
+        try {
+            $setting = \App\Models\StoreSetting::first();
+            if ($setting && $setting->name) {
+                $storeName = $setting->name;
+            }
+        } catch (\Exception $e) {}
+
+        $systemPrompt = "You are a warm, fun, and enthusiastic digital barista/waiter for $storeName.
 Your job is to assist customers with their orders based ONLY on the provided menu.
 STRICT GUARDRAILS & PERSONA:
 1. ALWAYS be friendly, conversational, and persuasive! Treat the customer like a friend. If they ask 'Why should I choose this?', hype up the menu item with exciting adjectives instead of sounding like a robot.

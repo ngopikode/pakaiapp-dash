@@ -10,9 +10,17 @@ new class extends Component
     public $sessionId = null;
     public $messages = [];
     public $userInput = '';
+    public $storeName = 'Asisten AI';
 
     public function mount()
     {
+        try {
+            $setting = \App\Models\StoreSetting::first();
+            if ($setting && $setting->name) {
+                $this->storeName = 'Asisten ' . $setting->name;
+            }
+        } catch (\Exception $e) {}
+
         $token = session()->get('ai_chat_session_token');
         
         if (!$token) {
@@ -30,7 +38,8 @@ new class extends Component
         $this->loadMessages();
             
         if (empty($this->messages)) {
-            $this->messages[] = ['role' => 'assistant', 'content' => 'Halo! Ada yang bisa saya bantu untuk pesanan hari ini?'];
+            $shortName = str_replace('Asisten ', '', $this->storeName);
+            $this->messages[] = ['role' => 'assistant', 'content' => 'Halo! Ada yang bisa saya bantu untuk pesanan hari ini di ' . $shortName . '?'];
         }
     }
 
@@ -95,7 +104,7 @@ new class extends Component
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
                 </div>
                 <div class="leading-tight">
-                    <span class="font-bold block text-[15px]">Asisten Pakaiapp</span>
+                    <span class="font-bold block text-[15px]">{{ $storeName }}</span>
                     <span class="text-[11px] text-zinc-400 tracking-wide">Selalu siap membantu</span>
                 </div>
             </div>
