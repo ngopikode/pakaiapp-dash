@@ -2,38 +2,38 @@
    DESIGN TOKENS — 60 / 30 / 10
    60% → --bg    (deep dark)
    30% → --surface (cards, panels)
-   10% → --accent  (orange CTA)
+   10% → --accent  (violet CTA)
 ============================================ */
 :root {
-    /* 60% - Primary background */
+    /* 60% - Primary background (Deep OLED Dark) */
     --bg:           #0D1117;
     --bg-2:         #111827;
 
-    /* 30% - Surfaces */
+    /* 30% - Surfaces (Clean & Crisp Slate) */
     --surface:      #1C2333;
     --surface-2:    #222D40;
     --border:       #2A3447;
     --border-hover: #3A4D6A;
 
-    /* 10% - Accent (blue) */
-    --accent:       #3B82F6;
-    --accent-dark:  #2563EB;
-    --accent-light: #60A5FA;
-    --accent-bg:    #172554;
-    --accent-border:#1E3A8A;
+    /* 10% - Accent (Emerald Green - Pertumbuhan & Sukses) */
+    --accent:       #10B981; /* Segar dan cerah */
+    --accent-dark:  #059669;
+    --accent-light: #34D399;
+    --accent-bg:    #064E3B;
+    --accent-border:#065F46;
 
-    /* Text */
-    --text:         #F0F4F8;
-    --text-muted:   #8898B0;
-    --text-subtle:  #4A5A72;
+    /* Text (Crisp Gray - No green tint to avoid muddy look, but soft enough to avoid glare) */
+    --text:         #CBD5E1;
+    --text-muted:   #94A3B8;
+    --text-subtle:  #64748B;
 
     /* Utility */
-    --green:        #22C55E;
-    --green-bg:     #0F2016;
-    --green-border: #1A3E25;
+    --green:        #10B981;
+    --green-bg:     #064E3B;
+    --green-border: #065F46;
     --red:          #EF4444;
-    --purple:       #A78BFA;
-    --sky:          #38BDF8;
+    --purple:       #8B5CF6;
+    --sky:          #0EA5E9;
 
     --radius-sm: 8px;
     --radius:    12px;
@@ -42,25 +42,27 @@
 }
 
 [data-bs-theme="light"] {
-    --bg:           #FFFFFF;
-    --bg-2:         #F8FAFC;
-    --surface:      #F1F5F9;
-    --surface-2:    #E2E8F0;
-    --border:       #CBD5E1;
-    --border-hover: #94A3B8;
+    /* Soft light backgrounds */
+    --bg:           #F8FAFC;
+    --bg-2:         #F1F5F9;
+    --surface:      #FFFFFF;
+    --surface-2:    #F1F5F9;
+    --border:       #E2E8F0;
+    --border-hover: #CBD5E1;
 
-    --accent:       #F97316;
-    --accent-dark:  #EA6D0E;
-    --accent-light: #FB923C;
-    --accent-bg:    #FFF7ED;
-    --accent-border:#FED7AA;
+    /* Accent (Emerald Green) */
+    --accent:       #059669;
+    --accent-dark:  #047857;
+    --accent-light: #10B981;
+    --accent-bg:    #ECFDF5;
+    --accent-border:#D1FAE5;
 
-    --text:         #0F172A;
+    --text:         #1E293B;
     --text-muted:   #475569;
     --text-subtle:  #64748B;
 
-    --green-bg:     #F0FDF4;
-    --green-border: #BBF7D0;
+    --green-bg:     #ECFDF5;
+    --green-border: #D1FAE5;
 }
 
 /* ============================================
