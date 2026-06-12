@@ -224,8 +224,8 @@ new class extends Component
                     x-show="showScroll" 
                     x-transition.opacity
                     @click="let c = document.getElementById('tenant-chat-messages-container'); c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' })"
-                    class="absolute -top-12 right-4 bg-zinc-900 text-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors z-20 border-2 border-white"
-                    style="display: none;">
+                    class="bg-zinc-900 text-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors z-20 border-2 border-white"
+                    style="display: none; position: absolute; bottom: calc(100% + 12px); right: 16px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
             
