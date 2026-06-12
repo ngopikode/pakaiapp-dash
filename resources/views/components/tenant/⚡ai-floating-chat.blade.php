@@ -69,9 +69,8 @@ new class extends Component
 };
 ?>
 
-<div class="fixed transition-all" style="z-index: 1050;" 
-     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'right-4 sm:bottom-6 sm:right-6'"
-     :style="!isOpen && window.innerWidth < 640 ? 'bottom: 105px;' : ''"
+<div class="fixed z-[1050] transition-all" 
+     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6'"
      x-data="{ isOpen: false, showTooltip: true, contactModalOpen: false }"
      @open-contact-modal.window="contactModalOpen = true"
      @close-contact-modal.window="contactModalOpen = false"
