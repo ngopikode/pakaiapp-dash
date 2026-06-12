@@ -111,7 +111,7 @@ new class extends Component
             <div class="border-top p-3 flex-shrink-0 position-relative" style="background-color: var(--chat-input-area-bg); border-color: var(--chat-border) !important;">
                 
                 <!-- WhatsApp Fallback Button -->
-                <div class="text-center mb-2">
+                <div class="text-center mb-2" style="padding-right: 52px;">
                     <a href="https://wa.me/6285172441544" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center justify-content-center gap-2 w-100" style="font-size: 12px; border-width: 1.5px;">
                         <i class="bi bi-whatsapp"></i> Hubungi Admin via WhatsApp
                     </a>
