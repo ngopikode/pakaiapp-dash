@@ -156,7 +156,7 @@ class extends Component {
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h3 class="mb-0">
-                <i class="bi bi-robot text-primary me-2"></i> AI Menu Engine Manager
+                <i class="bi bi-stars text-primary me-2"></i> AI Menu Engine Manager
             </h3>
             <div class="form-check form-switch fs-4">
                 <input class="form-check-input" type="checkbox" role="switch" id="engineToggle"

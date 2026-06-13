@@ -670,7 +670,7 @@
     <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
             <div class="d-flex align-items-center gap-2">
-                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                <div class="chat-avatar"><i class="bi bi-stars"></i></div>
                 <div>
                     <h6 class="mb-0 fw-bold" style="font-size:0.95rem; color:#fff;">Asisten Pakaiapp</h6>
                     <small style="color:rgba(255,255,255,0.8); font-size:0.75rem;"><span class="chat-online-dot"></span>

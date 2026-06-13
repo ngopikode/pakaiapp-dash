@@ -1,28 +1,25 @@
-<div class="card dash-card bg-body border w-100 mb-4" style="border-color: rgba(182, 115, 50, 0.4) !important; position: relative; overflow: hidden; min-height: 180px;">
-    {{-- Decorative Subtle Glow --}}
-    <div class="position-absolute" style="width: 200px; height: 200px; background: rgba(182, 115, 50, 0.06); filter: blur(45px); top: -80px; left: -80px; pointer-events: none;"></div>
-
-    <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center position-relative z-1">
+<div class="card w-100 mb-3 border rounded-3 bg-body" style="border-color: rgba(182, 115, 50, 0.2) !important; position: relative; overflow: hidden;">
+    <div class="card-header bg-transparent border-0 pt-2.5 pb-0 px-3 d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-2">
-            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
-                <i class="bi bi-robot fs-6"></i>
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                <i class="bi bi-stars fs-6"></i>
             </div>
-            <h6 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.3px;">AI Daily Briefing</h6>
+            <h6 class="fw-bold mb-0 text-body" style="font-size: 0.9rem;">AI Daily Briefing</h6>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <button wire:click="regenerate" wire:loading.attr="disabled" class="btn btn-sm btn-light border rounded-pill shadow-sm py-1 px-2 d-flex align-items-center gap-1" style="font-size: 0.65rem; transition: all 0.2s;">
-                <i wire:loading.remove wire:target="regenerate" class="bi bi-arrow-clockwise text-primary"></i>
-                <span wire:loading wire:target="regenerate" class="spinner-border text-primary" style="width: 0.7rem; height: 0.7rem; border-width: 0.15em;" role="status" aria-hidden="true"></span>
-                <span wire:loading.remove wire:target="regenerate" class="fw-bold text-secondary">Muat Ulang</span>
-                <span wire:loading wire:target="regenerate" class="fw-bold text-primary">Menganalisis...</span>
+            <button wire:click="regenerate" wire:loading.attr="disabled" class="btn btn-sm btn-outline-secondary rounded-pill py-1 px-2.5 d-flex align-items-center gap-1" style="font-size: 0.65rem;">
+                <i wire:loading.remove wire:target="regenerate" class="bi bi-arrow-clockwise"></i>
+                <span wire:loading wire:target="regenerate" class="spinner-border" style="width: 0.7rem; height: 0.7rem; border-width: 0.12em;" role="status" aria-hidden="true"></span>
+                <span wire:loading.remove wire:target="regenerate">Muat Ulang</span>
+                <span wire:loading wire:target="regenerate">Menganalisis...</span>
             </button>
-            <span class="badge rounded-pill bg-body-tertiary border text-secondary shadow-sm" style="font-size: 0.65rem;">
+            <span class="btn btn-sm btn-outline-secondary disabled rounded-pill py-1 px-2.5" style="font-size: 0.65rem;">
                 Update Terkini
             </span>
         </div>
     </div>
     
-    <div class="card-body p-3 pt-1 position-relative z-1">
+    <div class="card-body p-3 pt-2">
         @php
             $insightHtml = str($insightText)->markdown(['html_input' => 'escape']);
             // Regex to format metrics/numbers: Bold, enlarged, and highlighted
@@ -47,25 +44,24 @@
             margin-bottom: 0;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
         
         .markdown-content li {
             position: relative;
             background: var(--bs-tertiary-bg);
             border: 1px solid var(--bs-border-color-translucent) !important;
-            border-radius: 1rem;
-            padding: 0.85rem 1rem;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            transition: all 0.2s ease-in-out;
         }
         
         .markdown-content li:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.03);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
             border-color: rgba(var(--bs-primary-rgb), 0.25) !important;
-            background: rgba(var(--bs-primary-rgb), 0.01);
         }
         
         /* Color-coded borders based on sequence */
@@ -92,26 +88,17 @@
         
         /* Custom styled numbers */
         .briefing-number {
-            font-size: 1.05rem;
+            font-size: 0.85rem;
             font-weight: 800;
             color: var(--bs-primary);
-            background: rgba(var(--bs-primary-rgb), 0.08);
-            padding: 0.05rem 0.35rem;
-            border-radius: 0.35rem;
+            background: rgba(var(--bs-primary-rgb), 0.06);
+            padding: 0.02rem 0.25rem;
+            border-radius: 0.25rem;
             white-space: nowrap;
             display: inline-block;
             line-height: 1.1;
             margin: 0 0.1rem;
             vertical-align: baseline;
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
         }
     </style>
 </div>

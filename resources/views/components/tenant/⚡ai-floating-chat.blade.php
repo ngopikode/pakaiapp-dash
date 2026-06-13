@@ -112,7 +112,7 @@ new class extends Component
         <div class="bg-zinc-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
             <div class="flex items-center gap-3">
                 <div class="bg-white text-zinc-900 w-9 h-9 rounded-full flex items-center justify-center shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z"/></svg>
                 </div>
                 <div class="leading-tight">
                     <span class="font-bold block text-[15px]">{{ $storeName }}</span>
@@ -137,7 +137,7 @@ new class extends Component
                     <div class="p-3.5 text-[14px] leading-relaxed shadow-sm max-w-[85%] {{ $msg['role'] === 'user' ? 'bg-zinc-900 text-white rounded-2xl rounded-br-sm' : 'bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 markdown-content' }}">
                         @if($msg['role'] === 'assistant')
                             @php
-                                $htmlContent = str($msg['content'])->markdown(['html_input' => 'escape']);
+                                $htmlContent = str($msg['content'])->markdown(['html_input' => 'allow']);
                                 $htmlContent = preg_replace_callback('/\[VARIANT_IDS?:\s*([\d, ]+)(?:\|EXTRAS:\s*([\d, ]+))?(?:\|QTY:\s*(\d+))?\]/', function($matches) {
                                     $variantIds = array_filter(array_map('trim', explode(',', $matches[1])));
                                     $extraIds = !empty($matches[2]) ? array_filter(array_map('trim', explode(',', $matches[2]))) : [];
