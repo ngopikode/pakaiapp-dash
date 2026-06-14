@@ -55,6 +55,12 @@ new class extends Component
             ->toArray();
     }
 
+    public function sendQuickReply($text)
+    {
+        $this->userInput = $text;
+        $this->sendMessage();
+    }
+
     public function sendMessage()
     {
         $this->validate(['userInput' => 'required|string|max:500']);
@@ -217,6 +223,13 @@ new class extends Component
                                 }, $htmlContent);
                             @endphp
                             {!! $htmlContent !!}
+                            @if($loop->first && count($messages) === 1)
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <button wire:click="sendQuickReply('Menu yang paling laris?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Menu paling laris?</button>
+                                    <button wire:click="sendQuickReply('Rekomendasi minuman manis?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Rekomendasi minuman?</button>
+                                    <button wire:click="sendQuickReply('Gimana cara pesannya?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Cara pesannya gimana?</button>
+                                </div>
+                            @endif
                         @else
                             {{ $msg['content'] }}
                         @endif
