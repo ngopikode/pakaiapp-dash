@@ -224,10 +224,10 @@ new class extends Component
                             @endphp
                             {!! $htmlContent !!}
                             @if($loop->first && count($messages) === 1)
-                                <div class="mt-3 flex flex-wrap gap-2">
-                                    <button wire:click="sendQuickReply('Menu yang paling laris?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Menu paling laris?</button>
-                                    <button wire:click="sendQuickReply('Rekomendasi minuman manis?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Rekomendasi minuman?</button>
-                                    <button wire:click="sendQuickReply('Gimana cara pesannya?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Cara pesannya gimana?</button>
+                                <div class="mt-3 flex flex-wrap gap-2" x-data="{ clicked: false }" x-show="!clicked">
+                                    <button @click="clicked = true" wire:click="sendQuickReply('Menu yang paling laris?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Menu paling laris?</button>
+                                    <button @click="clicked = true" wire:click="sendQuickReply('Rekomendasi minuman manis?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Rekomendasi minuman?</button>
+                                    <button @click="clicked = true" wire:click="sendQuickReply('Gimana cara pesannya?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Cara pesannya gimana?</button>
                                 </div>
                             @endif
                         @else
@@ -238,7 +238,7 @@ new class extends Component
             @endforeach
             
             <!-- Target for Loading state -->
-            <div class="flex mb-4 justify-start hidden" wire:loading.class.remove="hidden" wire:target="sendMessage">
+            <div class="flex mb-4 justify-start hidden" wire:loading.class.remove="hidden" wire:target="sendMessage, sendQuickReply">
                 <div class="p-3.5 text-[14px] leading-relaxed bg-white text-zinc-800 rounded-2xl rounded-bl-sm border border-zinc-100 shadow-sm max-w-[85%] flex items-center gap-2">
                     <span class="text-zinc-500 italic">Sedang berpikir...</span>
                     <svg class="animate-spin h-4 w-4 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>

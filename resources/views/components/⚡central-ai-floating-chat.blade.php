@@ -113,10 +113,10 @@ new class extends Component {
                                 @if($msg['role'] === 'assistant')
                                     {!! str($msg['content'])->markdown(['html_input' => 'allow']) !!}
                                     @if($loop->first && count($messages) === 1)
-                                        <div class="mt-3 d-flex flex-wrap gap-2">
-                                            <button wire:click="sendQuickReply('Apa saja fiturnya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Apa saja fiturnya?</button>
-                                            <button wire:click="sendQuickReply('Berapa biayanya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Berapa biayanya?</button>
-                                            <button wire:click="sendQuickReply('Bagaimana cara daftarnya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Cara daftarnya?</button>
+                                        <div class="mt-3 d-flex flex-wrap gap-2" x-data="{ clicked: false }" x-show="!clicked">
+                                            <button @click="clicked = true" wire:click="sendQuickReply('Apa saja fiturnya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Apa saja fiturnya?</button>
+                                            <button @click="clicked = true" wire:click="sendQuickReply('Berapa biayanya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Berapa biayanya?</button>
+                                            <button @click="clicked = true" wire:click="sendQuickReply('Bagaimana cara daftarnya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Cara daftarnya?</button>
                                         </div>
                                     @endif
                                 @else
@@ -129,7 +129,7 @@ new class extends Component {
 
                 <!-- Target for Loading state -->
                 <div class="d-flex mb-3 justify-content-start d-none" wire:loading.class.remove="d-none"
-                     wire:target="sendMessage">
+                     wire:target="sendMessage, sendQuickReply">
                     <div class="p-3 shadow-sm bot-msg-bubble d-flex align-items-center gap-2"
                          style="font-size: 14px; max-width: 85%;">
                         <span class="text-muted fst-italic">Sedang berpikir...</span>
