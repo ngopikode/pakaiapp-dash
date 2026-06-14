@@ -225,9 +225,9 @@ new class extends Component
                             {!! $htmlContent !!}
                             @if($loop->first && count($messages) === 1)
                                 <div class="mt-3 flex flex-wrap gap-2" x-data="{ clicked: false }" x-show="!clicked">
-                                    <button @click="clicked = true" wire:click="sendQuickReply('Menu yang paling laris?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Menu paling laris?</button>
-                                    <button @click="clicked = true" wire:click="sendQuickReply('Rekomendasi minuman manis?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Rekomendasi minuman?</button>
-                                    <button @click="clicked = true" wire:click="sendQuickReply('Gimana cara pesannya?')" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Cara pesannya gimana?</button>
+                                    <button @click="clicked = true" wire:click="sendQuickReply('Menu yang paling laris?')" wire:loading.attr="disabled" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Menu paling laris?</button>
+                                    <button @click="clicked = true" wire:click="sendQuickReply('Rekomendasi minuman manis?')" wire:loading.attr="disabled" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Rekomendasi minuman?</button>
+                                    <button @click="clicked = true" wire:click="sendQuickReply('Gimana cara pesannya?')" wire:loading.attr="disabled" class="border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">Cara pesannya gimana?</button>
                                 </div>
                             @endif
                         @else

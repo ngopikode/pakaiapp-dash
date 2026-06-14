@@ -114,9 +114,9 @@ new class extends Component {
                                     {!! str($msg['content'])->markdown(['html_input' => 'allow']) !!}
                                     @if($loop->first && count($messages) === 1)
                                         <div class="mt-3 d-flex flex-wrap gap-2" x-data="{ clicked: false }" x-show="!clicked">
-                                            <button @click="clicked = true" wire:click="sendQuickReply('Apa saja fiturnya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Apa saja fiturnya?</button>
-                                            <button @click="clicked = true" wire:click="sendQuickReply('Berapa biayanya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Berapa biayanya?</button>
-                                            <button @click="clicked = true" wire:click="sendQuickReply('Bagaimana cara daftarnya?')" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Cara daftarnya?</button>
+                                            <button @click="clicked = true" wire:click="sendQuickReply('Apa saja fiturnya?')" wire:loading.attr="disabled" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Apa saja fiturnya?</button>
+                                            <button @click="clicked = true" wire:click="sendQuickReply('Berapa biayanya?')" wire:loading.attr="disabled" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Berapa biayanya?</button>
+                                            <button @click="clicked = true" wire:click="sendQuickReply('Bagaimana cara daftarnya?')" wire:loading.attr="disabled" class="btn btn-sm btn-outline-success rounded-pill fw-medium" style="font-size: 11.5px; padding: 4px 10px;">Cara daftarnya?</button>
                                         </div>
                                     @endif
                                 @else
