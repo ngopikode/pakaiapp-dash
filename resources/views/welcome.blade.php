@@ -263,14 +263,27 @@
                 <a href="/login" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium transition-colors cursor-pointer">Masuk</a>
                 <a href="/register" class="btn-primary text-sm py-2.5 px-5">Daftar Gratis</a>
             </div>
-            <button class="md:hidden p-2 text-[var(--color-text)] cursor-pointer">
+            <button class="md:hidden p-2 text-[var(--color-text)] cursor-pointer" onclick="document.getElementById(\'mobile-menu\').classList.toggle(\'hidden\')">
                 <i class="ph-bold ph-list text-2xl"></i>
             </button>
         </div>
     </div>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="hidden md:hidden bg-[var(--color-bg-card)] border-b border-[var(--color-border)] px-4 py-4 space-y-4 absolute top-16 left-0 right-0 shadow-lg">
+    <a href="#cara-daftar" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Cara Kerja</a>
+    <a href="#features" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Fitur</a>
+    <a href="#calculator" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Kalkulator</a>
+    <a href="#impact" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Testimoni</a>
+    <a href="#faq" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">FAQ</a>
+    <div class="border-t border-[var(--color-border)] pt-4 flex items-center justify-between">
+        <a href="/login" class="text-[var(--color-text)] font-medium">Masuk</a>
+        <a href="/register" class="btn-primary text-sm py-2 px-4">Daftar Gratis</a>
+    </div>
+</div>
 </nav>
 
-<section class="relative min-h-screen flex items-center pt-16 overflow-hidden">
+<section id="calculator" class="relative min-h-screen flex items-center pt-16 overflow-hidden">
     <div class="absolute inset-0 z-0">
         <div class="absolute top-20 right-10 w-[400px] h-[400px] rounded-full bg-[var(--color-leaf)]/10 blur-3xl"></div>
         <div class="absolute bottom-20 left-10 w-[300px] h-[300px] rounded-full bg-[var(--color-sky)]/10 blur-3xl"></div>
@@ -412,41 +425,41 @@
             <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200/50 dark:border-indigo-800/30 text-indigo-700 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
                 <i class="ph-fill ph-lightning"></i> Cara Kerja
             </div>
-            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">Aplikasi Kasir Tanpa Pasang: <span class="text-emerald-600 dark:text-emerald-400">3 Langkah</span></h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-4 leading-relaxed font-light">Aplikasi kasir berbasis web cloud sepenuhnya. Tidak perlu unduh aplikasi dari App Store, tidak perlu ahli IT. Buka browser, daftar, langsung bisa terima pesanan.</p>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-[var(--color-text)]">Aplikasi Kasir Tanpa Pasang: <span class="text-emerald-600 dark:text-emerald-400">3 Langkah</span></h2>
+            <p class="text-[var(--color-text-muted)] mt-4 leading-relaxed font-light">Aplikasi kasir berbasis web cloud sepenuhnya. Tidak perlu unduh aplikasi dari App Store, tidak perlu ahli IT. Buka browser, daftar, langsung bisa terima pesanan.</p>
         </div>
 
         <div class="max-w-xl mx-auto">
             <!-- Step 1 -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
+            <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
                 
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-storefront text-2xl"></i>
                 </div>
-                <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-3">Daftar & Buat Toko</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 font-light">Klik "Daftar Gratis", isi nama tokomu, email, dan nomor WhatsApp. Verifikasi OTP dari email secara instan. Workspace kasirmu langsung siap.</p>
-                <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-400 px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~2 Menit</span>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Daftar & Buat Toko</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Klik "Daftar Gratis", isi nama tokomu, email, dan nomor WhatsApp. Verifikasi OTP dari email secara instan. Workspace kasirmu langsung siap.</p>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)] bg-[var(--color-bg-alt)] dark:text-[var(--color-text-subtle)] px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~2 Menit</span>
             </div>
 
             <!-- Step 2 -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300">
+            <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300">
                 
                 <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-list-plus text-2xl"></i>
                 </div>
-                <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-3">Input Menu & Produk</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 font-light">Masukkan produk atau menu Anda lengkap dengan harga, kategori, dan foto. Pengguna juga bisa menambahkan variasi/addon seperti ukuran rasa.</p>
-                <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-400 px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~10 Menit</span>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Input Menu & Produk</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Masukkan produk atau menu Anda lengkap dengan harga, kategori, dan foto. Pengguna juga bisa menambahkan variasi/addon seperti ukuran rasa.</p>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)] bg-[var(--color-bg-alt)] dark:text-[var(--color-text-subtle)] px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~10 Menit</span>
             </div>
 
             <!-- Step 3 -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
+            <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
                 
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-paper-plane text-2xl"></i>
                 </div>
-                <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-3">Langsung Jualan</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 font-light">Sistem kasir siap! Terima pembayaran staf, atau cetak kode QR meja agar pelanggan bisa pesan & bayar mandiri. Dana masuk langsung ke tokomu.</p>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Langsung Jualan</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Sistem kasir siap! Terima pembayaran staf, atau cetak kode QR meja agar pelanggan bisa pesan & bayar mandiri. Dana masuk langsung ke tokomu.</p>
                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded-full"><i class="ph ph-check-circle"></i> Siap Jualan</span>
             </div>
         </div>
@@ -618,79 +631,79 @@
     </div>
 </section>
 
-<section id="faq" class="py-24 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors">
+<section id="faq" class="py-24 bg-[var(--color-bg-card)] border-t border-[var(--color-border)] transition-colors">
     <div class="max-w-4xl mx-auto px-4">
         <div class="text-center max-w-2xl mx-auto mb-16">
             <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
                 <i class="ph-fill ph-question"></i> FAQ
             </div>
-            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">Pertanyaan Umum <span class="text-emerald-600 dark:text-emerald-400">Terbanyak</span></h2>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-[var(--color-text)]">Pertanyaan Umum <span class="text-emerald-600 dark:text-emerald-400">Terbanyak</span></h2>
         </div>
 
         <div class="space-y-4 max-w-3xl mx-auto">
             <!-- FAQ 1 -->
-            <div class="border border-slate-200 dark:border-slate-800 bg-zinc-50 dark:bg-slate-950 rounded-2xl overflow-hidden transition-colors duration-300">
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
                 <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
-                    <span class="font-bold text-slate-900 dark:text-white text-base">Apakah benar-benar gratis untuk daftar?</span>
-                    <i class="ph ph-caret-down text-slate-400 transition-transform duration-300"></i>
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah benar-benar gratis untuk daftar?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                    <p class="px-6 pb-6 text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-light">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan dikenakan biaya Rp {{ $trxFee }} per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada transaksi, tidak ada biaya sama sekali.</p>
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan dikenakan biaya Rp {{ $trxFee }} per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada transaksi, tidak ada biaya sama sekali.</p>
                 </div>
             </div>
 
             <!-- FAQ 2 -->
-            <div class="border border-slate-200 dark:border-slate-800 bg-zinc-50 dark:bg-slate-950 rounded-2xl overflow-hidden transition-colors duration-300">
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
                 <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
-                    <span class="font-bold text-slate-900 dark:text-white text-base">Apa itu "Otomatis Gratis Unlimited"?</span>
-                    <i class="ph ph-caret-down text-slate-400 transition-transform duration-300"></i>
+                    <span class="font-bold text-[var(--color-text)] text-base">Apa itu "Otomatis Gratis Unlimited"?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                    <p class="px-6 pb-6 text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-light">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai Rp {{ $cappingLimitFormatted }} (setara {{ floor($cappingLimit / $trxFee) }} transaksi), maka semua transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp dalam sebulan adalah Rp {{ $cappingLimitFormatted }}, berapapun jumlah transaksinya.</p>
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai Rp {{ $cappingLimitFormatted }} (setara {{ floor($cappingLimit / $trxFee) }} transaksi), maka semua transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp dalam sebulan adalah Rp {{ $cappingLimitFormatted }}, berapapun jumlah transaksinya.</p>
                 </div>
             </div>
 
             <!-- FAQ 3 -->
-            <div class="border border-slate-200 dark:border-slate-800 bg-zinc-50 dark:bg-slate-950 rounded-2xl overflow-hidden transition-colors duration-300">
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
                 <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
-                    <span class="font-bold text-slate-900 dark:text-white text-base">Apakah perlu install aplikasi di HP?</span>
-                    <i class="ph ph-caret-down text-slate-400 transition-transform duration-300"></i>
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah perlu install aplikasi di HP?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                    <p class="px-6 pb-6 text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-light">Tidak perlu! Pakaiapp berbasis web dan berjalan langsung di browser HP, tablet, atau PC. Anda bisa menambahkan shortcut ke homescreen HP layaknya aplikasi (PWA) untuk kemudahan akses.</p>
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Tidak perlu! Pakaiapp berbasis web dan berjalan langsung di browser HP, tablet, atau PC. Anda bisa menambahkan shortcut ke homescreen HP layaknya aplikasi (PWA) untuk kemudahan akses.</p>
                 </div>
             </div>
 
             <!-- FAQ 4 -->
-            <div class="border border-slate-200 dark:border-slate-800 bg-zinc-50 dark:bg-slate-950 rounded-2xl overflow-hidden transition-colors duration-300">
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
                 <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
-                    <span class="font-bold text-slate-900 dark:text-white text-base">Apakah data toko saya aman?</span>
-                    <i class="ph ph-caret-down text-slate-400 transition-transform duration-300"></i>
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah data toko saya aman?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                    <p class="px-6 pb-6 text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-light">Data Anda disimpan di server cloud terenkripsi dan dibackup secara rutin. Setiap akun toko memiliki subdomain dan database terisolasi, sehingga data Anda tidak bercampur dengan toko lain.</p>
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Data Anda disimpan di server cloud terenkripsi dan dibackup secara rutin. Setiap akun toko memiliki subdomain dan database terisolasi, sehingga data Anda tidak bercampur dengan toko lain.</p>
                 </div>
             </div>
 
             <!-- FAQ 5 -->
-            <div class="border border-slate-200 dark:border-slate-800 bg-zinc-50 dark:bg-slate-950 rounded-2xl overflow-hidden transition-colors duration-300">
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
                 <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
-                    <span class="font-bold text-slate-900 dark:text-white text-base">Bagaimana cara top-up dan cairkan dana penjualan?</span>
-                    <i class="ph ph-caret-down text-slate-400 transition-transform duration-300"></i>
+                    <span class="font-bold text-[var(--color-text)] text-base">Bagaimana cara top-up dan cairkan dana penjualan?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                    <p class="px-6 pb-6 text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-light">Dana hasil penjualan dari pelanggan yang bayar via QRIS/E-Wallet langsung masuk ke wallet toko Anda di Pakaiapp. Proses penarikan ke rekening bank dilakukan secara manual oleh tim kami — hubungi support via WhatsApp untuk proses pencairan.</p>
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Dana hasil penjualan dari pelanggan yang bayar via QRIS/E-Wallet langsung masuk ke wallet toko Anda di Pakaiapp. Proses penarikan ke rekening bank dilakukan secara manual oleh tim kami — hubungi support via WhatsApp untuk proses pencairan.</p>
                 </div>
             </div>
 
             <!-- FAQ 6 -->
-            <div class="border border-slate-200 dark:border-slate-800 bg-zinc-50 dark:bg-slate-950 rounded-2xl overflow-hidden transition-colors duration-300">
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
                 <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
-                    <span class="font-bold text-slate-900 dark:text-white text-base">Apakah ada biaya tambahan untuk fitur QRIS atau QR Self-Order?</span>
-                    <i class="ph ph-caret-down text-slate-400 transition-transform duration-300"></i>
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah ada biaya tambahan untuk fitur QRIS atau QR Self-Order?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
-                    <p class="px-6 pb-6 text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-light">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan manajemen stok sudah termasuk dalam satu biaya flat Rp {{ $trxFee }}/transaksi. Tidak ada paket berbeda atau fitur yang dikunci di balik paywall.</p>
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan manajemen stok sudah termasuk dalam satu biaya flat Rp {{ $trxFee }}/transaksi. Tidak ada paket berbeda atau fitur yang dikunci di balik paywall.</p>
                 </div>
             </div>
         </div>
