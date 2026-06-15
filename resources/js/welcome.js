@@ -271,8 +271,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             formData.email = resumeEmail;
             if (formData.namaToko) {
                 // Have localstorage (same device)
-                if (currentStepIndex < 5 && !isEmailVerified) {
-                    currentStepIndex = 5; // TanyaOTP
+                if (currentStepIndex < 4 && !isEmailVerified) {
+                    currentStepIndex = 4; // TanyaOTP
                 }
             } else {
                 // No localstorage (different device) - MUST start from 0 because backend requires all fields
@@ -293,16 +293,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         let isProcessing = false;
         let selectedPaymentMethod = '';
 
-        // Sequence of steps
+        // Sequence of steps (Shortened for better UX)
         const steps = [
             { id: 'TanyaNama', q: 'Halo! Siapa nama toko atau bisnis Anda?', sub: 'Mari kita siapkan kasir cerdas Anda dalam hitungan detik.', type: 'text', placeholder: 'Ketik nama tokomu di sini...' },
-            { id: 'TanyaBisnis', q: 'Termasuk dalam kategori apakah bisnis Anda?', sub: 'Untuk menyesuaikan fitur sistem dengan kebutuhan Anda.', type: 'choice', choices: [{l: 'F&B (Resto, Cafe, Warung)', v: 'F&B (Resto/Cafe)'}, {l: 'Retail (Baju, Kelontong)', v: 'Retail (Toko/Butik)'}] },
-            { id: 'TanyaOwner', q: 'Siapa nama pemilik bisnis hebat ini?', sub: 'Nama lengkap Anda, agar kami bisa menyapa dengan benar.', type: 'text', placeholder: 'Ketik nama lengkap Anda...' },
+            { id: 'TanyaBisnis', q: 'Termasuk dalam kategori apakah bisnis Anda?', sub: 'Untuk menyesuaikan fitur sistem.', type: 'choice', choices: [{l: 'F&B (Resto, Cafe, Warung)', v: 'F&B (Resto/Cafe)'}, {l: 'Retail (Baju, Kelontong)', v: 'Retail (Toko/Butik)'}] },
             { id: 'TanyaWa', q: 'Berapa nomor WhatsApp aktif Anda?', sub: 'Untuk mengirimkan informasi penting terkait toko.', type: 'tel', placeholder: 'Contoh: 08123456789' },
-            { id: 'TanyaEmail', q: 'Apa alamat email aktif Anda?', sub: 'Kami akan mengirimkan kode verifikasi (OTP) ke email ini.', type: 'email', placeholder: 'Contoh: nama@email.com' },
-            { id: 'TanyaOTP', q: 'Masukkan 6 angka OTP', sub: 'Cek kotak masuk atau folder spam email Anda.', type: 'number', placeholder: 'Ketik 6 angka OTP di sini...' },
-            { id: 'TanyaPaket', q: 'Pilih paket langganan Anda', sub: 'Pilih yang paling sesuai dengan kebutuhan bisnis.', type: 'choice', choices: [{l: 'Gratis (Rp 0)', v: 'free'}, {l: 'Santai (Rp 50.000/bln)', v: 'santai'}, {l: 'Premium (Rp 150.000/bln)', v: 'premium'}] },
-            { id: 'TanyaPayment', q: 'Metode Pembayaran', sub: 'Pilih metode pembayaran yang Anda inginkan.', type: 'choice', choices: [{l: 'QRIS / E-Wallet', v: 'NQ'}, {l: 'Transfer / VA', v: 'BC'}, {l: 'Manual (Bantuan WA Admin)', v: 'manual'}] }
+            { id: 'TanyaEmail', q: 'Terakhir, apa alamat email aktif Anda?', sub: 'Kami akan mengirimkan OTP ke email ini.', type: 'email', placeholder: 'Contoh: nama@email.com' },
+            { id: 'TanyaOTP', q: 'Masukkan 6 angka OTP', sub: 'Cek kotak masuk atau folder spam email Anda.', type: 'number', placeholder: 'Ketik 6 angka OTP di sini...' }
         ];
 
 
@@ -448,7 +445,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 // Set existing value if they went back
                 if (step.id === 'TanyaNama' && formData.namaToko) chatInput.value = formData.namaToko;
-                else if (step.id === 'TanyaOwner' && formData.namaOwner) chatInput.value = formData.namaOwner;
+                
                 else if (step.id === 'TanyaWa' && formData.noWa) chatInput.value = formData.noWa;
                 else if (step.id === 'TanyaEmail' && formData.email) chatInput.value = formData.email;
 
@@ -502,9 +499,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (step.id === 'TanyaNama') {
                 formData.namaToko = val;
                 askStep(currentStepIndex + 1);
-            } else if (step.id === 'TanyaOwner') {
-                formData.namaOwner = val;
-                askStep(currentStepIndex + 1);
             } else if (step.id === 'TanyaWa') {
                 if (val.length < 9 || isNaN(val.replace(/\+/g, ''))) {
                     showToast('Nomor WA tidak valid.');
@@ -552,7 +546,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (data.status === 'success') {
                             isEmailVerified = true;
                             saveProgress();
-                            askStep(currentStepIndex + 1);
+                            finalizeRegistration(); // Directly finalize!
                         } else {
                             showToast('Kode OTP salah atau kedaluwarsa.');
                         }
@@ -591,6 +585,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         async function finalizeRegistration() {
             showLoading('Bagus sekali! Menyiapkan toko Anda...');
+            if (!formData.namaOwner) formData.namaOwner = 'Owner ' + formData.namaToko;
+            formData.paket = 'free'; // Pakaiapp is now purely Pay Per Transaction
+            formData.payment_method = 'free';
             try {
                 let res = await fetch('/api/register-tenant', {
                     method: 'POST',

@@ -79,40 +79,155 @@
     
 
         @livewireStyles
+    
     @vite(['resources/css/welcome.css'])
+    <style>
+        /* Sustainability Platform Eco Theme */
+        :root {
+            --color-primary: #228B22;
+            --color-secondary: #2E7D32;
+            --color-accent: #8B4513;
+            --color-sky: #87CEEB;
+            --color-earth: #A0522D;
+            --color-leaf: #4CAF50;
+            --color-sun: #FFB300;
+            --color-bg: #FFFFFF;
+            --color-bg-alt: #F8FAFC;
+            --color-bg-card: #FFFFFF;
+            --color-bg-dark: #1B4332;
+            --color-text: #0F172A;
+            --color-text-muted: #64748B;
+            --color-text-subtle: #84A98C;
+            --color-border: #E2E8F0;
+            --gradient-nature: linear-gradient(135deg, #228B22 0%, #4CAF50 100%);
+            --font-heading: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .dark {
+            --color-bg: #0B120F;
+            --color-bg-alt: #111A15;
+            --color-bg-card: #151F19;
+            --color-bg-dark: #070A08;
+            --color-text: #E8EAE6;
+            --color-text-muted: #8BA89D;
+            --color-text-subtle: #5C7A6E;
+            --color-border: #213329;
+        }
+
+        .eco-theme {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+        }
+        
+        .eco-theme .gradient-text {
+            background: var(--gradient-nature);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .eco-theme .badge-eco {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(34, 139, 34, 0.1);
+            color: var(--color-primary);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .eco-theme .btn-primary {
+            background: var(--gradient-nature);
+            color: #fff;
+            font-weight: 600;
+            padding: 14px 32px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(34, 139, 34, 0.2);
+        }
+
+        .eco-theme .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(34, 139, 34, 0.3);
+        }
+
+        .eco-theme .btn-secondary {
+            background: transparent;
+            color: var(--color-primary);
+            font-weight: 600;
+            padding: 14px 32px;
+            border-radius: 50px;
+            border: 2px solid var(--color-primary);
+            transition: all 0.3s ease;
+        }
+
+        .eco-theme .btn-secondary:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .eco-theme .calculator-preview {
+            background: var(--color-bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+
+        .eco-theme .organic-card {
+            background: var(--color-bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        .eco-theme .organic-card:hover {
+            box-shadow: 0 20px 40px rgba(34, 139, 34, 0.1);
+            border-color: var(--color-primary);
+        }
+    </style>
+
 </head>
-<body class="bg-zinc-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased overflow-x-hidden transition-colors duration-300">
+<body class="eco-theme font-sans antialiased overflow-x-hidden">
 
 <!-- ============================================
-     FLOATING NAV (CAPSULE STYLE)
+     NAVBAR ECO STYLE
 ============================================ -->
-<div class="fixed top-4 sm:top-6 left-0 right-0 z-50 flex justify-center px-2 sm:px-4">
-    <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-full px-3.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between w-full max-w-5xl shadow-lg transition-colors">
-        <!-- Logo -->
-        <a href="/" class="flex items-center gap-1.5 sm:gap-2">
-            <i class="ph-fill ph-circles-four text-emerald-600 dark:text-emerald-400 text-xl sm:text-2xl shrink-0"></i>
-            <span class="font-heading font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white">pakaiapp<span class="text-emerald-500 hidden sm:inline">.online</span></span>
-        </a>
-
-        <!-- Links -->
-        <div class="hidden md:flex items-center gap-8">
-            <a href="#cara-daftar" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Cara Kerja</a>
-            <a href="#fitur" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Fitur</a>
-            <a href="#harga" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Simulasi Harga</a>
-            <a href="#faq" class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">FAQ</a>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex items-center gap-2 sm:gap-4 shrink-0">
-            <!-- Theme Toggle Button (DO NOT change id, expected by welcome.js) -->
-            <button id="theme-toggle" class="p-1.5 sm:p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all duration-200" aria-label="Toggle Theme">
-                <i class="ph-bold ph-sun text-lg sm:text-xl" id="theme-icon"></i>
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="/" class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center">
+                    <i class="ph-bold ph-storefront text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-900 dark:text-white">pakaiapp</span>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-6 sm:gap-8">
+                <a href="#cara-daftar" class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer font-medium">Cara Kerja</a>
+                <a href="#fitur" class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer font-medium">Fitur</a>
+                <a href="#harga" class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer font-medium">Harga</a>
+                <a href="#faq" class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer font-medium">FAQ</a>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-4">
+                <button id="theme-toggle" class="p-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer">
+                    <i class="ph-bold ph-sun text-xl" id="theme-icon"></i>
+                </button>
+                <a href="/login" class="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors cursor-pointer">Masuk</a>
+                <a href="/register" class="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:text-slate-950 text-sm font-medium py-2.5 px-5 rounded-xl transition-all shadow-sm hover:shadow-md">Daftar Gratis</a>
+            </div>
+            
+            <button class="md:hidden p-2 text-slate-900 dark:text-white cursor-pointer">
+                <i class="ph-bold ph-list text-2xl"></i>
             </button>
-            <a href="/login" class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors px-1 sm:px-2">Masuk</a>
-            <a href="/register" class="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:text-slate-950 text-xs sm:text-sm font-bold py-2 px-4 sm:py-2.5 sm:px-6 rounded-full transition-all hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">Daftar Gratis</a>
         </div>
-    </nav>
-</div>
+    </div>
+</nav>
 
 <!-- ============================================
      HERO SECTION
