@@ -201,9 +201,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <a href="/" class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center">
-                    <i class="ph-bold ph-storefront text-white text-xl"></i>
-                </div>
+                <img src="/android-chrome-192x192.png" alt="Pakaiapp Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm">
                 <span class="text-xl font-bold text-slate-900 dark:text-white">pakaiapp</span>
             </a>
             
@@ -602,12 +600,12 @@
             <!-- Left Info -->
             <div class="md:col-span-6">
                 <a href="/" class="flex items-center gap-2 font-heading font-extrabold text-2xl text-slate-900 dark:text-white mb-4">
-                    <i class="ph-fill ph-circles-four text-emerald-600 dark:text-emerald-400 text-2xl"></i> pakaiapp<span class="text-emerald-500">.online</span>
+                    <img src="/android-chrome-192x192.png" alt="Pakaiapp Logo" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-sm opacity-90"> pakaiapp<span class="text-emerald-500">.online</span>
                 </a>
                 <p class="text-sm font-light leading-relaxed max-w-sm mb-6">Sistem kasir berbasis web untuk UMKM F&B dan Retail — tanpa biaya langganan bulanan.</p>
                 <div class="space-y-2 text-xs">
                     <div class="flex items-center gap-2">
-                        <i class="ph-bold ph-whatsapp text-emerald-600 dark:text-emerald-400 text-base"></i>
+                        <i class="ph-bold ph-whatsapp-logo text-emerald-600 dark:text-emerald-400 text-base"></i>
                         <a href="https://wa.me/6285172441544" target="_blank" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium">0851-7244-1544</a>
                     </div>
                     <div class="flex items-center gap-2">
