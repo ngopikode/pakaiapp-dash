@@ -251,11 +251,6 @@
                     Sepi? Gratis. Ramai? Bayar Suka-suka. Kelola penjualan, menu, laporan, dan QRIS dari HP, tablet, atau laptop. Cuma bayar <strong class="text-slate-900 dark:text-white">Rp {{ $trxFee }}</strong> per transaksi sukses, otomatis <strong class="text-emerald-600 dark:text-emerald-400">GRATIS sepenuhnya</strong> setelah mencapai Rp {{ $cappingLimitFormatted }}/bulan!
                 </p>
 
-                <!-- Special Offer Info -->
-                <div class="text-amber-600 dark:text-amber-400 font-bold text-sm mt-4 flex items-center justify-center lg:justify-start gap-1.5">
-                    <i class="ph-fill ph-gift text-lg"></i> Spesial Hari Ini: Gratis Kuota 100 Transaksi Pertama!
-                </div>
-
                 <div class="flex flex-col sm:flex-row items-center gap-4 mt-8 justify-center lg:justify-start">
                     <a href="/register" id="cta-hero-register" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:text-slate-950 font-bold py-4 px-8 rounded-full shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2 text-lg">
                         <i class="ph-bold ph-storefront"></i> Buat Toko Sekarang — Gratis
@@ -368,10 +363,10 @@
             <p class="text-slate-500 dark:text-slate-400 mt-4 leading-relaxed font-light">Aplikasi kasir berbasis web cloud sepenuhnya. Tidak perlu unduh aplikasi dari App Store, tidak perlu ahli IT. Buka browser, daftar, langsung bisa terima pesanan.</p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="max-w-xl mx-auto">
             <!-- Step 1 -->
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
-                <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-50 dark:bg-emerald-950/20 rounded-full flex items-center justify-center font-heading text-5xl font-extrabold text-emerald-200 dark:text-emerald-900/50 group-hover:scale-110 transition-transform">1</div>
+                
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-storefront text-2xl"></i>
                 </div>
@@ -382,7 +377,7 @@
 
             <!-- Step 2 -->
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300">
-                <div class="absolute -right-4 -top-4 w-20 h-20 bg-indigo-50 dark:bg-indigo-950/20 rounded-full flex items-center justify-center font-heading text-5xl font-extrabold text-indigo-200 dark:text-indigo-900/50 group-hover:scale-110 transition-transform">2</div>
+                
                 <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-list-plus text-2xl"></i>
                 </div>
@@ -393,7 +388,7 @@
 
             <!-- Step 3 -->
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
-                <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-50 dark:bg-emerald-950/20 rounded-full flex items-center justify-center font-heading text-5xl font-extrabold text-emerald-200 dark:text-emerald-900/50 group-hover:scale-110 transition-transform">3</div>
+                
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-paper-plane text-2xl"></i>
                 </div>
@@ -405,104 +400,7 @@
     </div>
 </section>
 
-<!-- ============================================
-     FEATURES (8 PILLARS)
-============================================ -->
-<section id="fitur" class="py-24 bg-white dark:bg-slate-900 transition-colors">
-    <div class="max-w-5xl mx-auto px-4">
-        <div class="text-center max-w-2xl mx-auto mb-16">
-            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
-                <i class="ph-fill ph-circles-four"></i> Fitur Lengkap
-            </div>
-            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">Ekosistem Super Lengkap <span class="text-emerald-600 dark:text-emerald-400">Kasir POS</span></h2>
-            <p class="text-slate-500 dark:text-slate-400 mt-4 leading-relaxed font-light">Kelola operasional harian hingga laporan pembukuan usaha dalam satu aplikasi kasir berbasis web cloud tanpa langganan.</p>
-        </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- 1. Kasir Web -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40 relative">
-                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-receipt text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Kasir Web Real-Time</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Proses transaksi penjualan dari browser HP, tablet, atau PC. Data otomatis sinkron di cloud secara bersamaan.</p>
-                <span class="absolute top-4 right-4 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full uppercase"><i class="ph-fill ph-star text-[8px] mr-1"></i>Utama</span>
-            </div>
-
-            <!-- 2. QR Self-Order -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-qr-code text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">QR Self-Order (Meja)</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Pelanggan scan QR di meja, pilih menu, bayar langsung. Pesanan terkirim otomatis ke layar kasir.</p>
-            </div>
-
-            <!-- 3. QRIS & E-Wallet -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-wallet text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Terima QRIS & E-Wallet</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">GoPay, OVO, ShopeePay, Dana, LinkAja, BCA, hingga Mandiri VA terhubung otomatis dengan aman.</p>
-            </div>
-
-            <!-- 4. Laporan & Analitik -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-chart-bar text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Laporan & Analitik</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Pantau omset harian, produk terlaris, jam teramai toko, dan kinerja kasir dalam satu dasbor.</p>
-            </div>
-
-            <!-- 5. Multi-Staf & Role -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-users text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Multi-Staf & Role</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Tambahkan akun manajer, kasir, atau dapur dengan batas akses data keuangan yang terlindungi.</p>
-            </div>
-
-            <!-- 6. Manajemen Stok -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-package text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Manajemen Stok</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Lacak ketersediaan stok bahan baku produk serta peringatan notifikasi otomatis saat stok menipis.</p>
-            </div>
-
-            <!-- 7. Cetak Struk & KDS -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-printer text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Cetak Struk & KDS</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Hubungkan printer thermal via bluetooth/USB untuk cetak struk, dan tampilkan pesanan di layar dapur (KDS).</p>
-            </div>
-
-            <!-- 8. Varian & Modifier -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-list-bullets text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Varian & Modifier</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Atur pilihan rasa, level pedas, topping ekstra, atau ukuran (S/M/L) dengan penyesuaian harga otomatis.</p>
-            </div>
-
-            <!-- 9. PWA Offline Mode -->
-            <div class="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 p-6 rounded-3xl transition-all hover:shadow-sm bg-zinc-50 dark:bg-slate-950/40">
-                <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
-                    <i class="ph-bold ph-cell-signal-slash text-xl"></i>
-                </div>
-                <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">PWA — Bisa Offline</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-2 leading-relaxed font-light">Pasang pintasan kasir ke layar HP utama. Transaksi tetap lancar tercatat meskipun koneksi internet terputus.</p>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- ============================================
      PRICING & CALCULATOR
@@ -518,10 +416,10 @@
             <p class="text-slate-500 dark:text-slate-400 mt-4 leading-relaxed font-light">Kami meniadakan biaya langganan bulanan. Anda hanya ditarik biaya kecil per transaksi sukses. Sepi = Rp 0.</p>
         </div>
 
-        <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <div>
             
             <!-- Calculator Card (DO NOT change input and display element IDs) -->
-            <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 sm:p-10 shadow-lg relative transition-colors">
+            <div class="max-w-lg mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 sm:p-10 shadow-lg relative transition-colors">
                 <div class="absolute top-8 right-8">
                     <i class="ph-duotone ph-calculator text-4xl text-emerald-500/20 dark:text-emerald-400/20"></i>
                 </div>
@@ -558,65 +456,7 @@
                 </div>
             </div>
 
-            <!-- Comparison Table -->
-            <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-lg overflow-hidden transition-colors">
-                <h3 class="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-6">Perbandingan Biaya</h3>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-100 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
-                                <th class="py-4">Fitur / Biaya</th>
-                                <th class="py-4 text-emerald-600 dark:text-emerald-400">Pakaiapp</th>
-                                <th class="py-4">Kasir Lain</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-light text-slate-600 dark:text-slate-300">
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">Biaya Pendaftaran</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Gratis</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> Bayar</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">Biaya Bulanan</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Tidak Ada</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> Rp 150rb-500rb</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">Biaya Per Transaksi</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Rp {{ $trxFee }}</td>
-                                <td class="py-3.5 text-slate-400 font-medium">Tergantung plan</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">Auto Unlimited Capping</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Ya, Rp {{ $cappingLimitShort }}</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> Tidak Ada</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">QRIS & E-Wallet</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Termasuk</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> Biaya Ekstra</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">QR Self-Order</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Termasuk</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> Plan Premium</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">Multi Staf & Role</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Termasuk</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> Biaya Ekstra</td>
-                            </tr>
-                            <tr>
-                                <td class="py-3.5 font-medium text-slate-800 dark:text-white">Kontrak Berlangganan</td>
-                                <td class="py-3.5 text-emerald-600 dark:text-emerald-400 font-bold"><i class="ph-bold ph-check-circle mr-1"></i> Tidak Ada</td>
-                                <td class="py-3.5 text-red-500"><i class="ph-bold ph-x-circle mr-1"></i> 1-12 Bulan</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
-        </div>
     </div>
 </section>
 
@@ -632,7 +472,7 @@
             <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">Kata Mereka yang <span class="text-emerald-600 dark:text-emerald-400">Sudah Pakai Pakaiapp</span></h2>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="max-w-xl mx-auto">
             <!-- Testi 1: Mirayeni -->
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between transition-colors">
                 <div>
@@ -650,44 +490,7 @@
                 </div>
             </div>
 
-            <!-- Testi 2: Siti Hasanah -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between transition-colors">
-                <div>
-                    <div class="flex text-amber-400 gap-1 mb-4">
-                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-                    </div>
-                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 font-light">"Fitur QR self-order di meja sangat membantu. Pelanggan pesan sendiri, staf saya bisa fokus di dapur. Omset naik karena antrian berkurang drastis."</p>
-                </div>
-                <div class="flex items-center gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
-                    <div class="w-10 h-10 rounded-full bg-indigo-900 text-white flex items-center justify-center font-bold text-sm shrink-0">SH</div>
-                    <div>
-                        <p class="font-bold text-slate-900 dark:text-white text-sm">Siti Hasanah</p>
-                        <p class="text-slate-500 dark:text-slate-400 text-[0.7rem] uppercase tracking-wider font-semibold">Resto & Catering, Pekanbaru</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Testi 3: Dika Pratama -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between transition-colors">
-                <div>
-                    <div class="flex text-amber-400 gap-1 mb-4">
-                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-                    </div>
-                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 font-light">"Dashboard laporannya simple dan langsung ngerti. Saya bisa cek omset dari HP kapan saja, bahkan pas saya lagi di rumah. Support-nya juga cepat respons via WA."</p>
-                </div>
-                <div class="flex items-center gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
-                    <div class="w-10 h-10 rounded-full bg-amber-700 text-white flex items-center justify-center font-bold text-sm shrink-0">DP</div>
-                    <div>
-                        <p class="font-bold text-slate-900 dark:text-white text-sm">Dika Pratama</p>
-                        <p class="text-slate-500 dark:text-slate-400 text-[0.7rem] uppercase tracking-wider font-semibold">Toko Retail Sembako, Binjai</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ============================================
+            <!-- ============================================
      FAQ (ACCORDION)
 ============================================ -->
 <section id="faq" class="py-24 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 transition-colors">
