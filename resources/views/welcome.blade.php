@@ -1,6 +1,6 @@
 @php use App\Models\GlobalSetting; @endphp
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -395,25 +395,7 @@
                     </div>
                 </div>
                 
-                <div class="absolute -top-4 -left-4 organic-card p-4 hidden lg:flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[var(--color-leaf)] flex items-center justify-center">
-                        <i class="ph-bold ph-receipt text-white"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-[var(--color-text)]">Rp 0</div>
-                        <div class="text-xs text-[var(--color-text-muted)]">Biaya Tersembunyi</div>
-                    </div>
-                </div>
-                
-                <div class="absolute -bottom-4 -right-4 organic-card p-4 hidden lg:flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[var(--color-sun)] flex items-center justify-center">
-                        <i class="ph-bold ph-infinity text-white"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-[var(--color-text)]">Otomatis</div>
-                        <div class="text-xs text-[var(--color-text-muted)]">Gratis Tanpa Batas</div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
