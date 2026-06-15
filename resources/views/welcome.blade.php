@@ -283,7 +283,7 @@
 </div>
 </nav>
 
-<section id="calculator" class="relative min-h-screen flex items-center pt-16 overflow-hidden">
+<section class="relative min-h-screen flex items-center pt-16 overflow-hidden">
     <div class="absolute inset-0 z-0">
         <div class="absolute top-20 right-10 w-[400px] h-[400px] rounded-full bg-[var(--color-leaf)]/10 blur-3xl"></div>
         <div class="absolute bottom-20 left-10 w-[300px] h-[300px] rounded-full bg-[var(--color-sky)]/10 blur-3xl"></div>
@@ -337,36 +337,63 @@
             </div>
             
             <div class="relative">
-                <div class="calculator-preview p-6 sm:p-8">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="font-semibold text-[var(--color-text)]">Simulasi Biaya Bulanan</h3>
-                        <i class="ph-duotone ph-calculator text-3xl text-[var(--color-primary)] opacity-50"></i>
+<div class="calculator-preview p-6 sm:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-semibold text-[var(--color-text)]">Live Biaya Dashboard</h3>
+                        <span class="badge-eco text-xs">Simulasi</span>
                     </div>
                     
-                    <div class="mb-10">
-                        <div class="flex justify-between items-end mb-4">
-                            <span class="text-sm font-semibold text-[var(--color-text-muted)]">Volume Transaksi / Bulan</span>
-                            <span class="font-heading font-extrabold text-2xl text-[var(--color-text)]">
-                                <span id="trxDisplay">0</span> <span class="text-xs font-normal text-[var(--color-text-subtle)] uppercase ml-1">Transaksi</span>
-                            </span>
+                    <div class="text-center mb-8">
+                        <div class="relative inline-block">
+                            <svg class="w-48 h-48" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="var(--color-border)" stroke-width="8"></circle>
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="url(#gradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="100" transform="rotate(-90 60 60)"></circle>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="var(--color-primary)"></stop>
+                                        <stop offset="100%" stop-color="var(--color-leaf)"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Cuma Bayar</span>
+                                <span class="text-4xl font-bold text-[var(--color-text)]">Rp {{ $trxFee }}</span>
+                                <span class="text-xs text-[var(--color-text-muted)] mt-1">/ transaksi sukses</span>
+                            </div>
                         </div>
-                        <input type="range" id="trxSlider" min="0" max="2000" step="50" value="0" 
-                            class="w-full h-2 bg-[var(--color-bg-alt)] rounded-lg appearance-none cursor-pointer outline-none transition-all [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-[var(--color-primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md">
+                        <p class="text-sm text-[var(--color-text-muted)] mt-6 px-4">
+                            Maksimal bayar Rp {{ $cappingLimitFormatted }} sebulan. <br>Lebih dari itu? <strong style="color: var(--color-primary)">GRATIS!</strong>
+                        </p>
                     </div>
-
-                    <div class="p-6 rounded-2xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] text-center relative overflow-hidden">
-                        <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-subtle)] mb-2">Total Biaya Pakaiapp Bulan Ini</div>
-                        <div class="font-heading text-4xl sm:text-5xl font-extrabold text-[var(--color-primary)] tracking-tight mb-2" id="costPakaiapp">GRATIS!</div>
-                        <div class="text-xs font-mono text-[var(--color-text-muted)]" id="costNote">Rp {{ $trxFee }} × 0 transaksi = Rp 0</div>
-                        
-                        <div id="unlimitedBadge" class="hidden mt-4 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-bold px-3 py-2 rounded-xl border border-[var(--color-primary)]/20 w-full animate-pulse justify-center items-center gap-1.5">
-                            <i class="ph-fill ph-sparkles"></i> Unlimited — Sisa Bulan Gratis!
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-[var(--color-text-muted)]">50 Transaksi/Bulan</span>
+                                <span class="font-medium text-[var(--color-text)]">Rp {{ number_format(50 * $trxFee, 0, ",", ".") }}</span>
+                            </div>
+                            <div class="h-2 bg-[var(--color-bg-alt)] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: 15%; background-color: var(--color-primary);"></div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="mt-6 p-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-2xl text-xs text-[var(--color-text-muted)] leading-relaxed font-light">
-                        <strong class="text-[var(--color-text)] font-bold block mb-1">🎉 Cara Hitung:</strong>
-                        Anda hanya membayar Rp {{ $trxFee }} per transaksi sukses. Apabila total tagihan Anda dalam sebulan sudah mencapai <strong class="text-[var(--color-primary)] font-semibold">Rp {{ $cappingLimitFormatted }}</strong>, semua transaksi selanjutnya di bulan tersebut GRATIS!
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-[var(--color-text-muted)]">250 Transaksi/Bulan</span>
+                                <span class="font-medium text-[var(--color-text)]">Rp {{ number_format(250 * $trxFee, 0, ",", ".") }}</span>
+                            </div>
+                            <div class="h-2 bg-[var(--color-bg-alt)] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: 50%; background-color: var(--color-leaf);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-[var(--color-text-muted)]">>500 Transaksi/Bulan</span>
+                                <span class="font-medium text-[var(--color-text)]">Rp {{ $cappingLimitFormatted }} (Mentok)</span>
+                            </div>
+                            <div class="h-2 bg-[var(--color-bg-alt)] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: 100%; background-color: var(--color-sky);"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -376,7 +403,62 @@
     </div>
 </section>
 
+
+<section id="calculator" class="py-24 relative overflow-hidden transition-colors bg-[var(--color-bg-alt)] border-t border-[var(--color-border)]">
+    <div class="max-w-5xl mx-auto px-4">
+        <!-- Section Header -->
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary)] text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="ph-fill ph-tag"></i> Skema Adil
+            </div>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-[var(--color-text)]">Bayar Hanya <span class="text-[var(--color-primary)]">Saat Ada Penjualan</span></h2>
+            <p class="text-[var(--color-text-muted)] mt-4 leading-relaxed font-light">Kami meniadakan biaya langganan bulanan. Anda hanya ditarik biaya kecil per transaksi sukses. Sepi = Rp 0.</p>
+        </div>
+
+        <div>
+            <!-- Calculator Card -->
+            <div class="max-w-lg mx-auto bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[2.5rem] p-8 sm:p-10 shadow-lg relative transition-colors">
+                <div class="absolute top-8 right-8">
+                    <i class="ph-duotone ph-calculator text-4xl text-[var(--color-primary)] opacity-20"></i>
+                </div>
+                <h3 class="font-heading text-2xl font-bold text-[var(--color-text)] mb-6">Simulasi Biaya Bulanan</h3>
+                
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-sm font-semibold text-[var(--color-text-muted)]">Volume Transaksi / Bulan</span>
+                        <span class="font-heading font-extrabold text-2xl text-[var(--color-text)]">
+                            <span id="trxDisplay">0</span> <span class="text-xs font-normal text-[var(--color-text-subtle)] uppercase ml-1">Transaksi</span>
+                        </span>
+                    </div>
+                    <!-- Range Slider -->
+                    <input type="range" id="trxSlider" min="0" max="2000" step="50" value="0" 
+                        class="w-full h-2 bg-[var(--color-bg-alt)] rounded-lg appearance-none cursor-pointer outline-none transition-all [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-[var(--color-primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md">
+                </div>
+
+                <div class="p-6 rounded-2xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] text-center">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-subtle)] mb-2">Total Biaya Pakaiapp Bulan Ini</div>
+                    <!-- Displays "GRATIS!" or formatted cost -->
+                    <div class="font-heading text-4xl sm:text-5xl font-extrabold text-[var(--color-primary)] tracking-tight mb-2" id="costPakaiapp">GRATIS!</div>
+                    <!-- Display breakdown -->
+                    <div class="text-xs font-mono text-[var(--color-text-muted)]" id="costNote">Rp {{ $trxFee }} × 0 transaksi = Rp 0</div>
+                    
+                    <!-- Unlimited Capping Badge -->
+                    <div id="unlimitedBadge" class="hidden mt-4 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-bold px-3 py-2 rounded-xl border border-[var(--color-primary)]/20 w-full animate-pulse justify-center items-center gap-1.5">
+                        <i class="ph-fill ph-sparkles"></i> Unlimited — Sisa Bulan Gratis Sepenuhnya!
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-2xl text-xs text-[var(--color-text-muted)] leading-relaxed font-light">
+                    <strong class="text-[var(--color-text)] font-bold block mb-1">🎉 Cara Hitung:</strong>
+                    Anda hanya membayar Rp {{ $trxFee }} per transaksi sukses. Apabila total tagihan Anda dalam sebulan sudah mencapai <strong class="text-[var(--color-primary)] font-semibold">Rp {{ $cappingLimitFormatted }}</strong>, semua transaksi selanjutnya di bulan tersebut GRATIS!
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section id="cara-daftar" class="py-24 relative">
+
     <div class="max-w-5xl mx-auto px-4">
         <div class="text-center max-w-2xl mx-auto mb-16">
             <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200/50 dark:border-indigo-800/30 text-indigo-700 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
