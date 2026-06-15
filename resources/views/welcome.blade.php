@@ -78,7 +78,7 @@
             --color-text-subtle: #475569;
             --color-border: #2C3E38;
         }
-        .dark .navbar-eco {
+        html.dark body.sustainability-platform .navbar-eco {
             background: rgba(27, 36, 33, 0.9);
         }
 
