@@ -254,17 +254,26 @@
                 <a href="#impact" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">Testimoni</a>
                 <a href="#faq" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">FAQ</a>
             </div>
-            <div class="hidden md:flex items-center gap-4">
-                
-                <button id="theme-toggle" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-emerald-600 transition-colors" aria-label="Toggle Theme">
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Theme Toggle (Shared) -->
+                <button id="theme-toggle" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-[var(--color-primary)] transition-colors" aria-label="Toggle Theme">
                     <i class="ph-bold ph-sun text-lg sm:text-xl" id="theme-icon"></i>
                 </button>
-                <a href="/login" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium transition-colors cursor-pointer">Masuk</a>
-                <a href="/register" class="btn-primary text-sm py-2.5 px-5">Daftar Gratis</a>
+                
+                <!-- Login (Icon on mobile, Text on desktop) -->
+                <a href="/login" class="md:hidden p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors" aria-label="Masuk">
+                    <i class="ph-bold ph-sign-in text-xl"></i>
+                </a>
+                <a href="/login" class="hidden md:block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium transition-colors cursor-pointer">Masuk</a>
+                
+                <!-- Register (Small button on mobile, Normal button on desktop) -->
+                <a href="/register" class="btn-primary text-xs py-1.5 px-3 sm:text-sm sm:py-2.5 sm:px-5">Daftar</a>
+                
+                <!-- Hamburger (Mobile only) -->
+                <button class="md:hidden p-1.5 ml-1 text-[var(--color-text)] cursor-pointer" aria-label="Menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <i class="ph-bold ph-list text-2xl"></i>
+                </button>
             </div>
-            <button class="md:hidden p-2 text-[var(--color-text)] cursor-pointer" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
-                <i class="ph-bold ph-list text-2xl"></i>
-            </button>
         </div>
     </div>
 

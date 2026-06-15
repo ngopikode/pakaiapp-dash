@@ -69,29 +69,68 @@ const themeToggle = document.getElementById('theme-toggle');
 const htmlRoot = document.getElementById('html-root');
 const themeIcon = document.getElementById('theme-icon');
 
-if (themeToggle && htmlRoot && themeIcon) {
-    themeToggle.addEventListener('click', () => {
-        if (htmlRoot.classList.contains('dark')) {
-            htmlRoot.classList.remove('dark');
-            htmlRoot.setAttribute('data-bs-theme', 'light');
-            themeIcon.classList.remove('ph-sun');
-            themeIcon.classList.add('ph-moon');
-            localStorage.setItem('theme', 'light');
-        } else {
-            htmlRoot.classList.add('dark');
-            htmlRoot.setAttribute('data-bs-theme', 'dark');
-            themeIcon.classList.remove('ph-moon');
-            themeIcon.classList.add('ph-sun');
-            localStorage.setItem('theme', 'dark');
-        }
-    });
+function setDark() {
+    if (htmlRoot) {
+        htmlRoot.classList.add('dark');
+        htmlRoot.setAttribute('data-bs-theme', 'dark');
+    }
+    if (themeIcon) {
+        themeIcon.classList.remove('ph-moon');
+        themeIcon.classList.add('ph-sun');
+    }
+}
 
-    if (localStorage.getItem('theme') === 'light') {
+function setLight() {
+    if (htmlRoot) {
         htmlRoot.classList.remove('dark');
         htmlRoot.setAttribute('data-bs-theme', 'light');
+    }
+    if (themeIcon) {
         themeIcon.classList.remove('ph-sun');
         themeIcon.classList.add('ph-moon');
     }
+}
+
+// 1. Determine Expiry
+const themeExpiry = localStorage.getItem('theme_expiry');
+const now = new Date().getTime();
+if (themeExpiry && now > parseInt(themeExpiry)) {
+    localStorage.removeItem('theme');
+    localStorage.removeItem('theme_expiry');
+}
+
+// 2. Set Initial Theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    setLight();
+} else if (savedTheme === 'dark') {
+    setDark();
+} else {
+    // Default logic based on hour (6 PM to 6 AM is dark mode)
+    const hour = new Date().getHours();
+    if (hour >= 18 || hour < 6) {
+        setDark();
+    } else {
+        setLight();
+    }
+}
+
+// 3. Toggle Logic
+if (themeToggle && htmlRoot) {
+    themeToggle.addEventListener('click', () => {
+        const isDark = htmlRoot.classList.contains('dark');
+        // Set Expiry to 12 hours from now
+        const expiry = new Date().getTime() + (12 * 60 * 60 * 1000);
+        localStorage.setItem('theme_expiry', expiry.toString());
+        
+        if (isDark) {
+            setLight();
+            localStorage.setItem('theme', 'light');
+        } else {
+            setDark();
+            localStorage.setItem('theme', 'dark');
+        }
+    });
 }
 
 
