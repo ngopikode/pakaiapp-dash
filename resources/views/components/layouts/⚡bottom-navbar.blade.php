@@ -44,7 +44,7 @@ new class extends Component {
                     $isActive = request()->routeIs($item['route'] . '*'); // use wildcard to match children
                     if($item['route'] == 'dashboard' && !request()->routeIs('dashboard')) $isActive = false;
                 @endphp
-                <a href="{{ route($item['route']) }}" wire:navigate.hover onclick="if(!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button !== 1) window.showLoader()"
+                <a href="{{ route($item['route']) }}" wire:navigate onclick="if(!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button !== 1) window.showLoader()"
                    class="text-decoration-none d-flex flex-column align-items-center justify-content-center w-100 h-100 position-relative p-0 {{ $isActive ? 'text-primary' : 'text-secondary' }}">
                     <div class="position-relative d-flex flex-column align-items-center justify-content-center mt-1">
                         <i class="{{ $item['icon'] }} fs-5 mb-0" style="{{ $isActive ? '' : 'opacity: 0.7;' }}"></i>
@@ -67,7 +67,7 @@ new class extends Component {
             @php
                 $isMenuActive = request()->routeIs('menu');
             @endphp
-            <a href="{{ route('menu') }}" wire:navigate.hover onclick="if(!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button !== 1) window.showLoader()"
+            <a href="{{ route('menu') }}" wire:navigate onclick="if(!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button !== 1) window.showLoader()"
                class="text-decoration-none d-flex flex-column align-items-center justify-content-center w-100 h-100 position-relative p-0 {{ $isMenuActive ? 'text-primary' : 'text-secondary' }}">
                 <div class="position-relative d-flex flex-column align-items-center justify-content-center mt-1">
                     <i class="ph-bold ph-list fs-5 mb-0" style="{{ $isMenuActive ? '' : 'opacity: 0.7;' }}"></i>
