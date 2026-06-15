@@ -269,26 +269,11 @@
                 <!-- Register (Small button on mobile, Normal button on desktop) -->
                 <a href="/register" class="btn-primary text-xs py-1.5 px-3 sm:text-sm sm:py-2.5 sm:px-5">Daftar</a>
                 
-                <!-- Hamburger (Mobile only) -->
-                <button class="md:hidden p-1.5 ml-1 text-[var(--color-text)] cursor-pointer" aria-label="Menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
-                    <i class="ph-bold ph-list text-2xl"></i>
-                </button>
+
             </div>
         </div>
     </div>
 
-<!-- Mobile Menu -->
-<div id="mobile-menu" class="hidden md:hidden bg-[var(--color-bg-card)] border-b border-[var(--color-border)] px-4 py-4 space-y-4 absolute top-16 left-0 right-0 shadow-lg">
-    <a href="#cara-daftar" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Cara Kerja</a>
-    <a href="#features" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Fitur</a>
-    <a href="#calculator" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Kalkulator</a>
-    <a href="#impact" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">Testimoni</a>
-    <a href="#faq" class="block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">FAQ</a>
-    <div class="border-t border-[var(--color-border)] pt-4 flex items-center justify-between">
-        <a href="/login" class="text-[var(--color-text)] font-medium">Masuk</a>
-        <a href="/register" class="btn-primary text-sm py-2 px-4">Daftar Gratis</a>
-    </div>
-</div>
 </nav>
 
 <section class="relative min-h-screen flex items-center pt-16 overflow-hidden">
