@@ -11,7 +11,7 @@
                     <span class="active-glow-dot" style="width:6px;height:6px;"></span> Online
                 </span>
                 <a href="{{ url('/') }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 text-decoration-none d-flex align-items-center gap-1 ms-1" style="font-size: 0.72rem; height: fit-content; font-weight: 600;">
-                    <i class="bi bi-box-arrow-up-right"></i> Buka Toko
+                    <i class="ph-bold ph-arrow-square-out"></i> Buka Toko
                 </a>
             @endif
         </div>
@@ -35,8 +35,8 @@
             {{-- Saldo Pakaiapp Wallet Badge --}}
             <div class="d-flex align-items-center justify-content-between gap-3 py-1.5 px-3 rounded-pill border bg-body shadow-sm" style="border-color: var(--bs-border-color-translucent) !important; font-size: 0.85rem;">
                 <div class="d-flex align-items-center gap-2">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning flex-shrink-0" style="width: 28px; height: 28px;">
-                        <i class="bi bi-wallet2" style="font-size: 0.85rem;"></i>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-emerald-500 bg-opacity-10 text-emerald-600 flex-shrink-0" style="width: 28px; height: 28px;">
+                        <i class="ph-fill ph-wallet" style="font-size: 0.85rem;"></i>
                     </div>
                     <div class="d-flex flex-column lh-1 text-start">
                         <span class="text-secondary small fw-bold" style="font-size: 0.55rem; letter-spacing: 0.5px; text-transform: uppercase;">Saldo Pakaiapp</span>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="border-start ps-3 py-0.5">
                     <button class="btn btn-sm p-0 text-primary fw-bold hover-translate" data-bs-toggle="modal" data-bs-target="#topUpModal" type="button">
-                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                        <i class="ph-fill ph-plus-circle fs-5"></i>
                     </button>
                 </div>
             </div>
@@ -62,11 +62,11 @@
             {{-- Action Buttons --}}
             <div class="d-flex align-items-center gap-2">
                 <button wire:click="exportLaporan" class="btn btn-outline-secondary btn-sm py-2 px-3 rounded-3 d-flex align-items-center gap-1" wire:loading.attr="disabled" style="font-size: 0.8rem; font-weight: 600;">
-                    <span wire:loading.remove wire:target="exportLaporan"><i class="bi bi-file-earmark-excel-fill text-success fs-6 me-1"></i> Export</span>
+                    <span wire:loading.remove wire:target="exportLaporan"><i class="ph-fill ph-file-csv text-success fs-6 me-1"></i> Export</span>
                     <span wire:loading wire:target="exportLaporan"><span class="spinner-border spinner-border-sm me-1"></span> Proses...</span>
                 </button>
-                <a href="{{ route('cashier') }}" wire:navigate.hover class="btn btn-warning btn-sm py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-1 text-white fw-bold" style="font-size: 0.8rem; font-weight: 750; background-color: var(--brand-caramel, #b45309); border: none;">
-                    <i class="bi bi-cart-check-fill fs-6"></i> Kasir
+                <a href="{{ route('cashier') }}" wire:navigate.hover class="btn btn-success btn-sm py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-1 text-white fw-bold" style="font-size: 0.8rem; font-weight: 750; background-color: #10B981; border: none;">
+                    <i class="ph-fill ph-shopping-cart fs-6"></i> Kasir
                     @if($newOrderCount > 0)
                         <span class="badge rounded-circle ms-1 bg-white text-danger" style="font-size: 0.7rem;">{{ $newOrderCount }}</span>
                     @endif
@@ -87,7 +87,7 @@
                 {{-- Glowing Icon Wrapper --}}
                 <div class="d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm rounded-circle position-relative bg-body border" style="width: 48px; height: 48px; border-color: rgba(180, 83, 9, 0.2) !important;">
                     <div class="position-absolute rounded-circle bg-warning opacity-25 w-100 h-100" style="animation: pulse-glow 2s infinite;"></div>
-                    <i class="bi bi-bell-fill fs-5" style="color: var(--brand-caramel, #b45309); animation: smooth-bounce 2.5s ease infinite;"></i>
+                    <i class="ph-fill ph-bell-ringing fs-5" style="color: #10B981; animation: smooth-bounce 2.5s ease infinite;"></i>
                 </div>
                 <div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -98,7 +98,7 @@
                 </div>
             </div>
             {{-- Premium Action Button --}}
-            <button wire:click="acknowledgeOrders" class="btn btn-caramel-solid flex-shrink-0 w-100 w-md-auto" type="button">
+            <button wire:click="acknowledgeOrders" class="btn btn-emerald-solid flex-shrink-0 w-100 w-md-auto" type="button">
                 <i class="bi bi-check2-all me-1"></i> Selesai Periksa
             </button>
         </div>
@@ -159,12 +159,12 @@
     <div class="card bg-warning bg-opacity-10 border-0 rounded-4 p-4 mb-5 dash-card">
         <div class="d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-4">
             <div class="bg-warning text-dark rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 60px; height: 60px;">
-                <i class="bi bi-shop fs-3"></i>
+                <i class="ph-fill ph-storefront fs-3"></i>
             </div>
             <div class="w-100">
                 <h5 class="fw-bold mb-1 text-body">Lengkapi Profil Tokomu!</h5>
                 <p class="mb-3 small text-secondary">Pelanggan belum bisa melihat katalogmu karena informasi toko masih kosong.</p>
-                <a href="{{ route('dashboard') }}" class="btn btn-warning fw-bold rounded-pill px-4 border-0 text-dark">Atur Sekarang</a>
+                <a href="{{ route('dashboard') }}" class="btn btn-success fw-bold rounded-pill px-4 border-0 text-dark">Atur Sekarang</a>
             </div>
         </div>
     </div>
@@ -175,8 +175,8 @@
         <div class="col-12 col-md-4">
             <div class="card h-100 rounded-3 shadow-sm border p-3">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning" style="width: 40px; height: 40px;">
-                        <i class="bi bi-wallet2 fs-5" style="color: var(--brand-caramel, #b45309);"></i>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-emerald-500 bg-opacity-10 text-emerald-600" style="width: 40px; height: 40px;">
+                        <i class="ph-fill ph-wallet fs-5" style="color: #10B981;"></i>
                     </div>
                     <span class="badge text-secondary border rounded-pill px-2.5 py-1 bg-body-tertiary" style="font-size: 0.72rem;">Hari Ini</span>
                 </div>
@@ -206,7 +206,7 @@
             <div class="card h-100 rounded-3 shadow-sm border p-3">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success" style="width: 40px; height: 40px;">
-                        <i class="bi bi-graph-up-arrow fs-5"></i>
+                        <i class="ph-bold ph-trend-up fs-5"></i>
                     </div>
                     <span class="badge text-secondary border rounded-pill px-2.5 py-1 bg-body-tertiary" style="font-size: 0.72rem;">Bulan Ini</span>
                 </div>
@@ -340,7 +340,7 @@
                 {{-- Sumber Pesanan Card --}}
                 <div class="col-12 col-md-6">
                     <div class="card h-100 rounded-3 shadow-sm border p-3">
-                        <h6 class="fw-bold mb-3 text-body" style="font-size: 0.95rem;"><i class="bi bi-shop-window me-2 text-warning"></i>Sumber Pesanan (Bulan Ini)</h6>
+                        <h6 class="fw-bold mb-3 text-body" style="font-size: 0.95rem;"><i class="ph-fill ph-storefront-window me-2 text-warning"></i>Sumber Pesanan (Bulan Ini)</h6>
                         
                         @if(count($orderTypes) > 0)
                             @php
@@ -370,7 +370,7 @@
                             </div>
                         @else
                             <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                                <i class="bi bi-shop text-muted opacity-50 fs-2 mb-2"></i>
+                                <i class="ph-fill ph-storefront text-muted opacity-50 fs-2 mb-2"></i>
                                 <span class="text-muted small text-center">Belum ada data pesanan.</span>
                             </div>
                         @endif
@@ -384,7 +384,7 @@
             {{-- Item A: Produk Terlaris Bulan Ini --}}
             <div class="card rounded-3 shadow-sm border p-3">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <i class="bi bi-star-fill text-warning fs-5"></i>
+                    <i class="ph-fill ph-star text-warning fs-5"></i>
                     <h6 class="fw-bold mb-0 text-body" style="font-size: 0.95rem;">Produk Terlaris Bulan Ini</h6>
                 </div>
 
@@ -398,13 +398,13 @@
                                     </div>
                                     <div class="fw-bold small text-truncate text-body" style="max-width: 150px;">{{ $item->product_name }}</div>
                                 </div>
-                                <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i class="bi bi-graph-up-arrow text-success me-1"></i> {{ $item->total_sold }} Terjual</span>
+                                <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i class="ph-bold ph-trend-up text-success me-1"></i> {{ $item->total_sold }} Terjual</span>
                             </div>
                         @endforeach
                     </div>
                 @else
                     <div class="d-flex flex-column align-items-center justify-content-center py-4 text-center">
-                        <i class="bi bi-box-seam text-muted opacity-50 fs-2 mb-2"></i>
+                        <i class="ph-fill ph-package text-muted opacity-50 fs-2 mb-2"></i>
                         <span class="text-muted small">Belum ada data penjualan bulan ini.</span>
                     </div>
                 @endif
@@ -442,7 +442,7 @@
             {{-- Item C: Waktu Penjualan Tersibuk --}}
             <div class="card rounded-3 shadow-sm border p-3">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <i class="bi bi-clock-history text-primary fs-5"></i>
+                    <i class="ph-bold ph-clock-history text-primary fs-5"></i>
                     <h6 class="fw-bold mb-0 text-body" style="font-size: 0.95rem;">Waktu Penjualan Tersibuk</h6>
                 </div>
 
@@ -456,7 +456,7 @@
                                     </div>
                                     <div class="fw-bold small text-truncate text-body">{{ $item->time_range }}</div>
                                 </div>
-                                <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i class="bi bi-bag-check-fill text-primary me-1"></i> {{ $item->orders }} Order</span>
+                                <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i class="ph-fill ph-bag-check text-primary me-1"></i> {{ $item->orders }} Order</span>
                             </div>
                         @endforeach
                     </div>
@@ -465,7 +465,7 @@
                     </div>
                 @else
                     <div class="d-flex flex-column align-items-center justify-content-center py-4 text-center">
-                        <i class="bi bi-clock text-muted fs-3 mb-2"></i>
+                        <i class="ph-bold ph-clock text-muted fs-3 mb-2"></i>
                         <span class="text-muted small">Belum ada data waktu penjualan.</span>
                     </div>
                 @endif

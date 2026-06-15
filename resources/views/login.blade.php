@@ -28,8 +28,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     
 
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    
     @vite(['resources/css/welcome.css'])
 </head>
 <body class="bg-zinc-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col relative overflow-hidden transition-colors duration-300">

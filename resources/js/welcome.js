@@ -1,3 +1,6 @@
+import "@phosphor-icons/web/bold";
+import "@phosphor-icons/web/fill";
+import "@phosphor-icons/web/regular";
 document.addEventListener('DOMContentLoaded', function () {
     /* ---- INIT ---- */
     if (typeof AOS !== 'undefined') AOS.init({ once: true, duration: 600, offset: 40 });

@@ -21,7 +21,7 @@
                     <div
                         class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle mb-3 p-3 text-warning shadow-sm"
                         style="width: 70px; height: 70px; border: 1px solid rgba(182, 115, 50, 0.15);">
-                        <i class="bi bi-wallet2 fs-2" style="color: var(--brand-caramel, #b45309);"></i>
+                        <i class="ph-fill ph-wallet fs-2" style="color: #10B981;"></i>
                     </div>
 
                     <h5 class="modal-title fw-bold text-body mb-2" id="topUpModalLabel"
@@ -39,7 +39,7 @@
                         <div
                             class="bg-success bg-opacity-10 text-success rounded-circle p-2.5 d-flex align-items-center justify-content-center"
                             style="width: 42px; height: 42px;">
-                            <i class="bi bi-whatsapp fs-5"></i>
+                            <i class="ph-fill ph-whatsapp-logo fs-5"></i>
                         </div>
                         <div>
                             <span class="text-secondary small d-block" style="font-size: 0.72rem;">WhatsApp Admin</span>
@@ -51,7 +51,7 @@
                        target="_blank"
                        class="btn w-100 rounded-pill fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 text-white border-0 transition-all hover-translate"
                        style="background: linear-gradient(135deg, #25D366, #128C7E); font-size: 0.9rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);">
-                        <i class="bi bi-whatsapp fs-5"></i> Hubungi Admin Sekarang
+                        <i class="ph-fill ph-whatsapp-logo fs-5"></i> Hubungi Admin Sekarang
                     </a>
                 </div>
             </div>
@@ -126,7 +126,7 @@
                     parentHeightOffset: 0,
                     background: 'transparent'
                 },
-                colors: ['#b45309'],
+                colors: ['#10B981'],
                 fill: {
                     type: 'gradient',
                     gradient: {

@@ -1,3 +1,6 @@
+import "@phosphor-icons/web/bold";
+import "@phosphor-icons/web/fill";
+import "@phosphor-icons/web/regular";
 // Import all of Bootstrap’s JS
 import * as bootstrap from 'bootstrap';
 import NProgress from 'nprogress';

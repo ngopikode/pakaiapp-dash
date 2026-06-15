@@ -1,3 +1,6 @@
+import "@phosphor-icons/web/bold";
+import "@phosphor-icons/web/fill";
+import "@phosphor-icons/web/regular";
 /**
  * Store front-end logic (Alpine.js components).
  *

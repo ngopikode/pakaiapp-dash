@@ -78,8 +78,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     
 
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    @livewireStyles
+        @livewireStyles
     @vite(['resources/css/welcome.css'])
 </head>
 <body class="bg-zinc-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased overflow-x-hidden transition-colors duration-300">

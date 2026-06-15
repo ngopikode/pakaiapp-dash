@@ -6,13 +6,13 @@
    1. CORE VARIABLES — Selaras dengan landing page (welcome.css)
    60% → Background gelap (navy/slate)
    30% → Surface, border, teks sekunder
-   10% → Aksen oranye #F97316
+   10% → Aksen oranye #10B981
    ========================================================================== */
 :root {
     /* Brand Colors — sama persis dengan welcome.css */
-    --brand-accent:       #F97316;
-    --brand-accent-dark:  #EA6D0E;
-    --brand-accent-light: #FB923C;
+    --brand-accent:       #10B981;
+    --brand-accent-dark:  #059669;
+    --brand-accent-light: #34D399;
     --brand-green:        #22C55E;
     --brand-red:          #EF4444;
     --brand-purple:       #A78BFA;
@@ -20,7 +20,7 @@
 
     /* Backward compat alias (used in some components) */
     --brand-espresso: #1E293B;
-    --brand-caramel:  #F97316;
+    --brand-caramel:  #10B981;
     --brand-mocha:    #64748B;
     --brand-latte:    #F8FAFC;
 
@@ -31,8 +31,8 @@
 
     /* --- LIGHT MODE (Default) --- */
     /* Primary = orange accent */
-    --bs-primary:     #F97316;
-    --bs-primary-rgb: 249, 115, 22;
+    --bs-primary:     #10B981;
+    --bs-primary-rgb: 16, 185, 129;
 
     /* Secondary = slate */
     --bs-secondary:     #64748B;
@@ -47,7 +47,7 @@
     --bs-success-rgb: 34, 197, 94;
 
     /* Links */
-    --bs-link-color:       #F97316;
+    --bs-link-color:       #10B981;
     --bs-link-hover-color: #EA6D0E;
 
     /* Surface & Backgrounds */
@@ -80,11 +80,11 @@
    ========================================================================== */
 [data-bs-theme="dark"] {
     /* Accent tetap oranye, lebih terang */
-    --bs-primary:     #FB923C;
-    --bs-primary-rgb: 251, 146, 60;
+    --bs-primary:     #34D399;
+    --bs-primary-rgb: 52, 211, 153;
     --bs-warning:     #FCD34D;
     --bs-warning-rgb: 252, 211, 77;
-    --bs-link-color:       #FB923C;
+    --bs-link-color:       #34D399;
     --bs-link-hover-color: #FED7AA;
 
     /* Surface & Backgrounds — navy gelap, sama dengan landing page */
@@ -195,14 +195,14 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 }
 
 .list-group-item-action:hover {
-    background-color: rgba(249, 115, 22, 0.06) !important;
-    border-color: rgba(249, 115, 22, 0.12) !important;
-    color: #F97316 !important;
+    background-color: rgba(16, 185, 129, 0.06) !important;
+    border-color: rgba(16, 185, 129, 0.12) !important;
+    color: #10B981 !important;
     transform: translateX(4px);
 }
 
 .list-group-item-action:hover i {
-    color: #F97316 !important;
+    color: #10B981 !important;
     transform: scale(1.1);
 }
 
@@ -213,19 +213,19 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 /* Solid active state — orange left border accent (10%) */
 .list-group-item-action.active {
-    background-color: rgba(249, 115, 22, 0.1) !important;
-    border-color: rgba(249, 115, 22, 0.2) !important;
-    border-left: 3px solid #F97316 !important;
-    color: #F97316 !important;
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    border-left: 3px solid #10B981 !important;
+    color: #10B981 !important;
     box-shadow: none !important;
     transform: translateX(2px);
 }
 
 [data-bs-theme="dark"] .list-group-item-action.active {
-    background-color: rgba(251, 146, 60, 0.1) !important;
-    border-left-color: #FB923C !important;
-    border-color: rgba(251, 146, 60, 0.15) !important;
-    color: #FB923C !important;
+    background-color: rgba(52, 211, 153, 0.1) !important;
+    border-left-color: #34D399 !important;
+    border-color: rgba(52, 211, 153, 0.15) !important;
+    color: #34D399 !important;
     box-shadow: none !important;
 }
 
@@ -362,12 +362,12 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 /* NProgress Loader */
 #nprogress .bar {
-    background: #F97316 !important;
+    background: #10B981 !important;
     height: 3px !important;
 }
 
 #nprogress .peg {
-    box-shadow: 0 0 10px #F97316, 0 0 5px #F97316 !important;
+    box-shadow: 0 0 10px #10B981, 0 0 5px #10B981 !important;
 }
 
 /* SVG & Icon Fix untuk Dark Mode (.btn-close dll) */
@@ -441,7 +441,7 @@ div:where(.swal2-container) div:where(.swal2-popup) {
     border: 3px solid transparent;
     border-radius: 50%;
     animation: loader-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-top-color: #F97316;
+    border-top-color: #10B981;
 }
 
 .loader-ring:nth-child(1) { animation-delay: -0.45s; }
@@ -528,9 +528,9 @@ div:where(.swal2-container) div:where(.swal2-popup) {
 
 /* Solid accent stat card */
 .stat-card-primary {
-    background-color: #F97316 !important;   /* orange — aksen 10% */
+    background-color: #10B981 !important;   /* orange — aksen 10% */
     border: none !important;
-    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25) !important;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25) !important;
 }
 
 .stat-card-dark {
@@ -542,7 +542,7 @@ div:where(.swal2-container) div:where(.swal2-popup) {
 .stat-card-wallet {
     background-color: #0F172A !important;   /* slate-900 — deep dark */
     border: none !important;
-    border-left: 4px solid #F97316 !important;
+    border-left: 4px solid #10B981 !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
 }
 
@@ -565,10 +565,10 @@ div:where(.swal2-container) div:where(.swal2-popup) {
 
 /* Solid CTA button — orange, same as landing page hero CTA */
 .btn-caramel-solid {
-    background-color: #F97316 !important;
+    background-color: #10B981 !important;
     color: #ffffff !important;
     border: none !important;
-    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
     font-weight: 700;
     border-radius: 100px;
     padding: 0.65rem 1.5rem;
@@ -583,18 +583,18 @@ div:where(.swal2-container) div:where(.swal2-popup) {
     background-color: #EA6D0E !important;
     color: #ffffff !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
 }
 
 /* New Order Notification — orange left border accent */
 .notif-new-order {
-    background-color: rgba(249, 115, 22, 0.05) !important;
-    border: 1px solid rgba(249, 115, 22, 0.15) !important;
-    border-left: 4px solid #F97316 !important;
+    background-color: rgba(16, 185, 129, 0.05) !important;
+    border: 1px solid rgba(16, 185, 129, 0.15) !important;
+    border-left: 4px solid #10B981 !important;
     border-radius: 1.25rem;
 }
 [data-bs-theme="dark"] .notif-new-order {
-    background-color: rgba(249, 115, 22, 0.08) !important;
-    border-color: rgba(249, 115, 22, 0.2) !important;
-    border-left-color: #FB923C !important;
+    background-color: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    border-left-color: #34D399 !important;
 }
