@@ -416,42 +416,6 @@
 
         <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             
-            <!-- Comparison Sidebar (Hidden on mobile) -->
-            <div class="hidden md:block space-y-6">
-                <h3 class="font-heading text-2xl font-bold text-[var(--color-text)]">Kenapa Pindah ke Pakaiapp?</h3>
-                <p class="text-[var(--color-text-muted)]">Perbandingan mencolok skema biaya tradisional vs skema adil Pakaiapp.</p>
-                <div class="space-y-4 mt-6">
-                    <!-- Competitor -->
-                    <div class="p-6 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
-                        <div class="flex items-center gap-3 mb-3">
-                            <i class="ph-fill ph-x-circle text-red-500 text-xl"></i>
-                            <span class="font-semibold text-red-700 dark:text-red-400">Aplikasi Kasir Biasa</span>
-                        </div>
-                        <ul class="text-sm text-red-600/80 dark:text-red-400/80 space-y-2 ml-8 list-disc pl-1">
-                            <li>Biaya langganan Rp 150rb - 300rb per bulan</li>
-                            <li>Toko lagi sepi tetap ditagih penuh</li>
-                            <li>Fitur canggih dikunci di paket mahal</li>
-                        </ul>
-                    </div>
-                    <!-- Pakaiapp -->
-                    <div class="p-6 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 shadow-sm relative overflow-hidden">
-                        <div class="absolute -right-4 -bottom-4 p-4 opacity-10">
-                            <i class="ph-fill ph-check-circle text-8xl text-[var(--color-primary)]"></i>
-                        </div>
-                        <div class="flex items-center gap-3 mb-3 relative z-10">
-                            <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-xl"></i>
-                            <span class="font-semibold text-[var(--color-text)]">Pakaiapp</span>
-                        </div>
-                        <ul class="text-sm text-[var(--color-text-muted)] space-y-2 ml-8 relative z-10 list-disc pl-1">
-                            <li><strong class="text-[var(--color-text)]">Gratis 100%</strong> biaya langganan bulanan</li>
-                            <li>Toko sepi = <strong class="text-[var(--color-primary)]">Bayar Rp 0</strong></li>
-                            <li>Semua fitur enterprise langsung terbuka</li>
-                            <li>Ada <strong class="text-[var(--color-text)]">Capping Limit</strong> (Batas maksimal bayar)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
             <!-- Calculator Card -->
             <div class="max-w-lg mx-auto w-full bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[2.5rem] p-8 sm:p-10 shadow-lg relative transition-colors">
                 <div class="absolute top-8 right-8">
@@ -487,6 +451,42 @@
                 <div class="mt-6 p-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-2xl text-xs text-[var(--color-text-muted)] leading-relaxed font-light">
                     <strong class="text-[var(--color-text)] font-bold block mb-1">🎉 Cara Hitung:</strong>
                     Anda hanya membayar Rp {{ $trxFee }} per transaksi sukses. Apabila total tagihan Anda dalam sebulan sudah mencapai <strong class="text-[var(--color-primary)] font-semibold">Rp {{ $cappingLimitFormatted }}</strong>, semua transaksi selanjutnya di bulan tersebut GRATIS!
+                </div>
+            </div>
+
+            <!-- Comparison Sidebar (Hidden on mobile) -->
+            <div class="hidden md:block space-y-6">
+                <h3 class="font-heading text-2xl font-bold text-[var(--color-text)]">Kenapa Pindah ke Pakaiapp?</h3>
+                <p class="text-[var(--color-text-muted)]">Perbandingan mencolok skema biaya tradisional vs skema adil Pakaiapp.</p>
+                <div class="space-y-4 mt-6">
+                    <!-- Pakaiapp -->
+                    <div class="p-6 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 p-4 opacity-10">
+                            <i class="ph-fill ph-check-circle text-8xl text-[var(--color-primary)]"></i>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-xl"></i>
+                            <span class="font-semibold text-[var(--color-text)]">Pakaiapp</span>
+                        </div>
+                        <ul class="text-sm text-[var(--color-text-muted)] space-y-2 ml-8 relative z-10 list-disc pl-1">
+                            <li><strong class="text-[var(--color-text)]">Gratis 100%</strong> biaya langganan bulanan</li>
+                            <li>Toko sepi = <strong class="text-[var(--color-primary)]">Bayar Rp 0</strong></li>
+                            <li>Semua fitur enterprise langsung terbuka</li>
+                            <li>Ada <strong class="text-[var(--color-text)]">Capping Limit</strong> (Batas maksimal bayar)</li>
+                        </ul>
+                    </div>
+                    <!-- Competitor -->
+                    <div class="p-6 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="ph-fill ph-x-circle text-red-500 text-xl"></i>
+                            <span class="font-semibold text-red-700 dark:text-red-400">Aplikasi Kasir Biasa</span>
+                        </div>
+                        <ul class="text-sm text-red-600/80 dark:text-red-400/80 space-y-2 ml-8 list-disc pl-1">
+                            <li>Biaya langganan Rp 150rb - 300rb per bulan</li>
+                            <li>Toko lagi sepi tetap ditagih penuh</li>
+                            <li>Fitur canggih dikunci di paket mahal</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
