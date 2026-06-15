@@ -263,7 +263,7 @@
                 <a href="/login" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium transition-colors cursor-pointer">Masuk</a>
                 <a href="/register" class="btn-primary text-sm py-2.5 px-5">Daftar Gratis</a>
             </div>
-            <button class="md:hidden p-2 text-[var(--color-text)] cursor-pointer" onclick="document.getElementById(\'mobile-menu\').classList.toggle(\'hidden\')">
+            <button class="md:hidden p-2 text-[var(--color-text)] cursor-pointer" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
                 <i class="ph-bold ph-list text-2xl"></i>
             </button>
         </div>
