@@ -303,12 +303,7 @@
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
         <div class="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
             <div>
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-sm mb-8 transition-transform hover:-translate-y-0.5">
-                    <div class="w-6 h-6 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
-                        <i class="ph-fill ph-storefront text-[var(--color-primary)] text-sm"></i>
-                    </div>
-                    <span class="text-sm font-semibold text-[var(--color-text)]">Sistem Kasir Tanpa Biaya Bulanan</span>
-                </div>
+
                 
                 <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-text)] mb-6 leading-tight">
                     Tinggalkan Langganan,<br>
