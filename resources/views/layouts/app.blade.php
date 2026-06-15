@@ -8,6 +8,11 @@
 
     <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Models\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
 
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', theme);
+    </script>
+
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">

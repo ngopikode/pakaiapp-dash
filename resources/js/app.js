@@ -91,6 +91,9 @@ document.addEventListener('alpine:init', () => {
 });
 
 document.addEventListener('livewire:navigated', () => {
+    // Persist theme across Livewire navigations
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-bs-theme', theme);
 
     // Fungsi untuk membuat dan menampilkan toast ala "Island"
     // ==========================================
