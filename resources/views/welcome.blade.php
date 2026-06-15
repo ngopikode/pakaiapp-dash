@@ -49,8 +49,25 @@
                 "price": "0",
                 "priceCurrency": "IDR",
                 "description": "Pendaftaran gratis, biaya penggunaan hanya Rp {{ $trxFee }} per transaksi sukses."
+            },
+            "creator": {
+                "@type": "Organization",
+                "name": "PT Sinergi Kode Kreatif (ngopikode)",
+                "url": "https://www.ngopikode.com"
             }
+        }
+    </script>
 
+    
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    @vite(["resources/css/welcome.css"])
+    @livewireStyles
+
+    <style>
         html.dark {
             --color-bg: #1B2421;
             --color-bg-alt: #222E2A;
@@ -64,25 +81,7 @@
         .dark .navbar-eco {
             background: rgba(27, 36, 33, 0.9);
         }
-,
-            "creator": {
-                "@type": "Organization",
-                "name": "PT Sinergi Kode Kreatif (ngopikode)",
-                "url": "https://www.ngopikode.com"
-            }
-        }
-    </script>
 
-    
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    @vite(["resources/css/welcome.css"])
-    @livewireStyles
-
-    <style>
         :root {
             --color-primary: #228B22;
             --color-secondary: #2E7D32;
@@ -100,8 +99,8 @@
             --color-text-subtle: #84A98C;
             --color-border: #D8E2DC;
             --gradient-nature: linear-gradient(135deg, #228B22 0%, #4CAF50 100%);
-            --font-heading: "Fraunces", serif;
-            --font-body: "DM Sans", sans-serif;
+            --font-heading: "Outfit", sans-serif;
+            --font-body: "Plus Jakarta Sans", sans-serif;
         }
 
         body.sustainability-platform {
