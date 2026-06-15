@@ -467,7 +467,7 @@
             <p class="text-[var(--color-text-muted)] mt-4 leading-relaxed font-light">Aplikasi kasir berbasis web cloud sepenuhnya. Tidak perlu unduh aplikasi dari App Store, tidak perlu ahli IT. Buka browser, daftar, langsung bisa terima pesanan.</p>
         </div>
 
-        <div class="max-w-xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Step 1 -->
             <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
                 
