@@ -8,12 +8,21 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/store.css": {
-    "file": "assets/store-BGMtzvlS.css",
+    "file": "assets/store-kprGWaCe.css",
     "name": "store",
     "names": [
       "store.css"
     ],
     "src": "resources/css/store.css",
+    "isEntry": true
+  },
+  "resources/css/welcome.css": {
+    "file": "assets/welcome-IPNQqA9_.css",
+    "name": "welcome",
+    "names": [
+      "welcome.css"
+    ],
+    "src": "resources/css/welcome.css",
     "isEntry": true
   },
   "resources/js/app.js": {
@@ -26,6 +35,12 @@
     "file": "assets/store-DJ0c_kTp.js",
     "name": "store",
     "src": "resources/js/store.js",
+    "isEntry": true
+  },
+  "resources/js/welcome.js": {
+    "file": "assets/welcome-CoCE7PqR.js",
+    "name": "welcome",
+    "src": "resources/js/welcome.js",
     "isEntry": true
   },
   "resources/sass/app.scss": {

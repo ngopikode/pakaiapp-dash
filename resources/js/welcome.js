@@ -37,17 +37,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (trx === 0) {
             costEl.textContent = 'GRATIS!';
-            costEl.style.color = 'var(--accent)';
+            costEl.style.color = '';
             costNote.textContent = 'Tidak ada transaksi = tidak ada biaya.';
             unlimitedEl.style.display = 'none';
         } else if (isUnlimited) {
             costEl.textContent = 'Rp ' + cappingLimitFormatted;
-            costEl.style.color = '#fff';
+            costEl.style.color = '';
             costNote.textContent = 'Maks. biaya per bulan — sisanya GRATIS tak terbatas!';
             unlimitedEl.style.display = 'inline-flex';
         } else {
             costEl.textContent = 'Rp ' + cost.toLocaleString('id-ID');
-            costEl.style.color = 'var(--accent)';
+            costEl.style.color = '';
             costNote.textContent = 'Rp ' + trxFee + ' × ' + trx.toLocaleString('id-ID') + ' transaksi';
             unlimitedEl.style.display = 'none';
         }
@@ -71,14 +71,14 @@ if (themeToggle && htmlRoot && themeIcon) {
         if (htmlRoot.classList.contains('dark')) {
             htmlRoot.classList.remove('dark');
             htmlRoot.setAttribute('data-bs-theme', 'light');
-            themeIcon.classList.remove('bi-brightness-high');
-            themeIcon.classList.add('bi-moon-fill');
+            themeIcon.classList.remove('ph-sun');
+            themeIcon.classList.add('ph-moon');
             localStorage.setItem('theme', 'light');
         } else {
             htmlRoot.classList.add('dark');
             htmlRoot.setAttribute('data-bs-theme', 'dark');
-            themeIcon.classList.remove('bi-moon-fill');
-            themeIcon.classList.add('bi-brightness-high');
+            themeIcon.classList.remove('ph-moon');
+            themeIcon.classList.add('ph-sun');
             localStorage.setItem('theme', 'dark');
         }
     });
@@ -86,8 +86,8 @@ if (themeToggle && htmlRoot && themeIcon) {
     if (localStorage.getItem('theme') === 'light') {
         htmlRoot.classList.remove('dark');
         htmlRoot.setAttribute('data-bs-theme', 'light');
-        themeIcon.classList.remove('bi-brightness-high');
-        themeIcon.classList.add('bi-moon-fill');
+        themeIcon.classList.remove('ph-sun');
+        themeIcon.classList.add('ph-moon');
     }
 }
 
@@ -102,12 +102,52 @@ window.toggleChat = function() {
     if (widget.classList.contains('open')) {
         widget.classList.remove('open');
         btn.classList.remove('open');
-        icon.className = 'bi bi-chat-dots-fill';
+        icon.className = 'ph-fill ph-chat-teardrop-dots';
     } else {
         widget.classList.add('open');
         btn.classList.add('open');
-        icon.className = 'bi bi-x-lg';
+        icon.className = 'ph-bold ph-x';
     }
+};
+
+let toastTimeout;
+let modalCallback = null;
+
+window.showToast = function(message) {
+    const toastMsg = document.getElementById('toastMsg');
+    const toast = document.getElementById('customToast');
+    if(!toast || !toastMsg) return;
+    toastMsg.innerText = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+window.showCustomAlert = function(type, title, text, callback = null, btnText = 'Tutup') {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalBtn = document.getElementById('modalBtn');
+    const customModal = document.getElementById('customModal');
+    if(!customModal || !modalTitle) return;
+    
+    modalTitle.innerText = title;
+    modalDesc.innerText = text;
+    modalBtn.innerText = btnText;
+
+    const icon = document.getElementById('modalIcon');
+    if (type === 'success') icon.innerHTML = '<i class="ph-fill ph-check-circle text-emerald-500"></i>';
+    else if (type === 'error') icon.innerHTML = '<i class="ph-fill ph-x-circle text-red-500"></i>';
+    else icon.innerHTML = '<i class="ph-fill ph-info text-blue-500"></i>';
+
+    modalCallback = callback;
+    customModal.classList.add('show');
+};
+
+window.closeCustomAlert = function() {
+    const customModal = document.getElementById('customModal');
+    if(!customModal) return;
+    customModal.classList.remove('show');
+    if (modalCallback) { modalCallback(); modalCallback = null; }
 };
 
 // --- LOGIN LOGIC ---
@@ -170,11 +210,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     }
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Pencarian Gagal', text: data.message || 'Terjadi kesalahan sistem.', background: 'var(--surface)', color: 'var(--text)' });
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert('error', 'Pencarian Gagal', data.message || 'Terjadi kesalahan sistem.');
+                    } else {
+                        alert('Pencarian Gagal: ' + (data.message || 'Terjadi kesalahan sistem.'));
+                    }
                 }
             })
             .catch(() => {
-                Swal.fire({ icon: 'error', title: 'Koneksi Gagal', text: 'Gagal menghubungi server central.', background: 'var(--surface)', color: 'var(--text)' });
+                if (window.showCustomAlert) {
+                    window.showCustomAlert('error', 'Koneksi Gagal', 'Gagal menghubungi server central.');
+                } else {
+                    alert('Koneksi Gagal: Gagal menghubungi server central.');
+                }
             })
             .finally(() => {
                 btn.innerHTML = orig;
@@ -240,8 +288,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         let isProcessing = false;
-        let toastTimeout;
-        let modalCallback = null;
         let selectedPaymentMethod = '';
 
         // Sequence of steps
@@ -256,32 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             { id: 'TanyaPayment', q: 'Metode Pembayaran', sub: 'Pilih metode pembayaran yang Anda inginkan.', type: 'choice', choices: [{l: 'QRIS / E-Wallet', v: 'NQ'}, {l: 'Transfer / VA', v: 'BC'}, {l: 'Manual (Bantuan WA Admin)', v: 'manual'}] }
         ];
 
-        function showToast(message) {
-            document.getElementById('toastMsg').innerText = message;
-            const toast = document.getElementById('customToast');
-            toast.classList.add('show');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
-        }
 
-        window.showCustomAlert = function(type, title, text, callback = null, btnText = 'Tutup') {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalDesc').innerText = text;
-            document.getElementById('modalBtn').innerText = btnText;
-
-            const icon = document.getElementById('modalIcon');
-            if (type === 'success') icon.innerHTML = '<i class="bi bi-check-circle-fill" style="color: var(--success);"></i>';
-            else if (type === 'error') icon.innerHTML = '<i class="bi bi-x-circle-fill" style="color: #ef4444;"></i>';
-            else icon.innerHTML = '<i class="bi bi-info-circle-fill" style="color: #3b82f6;"></i>';
-
-            modalCallback = callback;
-            document.getElementById('customModal').classList.add('show');
-        };
-
-        window.closeCustomAlert = function() {
-            document.getElementById('customModal').classList.remove('show');
-            if (modalCallback) { modalCallback(); modalCallback = null; }
-        };
 
         function showLoading(text) {
             loadingText.innerText = text;
@@ -334,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="payment-card-option midtrans-opt" onclick="selectPaymentOption(event, 'midtrans', 'midtrans-opt')">
                                 <div class="payment-card-header">
                                     <div class="payment-card-icon midtrans-icon">
-                                        <i class="bi bi-credit-card-2-front"></i>
+                                        <i class="ph-fill ph-credit-card"></i>
                                     </div>
                                     <div class="payment-card-content">
                                         <div class="payment-card-title-row">
@@ -343,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         </div>
                                         <p class="payment-card-desc">Bayar langsung menggunakan e-wallet atau VA. Pembayaran instan terverifikasi otomatis.</p>
                                         <div class="sandbox-warning">
-                                            <i class="bi bi-exclamation-triangle"></i>
+                                            <i class="ph-fill ph-warning"></i>
                                             <span>Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.</span>
                                         </div>
                                     </div>
@@ -359,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="payment-card-option duitku-opt-card" id="optionDuitkuCard" onclick="expandDuitkuOptions(event)">
                                 <div class="payment-card-header">
                                     <div class="payment-card-icon duitku-icon">
-                                        <i class="bi bi-wallet2"></i>
+                                        <i class="ph-fill ph-wallet"></i>
                                     </div>
                                     <div class="payment-card-content" style="width: 100%;">
                                         <div class="payment-card-title-row">
@@ -368,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         </div>
                                         <p class="payment-card-desc">Bayar otomatis menggunakan QRIS, ShopeePay, OVO, LinkAja, atau berbagai Virtual Account.</p>
                                         <div class="sandbox-warning" style="margin-bottom: 12px;">
-                                            <i class="bi bi-exclamation-triangle"></i>
+                                            <i class="ph-fill ph-warning"></i>
                                             <span>Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.</span>
                                         </div>
 
@@ -396,7 +417,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="payment-card-option manual-opt" onclick="selectPaymentOption(event, 'manual', 'manual-opt')">
                                 <div class="payment-card-header">
                                     <div class="payment-card-icon wa-icon">
-                                        <i class="bi bi-whatsapp"></i>
+                                        <i class="ph-fill ph-whatsapp-logo"></i>
                                     </div>
                                     <div class="payment-card-content">
                                         <h4 class="payment-card-title">Transfer Manual (Bantuan WA Admin)</h4>
@@ -472,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (step.type !== 'choice' && !val) return;
 
             isProcessing = true;
-            btnSend.innerHTML = '<i class="bi bi-three-dots"></i>';
+            btnSend.innerHTML = '<i class="ph-bold ph-dots-three"></i>';
             btnSend.disabled = true;
 
             if (step.id === 'TanyaNama') {
@@ -540,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             isProcessing = false;
-            btnSend.innerHTML = '<i class="bi bi-arrow-up-short"></i>';
+            btnSend.innerHTML = '<i class="ph-bold ph-arrow-up"></i>';
             btnSend.disabled = false;
         }
 
@@ -707,22 +728,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnContainer.style.display = 'flex';
 
             let btnText = 'Lanjutkan & Buat Toko';
-            let iconClass = 'bi-arrow-right-short';
+            let iconClass = 'ph-arrow-right';
 
             if (selectedPaymentMethod === 'manual') {
                 btnText = 'Hubungi Admin via WhatsApp';
-                iconClass = 'bi-whatsapp';
+                iconClass = 'ph-whatsapp-logo';
             } else if (selectedPaymentMethod === 'midtrans') {
                 btnText = 'Bayar Instan (Midtrans Sandbox)';
-                iconClass = 'bi-credit-card-2-front';
+                iconClass = 'ph-credit-card';
             } else {
                 btnText = 'Bayar Otomatis (Duitku Sandbox)';
-                iconClass = 'bi-wallet2';
+                iconClass = 'ph-wallet';
             }
 
             btnContainer.innerHTML = `
                 <button class="btn-confirm-payment" onclick="confirmPaymentChoice()">
-                    <i class="bi ${iconClass}"></i> ${btnText}
+                    <i class="ph-bold ${iconClass}"></i> ${btnText}
                 </button>
             `;
         }
