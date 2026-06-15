@@ -414,10 +414,10 @@
             <p class="text-[var(--color-text-muted)] mt-4 leading-relaxed font-light">Kami meniadakan biaya langganan bulanan. Anda hanya ditarik biaya kecil per transaksi sukses. Sepi = Rp 0.</p>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             
             <!-- Comparison Sidebar (Hidden on mobile) -->
-            <div class="hidden lg:block space-y-6">
+            <div class="hidden md:block space-y-6">
                 <h3 class="font-heading text-2xl font-bold text-[var(--color-text)]">Kenapa Pindah ke Pakaiapp?</h3>
                 <p class="text-[var(--color-text-muted)]">Perbandingan mencolok skema biaya tradisional vs skema adil Pakaiapp.</p>
                 <div class="space-y-4 mt-6">
