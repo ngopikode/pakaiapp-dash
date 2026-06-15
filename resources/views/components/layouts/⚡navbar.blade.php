@@ -58,14 +58,13 @@ new class extends Component {
 
             <li class="nav-item">
                 <button
-                    x-data="themeToggle"
-                    @click="toggleTheme()"
+                    x-data="{ theme: localStorage.getItem('theme') || 'light' }" @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.setAttribute('data-bs-theme', theme)"
                     class="btn btn-link nav-link text-secondary p-2"
                     title="Ganti Tema"
                 >
-                    <i x-show="theme === 'dark'" class="bi bi-sun-fill fs-5 text-warning" x-cloak></i>
+                    <i x-show="theme === 'dark'" class="ph-fill ph-sun fs-5 text-warning" x-cloak></i>
 
-                    <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
+                    <i x-show="theme === 'light'" class="ph-fill ph-moon fs-5" x-cloak></i>
                 </button>
             </li>
 

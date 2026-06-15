@@ -11,10 +11,10 @@ new class extends Component {
         $user = Auth::user();
 
         $items = [
-            ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Home', 'roles' => ['manager']],
-            ['route' => 'order', 'icon' => 'bi bi-receipt-cutoff', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
-            ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
-            ['route' => 'profile', 'icon' => 'bi bi-person-fill', 'label' => 'Profil', 'roles' => ['manager', 'cashier']],
+            ['route' => 'dashboard', 'icon' => 'ph-fill ph-squares-four', 'label' => 'Home', 'roles' => ['manager']],
+            ['route' => 'order', 'icon' => 'ph-fill ph-receipt', 'label' => 'Pesanan', 'roles' => ['manager', 'cashier']],
+            ['route' => 'cashier', 'icon' => 'ph-fill ph-cash-register', 'label' => 'Kasir', 'roles' => ['manager', 'cashier']],
+            ['route' => 'profile', 'icon' => 'ph-fill ph-user', 'label' => 'Profil', 'roles' => ['manager', 'cashier']],
         ];
 
         return collect($items)->filter(function ($item) use ($user) {
@@ -70,7 +70,7 @@ new class extends Component {
             <a href="{{ route('menu') }}" wire:navigate.hover onclick="if(!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button !== 1) window.showLoader()"
                class="text-decoration-none d-flex flex-column align-items-center justify-content-center w-100 h-100 position-relative p-0 {{ $isMenuActive ? 'text-primary' : 'text-secondary' }}">
                 <div class="position-relative d-flex flex-column align-items-center justify-content-center mt-1">
-                    <i class="bi bi-list fs-5 mb-0" style="{{ $isMenuActive ? '' : 'opacity: 0.7;' }}"></i>
+                    <i class="ph-bold ph-list fs-5 mb-0" style="{{ $isMenuActive ? '' : 'opacity: 0.7;' }}"></i>
                 </div>
                 <span class="small fw-bold mt-1" style="font-size: 0.6rem; {{ $isMenuActive ? '' : 'opacity: 0.8;' }}">Lainnya</span>
                 @if($isMenuActive)

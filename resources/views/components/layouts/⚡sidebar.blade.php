@@ -95,13 +95,12 @@ new class extends Component {
         </div>
 
         <button type="button"
-                x-data="themeToggle"
-                @click="toggleTheme()"
+                x-data="{ theme: localStorage.getItem('theme') || 'light' }" @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.setAttribute('data-bs-theme', theme)"
                 class="btn btn-link text-body p-0 border-0 shadow-none d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle transition-all hover-bg-tertiary"
                 style="width: 36px; height: 36px; background-color: var(--bs-tertiary-bg);"
                 title="Ganti Tema">
-            <i x-show="theme === 'dark'" class="bi bi-sun-fill text-warning fs-5" x-cloak></i>
-            <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
+            <i x-show="theme === 'dark'" class="ph-fill ph-sun text-warning fs-5" x-cloak></i>
+            <i x-show="theme === 'light'" class="ph-fill ph-moon fs-5" x-cloak></i>
         </button>
     </div>
     @endif

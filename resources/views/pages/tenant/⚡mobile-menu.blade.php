@@ -26,23 +26,23 @@ class extends Component {
             [
                 'title' => 'Katalog & Inventaris',
                 'items' => [
-                    ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Katalog Produk', 'roles' => ['manager']],
-                    ['route' => 'product-slot.buy', 'icon' => 'bi bi-cart-plus', 'label' => 'Beli Slot Produk', 'roles' => ['manager'], 'badge' => 'Baru'],
+                    ['route' => 'product', 'icon' => 'ph-fill ph-book-open-text', 'label' => 'Katalog Produk', 'roles' => ['manager']],
+                    ['route' => 'product-slot.buy', 'icon' => 'ph-fill ph-shopping-cart', 'label' => 'Beli Slot Produk', 'roles' => ['manager'], 'badge' => 'Baru'],
                 ]
             ],
             [
                 'title' => 'Sistem & Pengaturan',
                 'items' => [
-                    ['route' => 'wallet', 'icon' => 'bi bi-wallet2', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
-                    ['route' => 'store-setting', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
-                    ['route' => 'user', 'icon' => 'bi bi-people', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
-                    ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'wallet', 'icon' => 'ph-fill ph-wallet', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
+                    ['route' => 'store-setting', 'icon' => 'ph-fill ph-storefront', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
+                    ['route' => 'user', 'icon' => 'ph-fill ph-users', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
+                    ['route' => 'profile', 'icon' => 'ph-fill ph-user-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
                 ]
             ]
         ];
 
         if ($storeType === 'resto') {
-            $sections[0]['items'][] = ['route' => 'raw-material', 'icon' => 'bi bi-box-seam', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
+            $sections[0]['items'][] = ['route' => 'raw-material', 'icon' => 'ph-fill ph-package', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
         }
 
         return collect($sections)->map(function ($section) use ($user) {
@@ -60,18 +60,20 @@ class extends Component {
     <!-- Custom Header for Mobile Menu -->
     <div class="bg-body border-bottom px-3 py-3 d-flex align-items-center justify-content-between sticky-top z-3">
         <h1 class="h4 mb-0 fw-bold">Menu Lainnya</h1>
-        <button type="button" x-data="themeToggle" @click="toggleTheme()" class="btn btn-light rounded-circle shadow-sm"
-                style="width: 40px; height: 40px;">
-            <i x-show="theme === 'dark'" class="bi bi-sun-fill text-warning"></i>
-            <i x-show="theme === 'light'" class="bi bi-moon-stars"></i>
-        </button>
+        <button type="button" x-data="{ theme: localStorage.getItem('theme') || 'light' }" 
+        @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.setAttribute('data-bs-theme', theme)" 
+        class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+        style="width: 40px; height: 40px;">
+    <i x-show="theme === 'dark'" class="ph-fill ph-sun text-warning fs-4"></i>
+    <i x-show="theme === 'light'" class="ph-fill ph-moon fs-4"></i>
+</button>
     </div>
 
     <div class="container-fluid px-3 py-4" style="padding-bottom: 100px !important;">
 
         <!-- User Info Card -->
         <div class="card border-0 shadow-sm rounded-4 mb-4"
-             style="background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
+             style="background: linear-gradient(135deg, #10B981, #064E3B);">
             <div class="card-body p-3 d-flex align-items-center gap-3">
                 <div
                     class="bg-white text-dark fw-bold rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
@@ -107,7 +109,7 @@ class extends Component {
                                     @if(isset($item['badge']))
                                         <span class="badge bg-danger rounded-pill">{{ $item['badge'] }}</span>
                                     @endif
-                                    <i class="bi bi-chevron-right text-secondary opacity-50"></i>
+                                    <i class="ph-bold ph-caret-right text-secondary opacity-50"></i>
                                 </div>
                             </a>
                         @endforeach
@@ -130,7 +132,7 @@ class extends Component {
                         class="pwa-install-item list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 px-3 text-success fw-bold">
                     <div class="bg-success bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center"
                          style="width: 36px; height: 36px;">
-                        <i class="bi bi-download"></i>
+                        <i class="ph-bold ph-download-simple"></i>
                     </div>
                     Install App ke Layar Utama
                 </button>
@@ -139,7 +141,7 @@ class extends Component {
                         class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 px-3 text-danger fw-bold border-top-0">
                     <div class="bg-danger bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center"
                          style="width: 36px; height: 36px;">
-                        <i class="bi bi-box-arrow-left"></i>
+                        <i class="ph-bold ph-sign-out"></i>
                     </div>
                     Log Out
                 </button>
