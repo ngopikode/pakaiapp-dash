@@ -13,9 +13,9 @@
         $cappingLimitShort = ($cappingLimit / 1000) . "rb";
     @endphp
 
-    <title>Pakaiapp - Aplikasi Kasir UMKM Tanpa Biaya Langganan</title>
-<meta name="description" content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp {{ $trxFee }} per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
-    <meta name="keywords" content="pakai app, pakai app online, pakaiapp online, aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
+    <title>Pakaiapp - Kasir Pintar & Menu Digital Premium untuk F&B</title>
+<meta name="description" content="Tinggalkan langganan bulanan! Pakaiapp: Kasir Pintar (POS) & Menu Digital Mewah dengan QR Self-Order. UMKM F&B naik kelas, cuma bayar Rp {{ $trxFee }}/transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
+    <meta name="keywords" content="pakai app, pakaiapp, menu digital, qr order, aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail">
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Indonesian">
@@ -24,8 +24,8 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.pakaiapp.online/">
-    <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
-    <meta property="og:description" content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
+    <meta property="og:title" content="Pakaiapp - Kasir Pintar & Menu Digital F&B">
+    <meta property="og:description" content="Kasir sepi = Gratis. Menu Digital Mewah = Siap Pakai. Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
     <meta property="og:image" content="{{ asset('images/og-banner.png') }}">
 
     <!-- Twitter -->
@@ -296,7 +296,7 @@
                 </h1>
                 
                 <p class="text-base sm:text-lg md:text-xl text-[var(--color-text-muted)] mb-8 max-w-xl">
-                    Sistem kasir pintar berbasis web untuk UMKM. Kelola penjualan, menu, laporan, dan terima pembayaran QRIS dari perangkat apa saja. Toko sepi? Gratis.
+                    Sistem <strong>Kasir Pintar (POS)</strong> & <strong>Menu Digital Premium</strong> untuk F&B. Kelola penjualan, sediakan QR Self-Order canggih, dan terima QRIS dari perangkat apa saja. Toko sepi? Gratis.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 mb-8 sm:mb-12">
@@ -311,11 +311,11 @@
                 <div class="flex flex-wrap gap-6">
                     <div class="flex items-center gap-2 text-[var(--color-text-muted)]">
                         <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-lg"></i>
-                        <span>Pendaftaran 100% Gratis</span>
+                        <span>Menu Digital Mewah</span>
                     </div>
                     <div class="flex items-center gap-2 text-[var(--color-text-muted)]">
                         <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-lg"></i>
-                        <span>Tanpa Kartu Kredit</span>
+                        <span>Pendaftaran 100% Gratis</span>
                     </div>
                     <div class="flex items-center gap-2 text-[var(--color-text-muted)]">
                         <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-lg"></i>
@@ -391,6 +391,133 @@
     </div>
 </section>
 
+<!-- Showcase Menu Digital -->
+<section id="menu-digital" class="py-24 relative overflow-hidden bg-[var(--color-bg)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            
+            <!-- Text Content -->
+            <div class="order-2 lg:order-1">
+                <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold uppercase tracking-wider mb-4">
+                    <i class="ph-fill ph-star"></i> Premium Luxury Experience
+                </div>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-6 leading-tight">
+                    Lebih Dari Sekadar Kasir.<br>
+                    <span class="gradient-text">Menu Digital Bintang Lima.</span>
+                </h2>
+                <p class="text-lg text-[var(--color-text-muted)] mb-8">
+                    Manjakan pelanggan Anda dengan pengalaman pemesanan mandiri yang elegan. Tanpa perlu mengunduh aplikasi tambahan, pelanggan cukup memindai QR di meja.
+                </p>
+                
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+                            <i class="ph-bold ph-magic-wand text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-[var(--color-text)] mb-1">Desain Premium & Mewah</h4>
+                            <p class="text-[var(--color-text-muted)] text-sm">Tinggalkan buku menu kusam. Hadirkan antarmuka digital yang memukau (mendukung Tema Gelap/Terang) layaknya restoran kelas atas.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 shrink-0">
+                            <i class="ph-bold ph-robot text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-[var(--color-text)] mb-1">Dilengkapi Asisten AI Pintar</h4>
+                            <p class="text-[var(--color-text-muted)] text-sm">Pelanggan bingung mau makan apa? Asisten AI bawaan kami siap memberikan rekomendasi layaknya pelayan pribadi.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] shrink-0">
+                            <i class="ph-bold ph-lightning text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-[var(--color-text)] mb-1">Pesan & Bayar Tanpa Antre</h4>
+                            <p class="text-[var(--color-text-muted)] text-sm">Pesanan langsung masuk ke dapur/kasir dan pelanggan bisa membayar seketika via QRIS atau E-Wallet dari meja.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UI Mockup -->
+            <div class="order-1 lg:order-2 relative flex justify-center lg:justify-end">
+                <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-indigo-500/10 blur-3xl rounded-full w-[80%] h-[80%] m-auto"></div>
+                
+                <!-- Mockup Container -->
+                <div class="relative w-[280px] sm:w-[320px] h-[580px] sm:h-[650px] bg-zinc-950 rounded-[3rem] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-4 border-zinc-800 -rotate-2 hover:rotate-0 transition-transform duration-500">
+                    <!-- Screen -->
+                    <div class="w-full h-full bg-zinc-900 rounded-[2.5rem] overflow-hidden relative flex flex-col border border-zinc-800 shadow-inner">
+                        <!-- Top Bar -->
+                        <div class="h-16 flex items-center justify-between px-6 shrink-0 relative z-10 border-b border-zinc-800/50 bg-zinc-900/80 backdrop-blur-md">
+                            <div class="text-amber-500 font-bold tracking-widest text-xs sm:text-sm uppercase">Kopi Senja</div>
+                            <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                                <i class="ph-bold ph-list text-zinc-300"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1 p-4 space-y-4 overflow-hidden relative">
+                            <!-- Banner -->
+                            <div class="w-full h-28 sm:h-32 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center p-4">
+                                <div class="text-center">
+                                    <div class="text-[10px] sm:text-xs text-amber-500 font-bold mb-1 tracking-wider">SPECIAL OFFER</div>
+                                    <div class="text-zinc-100 font-semibold text-sm sm:text-base">Caramel Macchiato</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Categories -->
+                            <div class="flex gap-2">
+                                <div class="px-3 sm:px-4 py-1.5 rounded-full bg-amber-500 text-zinc-950 text-[10px] sm:text-xs font-bold">Coffee</div>
+                                <div class="px-3 sm:px-4 py-1.5 rounded-full bg-zinc-800 text-zinc-400 text-[10px] sm:text-xs font-semibold">Non-Coffee</div>
+                            </div>
+                            
+                            <!-- Products -->
+                            <div class="space-y-3">
+                                <div class="flex gap-3 bg-zinc-800/50 p-3 rounded-2xl border border-zinc-700/30">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-700 shrink-0"></div>
+                                    <div class="flex-1">
+                                        <div class="text-zinc-100 font-semibold text-xs sm:text-sm">Espresso</div>
+                                        <div class="text-zinc-400 text-[9px] sm:text-[10px] mt-1 line-clamp-1">Single origin arabica beans</div>
+                                        <div class="text-amber-500 font-bold text-[10px] sm:text-xs mt-2">Rp 18.000</div>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-amber-500 text-zinc-950 flex items-center justify-center self-end">
+                                        <i class="ph-bold ph-plus text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 bg-zinc-800/50 p-3 rounded-2xl border border-zinc-700/30">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-700 shrink-0"></div>
+                                    <div class="flex-1">
+                                        <div class="text-zinc-100 font-semibold text-xs sm:text-sm">Caffe Latte</div>
+                                        <div class="text-zinc-400 text-[9px] sm:text-[10px] mt-1 line-clamp-1">Espresso with steamed milk</div>
+                                        <div class="text-amber-500 font-bold text-[10px] sm:text-xs mt-2">Rp 24.000</div>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-amber-500 text-zinc-950 flex items-center justify-center self-end">
+                                        <i class="ph-bold ph-plus text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Floating AI Button -->
+                        <div class="absolute bottom-20 right-4 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-100 text-zinc-900 flex items-center justify-center shadow-[0_0_20px_rgba(244,244,245,0.3)]">
+                            <i class="ph-fill ph-sparkle text-lg sm:text-xl"></i>
+                        </div>
+                        
+                        <!-- Bottom Bar -->
+                        <div class="h-14 sm:h-16 bg-amber-500 m-2 mt-0 rounded-2xl flex items-center justify-between px-4 sm:px-5 shrink-0">
+                            <div class="text-zinc-950 font-bold text-sm">2 Item</div>
+                            <div class="text-zinc-950 font-black text-sm flex items-center gap-1">Checkout <i class="ph-bold ph-arrow-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
 
 <section id="calculator" class="py-24 relative overflow-hidden transition-colors bg-[var(--color-bg-alt)] border-t border-[var(--color-border)]">
     <div class="max-w-5xl mx-auto px-4">
@@ -511,8 +638,8 @@
                 <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-list-plus text-2xl"></i>
                 </div>
-                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Input Menu & Produk</h3>
-                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Masukkan produk atau menu Anda lengkap dengan harga, kategori, dan foto. Pengguna juga bisa menambahkan variasi/addon seperti ukuran rasa.</p>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Input Menu & Cetak QR</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Masukkan produk atau menu Anda lengkap dengan harga, kategori, dan foto. Sistem otomatis membuatkan Menu Digital elegan beserta kode QR untuk tiap meja.</p>
                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)] bg-[var(--color-bg-alt)] dark:text-[var(--color-text-subtle)] px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~10 Menit</span>
             </div>
 
@@ -522,8 +649,8 @@
                 <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
                     <i class="ph-bold ph-paper-plane text-2xl"></i>
                 </div>
-                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Langsung Jualan</h3>
-                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Sistem kasir siap! Terima pembayaran staf, atau cetak kode QR meja agar pelanggan bisa pesan & bayar mandiri. Dana masuk langsung ke tokomu.</p>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Kasir & Pelanggan Terhubung</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Pelanggan memesan mandiri lewat Menu Digital di meja, dan pesanan langsung tampil di layar Kasir/Dapur. Staf kasir juga tetap bisa melayani manual.</p>
                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded-full"><i class="ph ph-check-circle"></i> Siap Jualan</span>
             </div>
         </div>
@@ -545,23 +672,24 @@
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="feature-card">
-                <div class="feature-icon" style="background-color: var(--color-primary)15; color: var(--color-primary);">
-                    <i class="ph-bold ph-storefront text-3xl"></i>
+            <div class="feature-card border-2 border-[var(--color-primary)]/20 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-[var(--color-primary)] text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Unggulan</div>
+                <div class="feature-icon" style="background-color: var(--color-leaf)15; color: var(--color-leaf);">
+                    <i class="ph-bold ph-star text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Kasir Web Real-Time</h3>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Menu Digital Premium & QR</h3>
                 <p class="text-[var(--color-text-muted)]">
-                    Proses pesanan dan cetak struk langsung dari browser HP, tablet, atau PC Anda. Tanpa perlu download.
+                    Desain UI super mewah, Asisten AI bawaan, dan fitur self-order dari meja. Pelanggan memesan dan membayar mandiri tanpa antre di kasir.
                 </p>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon" style="background-color: var(--color-leaf)15; color: var(--color-leaf);">
-                    <i class="ph-bold ph-qr-code text-3xl"></i>
+                <div class="feature-icon" style="background-color: var(--color-primary)15; color: var(--color-primary);">
+                    <i class="ph-bold ph-storefront text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">QR Self-Order Meja</h3>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Kasir Pintar (POS)</h3>
                 <p class="text-[var(--color-text-muted)]">
-                    Pelanggan tinggal scan QR di meja, pilih menu, dan bayar. Pesanan otomatis masuk ke layar kasir/dapur.
+                    Proses pesanan dan cetak struk langsung dari browser HP, tablet, atau PC kasir Anda. Tanpa perlu download aplikasi.
                 </p>
             </div>
             

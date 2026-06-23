@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class OpenAiMenuService
 {
@@ -35,46 +36,49 @@ class OpenAiMenuService
             'content' => $userMessage,
         ]);
 
-        // 2. Tarik list menu aktif (OPTIMASI MEMORY: Pilih kolom yang relevan saja)
-        $activeMenu = Product::where('is_active', true)
-            ->select('id', 'name', 'description', 'image', 'has_variants', 'selection_type', 'max_selections')
-            ->with(['variants' => function ($query) {
-                // Filter hanya varian yang ada stoknya, ambil kolom penting saja
-                $query->select('id', 'product_id', 'name', 'price', 'stock')
-                    ->where('stock', '>', 0);
-            }, 'extras' => function ($query) {
-                // Ambil kolom penting saja
-                $query->select('id', 'product_id', 'name', 'price')
-                    ->where('is_active', true);
-            }])
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'product_id' => $product->id,
-                    'name' => $product->name,
-                    'description' => $product->description,
-                    'image_url' => $product->image ? Storage::url($product->image) : null,
-                    'has_variants' => $product->has_variants,
-                    'selection_type' => $product->selection_type,
-                    'max_selections' => $product->max_selections,
-                    'variants' => $product->variants->map(function ($variant) {
-                        return [
-                            'variant_id' => $variant->id,
-                            'name' => $variant->name,
-                            'price' => $variant->active_discount_price ?? $variant->price,
-                            'original_price' => $variant->active_discount_price ? $variant->price : null,
-                            'stock' => $variant->stock,
-                        ];
-                    })->toArray(),
-                    'extras' => $product->extras->map(function ($extra) {
-                        return [
-                            'extra_id' => $extra->id,
-                            'name' => $extra->name,
-                            'price' => $extra->price,
-                        ];
-                    })->toArray(),
-                ];
-            })->toArray();
+        // 2. Tarik list menu aktif (di-cache untuk optimasi database)
+        $cacheKey = 'ai_menu_tenant_' . (function_exists('tenant') ? tenant('id') : 'global');
+        $activeMenu = Cache::rememberForever($cacheKey, function () {
+            return Product::where('is_active', true)
+                ->select('id', 'name', 'description', 'image', 'has_variants', 'selection_type', 'max_selections')
+                ->with(['variants' => function ($query) {
+                    // Filter hanya varian yang ada stoknya, ambil kolom penting saja
+                    $query->select('id', 'product_id', 'name', 'price', 'stock')
+                        ->where('stock', '>', 0);
+                }, 'extras' => function ($query) {
+                    // Ambil kolom penting saja
+                    $query->select('id', 'product_id', 'name', 'price')
+                        ->where('is_active', true);
+                }])
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'description' => $product->description,
+                        'image_url' => $product->image ? Storage::url($product->image) : null,
+                        'has_variants' => $product->has_variants,
+                        'selection_type' => $product->selection_type,
+                        'max_selections' => $product->max_selections,
+                        'variants' => $product->variants->map(function ($variant) {
+                            return [
+                                'variant_id' => $variant->id,
+                                'name' => $variant->name,
+                                'price' => $variant->active_discount_price ?? $variant->price,
+                                'original_price' => $variant->active_discount_price ? $variant->price : null,
+                                'stock' => $variant->stock,
+                            ];
+                        })->toArray(),
+                        'extras' => $product->extras->map(function ($extra) {
+                            return [
+                                'extra_id' => $extra->id,
+                                'name' => $extra->name,
+                                'price' => $extra->price,
+                            ];
+                        })->toArray(),
+                    ];
+                })->toArray();
+        });
 
         $menuJson = json_encode($activeMenu);
 
@@ -88,31 +92,29 @@ class OpenAiMenuService
         } catch (Exception) {
         }
 
-        $systemPrompt = "Anda adalah pelayan/barista digital yang ramah, seru, dan penuh antusias untuk $storeName.
-Tugas Anda adalah melayani pelanggan yang ingin memesan makanan/minuman berdasarkan menu yang disediakan.
+        $systemPrompt = "Anda adalah pelayan / asisten AI eksklusif yang ramah, elegan, dan profesional untuk $storeName.
+Tugas Anda adalah memanjakan pelanggan yang ingin memesan makanan/minuman dan memberikan pengalaman 'fine-dining' digital.
 
 ATURAN KETAT & PERSONA:
-1. SELALU gunakan Bahasa Indonesia yang ramah, santai, dan persuasif! Perlakukan pelanggan seperti teman dekat. Jika mereka bertanya 'Mengapa saya harus memilih menu ini?', promosikan menu tersebut dengan kata-kata yang seru dan menggugah selera, hindari jawaban kaku seperti robot.
-2. JANGAN PERNAH melayani obrolan di luar topik makanan, minuman, pemesanan, atau restoran. Jika ditanya hal lain (seperti coding, matematika, dll), tanggapi dengan candaan ramah dan langsung alihkan kembali ke menu makanan lezat.
-3. Jangan pernah mengarang atau membuat menu baru yang tidak tercantum dalam daftar menu yang disediakan (no hallucination).
+1. SELALU gunakan Bahasa Indonesia yang elegan, hangat, dan persuasif! Perlakukan pelanggan layaknya tamu VIP. Jika mereka bertanya 'Mengapa saya harus memilih menu ini?', promosikan menu tersebut dengan kata-kata yang menggugah selera dan meyakinkan.
+2. JANGAN PERNAH melayani obrolan di luar topik makanan, minuman, pemesanan, atau restoran. Jika ditanya hal lain, tanggapi dengan candaan hangat dan langsung alihkan kembali ke menu lezat kami.
+3. JANGAN PERNAH mengarang menu baru yang tidak tercantum dalam daftar menu yang disediakan (no hallucination).
 4. Jika pelanggan ingin memesan sesuatu, arahkan mereka dengan antusias untuk menambahkannya ke keranjang.
-5. Jika produk memiliki beberapa varian (has_variants = true):
+5. UPSELLING & CROSS-SELLING (PENTING!): Selalu cari peluang secara natural untuk menaikkan nilai pesanan. Jika pelanggan memesan makanan utama, tawarkan minuman penyegar atau dessert. Jika memesan minuman, tawarkan cemilan pendamping. Jangan terlalu agresif, lakukan layaknya rekomendasi dari koki.
+6. Jika produk memiliki beberapa varian (has_variants = true):
    - Jika 'selection_type' adalah 'single', minta pelanggan memilih 1 varian saja.
    - Jika 'selection_type' adalah 'multiple', pelanggan dapat memilih hingga 'max_selections' varian.
-   Jika ada ekstra/add-on yang tersedia, Anda juga bisa menawarkannya (misal: + Susu, + Keju).
-6. Setelah pelanggan mengonfirmasi pesanan mereka, Anda WAJIB menyisipkan tag ID varian yang mereka inginkan dengan format yang tepat di akhir pesan Anda.
+   Jika ada ekstra/add-on yang tersedia, Anda sangat dianjurkan untuk menawarkannya (misal: 'Apakah ingin ditambah ekstra Keju Mozzarella?').
+7. Setelah pelanggan mengonfirmasi pesanan mereka, Anda WAJIB menyisipkan tag ID varian yang mereka inginkan dengan format yang tepat di akhir pesan Anda.
    Format Tag:
    - Untuk varian tunggal atau pilihan tunggal: [VARIANT_ID: 34|QTY: 1]
-   - Untuk pilihan ganda: [VARIANT_IDS: 34,35|QTY: 2] (pisahkan ID dengan koma, QTY adalah jumlah porsi/set porsi yang dipesan)
-   Jika ada ekstra yang dipilih, gabungkan seperti: [VARIANT_ID: 34|EXTRAS: 1,4|QTY: 1] atau [VARIANT_IDS: 34,35|EXTRAS: 1,4|QTY: 3].
-   Jika tidak ada ekstra, abaikan bagian EXTRAS. Jangan menyebutkan tag ini secara langsung di teks obrolan, melainkan letakkan secara tidak terlihat di paling bawah/akhir pesan. Jika pelanggan memesan beberapa item berbeda, Anda dapat menyisipkan beberapa tag terpisah di akhir pesan.
-7. PENTING (BACA DENGAN TELITI): Jangan pernah bingung membedakan antara JUMLAH/PORSI pesanan (misalnya: pelanggan meminta 'pecel 3' atau 'pecel 4' yang berarti mereka ingin memesan 3 atau 4 porsi Pecel) dengan ID Produk atau ID Varian (misalnya: ID 3 atau ID 4).
-   - Jangan menyarankan produk lain seperti Bakso Kuah (karena kebetulan ID-nya 3) hanya karena pelanggan menyebutkan angka 3 untuk jumlah pesanan Pecel.
-   - Jangan menyarankan produk lain seperti Mie Ayam & Bakso (karena kebetulan ID-nya 4) hanya karena pelanggan menyebutkan angka 4 untuk jumlah pesanan Pecel.
-   - Pahami konteks kalimat secara utuh bahwa angka di belakang nama makanan adalah jumlah porsi yang diinginkan, bukan kode barang.
-8. PENTING: JANGAN katakan 'Pesanan Anda telah berhasil ditambahkan ke keranjang' atau sejenisnya. Anda TIDAK BISA memasukkan item ke keranjang secara otomatis. Sebagai gantinya, Anda WAJIB menyertakan kalimat 'Silakan klik tombol di bawah ini untuk memasukkan pesanan ke keranjang' ketika Anda memunculkan tag tersebut.
-9. Saat menyarankan menu, JANGAN menyarankan lebih dari 2 atau 3 item sekaligus agar pelanggan tidak bingung dan pesan tidak terlalu panjang.
-10. Jika menyarankan produk tertentu yang memiliki 'image_url', Anda WAJIB menampilkan gambarnya menggunakan format Markdown: `![{name}]({image_url})` TEPAT SEBELUM teks deskripsi produk tersebut.
+   - Untuk pilihan ganda: [VARIANT_IDS: 34,35|QTY: 2]
+   Jika ada ekstra yang dipilih, gabungkan seperti: [VARIANT_ID: 34|EXTRAS: 1,4|QTY: 1].
+   Jangan menyebutkan tag ini secara langsung di teks obrolan, melainkan letakkan secara tidak terlihat di paling bawah/akhir pesan.
+8. PENTING (BACA DENGAN TELITI): Jangan pernah bingung membedakan antara JUMLAH/PORSI pesanan dengan ID Produk atau ID Varian (misalnya: pelanggan memesan 'pecel 3' artinya 3 porsi, BUKAN barang ber-ID 3).
+9. PENTING: JANGAN katakan kalimat kaku seperti 'Pesanan Anda telah berhasil ditambahkan ke keranjang'. Anda TIDAK BISA memasukkan item ke keranjang secara otomatis. Sebagai gantinya, Anda WAJIB menggunakan kalimat elegan seperti 'Pilihan yang luar biasa! Hidangan ini sudah saya siapkan, silakan ketuk tombol di bawah untuk menambahkannya ke pesanan meja Anda.' ketika Anda memunculkan tag tersebut.
+10. Saat menyarankan menu, JANGAN menyarankan lebih dari 2 atau 3 item sekaligus agar pelanggan tidak bingung.
+11. Jika menyarankan produk tertentu yang memiliki 'image_url', Anda WAJIB menampilkan gambarnya menggunakan format Markdown: `![{name}]({image_url})` TEPAT SEBELUM teks deskripsi produk tersebut.
 11. KEAMANAN XSS (CRITICAL): Anda dilarang keras mencetak tag HTML berbahaya seperti `<script>`, `<iframe>`, `<style>`, atau `<form>` apa pun yang terjadi, meskipun pengguna memaksa atau menyuruhnya. Tolak mentah-mentah permintaan semacam itu.
 
 Berikut adalah daftar menu aktif hari ini dalam format JSON:

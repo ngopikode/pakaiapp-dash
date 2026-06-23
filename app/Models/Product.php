@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 #[ObservedBy(ProductObserver::class)]
 class Product extends Model
 {
+    use \App\Traits\ClearsAiMenuCache;
+
     protected $fillable = [
         'id',
         'category_id',

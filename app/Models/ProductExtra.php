@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductExtra extends Model
 {
+    use \App\Traits\ClearsAiMenuCache;
+
     protected $fillable = [
         'id',
         'product_id',

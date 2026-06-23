@@ -51,7 +51,73 @@ new class extends Component {
 <div>
     <div class="fixed z-[1050] flex flex-col justify-end items-end pointer-events-none sm:bottom-0 sm:right-0 sm:p-6 max-sm:inset-0 max-sm:p-0"
          wire:ignore.self
-         x-data="{ isOpen: window.innerWidth >= 992, showTooltip: window.innerWidth < 992, isMobile: window.innerWidth < 576, showScroll: false }"
+         x-data="{ 
+             isOpen: window.innerWidth >= 992, 
+             showTooltip: window.innerWidth < 992, 
+             isMobile: window.innerWidth < 576, 
+             showScroll: false,
+             x: 0, y: 0, startX: 0, startY: 0, isDragging: false, moved: false, isCustomPositioned: false,
+             initDrag(e) {
+                 if (this.isOpen) return;
+                 this.isDragging = true;
+                 this.moved = false;
+                 let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                 let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                 const rect = this.$refs.btnContainer.getBoundingClientRect();
+                 if (!this.isCustomPositioned) {
+                     this.x = rect.left;
+                     this.y = rect.top;
+                     this.isCustomPositioned = true;
+                 }
+                 this.startX = clientX - this.x;
+                 this.startY = clientY - this.y;
+             },
+             doDrag(e) {
+                 if (!this.isDragging) return;
+                 let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                 let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                 let newX = clientX - this.startX;
+                 let newY = clientY - this.startY;
+                 if (Math.abs(newX - this.x) > 3 || Math.abs(newY - this.y) > 3) {
+                     this.moved = true;
+                     this.showTooltip = false;
+                 }
+                 this.x = newX;
+                 this.y = newY;
+             },
+             stopDrag() {
+                 if (!this.isDragging) return;
+                 this.isDragging = false;
+                 if (!this.moved) return;
+                 const btnRect = this.$refs.btn.getBoundingClientRect();
+                 const screenWidth = window.innerWidth;
+                 const screenHeight = window.innerHeight;
+                 const btnCenterX = btnRect.left + btnRect.width / 2;
+                 if (btnCenterX < screenWidth / 2) {
+                     this.x = this.x - (btnRect.left - 16);
+                 } else {
+                     this.x = this.x + (screenWidth - 16 - btnRect.right);
+                 }
+                 if (btnRect.top < 16) {
+                     this.y = this.y - (btnRect.top - 16);
+                 } else if (btnRect.bottom > screenHeight - 16) {
+                     this.y = this.y - (btnRect.bottom - (screenHeight - 16));
+                 }
+             },
+             handleClick(e) {
+                 if (this.moved) {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     return;
+                 }
+                 this.isOpen = !this.isOpen;
+                 this.showTooltip = false;
+             }
+         }"
+         @mousemove.window="doDrag"
+         @mouseup.window="stopDrag"
+         @touchmove.window="doDrag"
+         @touchend.window="stopDrag"
          @resize.window="isMobile = window.innerWidth < 576"
          x-init="setTimeout(() => showTooltip = false, 8000)"
          x-effect="document.body.style.overflow = isOpen && isMobile ? 'hidden' : '';
@@ -176,6 +242,8 @@ new class extends Component {
 
         <!-- Floating Button & CTA -->
         <div class="flex justify-end items-center gap-3 relative pointer-events-auto"
+             x-ref="btnContainer"
+             :style="(!isOpen && isCustomPositioned) ? `position: fixed; left: ${x}px; top: ${y}px; transition: ${isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'}; z-index: 1050;` : 'transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);'"
              :class="isOpen && isMobile ? 'hidden' : ''">
             <!-- CTA Tooltip -->
             <div x-show="!isOpen && showTooltip"
@@ -191,8 +259,9 @@ new class extends Component {
             </div>
 
             <button type="button"
-                    class="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl flex items-center justify-center border-[3px] border-emerald-100 dark:border-emerald-900 transition-transform hover:scale-105 active:scale-95"
-                    @click="isOpen = !isOpen; showTooltip = false">
+                    x-ref="btn" style="touch-action: none;"
+                    @mousedown="initDrag" @touchstart="initDrag" @click="handleClick"
+                    class="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl flex items-center justify-center border-[3px] border-emerald-100 dark:border-emerald-900 transition-transform hover:scale-105 active:scale-95 cursor-grab active:cursor-grabbing">
                 <i class="ph-fill ph-chat-teardrop-dots text-2xl" x-show="!isOpen"></i>
                 <i class="ph-bold ph-x text-xl" x-show="isOpen" style="display: none;"></i>
             </button>
