@@ -9,8 +9,8 @@
         </div>
         <div class="d-grid d-md-block">
             <button wire:click="save"
-                    class="btn rounded-pill px-4 py-2 shadow-sm fw-bold d-flex align-items-center justify-content-center gap-2 text-white"
-                    style="background: #F97316; border: none;"
+                    class="btn rounded-pill px-4 py-2 shadow-sm fw-bold d-flex align-items-center justify-content-center gap-2 text-white btn-glow"
+                    style="background: var(--brand-caramel, #b45309); border: none;"
                     wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save"><i
                         class="bi bi-check2-circle fs-5"></i> Simpan Perubahan</span>
@@ -29,21 +29,18 @@
                     class="nav flex-row flex-lg-column nav-pills gap-2 flex-nowrap overflow-x-auto hide-scrollbar mobile-tabs pb-2 pb-lg-0"
                     role="tablist">
                     <button @click="tab = 'basic'"
-                            :class="tab === 'basic' ? 'shadow-sm' : 'bg-transparent text-secondary'"
-                            class="nav-link text-start rounded-4 fw-bold px-4 py-3 transition-all border-0"
-                            :style="tab === 'basic' ? 'background-color: var(--brand-caramel, #b45309); color: white;' : ''">
+                            :class="tab === 'basic' ? 'active' : 'bg-transparent text-secondary'"
+                            class="nav-link settings-nav-item text-start rounded-4 fw-bold px-4 py-3 border-0">
                         <i class="bi bi-shop me-2"></i> Info Dasar
                     </button>
                     <button @click="tab = 'hero'"
-                            :class="tab === 'hero' ? 'shadow-sm' : 'bg-transparent text-secondary'"
-                            class="nav-link text-start rounded-4 fw-bold px-4 py-3 transition-all border-0"
-                            :style="tab === 'hero' ? 'background-color: var(--brand-caramel, #b45309); color: white;' : ''">
+                            :class="tab === 'hero' ? 'active' : 'bg-transparent text-secondary'"
+                            class="nav-link settings-nav-item text-start rounded-4 fw-bold px-4 py-3 border-0">
                         <i class="bi bi-window-sidebar me-2"></i> Hero & Navbar
                     </button>
                     <button @click="tab = 'seo'"
-                            :class="tab === 'seo' ? 'shadow-sm' : 'bg-transparent text-secondary'"
-                            class="nav-link text-start rounded-4 fw-bold px-4 py-3 transition-all border-0"
-                            :style="tab === 'seo' ? 'background-color: var(--brand-caramel, #b45309); color: white;' : ''">
+                            :class="tab === 'seo' ? 'active' : 'bg-transparent text-secondary'"
+                            class="nav-link settings-nav-item text-start rounded-4 fw-bold px-4 py-3 border-0">
                         <i class="bi bi-search me-2"></i> SEO & Meta
                     </button>
                 </div>
@@ -63,7 +60,7 @@
                             <div class="col-md-8">
                                 <div class="form-floating">
                                     <input type="text"
-                                           class="form-control rounded-3 bg-body-tertiary border-0 @error('name') is-invalid @enderror"
+                                           class="form-control premium-input rounded-3 @error('name') is-invalid @enderror"
                                            id="storeName" wire:model="name" placeholder="Nama Toko">
                                     <label for="storeName" class="text-muted fw-medium">Nama Toko <span
                                             class="text-danger">*</span></label>
@@ -85,26 +82,28 @@
                         <!-- Upload Logo -->
                         <div class="upload-zone rounded-4 p-4 mb-4 text-center">
                             <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-4">
-                                <div
-                                    class="rounded-circle overflow-hidden shadow-sm border bg-body-tertiary d-flex align-items-center justify-content-center"
-                                    style="width: 90px; height: 90px; border-color: var(--bs-border-color) !important;">
+                                <label class="upload-zone-wrapper rounded-circle overflow-hidden shadow-sm bg-body-tertiary d-flex align-items-center justify-content-center mb-0"
+                                     style="width: 90px; height: 90px; cursor: pointer; border: 1px solid var(--bs-border-color-translucent);">
                                     @if($new_logo)
-                                        <img src="{{ $new_logo->temporaryUrl() }}" class="w-100 h-100 object-fit-cover"
-                                             alt="">
+                                        <img src="{{ $new_logo->temporaryUrl() }}" class="w-100 h-100 object-fit-cover" alt="">
                                     @elseif($logo)
-                                        <img src="/tenant_{{ tenant('id') }}/{{ $logo }}"
-                                             class="w-100 h-100 object-fit-cover" alt="">
+                                        <img src="/tenant_{{ tenant('id') }}/{{ $logo }}" class="w-100 h-100 object-fit-cover" alt="">
                                     @else
                                         <i class="bi bi-image text-muted fs-2"></i>
                                     @endif
-                                </div>
+                                    <div class="camera-overlay">
+                                        <i class="bi bi-camera-fill fs-3"></i>
+                                    </div>
+                                    <input type="file" class="d-none" wire:model="new_logo" accept="image/*">
+                                </label>
                                 <div class="text-md-start text-center">
                                     <h6 class="fw-bold mb-1">Logo Toko</h6>
-                                    <p class="small text-muted mb-2">Format JPG/PNG. Maksimal 2MB. Resolusi 1:1
-                                        direkomendasikan.</p>
-                                    <input type="file" class="form-control form-control-sm rounded-3 bg-body"
-                                           wire:model="new_logo" accept="image/*" style="max-width: 250px;">
-                                    <div wire:loading wire:target="new_logo" class="small text-warning mt-1 fw-bold"><i
+                                    <p class="small text-muted mb-2">Format JPG/PNG. Maksimal 2MB. Resolusi 1:1 direkomendasikan.</p>
+                                    <label class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold">
+                                        Pilih Gambar Baru
+                                        <input type="file" class="d-none" wire:model="new_logo" accept="image/*">
+                                    </label>
+                                    <div wire:loading wire:target="new_logo" class="small text-warning mt-2 fw-bold"><i
                                             class="bi bi-arrow-repeat spin"></i> Mengunggah...
                                     </div>
                                 </div>
@@ -114,7 +113,7 @@
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control rounded-3 bg-body-tertiary border-0"
+                                    <input type="text" class="form-control premium-input rounded-3"
                                            id="waNumber"
                                            wire:model="whatsapp_number" placeholder="Nomor WhatsApp">
                                     <label for="waNumber" class="text-muted fw-medium"><i
@@ -123,7 +122,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <textarea class="form-control rounded-3 bg-body-tertiary border-0" id="address"
+                                    <textarea class="form-control premium-input rounded-3" id="address"
                                               wire:model="address" style="height: 58px;"
                                               placeholder="Alamat Lengkap"></textarea>
                                     <label for="address" class="text-muted fw-medium"><i
@@ -135,10 +134,10 @@
                         <div class="row g-4">
                             <!-- Store Settings -->
                             <div class="col-md-6">
-                                <div class="bg-body-tertiary p-3 rounded-4 h-100">
+                                <div class="premium-setting-card p-4 h-100">
                                     <h6 class="fw-bold small text-muted mb-3 text-uppercase">Tipe & Status</h6>
                                     <div class="form-floating mb-3">
-                                        <select class="form-select rounded-3 border-0 shadow-sm bg-body" id="storeType"
+                                        <select class="form-select premium-input rounded-3" id="storeType"
                                                 wire:model="store_type" disabled>
                                             <option value="resto">Restoran / Cafe</option>
                                             <option value="retail">Toko Retail</option>
@@ -161,7 +160,7 @@
 
                             <!-- Order Methods -->
                             <div class="col-md-6">
-                                <div class="bg-body-tertiary p-3 rounded-4 h-100">
+                                <div class="premium-setting-card p-4 h-100">
                                     <h6 class="fw-bold small text-muted mb-3 text-uppercase">Metode Pesanan</h6>
 
                                     @if($store_type === 'resto')
@@ -203,7 +202,7 @@
                             <div class="row g-4 mt-2">
                                 <!-- Taxes & Service Charges Settings (F&B Only) -->
                                 <div class="col-12">
-                                    <div class="bg-body-tertiary p-4 rounded-4">
+                                    <div class="premium-setting-card p-4">
                                         <h6 class="fw-bold small text-muted mb-3 text-uppercase"><i class="bi bi-percent text-warning me-1"></i>Pajak & Biaya Layanan (Khusus F&B)</h6>
                                         <div class="row g-3">
                                             <div class="col-md-6">
@@ -218,8 +217,8 @@
                                                                    wire:model.live="is_tax_active">
                                                         </div>
                                                     </div>
-                                                    <div class="form-floating" x-show="$wire.is_tax_active" x-transition>
-                                                        <input type="number" step="0.01" class="form-control rounded-3 border-0 bg-body-tertiary"
+                                                    <div class="form-floating mt-3" x-show="$wire.is_tax_active" x-transition>
+                                                        <input type="number" step="0.01" class="form-control premium-input rounded-3"
                                                                id="taxRate" wire:model="tax_rate" placeholder="Persentase Pajak">
                                                         <label for="taxRate" class="text-muted fw-medium">Persentase Pajak (%)</label>
                                                     </div>
@@ -238,8 +237,8 @@
                                                                    wire:model.live="is_service_charge_active">
                                                         </div>
                                                     </div>
-                                                    <div class="form-floating" x-show="$wire.is_service_charge_active" x-transition>
-                                                        <input type="number" step="0.01" class="form-control rounded-3 border-0 bg-body-tertiary"
+                                                    <div class="form-floating mt-3" x-show="$wire.is_service_charge_active" x-transition>
+                                                        <input type="number" step="0.01" class="form-control premium-input rounded-3"
                                                                id="serviceChargeRate" wire:model="service_charge_rate" placeholder="Persentase Layanan">
                                                         <label for="serviceChargeRate" class="text-muted fw-medium">Persentase Biaya Layanan (%)</label>
                                                     </div>
@@ -256,27 +255,27 @@
                     <div x-show="tab === 'hero'" x-transition.opacity.duration.300ms style="display: none;">
                         <h5 class="fw-bold mb-4"><i class="bi bi-window text-primary me-2"></i>Hero & Navbar</h5>
 
-                        <div class="bg-body-tertiary p-4 rounded-4 mb-4">
+                        <div class="premium-setting-card p-4 mb-4">
                             <h6 class="fw-bold mb-3"><i class="bi bi-menu-up me-2 text-secondary"></i>Pengaturan Navbar
                             </h6>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body" id="navBrand"
+                                        <input type="text" class="form-control premium-input rounded-3" id="navBrand"
                                                wire:model="navbar_brand_text" placeholder="Brand Text">
                                         <label for="navBrand" class="text-muted fw-medium">Brand Text</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body" id="navTitle"
+                                        <input type="text" class="form-control premium-input rounded-3" id="navTitle"
                                                wire:model="navbar_title" placeholder="Title">
                                         <label for="navTitle" class="text-muted fw-medium">Title (Opsional)</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body"
+                                        <input type="text" class="form-control premium-input rounded-3"
                                                id="navSubtitle"
                                                wire:model="navbar_subtitle" placeholder="Subtitle">
                                         <label for="navSubtitle" class="text-muted fw-medium">Subtitle</label>
@@ -285,13 +284,13 @@
                             </div>
                         </div>
 
-                        <div class="bg-body-tertiary p-4 rounded-4">
+                        <div class="premium-setting-card p-4">
                             <h6 class="fw-bold mb-3"><i class="bi bi-image-alt me-2 text-secondary"></i>Teks Banner /
                                 Hero</h6>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 fw-bold bg-body"
+                                        <input type="text" class="form-control premium-input rounded-3 fw-bold"
                                                id="heroHeadline" wire:model="hero_headline" placeholder="Headline">
                                         <label for="heroHeadline" class="text-muted fw-medium">Headline (Judul
                                             Utama)</label>
@@ -299,7 +298,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body"
+                                        <input type="text" class="form-control premium-input rounded-3"
                                                id="heroTagline"
                                                wire:model="hero_tagline" placeholder="Tagline">
                                         <label for="heroTagline" class="text-muted fw-medium">Tagline
@@ -310,7 +309,7 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body"
+                                        <input type="text" class="form-control premium-input rounded-3"
                                                id="promoText"
                                                wire:model="hero_promo_text" placeholder="Promo">
                                         <label for="promoText" class="text-muted fw-medium">Promo Text (Badge)</label>
@@ -318,7 +317,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body"
+                                        <input type="text" class="form-control premium-input rounded-3"
                                                id="statusText"
                                                wire:model="hero_status_text" placeholder="Status">
                                         <label for="statusText" class="text-muted fw-medium">Status Text</label>
@@ -326,7 +325,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control rounded-3 border-0 bg-body" id="igLink"
+                                        <input type="text" class="form-control premium-input rounded-3" id="igLink"
                                                wire:model="hero_instagram_url" placeholder="Instagram">
                                         <label for="igLink" class="text-muted fw-medium"><i
                                                 class="bi bi-instagram text-danger me-1"></i> Link Instagram</label>
@@ -343,7 +342,7 @@
                         <div class="row g-4 mb-5">
                             <div class="col-md-12">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control rounded-3 bg-body-tertiary border-0"
+                                    <input type="text" class="form-control premium-input rounded-3"
                                            id="seoTitle"
                                            wire:model="seo_title" placeholder="SEO Title">
                                     <label for="seoTitle" class="text-muted fw-medium">SEO Title</label>
@@ -351,7 +350,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-floating">
-                                    <textarea class="form-control rounded-3 bg-body-tertiary border-0" id="seoDesc"
+                                    <textarea class="form-control premium-input rounded-3" id="seoDesc"
                                               wire:model="seo_description" style="height: 80px;"
                                               placeholder="SEO Desc"></textarea>
                                     <label for="seoDesc" class="text-muted fw-medium">SEO Description (Meta)</label>
@@ -359,7 +358,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control rounded-3 bg-body-tertiary border-0"
+                                    <input type="text" class="form-control premium-input rounded-3"
                                            id="seoKeywords"
                                            wire:model="seo_keywords" placeholder="Keywords">
                                     <label for="seoKeywords" class="text-muted fw-medium">SEO Keywords (Pisahkan dengan
@@ -375,12 +374,12 @@
                             <div class="row g-4 align-items-center">
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control rounded-3 bg-body border-0 shadow-sm"
+                                        <input type="text" class="form-control premium-input rounded-3"
                                                id="ogTitle" wire:model="og_title" placeholder="OG Title">
                                         <label for="ogTitle" class="text-muted fw-medium">OG Title</label>
                                     </div>
                                     <div class="form-floating">
-                                        <textarea class="form-control rounded-3 bg-body border-0 shadow-sm" id="ogDesc"
+                                        <textarea class="form-control premium-input rounded-3" id="ogDesc"
                                                   wire:model="og_description" style="height: 100px;"
                                                   placeholder="OG Desc"></textarea>
                                         <label for="ogDesc" class="text-muted fw-medium">OG Description</label>
@@ -388,9 +387,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="upload-zone rounded-4 p-3 bg-body text-center">
-                                        <div
-                                            class="rounded-3 overflow-hidden d-flex justify-content-center align-items-center bg-body-tertiary mx-auto mb-3"
-                                            style="width: 100%; max-width: 280px; height: 140px;">
+                                        <label class="upload-zone-wrapper rounded-3 overflow-hidden d-flex justify-content-center align-items-center bg-body-tertiary mx-auto mb-3"
+                                            style="width: 100%; max-width: 280px; height: 140px; cursor: pointer; border: 1px solid var(--bs-border-color-translucent);">
                                             @if($new_og_image)
                                                 <img src="{{ $new_og_image->temporaryUrl() }}"
                                                      class="w-100 h-100 object-fit-cover" alt="">
@@ -404,11 +402,17 @@
                                                     <small>1200 x 630px</small>
                                                 </div>
                                             @endif
-                                        </div>
-                                        <input type="file" class="form-control form-control-sm mx-auto bg-body"
-                                               wire:model="new_og_image" accept="image/*" style="max-width: 250px;">
+                                            <div class="camera-overlay rounded-3" style="border-radius: 0 !important;">
+                                                <i class="bi bi-camera-fill fs-3"></i>
+                                            </div>
+                                            <input type="file" class="d-none" wire:model="new_og_image" accept="image/*">
+                                        </label>
+                                        <label class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold">
+                                            Pilih Gambar OG
+                                            <input type="file" class="d-none" wire:model="new_og_image" accept="image/*">
+                                        </label>
                                         <div wire:loading wire:target="new_og_image"
-                                             class="small text-warning mt-1 fw-bold"><i
+                                             class="small text-warning mt-2 fw-bold"><i
                                                 class="bi bi-arrow-repeat spin"></i> Mengunggah...
                                         </div>
                                     </div>

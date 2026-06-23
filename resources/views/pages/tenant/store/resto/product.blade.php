@@ -75,6 +75,18 @@
     <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-no-progress-bar>
 <head>
+    <script>
+        // Prevent FOUC and apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            // Default to dark mode if not specified
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -163,7 +175,7 @@
 @include('pages.tenant.store.resto._loader')
 
 <div
-    class="bg-zinc-100 min-h-screen text-zinc-900 font-sans antialiased relative selection:bg-[var(--primary-color)] selection:text-black"
+    class="bg-[var(--bg-soft)] min-h-screen text-[var(--foreground)] font-sans antialiased relative selection:bg-[var(--primary-color)] selection:text-black"
     x-data="storeApp"
     data-default-order-type="{{ $orderTypes[0]['id'] }}"
     data-wa-number="{{ $waNumber }}"
@@ -229,13 +241,13 @@
         {{-- Floating header (transparent to solid on scroll) --}}
         <header
             class="fixed top-0 left-0 right-0 z-[110] transition-all duration-300 px-4 py-3 flex items-center justify-between max-w-xl mx-auto"
-            :class="scrolled ? 'bg-white/90 backdrop-blur-xl border-b border-zinc-100 shadow-sm' : 'bg-transparent'"
+            :class="scrolled ? 'bg-[var(--surface)]/90 backdrop-blur-xl border-b border-[var(--border)] shadow-sm' : 'bg-transparent'"
         >
             <a
                 href="/"
                 wire:navigate.hover
                 class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border"
-                :class="scrolled ? 'bg-white text-zinc-900 border-zinc-200' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
+                :class="scrolled ? 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)]' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
                 aria-label="Kembali ke menu"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -246,7 +258,7 @@
             </a>
 
             <h2
-                class="text-sm font-black text-zinc-900 truncate max-w-[200px] transition-all duration-300"
+                class="text-sm font-black text-[var(--foreground)] truncate max-w-[200px] transition-all duration-300"
                 :class="scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'"
                 x-text="product.name"
             ></h2>
@@ -255,8 +267,8 @@
                 <a
                     :href="'{{ route('product.story', $product) }}'"
                     target="_blank" rel="noreferrer"
-                    class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border hover:bg-[#25D366] hover:text-white hover:border-[#25D366]"
-                    :class="scrolled ? 'bg-white text-zinc-900 border-zinc-200' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
+                    class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border hover:bg-[#25D366] hover:text-[var(--background)] hover:border-[#25D366]"
+                    :class="scrolled ? 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)]' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
                     aria-label="Bagikan ke WhatsApp"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -268,7 +280,7 @@
                 <button
                     @click.prevent.stop="$store.utils.shareProduct({{ json_encode($productData) }}, '{{ $storeName }}')"
                     class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border"
-                    :class="scrolled ? 'bg-white text-zinc-900 border-zinc-200' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
+                    :class="scrolled ? 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)]' : 'bg-black/20 backdrop-blur-md text-white border-white/20'"
                     aria-label="Bagikan link"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -288,14 +300,18 @@
             class="w-full flex justify-center items-end overflow-hidden transition-all duration-200 ease-out relative z-[100]"
             :style="`height: ${isRefreshing ? 60 : Math.min(pullY, 60)}px; opacity: ${isRefreshing ? 1 : Math.min(pullY / 60, 1)}`"
         >
-            <div class="flex items-center gap-2 text-zinc-500 pb-3">
+            <div class="flex items-center gap-2 text-[var(--text-secondary)] pb-3">
                 <template x-if="isRefreshing">
                     <div
                         class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
                 </template>
                 <template x-if="!isRefreshing">
                     <div class="w-5 h-5 flex items-center justify-center transition-transform"
-                         :style="`transform: rotate(${pullY * 3}deg)`">↓
+                         :style="`transform: rotate(${pullY * 3}deg)`">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                         </svg>
                     </div>
                 </template>
                 <span class="text-xs font-bold"
@@ -306,8 +322,8 @@
         {{-- Parallax Hero Image --}}
         <div class="sticky top-0 w-full h-[45vh] z-0 overflow-hidden">
             @if($product->image)
-                <div class="relative w-full h-full bg-zinc-900">
-                    <div id="hero-skeleton" class="absolute inset-0 bg-zinc-800 animate-pulse"></div>
+                <div class="relative w-full h-full bg-[var(--foreground)]">
+                    <div id="hero-skeleton" class="absolute inset-0 bg-zinc-700 animate-pulse"></div>
                     <img
                         src="{{ Storage::url($product->image) }}"
                         alt="{{ $product->name }}"
@@ -317,15 +333,15 @@
                     />
                 </div>
             @else
-                <div class="w-full h-full bg-zinc-100 flex flex-col items-center justify-center gap-2">
+                <div class="w-full h-full bg-[var(--bg-soft)] flex flex-col items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                         class="text-zinc-300">
+                         class="text-[var(--border)]">
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                         <circle cx="9" cy="9" r="2"/>
                         <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
                     </svg>
-                    <span class="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">No Image</span>
+                    <span class="text-[10px] font-bold text-[var(--border)] uppercase tracking-widest">No Image</span>
                 </div>
             @endif
             <div
@@ -334,7 +350,7 @@
 
         {{-- Scrollable content card --}}
         <main
-            class="relative z-10 max-w-xl mx-auto bg-white min-h-[60vh] rounded-t-[2rem] -mt-8 pb-44 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+            class="relative z-10 max-w-xl mx-auto bg-[var(--surface)] min-h-[60vh] rounded-t-[2rem] -mt-8 pb-44 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
             <div class="w-full flex justify-center pt-3 pb-5">
                 <div class="w-12 h-1.5 bg-zinc-200 rounded-full"></div>
             </div>
@@ -344,9 +360,9 @@
                     <div class="flex-1">
                         @if($product->category)
                             <span
-                                class="inline-block px-3 py-1.5 rounded-xl bg-zinc-100 text-zinc-600 text-[10px] font-black uppercase tracking-widest mb-3 border border-zinc-200/60">{{ $product->category->name }}</span>
+                                class="inline-block px-3 py-1.5 rounded-xl bg-[var(--bg-soft)] text-[var(--foreground)] text-[10px] font-black uppercase tracking-widest mb-3 border border-[var(--border)]">{{ $product->category->name }}</span>
                         @endif
-                        <h1 class="text-[1.75rem] font-black text-zinc-900 leading-tight tracking-tight">{{ $product->name }}</h1>
+                        <h1 class="text-[1.75rem] font-black text-[var(--foreground)] leading-tight tracking-tight">{{ $product->name }}</h1>
                     </div>
                     <div class="text-right pt-1 shrink-0 min-w-0">
                         <div
@@ -356,44 +372,45 @@
                     </div>
                 </div>
 
-                <div class="h-px bg-zinc-100 my-6"></div>
+                <div class="h-px bg-[var(--bg-soft)] my-6"></div>
 
                 <div class="space-y-3">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-[var(--foreground)] flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="text-zinc-400">
+                             class="text-[var(--text-secondary)]">
                             <line x1="3" x2="21" y1="6" y2="6"/>
                             <line x1="3" x2="21" y1="12" y2="12"/>
                             <line x1="3" x2="21" y1="18" y2="18"/>
                         </svg>
                         Deskripsi Menu
                     </h3>
-                    <p class="text-sm text-zinc-500 leading-relaxed">{{ $product->description ?: 'Tidak ada deskripsi untuk menu ini.' }}</p>
+                    <p class="text-sm text-[var(--text-secondary)] leading-relaxed">{{ $product->description ?: 'Tidak ada deskripsi untuk menu ini.' }}</p>
                 </div>
 
                 @if($product->has_variants && $product->variants->count() > 0)
-                    <div class="mt-6 space-y-3">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
+                    <div class="mt-8 space-y-4">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-[var(--foreground)] flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="text-zinc-400">
+                                 stroke-linejoin="round" class="text-[var(--text-secondary)]">
                                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
                                 <line x1="3" x2="21" y1="6" y2="6"/>
                                 <path d="M16 10a4 4 0 0 1-8 0"/>
                             </svg>
                             Pilihan Varian
                         </h3>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2.5">
                             @foreach($product->variants as $variant)
-                                <span
-                                    class="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600">
-                                    {{ $variant->name }}
+                                <div
+                                    class="px-4 py-2.5 bg-[var(--surface)] border border-[var(--border)] shadow-sm rounded-2xl text-xs font-bold text-[var(--foreground)] flex items-center gap-2 relative overflow-hidden group">
+                                    <span class="relative z-10">{{ $variant->name }}</span>
                                     @if($product->selection_type !== 'multiple')
+                                        <span class="w-1 h-1 rounded-full bg-[var(--border)] relative z-10"></span>
                                         <span
-                                            class="text-[var(--primary-color)] ml-1">— Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+                                            class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
                                     @endif
-                                </span>
+                                </div>
                             @endforeach
                         </div>
                     </div>
@@ -401,25 +418,26 @@
 
                 @php $activeExtras = $product->extras->where('is_active', true); @endphp
                 @if($activeExtras->count() > 0)
-                    <div class="mt-6 space-y-3">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-zinc-900 flex items-center gap-2">
+                    <div class="mt-8 space-y-4">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-[var(--foreground)] flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="text-zinc-400">
+                                 stroke-linejoin="round" class="text-[var(--text-secondary)]">
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" x2="12" y1="8" y2="16"/>
                                 <line x1="8" x2="16" y1="12" y2="12"/>
                             </svg>
                             Pilihan Tambahan (Add-On)
                         </h3>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2.5">
                             @foreach($activeExtras as $extra)
-                                <span
-                                    class="px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600">
-                                    {{ $extra->name }}
+                                <div
+                                    class="px-4 py-2.5 bg-[var(--surface)] border border-[var(--border)] shadow-sm rounded-2xl text-xs font-bold text-[var(--foreground)] flex items-center gap-2 relative overflow-hidden">
+                                    <span class="relative z-10">{{ $extra->name }}</span>
+                                    <span class="w-1 h-1 rounded-full bg-[var(--border)] relative z-10"></span>
                                     <span
-                                        class="text-[var(--primary-color)] ml-1">+Rp {{ number_format($extra->price, 0, ',', '.') }}</span>
-                                </span>
+                                        class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">+Rp {{ number_format($extra->price, 0, ',', '.') }}</span>
+                                </div>
                             @endforeach
                         </div>
                     </div>
@@ -429,24 +447,24 @@
 
         {{-- Fixed Bottom Action Bar --}}
         <div
-            class="fixed bottom-0 left-0 right-0 z-[120] bg-white border-t border-zinc-100 px-5 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+            class="fixed bottom-0 left-0 right-0 z-[120] bg-[var(--surface)] border-t border-[var(--border)] px-5 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
             <div class="max-w-xl mx-auto flex flex-col gap-2.5">
 
                 {{-- Stepper (non-variant, non-extra item already in cart) --}}
                 <template
                     x-if="qtyInCart > 0 && !product.has_variants && !(product.extras && product.extras.length > 0)">
-                    <div class="flex items-center justify-between rounded-2xl p-1.5 w-full bg-zinc-900 shadow-xl">
+                    <div class="flex items-center justify-between rounded-2xl p-1.5 w-full bg-[var(--surface)] shadow-sm border border-[var(--border)]">
                         <button @click="updateQty(product.name, -1)"
-                                class="w-12 h-12 flex items-center justify-center rounded-xl text-white hover:bg-zinc-700 transition-all active:scale-90">
+                                class="w-12 h-12 flex items-center justify-center rounded-xl text-[var(--foreground)] hover:bg-[var(--bg-soft)] transition-all active:scale-90">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
                                 <line x1="5" x2="19" y1="12" y2="12"/>
                             </svg>
                         </button>
-                        <span class="font-black text-lg text-white tabular-nums" x-text="qtyInCart"></span>
+                        <span class="font-black text-lg text-[var(--foreground)] tabular-nums" x-text="qtyInCart"></span>
                         <button @click="addToCart(product)"
-                                class="w-12 h-12 flex items-center justify-center text-zinc-900 bg-[var(--primary-color)] hover:brightness-110 rounded-xl transition-all active:scale-90">
+                                class="w-12 h-12 flex items-center justify-center text-black bg-[var(--primary-color)] hover:brightness-110 rounded-xl transition-all active:scale-90">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -464,14 +482,14 @@
                         @click="(product.has_variants || (product.extras && product.extras.length > 0)) ? openOption(product) : addToCart(product)"
                         :disabled="!product.is_active"
                         class="w-full py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2"
-                        :class="product.is_active ? 'bg-zinc-900 text-white shadow-xl hover:bg-zinc-800' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'"
+                        :class="product.is_active ? 'bg-[var(--primary-color)] text-black shadow-xl shadow-[var(--primary-color)]/20 hover:brightness-110' : 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)] cursor-not-allowed'"
                     >
                         <template x-if="!product.is_active"><span>Produk Habis</span></template>
                         <template x-if="product.is_active && product.has_variants">
                             <span class="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="text-[var(--primary-color)]"><path
+                                     stroke-linejoin="round"><path
                                         d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21"
                                                                                                       y1="6" y2="6"/><path
                                         d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -483,7 +501,7 @@
                             <span class="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="text-[var(--primary-color)]"><circle cx="12" cy="12"
+                                     stroke-linejoin="round"><circle cx="12" cy="12"
                                                                                                          r="10"/><line
                                         x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
                                 Pilih Add-On &bull; {{ $product->formatted_price }}
@@ -494,7 +512,7 @@
                             <span class="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="text-[var(--primary-color)]"><line x1="12" x2="12"
+                                     stroke-linejoin="round"><line x1="12" x2="12"
                                                                                                        y1="5" y2="19"/><line
                                         x1="5" x2="19" y1="12" y2="12"/></svg>
                                 Tambah ke Keranjang &bull; {{ $product->formatted_price }}
@@ -507,13 +525,13 @@
                 <template x-if="totalQty > 0">
                     <button
                         @click="openCheckout()"
-                        class="w-full bg-gradient-to-r from-zinc-900 to-zinc-800 text-white p-4 rounded-2xl shadow-lg flex justify-between items-center border border-white/10 relative overflow-hidden group hover:shadow-xl transition-all duration-300 active:scale-[0.98]"
+                        class="max-w-xl mx-auto w-full bg-zinc-900 text-zinc-50 p-4 rounded-2xl shadow-2xl flex justify-between items-center border border-[var(--primary-color)]/30 ring-1 ring-[var(--primary-color)]/20 relative overflow-hidden group hover:border-[var(--primary-color)] transition-all duration-300 active:scale-[0.98]"
                     >
                         <div
                             class="absolute inset-0 bg-[var(--primary-color)]/5 group-hover:bg-[var(--primary-color)]/10 transition-colors duration-500"></div>
                         <div class="relative flex items-center gap-3.5">
                             <div
-                                class="bg-[var(--primary-color)] text-zinc-900 w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shadow-md"
+                                class="bg-[var(--primary-color)] text-black w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-[var(--primary-color)]/30"
                                 x-text="totalQty"></div>
                             <div class="text-left">
                                 <span class="block text-[9px] font-bold uppercase tracking-widest text-zinc-400 mb-0.5">Total Estimasi</span>
@@ -522,9 +540,9 @@
                             </div>
                         </div>
                         <div class="relative flex items-center gap-2 pr-1">
-                            <span class="text-[10px] font-black uppercase tracking-widest">Checkout</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-[var(--primary-color)] group-hover:text-white transition-colors">Checkout</span>
                             <div
-                                class="bg-white/10 p-1.5 rounded-full group-hover:bg-[var(--primary-color)]/20 transition-colors">
+                                class="bg-[var(--surface)]/10 p-1.5 rounded-full group-hover:bg-[var(--primary-color)]/20 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round">
@@ -540,10 +558,10 @@
 
     {{-- Toast --}}
     <div
-        class="fixed top-4 left-4 right-4 z-[9999] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-6 sm:w-auto sm:min-w-[280px] bg-zinc-900 text-white px-5 py-3.5 rounded-2xl sm:rounded-full shadow-2xl shadow-zinc-900/30 transition-all duration-500 ease-out flex items-center justify-center sm:justify-start gap-3 border border-white/5 backdrop-blur-xl pointer-events-none"
+        class="fixed top-4 left-4 right-4 z-[9999] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-6 sm:w-auto sm:min-w-[280px] bg-[var(--foreground)] text-[var(--background)] px-5 py-3.5 rounded-2xl sm:rounded-full shadow-2xl shadow-zinc-900/30 transition-all duration-500 ease-out flex items-center justify-center sm:justify-start gap-3 border border-white/5 backdrop-blur-xl pointer-events-none -translate-y-8 opacity-0 scale-95"
         :class="toast.show ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-8 opacity-0 scale-95'"
     >
-        <div class="bg-emerald-500 rounded-full p-1 text-white shrink-0 shadow-lg shadow-emerald-500/30">
+        <div class="bg-emerald-500 rounded-full p-1 text-[var(--background)] shrink-0 shadow-lg shadow-emerald-500/30">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>

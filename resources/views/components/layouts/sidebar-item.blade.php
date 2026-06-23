@@ -9,11 +9,11 @@
     $isActive = ($activeRoute === $route) || (str_starts_with($activeRoute, $route . '.'));
 @endphp
 
-<a href="{{ route($route) }}" wire:navigate.hover onclick="if(!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button !== 1) window.showLoader()"
+<a href="{{ route($route) }}" wire:navigate.hover
    class="list-group-item list-group-item-action {{ $isActive ? 'active' : '' }} d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center gap-3">
-        <i class="{{ $icon }}"></i>
-        <span>{!! $label !!}</span>
+    <div class="d-flex align-items-center gap-3 min-w-0">
+        <i class="{{ $icon }} flex-shrink-0"></i>
+        <span class="text-truncate">{!! $label !!}</span>
     </div>
     @if($isActive)
         <span class="active-indicator-dot"></span>

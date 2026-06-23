@@ -87,12 +87,11 @@
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
-    {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
     <template x-if="currentTab === 'cashier' && !isMobileCartOpen">
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 65px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
+            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>

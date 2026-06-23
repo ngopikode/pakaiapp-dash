@@ -58,8 +58,8 @@
                 {{ $storeType === 'resto' ? 'Riwayat Transaksi' : 'Dashboard Pesanan' }}
             </h2>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-bold border border-success border-opacity-10" style="font-size: 0.72rem;">
-                    <i class="bi bi-broadcast me-1"></i> Live Update Aktif
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1.5 fw-bold border border-success border-opacity-25 d-flex align-items-center gap-2" style="font-size: 0.75rem;">
+                    <span class="pulse-dot"></span> Live Update Aktif
                 </span>
                 <p class="text-secondary small mb-0 fw-medium">Pantau dan kelola semua transaksi masuk secara instan.</p>
             </div>
@@ -158,8 +158,8 @@
                     </div>
                 </div>
 
-                <div class="card-body p-3 p-md-4 pt-0 bg-body">
-                    <div class="list-group list-group-flush bg-transparent position-relative">
+                <div class="card-body p-3 p-md-4 pt-0 bg-transparent border-0">
+                    <div class="order-cards-list position-relative mt-2">
 
                         {{-- Loading Overlay --}}
                         <div wire:loading wire:target="statusFilter, search" class="position-absolute w-100 h-100 start-0 top-0 z-1" style="background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(4px);">
@@ -189,7 +189,7 @@
                                     $typeInfo = $typeBadges[$order->order_type] ?? ['label' => $order->order_type, 'icon' => 'bi-receipt', 'class' => 'bg-secondary bg-opacity-10 text-secondary border-secondary'];
                                 @endphp
 
-                                <div class="list-group-item list-group-item-custom p-3">
+                                <div class="premium-order-card p-3 p-md-4 mb-3">
                                     <div class="row align-items-md-center g-3">
                                         {{-- Left Side: Avatar & Info --}}
                                         <div class="col-12 col-md d-flex align-items-start gap-3">
@@ -213,8 +213,8 @@
                                                     @endif
                                                 </div>
 
-                                                <div class="text-secondary small fw-medium d-flex align-items-center flex-wrap gap-2 opacity-75 mb-2">
-                                                    <span class="fw-bold text-primary">#{{ $order->invoice_code }}</span>
+                                                <div class="text-secondary small fw-medium d-flex align-items-center flex-wrap gap-2 mb-2">
+                                                    <span class="fw-bold text-primary text-monospace px-2 py-1 rounded bg-primary bg-opacity-10" style="font-size: 0.8rem; letter-spacing: 0.5px;">#{{ $order->invoice_code }}</span>
                                                     <span class="d-none d-sm-inline">&bull;</span>
 
                                                     <span class="badge border {{ $typeInfo['class'] }} border-opacity-25 rounded-pill px-2 py-0.5">
@@ -251,7 +251,7 @@
                                                             return $item->product_name . ($item->variant_name ? ' (' . $item->variant_name . ')' : '') . ($item->quantity > 1 ? ' (x' . $item->quantity . ')' : '');
                                                         })->join(', ');
                                                     @endphp
-                                                    <div class="bg-body-tertiary rounded-3 p-2 text-secondary text-truncate border" style="font-size: 0.75rem; border-color: var(--bs-border-color-translucent) !important; max-width: 100%;">
+                                                    <div class="items-summary-box text-truncate" style="max-width: 100%;">
                                                         <span class="fw-bold text-body">{{ $order->items->sum('quantity') }} Item:</span>
                                                         {{ $summary }}
                                                     </div>
@@ -263,7 +263,7 @@
                                         <div class="col-12 col-md-auto border-top border-md-0 pt-3 pt-md-0">
                                             <div class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between h-100 gap-3">
                                                 <div class="text-start text-md-end">
-                                                    <div class="fw-bold text-body" style="font-size: 1.15rem; font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px;">
+                                                    <div class="fw-bold text-body" style="font-size: 1.25rem; font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px;">
                                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                                     </div>
                                                     <div class="mt-1">

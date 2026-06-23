@@ -29,6 +29,7 @@ Proyek ini sudah dilengkapi file-file dokumentasi berekstensi `.md`. Alih-alih m
 | **Flowchart POS Resto** | [`POS_RESTO_FLOWCHART_ANAYSIS.md`](./POS_RESTO_FLOWCHART_ANAYSIS.md) | Analisis alur (*flowchart*) operasional kasir/resto. |
 | **Flowchart POS Kitchen** | [`POS_KITCHEN_FLOWCHART_ANALYSIS.md`](./POS_KITCHEN_FLOWCHART_ANALYSIS.md) | Analisis alur pesanan dari kasir ke dapur. |
 | **Docs: Livewire 4 Components**| [`livewire4docs/components.md`](./livewire4docs/components.md) | Referensi dokumentasi *offline* cara kerja komponen Livewire 4. Rujuk file ini untuk *best practice* versi terbaru Livewire. |
+| **Docs: MFC + Alpine Timing**| [`livewire4docs/mfc-alpine-architecture.md`](./livewire4docs/mfc-alpine-architecture.md) | Penjelasan krusial mengenai *timing* eksekusi asinkron file `.js` MFC Livewire 4 dan mengapa pendaftaran `Alpine.data()` harus tetap berada di `@script` pada *blade*. |
 
 ---
 > **Catatan untuk AI Agent:** Ketika kamu ditugaskan membuat fitur atau memperbaiki *bug*, patuhi tumpukan teknologi di atas (gunakan Livewire/Bootstrap, **jangan** buat komponen Vue/React/Tailwind jika tidak diminta). Perhatikan letak struktur *folder* multi-tenant, terutama perbedaan `migrations/` dan `migrations/tenant/`.

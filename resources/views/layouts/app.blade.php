@@ -75,17 +75,28 @@ $showSidebar = $accessibleMenus > 1;
 
 <div id="wrapper">
     @if($showSidebar)
-        @if(!($isMobile ?? false))
-            {{-- HANYA DI-RENDER DI DESKTOP --}}
-            <div class="desktop-sidebar-container h-100">
-                <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
+        {{-- HANYA DI-RENDER DI DESKTOP --}}
+        <div class="desktop-sidebar-container h-100 d-none d-lg-block">
+            <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
+        </div>
+
+        {{-- HANYA DI-RENDER DI MOBILE (OFFCANVAS) --}}
+        <div class="offcanvas offcanvas-start border-0 shadow d-lg-none" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="width: 280px; transition: transform 0.3s ease-in-out;">
+            <div class="offcanvas-header border-bottom px-4 py-3" style="border-color: var(--bs-border-color) !important;">
+                <h5 class="offcanvas-title font-serif fw-bolder fs-5" id="mobileSidebarLabel" style="letter-spacing: -0.02em; color: var(--brand-caramel, #B67332);">
+                    Navigasi Toko
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
-        @endif
+            <div class="offcanvas-body p-0">
+                <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
+            </div>
+        </div>
     @endif
 
     <div id="page-content-wrapper"
          @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
-        @if($showSidebar && !($isMobile ?? false))
+        @if($showSidebar)
             <livewire:layouts.navbar :header="$title ?? null"/>
         @endif
 
@@ -94,10 +105,7 @@ $showSidebar = $accessibleMenus > 1;
         </main>
     </div>
 
-    @if($showSidebar && ($isMobile ?? false))
-        {{-- HANYA DI-RENDER DI MOBILE --}}
-        <livewire:layouts.bottom-navbar/>
-    @endif
+
 </div>
 
 @livewireScripts

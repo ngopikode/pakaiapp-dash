@@ -74,34 +74,11 @@ new class extends Component {
 <aside id="{{ $elementId }}">
 
     @if($elementId !== 'mobile-sidebar-wrapper')
-    <div class="sidebar-heading px-3 py-4 border-bottom d-flex align-items-center justify-content-between gap-2"
-         style="border-color: var(--bs-border-color) !important;">
-        <div class="d-flex align-items-center gap-2 min-w-0">
-            <div
-                class="brand-avatar d-flex align-items-center justify-content-center text-white rounded-3 shadow-sm flex-shrink-0"
-                style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14));">
-                <i class="bi bi-cup-hot-fill fs-5"></i>
-            </div>
-            <div class="d-flex flex-column min-w-0">
-                <span class="fw-bolder fs-5 text-body text-truncate"
-                      style="font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px; line-height: 1.2; max-width: 140px;">
-                    {{ StoreSetting::value('navbar_brand_text') }}
-                </span>
-                <span class="small fw-bold text-secondary text-uppercase text-truncate"
-                      style="font-size: 0.62rem; letter-spacing: 1.5px; opacity: 0.8;">
-                    DASHBOARD TOKO
-                </span>
-            </div>
-        </div>
-
-        <button type="button"
-                x-data="{ theme: localStorage.getItem('theme') || 'light' }" @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.setAttribute('data-bs-theme', theme)"
-                class="btn btn-link text-body p-0 border-0 shadow-none d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle transition-all hover-bg-tertiary"
-                style="width: 36px; height: 36px; background-color: var(--bs-tertiary-bg);"
-                title="Ganti Tema">
-            <i x-show="theme === 'dark'" class="ph-fill ph-sun text-warning fs-5" x-cloak></i>
-            <i x-show="theme === 'light'" class="ph-fill ph-moon fs-5" x-cloak></i>
-        </button>
+    <div class="sidebar-heading px-4 py-3 border-bottom d-flex align-items-center"
+         style="border-color: var(--bs-border-color) !important; min-height: 70px;">
+        <h5 class="m-0 font-serif fw-bolder fs-5" style="letter-spacing: -0.02em; color: var(--brand-caramel, #B67332);">
+            {{ \App\Models\StoreSetting::value('navbar_brand_text') ?? 'Navigasi Toko' }}
+        </h5>
     </div>
     @endif
 

@@ -1,61 +1,132 @@
 @php
-    $promoText     = $setting->hero_promo_text    ?? 'Promo';
-    $statusText    = $setting->hero_status_text   ?? 'Buka Sekarang';
-    $tagline       = $setting->hero_tagline       ?? 'Nikmati menu spesial kami.';
-    $instagramUrl  = $setting->hero_instagram_url ?? '#';
-    $address       = $setting->address            ?? '';
-    $headlineParts = array_map('trim', explode('&', $setting->hero_headline ?? 'Enjoy & Dine'));
+    use Illuminate\Support\Facades\Storage;
+    $storeName = $setting->name ?: 'EzMenu';
+    $tagline = $setting->hero_tagline ?? 'Welcome to ' . $storeName;
+    $logoUrl = $setting->logo ? Storage::url($setting->logo) : null;
+    $ogImage = $setting->og_image ? Storage::url($setting->og_image) : null;
 @endphp
 
-<section class="px-3 py-2">
-    <div class="relative max-w-xl mx-auto bg-gradient-to-br from-[#18181b] via-[#1e1e22] to-[#111113] rounded-[2rem] p-7 overflow-hidden text-white shadow-xl shadow-zinc-900/20 border border-white/[0.04]">
+<header class="relative bg-[var(--background)] border-none mb-6">
+    <div class="h-48 w-full relative overflow-hidden bg-[var(--bg-soft)]">
+        @if($ogImage)
+            <img src="{{ $ogImage }}" alt="Cover" class="absolute inset-0 w-full h-full object-cover opacity-50" />
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
+        @endif
 
-        <!-- Decorative blurs -->
-        <div class="absolute -top-16 -right-16 w-56 h-56 bg-[var(--primary-color)]/15 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-[var(--primary-color)]/8 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/40 to-transparent"></div>
-        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 24px 24px"></div>
+        @if($setting->hero_tagline)
+            <div class="absolute inset-0 flex items-center justify-center pt-8 z-10">
+                <p class="text-sm md:text-base font-serif italic text-[var(--foreground)]/90 drop-shadow-sm px-6 text-center max-w-[320px] leading-relaxed">
+                    "{{ trim($setting->hero_tagline, '"') }}"
+                </p>
+            </div>
+        @endif
 
-        <div class="relative z-10">
-            <div class="flex flex-wrap items-center gap-2 mb-5">
-                <span class="bg-[var(--primary-color)] text-black px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider shadow-lg shadow-[var(--primary-color)]/25 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                    {{ $promoText }}
+        {{-- Promo Badge (Kiri Atas) --}}
+        @if($setting->hero_promo_text)
+            <div class="absolute top-4 left-4 z-20">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500 text-white text-[10px] font-black shadow-lg uppercase tracking-[0.15em]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-300"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {{ $setting->hero_promo_text }}
                 </span>
-                <div class="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50"></div>
-                    <span class="text-[9px] font-bold uppercase tracking-wider text-zinc-300">{{ $statusText }}</span>
-                </div>
             </div>
+        @endif
 
-            <h2 class="text-[2.25rem] font-black leading-[0.9] mb-4 text-white uppercase tracking-tighter">
-                {{ $headlineParts[0] }} <br/>
-                @if(count($headlineParts) > 1)
-                    <span class="text-[var(--primary-color)] italic font-serif">&</span> {{ $headlineParts[1] }}
-                @endif
-            </h2>
-
-            <div class="mb-6 border-l-2 border-[var(--primary-color)]/40 pl-3.5 space-y-1">
-                <p class="text-zinc-300 text-xs leading-relaxed font-medium">{{ $address ?: 'Lokasi belum diatur' }}</p>
-                <p class="text-[var(--primary-color)] text-[10px] italic font-medium opacity-90">{{ $tagline }}</p>
-            </div>
-
-            <div class="flex gap-3">
-                <button
-                    onclick="document.getElementById('menu-start')?.scrollIntoView({behavior: 'smooth', block: 'start'})"
-                    class="bg-[var(--primary-color)] text-zinc-900 px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[var(--primary-color)]/25 active:scale-95 transition-all hover:brightness-110 hover:shadow-xl hover:shadow-[var(--primary-color)]/30">
-                    Pesan Sekarang
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </button>
-                <a href="{{ $instagramUrl }}" target="_blank" rel="noreferrer"
-                   class="bg-white/10 border border-white/10 text-white px-4 py-3.5 rounded-xl flex items-center gap-2 hover:bg-white/20 transition-all active:scale-95 backdrop-blur-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-                </a>
-            </div>
+        {{-- Floating Action Buttons (Kanan Atas) --}}
+        <div class="absolute top-4 right-4 flex items-center gap-1.5 z-20">
+            <button @click="toggleTheme()" class="relative p-2 bg-[var(--bg-soft)]/80 backdrop-blur-md hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-[var(--border)] hover:border-[var(--primary-color)]" title="Ganti Tema">
+                <svg x-show="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--foreground)] group-hover:text-black transition-colors"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg x-show="theme !== 'dark'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--foreground)] group-hover:text-black transition-colors" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </button>
+            <button @click="historyOpen = true" class="relative p-2 bg-[var(--bg-soft)]/80 backdrop-blur-md hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-[var(--border)] hover:border-[var(--primary-color)]" title="Riwayat Pesanan">
+                <span x-show="historyCount > 0" x-text="historyCount" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black h-4 w-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse" style="display: none;"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--foreground)] group-hover:text-black transition-colors"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+            </button>
+            <button @click="$dispatch('open-contact-modal')" class="relative p-2 bg-[var(--bg-soft)]/80 backdrop-blur-md hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-[var(--border)] hover:border-[var(--primary-color)]" title="Hubungi Kami">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--foreground)] group-hover:text-black transition-colors"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </button>
+            <button @click="$dispatch('open-qr-modal')" class="relative p-2 bg-[var(--bg-soft)]/80 backdrop-blur-md hover:bg-[var(--primary-color)] group transition-all duration-300 rounded-xl active:scale-90 hover:shadow-lg hover:shadow-[var(--primary-color)]/20 border border-[var(--border)] hover:border-[var(--primary-color)]" title="Scan QR Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--foreground)] group-hover:text-black transition-colors"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+            </button>
         </div>
-
-        <div class="absolute -right-4 bottom-2 opacity-[0.07] animate-float">
-            <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+        
+        <div class="h-full w-full flex items-center justify-center absolute inset-0 pointer-events-none">
+            <h2 class="text-3xl font-black opacity-[0.08] uppercase tracking-tighter select-none px-6 text-center leading-tight text-[var(--background)]">
+                {{ $storeName }}
+            </h2>
         </div>
     </div>
-</section>
+
+    <div class="px-6 -mt-10 relative flex flex-col items-center text-center pb-2">
+        <!-- Logo -->
+        <div class="w-20 h-20 p-1 rounded-full shadow-2xl mb-3 relative z-10 bg-[var(--surface)] ring-1 ring-[var(--border)]">
+            <div class="w-full h-full rounded-full flex items-center justify-center overflow-hidden bg-[var(--bg-soft)]">
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="{{ $storeName }}" class="w-full h-full object-cover" />
+                @else
+                    <div class="flex flex-col items-center justify-center h-full w-full text-center">
+                        <span class="font-serif italic text-xl text-[var(--primary)] font-bold">{{ substr($storeName, 0, 2) }}</span>
+                    </div>
+                @endif
+            </div>
+            <!-- Live Indicator -->
+            @if($setting->is_active)
+                <div class="absolute bottom-1 right-0 w-4 h-4 border-[2px] rounded-full bg-emerald-500 border-[var(--surface)] shadow-sm"></div>
+            @else
+                <div class="absolute bottom-1 right-0 w-4 h-4 border-[2px] rounded-full bg-red-500 border-[var(--surface)] shadow-sm"></div>
+            @endif
+        </div>
+
+        <!-- Main Title (Brand + Title) -->
+        <h1 class="text-[28px] md:text-3xl font-black text-[var(--foreground)] tracking-tight leading-none mb-2">
+            @if($setting->navbar_brand_text)
+                {{ $setting->navbar_brand_text }} <span class="text-[var(--primary-color)]">{{ $setting->navbar_title ?: $storeName }}</span>
+            @else
+                {{ $setting->navbar_title ?: $storeName }}
+            @endif
+        </h1>
+
+        <!-- Status Text (Below Title) -->
+        @if($setting->hero_status_text)
+            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-[10px] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.15em] mb-4 shadow-sm">
+                @if($setting->is_active)
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                @else
+                    <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                @endif
+                {{ $setting->hero_status_text }}
+            </div>
+        @endif
+
+        <!-- Headline & Subtitle Inline -->
+        <div class="flex items-center justify-center gap-1.5 flex-wrap mb-2">
+            @if($setting->hero_headline)
+                <span class="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-widest">{{ $setting->hero_headline }}</span>
+            @endif
+            @if($setting->hero_headline && $setting->navbar_subtitle)
+                <span class="w-1 h-1 rounded-full bg-[var(--border)] opacity-60"></span>
+            @endif
+            @if($setting->navbar_subtitle)
+                <span class="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{{ $setting->navbar_subtitle }}</span>
+            @endif
+        </div>
+
+        <!-- Bottom Group: Address & Instagram -->
+        <div class="flex flex-col items-center gap-2 w-full">
+            <!-- Address -->
+            @if($setting->address)
+                <div class="flex flex-row items-start justify-center gap-1.5 text-[11px] text-[var(--text-secondary)] opacity-80 max-w-[280px] leading-relaxed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span>{{ $setting->address }}</span>
+                </div>
+            @endif
+
+            <!-- Social Media Link -->
+            @if($setting->hero_instagram_url)
+                <button @click="window.open('{{ $setting->hero_instagram_url }}', '_blank')" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-secondary)] hover:text-[#E1306C] hover:border-[#E1306C]/50 hover:bg-[#E1306C]/5 transition-all duration-300 shadow-sm active:scale-95 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-[#E1306C] transition-colors"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                    Follow us on Instagram
+                </button>
+            @endif
+        </div>
+    </div>
+</header>

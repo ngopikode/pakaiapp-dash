@@ -63,10 +63,8 @@
                 @forelse($products as $product)
                     <div class="col tour-product-item">
                         <div
-                            class="card h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
-                            style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;"
-                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 30px rgba(180, 83, 9, 0.15)';"
-                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.02)';"
+                            class="card product-card-hover h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
+                            style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02);"
                             x-data
                             @click="$dispatch('add-product', { product: {{ json_encode($product) }} })">
 

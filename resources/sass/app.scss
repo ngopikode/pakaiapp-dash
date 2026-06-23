@@ -185,6 +185,7 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     font-weight: 600 !important;
     font-size: 0.9rem !important;
     margin: 0.3rem 0.85rem !important;
+    width: calc(100% - 1.7rem) !important;
     padding: 0.75rem 1.15rem !important;
     border-radius: 0.85rem !important;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -198,7 +199,6 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     background-color: rgba(16, 185, 129, 0.06) !important;
     border-color: rgba(16, 185, 129, 0.12) !important;
     color: #10B981 !important;
-    transform: translateX(4px);
 }
 
 .list-group-item-action:hover i {
@@ -218,7 +218,6 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     border-left: 3px solid #10B981 !important;
     color: #10B981 !important;
     box-shadow: none !important;
-    transform: translateX(2px);
 }
 
 [data-bs-theme="dark"] .list-group-item-action.active {

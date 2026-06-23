@@ -79,3 +79,19 @@ product-list.php /* Modern Minimalist UI & Shimmer Skeleton - Safe for Custom Da
     font-weight: 700;
 }
 
+
+/* Pro Max UI: Bouncy Card Interaction */
+.product-card-hover {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
+}
+
+.product-card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(180, 83, 9, 0.15) !important;
+}
+
+.product-card-hover:active {
+    transform: scale(0.96) translateY(0);
+    box-shadow: 0 5px 15px rgba(180, 83, 9, 0.1) !important;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease !important;
+}

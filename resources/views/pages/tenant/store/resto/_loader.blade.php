@@ -12,12 +12,12 @@
 @persist('app-loader')
 <div
     id="app-loader"
-    class="fixed inset-0 z-[2000] bg-zinc-50/70 backdrop-blur-md flex flex-col items-center justify-center gap-6 transition-opacity duration-300 opacity-100 pointer-events-auto"
+    class="fixed inset-0 z-[2000] bg-[var(--background)]/80 backdrop-blur-md flex flex-col items-center justify-center gap-6 transition-opacity duration-300 opacity-100 pointer-events-auto"
     style="display: flex;"
 >
     <div class="relative">
         <div
-            class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 animate-bounce">
+            class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 border border-zinc-800 animate-bounce">
             {{-- UtensilsCrossed SVG (Lucide equivalent) --}}
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2"
@@ -29,16 +29,16 @@
             </svg>
         </div>
         {{-- Slow spinning dashed ring --}}
-        <div class="absolute -inset-2 rounded-[2rem] border-2 border-dashed border-zinc-200 animate-spin"
+        <div class="absolute -inset-2 rounded-[2rem] border-2 border-dashed border-[var(--primary-color)]/50 animate-spin"
              style="animation-duration:3s"></div>
     </div>
 
     <div class="text-center space-y-1.5">
-        <p class="text-zinc-800 text-sm font-black tracking-tight">Menyiapkan Menu</p>
-        <div class="flex items-center justify-center gap-1">
-            <div class="w-1.5 h-1.5 rounded-full bg-zinc-300 animate-bounce" style="animation-delay:0ms"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style="animation-delay:150ms"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style="animation-delay:300ms"></div>
+        <p class="text-[var(--foreground)] text-sm font-black tracking-tight">Menyiapkan Menu</p>
+        <div class="flex items-center justify-center gap-1.5">
+            <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-1"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-2"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-3"></div>
         </div>
     </div>
 </div>

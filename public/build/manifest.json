@@ -60,7 +60,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/store.css": {
-    "file": "assets/store-Ca7vp8u2.css",
+    "file": "assets/store-Bo4EMc1k.css",
     "name": "store",
     "names": [
       "store.css"
@@ -69,7 +69,7 @@
     "isEntry": true
   },
   "resources/css/welcome.css": {
-    "file": "assets/welcome-CDko1MYG.css",
+    "file": "assets/welcome-D6QWZoAA.css",
     "name": "welcome",
     "names": [
       "welcome.css"
@@ -101,7 +101,7 @@
     ]
   },
   "resources/js/store.js": {
-    "file": "assets/store-D5YH7rox.js",
+    "file": "assets/store-fgd9eNsj.js",
     "name": "store",
     "src": "resources/js/store.js",
     "isEntry": true,
@@ -147,7 +147,7 @@
     ]
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-DNGDztOC.css",
+    "file": "assets/app-atobrIHF.css",
     "name": "app",
     "names": [
       "app.css"

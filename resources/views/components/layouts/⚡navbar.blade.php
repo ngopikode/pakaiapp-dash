@@ -34,24 +34,22 @@ new class extends Component {
     <div class="d-flex align-items-center justify-content-between w-100 flex-nowrap">
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
-            @if($isMobile ?? false)
-                <!-- Mobile/Tablet Toggle (Offcanvas) -->
-                <button class="btn text-primary border-0 p-2" type="button" data-bs-toggle="offcanvas"
-                        data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-                <span class="fs-6 fw-bold font-serif text-truncate" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
-                    {{ $header ?? 'Dashboard' }}
-                </span>
-            @else
-                <!-- Desktop Toggle -->
-                <button class="btn text-primary border-0 p-2" id="sidebarToggle">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-                <h5 class="m-0 font-serif fw-bold text-truncate" style="max-width: 300px;">
-                    {{ $header ?? 'Dashboard' }}
-                </h5>
-            @endif
+            <!-- Mobile/Tablet Toggle (Offcanvas) -->
+            <button class="btn text-primary border-0 p-2 d-lg-none" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <span class="fs-6 fw-bold font-serif text-truncate d-lg-none" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
+                {{ $header ?? 'Dashboard' }}
+            </span>
+
+            <!-- Desktop Toggle -->
+            <button class="btn text-primary border-0 p-2 d-none d-lg-block" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <h5 class="m-0 font-serif fw-bold text-truncate d-none d-lg-block" style="max-width: 300px;">
+                {{ $header ?? 'Dashboard' }}
+            </h5>
         </div>
 
         <ul class="navbar-nav ms-auto flex-row align-items-center gap-2 gap-lg-3">
@@ -124,24 +122,20 @@ new class extends Component {
                         <span class="fw-bold">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
                     </div>
 
-                    @if(!($isMobile ?? false))
-                        <div class="text-start lh-1">
-                            <div class="fw-bold small text-dark text-truncate" style="max-width: 120px;">
-                                {{ Auth::user()->name ?? 'User' }}
-                            </div>
-                            <small class="text-muted" style="font-size: 0.7rem;">Admin</small>
+                    <div class="text-start lh-1 d-none d-lg-block">
+                        <div class="fw-bold small text-dark text-truncate" style="max-width: 120px;">
+                            {{ Auth::user()->name ?? 'User' }}
                         </div>
-                    @endif
+                        <small class="text-muted" style="font-size: 0.7rem;">Admin</small>
+                    </div>
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2"
                     aria-labelledby="navbarDropdown">
-                    @if($isMobile ?? false)
-                        <li class="px-3 py-2 border-bottom mb-2">
-                            <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
-                            <small class="text-muted">Admin</small>
-                        </li>
-                    @endif
+                    <li class="px-3 py-2 border-bottom mb-2 d-lg-none">
+                        <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
+                        <small class="text-muted">Admin</small>
+                    </li>
 
                     <li>
                         <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate.hover><i

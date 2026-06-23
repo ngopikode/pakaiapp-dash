@@ -11,6 +11,10 @@ new class extends Component {
     public string $category = 'all';
     public int $perPage = 10;
     public array $categories = [];
+    public string $sort = 'popular';
+    public ?int $minPrice = null;
+    public ?int $maxPrice = null;
+    public string $search = '';
 
     public function mount(): void
     {
@@ -25,6 +29,28 @@ new class extends Component {
         $this->perPage = 10;
     }
 
+    public function setSort(string $sort): void
+    {
+        $this->sort = $sort;
+        $this->perPage = 10;
+    }
+
+    public function resetFilters(): void
+    {
+        $this->sort = 'popular';
+        $this->category = 'all';
+        $this->minPrice = null;
+        $this->maxPrice = null;
+        $this->search = '';
+        $this->perPage = 10;
+    }
+
+    public function applyFilters(): void
+    {
+        $this->perPage = 10;
+        // Optional logic you might want when 'Apply Filters' is clicked
+    }
+
     public function loadMore(): void
     {
         $this->perPage += 10;
@@ -33,29 +59,59 @@ new class extends Component {
     #[Computed]
     public function hasMore(): bool
     {
-        // Hitung total data aktual biar spinner/skeleton otomatis hilang kalau data abis
-        $total = Product::query()
+        $query = Product::query()
             ->when(
                 $this->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
             )
-            ->count();
+            ->when(
+                $this->search !== '',
+                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
+            );
 
-        return $total > $this->perPage;
+        if ($this->minPrice !== null || $this->maxPrice !== null) {
+            $query->whereHas('variants', function ($q) {
+                if ($this->minPrice !== null) $q->where('price', '>=', $this->minPrice);
+                if ($this->maxPrice !== null) $q->where('price', '<=', $this->maxPrice);
+            });
+        }
+
+        return $query->count() > $this->perPage;
     }
 
     #[Computed]
     public function products(): array
     {
         if ($this->lazy) return [];
-        return Product::query()
+        $query = Product::query()
             ->with(['category', 'variants', 'extras'])
             ->when(
                 $this->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
             )
-            ->orderByRaw('is_active DESC') // produk aktif di atas, habis/nonaktif di bawah
-            ->take($this->perPage)
+            ->when(
+                $this->search !== '',
+                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
+            );
+
+        if ($this->minPrice !== null || $this->maxPrice !== null) {
+            $query->whereHas('variants', function ($q) {
+                if ($this->minPrice !== null) $q->where('price', '>=', $this->minPrice);
+                if ($this->maxPrice !== null) $q->where('price', '<=', $this->maxPrice);
+            });
+        }
+
+        if ($this->sort === 'newest') {
+            $query->orderBy('created_at', 'desc');
+        } elseif ($this->sort === 'lowest_price') {
+            $query->withMin('variants', 'price')->orderBy('variants_min_price', 'asc');
+        } elseif ($this->sort === 'highest_price') {
+            $query->withMin('variants', 'price')->orderBy('variants_min_price', 'desc');
+        } else {
+            $query->orderByRaw('is_active DESC');
+        }
+
+        return $query->take($this->perPage)
             ->get()
             ->map(fn(Product $p) => [
                 'id' => $p->id,

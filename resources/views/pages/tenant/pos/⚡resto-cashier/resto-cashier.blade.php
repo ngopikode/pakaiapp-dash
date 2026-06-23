@@ -1,4 +1,16 @@
-<div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data="restoPos()"
+<div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data='restoPos({
+        currentTab: $wire.entangle("activeTab").live,
+        customerName: @json($existingOrder ? $existingOrder->customer_name : ""),
+        tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ""),
+        orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]["id"] ?? "dinein")),
+        isEditingOrder: @json($existingOrder ? true : false),
+        editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null),
+        taxRate: @json($taxRate),
+        serviceChargeRate: @json($serviceChargeRate),
+        isTaxActive: @json($isTaxActive),
+        isServiceActive: @json($isServiceChargeActive),
+        duitkuEnabled: {{ config("duitku.enabled") ? "true" : "false" }}
+    })'
      @add-product.window="handleProductClick($event.detail.product, $event.detail.variantId)"
      @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
      @keydown.window="handleKeydown($event)"
@@ -85,12 +97,11 @@
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
-    {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
     <template x-if="currentTab === 'cashier' && !isMobileCartOpen">
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 65px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
+            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>
@@ -111,15 +122,15 @@
         <x-tenant.order.cancel-modal/>
     </div>
 
-</div>
 
 @script
 <script>
-    Alpine.data('restoPos', () => ({
+    Alpine.data('restoPos', (config) => ({
+
         cart: [],
         isMobileCartOpen: false,
 
-        currentTab: $wire.entangle('activeTab').live,
+        currentTab: config.currentTab,
 
         selectedProduct: null,
         variantModalInstance: null,
@@ -134,11 +145,11 @@
         extrasSelected: [],
         optionQty: 1,
 
-        customerName: @json($existingOrder ? $existingOrder->customer_name : ''),
-        tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ''),
-        orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]['id'] ?? 'dinein')),
-        isEditingOrder: @json($existingOrder ? true : false),
-        editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null),
+        customerName: config.customerName,
+        tableNumber: config.tableNumber,
+        orderType: config.orderType,
+        isEditingOrder: config.isEditingOrder,
+        editInvoiceCode: config.editInvoiceCode,
         paymentMethod: 'cash',
         amountPaid: '',
         payDiscount: 0,
@@ -149,7 +160,7 @@
         duitkuPaymentMethods: [],     // Daftar metode pembayaran Duitku dinamis
 
         async fetchDuitkuMethods() {
-            if (!{{ config('duitku.enabled') ? 'true' : 'false' }}) return;
+            if (!config.duitkuEnabled) return;
             if (this.payTotal <= 0) return;
             try {
                 const res = await fetch(`/api/duitku/payment-methods?amount=${this.payTotal}`);
@@ -174,10 +185,10 @@
         lastOrder: {},
         payingOrder: null,
 
-        taxRate: @json($taxRate),
-        serviceChargeRate: @json($serviceChargeRate),
-        isTaxActive: @json($isTaxActive),
-        isServiceActive: @json($isServiceChargeActive),
+        taxRate: config.taxRate,
+        serviceChargeRate: config.serviceChargeRate,
+        isTaxActive: config.isTaxActive,
+        isServiceActive: config.isServiceActive,
 
         init() {
             this.variantModalInstance = new bootstrap.Modal(document.getElementById('variantModal'));
@@ -234,7 +245,7 @@
                 qty: i.qtyToSplit
             }));
             
-            @this.splitOrder(this.splittingOrder.id, dataToSend);
+            this.$wire.splitOrder(this.splittingOrder.id, dataToSend);
         },
 
         mergeTargetId: null,
@@ -251,7 +262,7 @@
                 showIslandToast('Pilih pesanan yang akan digabungkan.', 'warning');
                 return;
             }
-            @this.mergeOrder(this.mergeSourceId, this.mergeTargetId);
+            this.$wire.mergeOrder(this.mergeSourceId, this.mergeTargetId);
             this.mergeModalInstance.hide();
         },
 
@@ -513,7 +524,7 @@
             }
             this.isSubmitting = true;
             try {
-                const result = await $wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
+                const result = await this.$wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
                 if (result && result.success) {
                     showIslandToast(this.isEditingOrder ? `Tambahan disimpan ke ${result.invoice_code}!` : `Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
                     this.clearCart();
@@ -525,7 +536,7 @@
                         setTimeout(() => { 
                             this.isEditingOrder = false;
                             this.editInvoiceCode = null;
-                            @this.cancelEditOrder();
+                            this.$wire.cancelEditOrder();
                             this.currentTab = 'queue';
                         }, 500);
                     }
@@ -599,7 +610,7 @@
                     if (this.payingOrder) {
                         // Bayar pesanan yang ada (antrean) tanpa duplikasi
                         if (this.paymentMethod === 'duitku') {
-                            result = await $wire.generateDuitkuPayment(
+                            result = await this.$wire.generateDuitkuPayment(
                                 this.payingOrder.id, this.duitkuMethod, custEmail
                             );
                             if (result && result.success && result.payment_url) {
@@ -615,7 +626,7 @@
                             this.isSubmitting = false;
                             return;
                         } else if (this.paymentMethod === 'digital') {
-                            result = await $wire.generateMidtransPayment(
+                            result = await this.$wire.generateMidtransPayment(
                                 this.payingOrder.id, custEmail
                             );
                             if (result && result.success && result.snap_token) {
@@ -729,11 +740,11 @@
 
                 // Cash / QRIS manual / Transfer — flow Livewire seperti biasa
                 if (this.payingOrder) {
-                    result = await $wire.processPayment(
+                    result = await this.$wire.processPayment(
                         this.payingOrder.id, this.paymentMethod, this.payDiscount || 0, this.amountPaid
                     );
                 } else {
-                    result = await $wire.processDirectCheckout(
+                    result = await this.$wire.processDirectCheckout(
                         this.cart, this.customerName, this.tableNumber, this.orderType, this.paymentMethod, this.payDiscount || 0, this.amountPaid, this.isTaxActive, this.isServiceActive
                     );
                 }
@@ -786,7 +797,7 @@
             if (e.key === 'F8') {
                 e.preventDefault();
                 this.currentTab = this.currentTab === 'cashier' ? 'queue' : 'cashier';
-                $wire.changeTab(this.currentTab);
+                this.$wire.changeTab(this.currentTab);
                 return;
             }
 
@@ -818,7 +829,7 @@
         },
         sendWa() {
             if (this.lastOrder.customer_phone) {
-                $wire.updateCustomerPhone(this.lastOrder.invoice_code, this.lastOrder.customer_phone);
+                this.$wire.updateCustomerPhone(this.lastOrder.invoice_code, this.lastOrder.customer_phone);
                 let phone = this.formatPhoneForWA(this.lastOrder.customer_phone);
                 let url = `${window.location.origin}/invoice/${this.lastOrder.invoice_code}`;
                 let msg = `Halo Kak *${this.lastOrder.customer_name}*,\n\nTerima kasih!\nStruk: ${url}\nTotal: Rp ${this.formatRupiah(this.lastOrder.total_price)}`;
@@ -836,6 +847,9 @@
             this.lastOrder = {};
             this.payingOrder = null;
         }
+    
     }));
 </script>
 @endscript
+
+</div>
