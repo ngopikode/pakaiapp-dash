@@ -1,6 +1,7 @@
-import "@phosphor-icons/web/bold";
-import "@phosphor-icons/web/fill";
-import "@phosphor-icons/web/regular";
+import '@phosphor-icons/web/bold';
+import '@phosphor-icons/web/fill';
+import '@phosphor-icons/web/regular';
+
 /**
  * Store front-end logic (Alpine.js components).
  *
@@ -33,7 +34,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('storeApp', () => ({
         /* ===== THEME ===== */
         theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
-        
+
         toggleTheme() {
             this.theme = this.theme === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', this.theme);
@@ -217,10 +218,121 @@ document.addEventListener('alpine:init', () => {
         /* ===== QR MODAL ===== */
         get qrUrl() {
             return (
-                'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+                'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' +
                 encodeURIComponent(window.location.href) +
                 '&bgcolor=ffffff&color=000000&margin=10'
             );
+        },
+
+        async downloadQr() {
+            try {
+                // Fetch the image as a blob
+                const response = await fetch(this.qrUrl);
+                const blob = await response.blob();
+
+                // Create an Image object from the blob
+                const qrImage = new Image();
+                const blobUrl = URL.createObjectURL(blob);
+
+                await new Promise((resolve, reject) => {
+                    qrImage.onload = resolve;
+                    qrImage.onerror = reject;
+                    qrImage.src = blobUrl;
+                });
+
+                // Create Canvas for the Poster
+                const canvas = document.createElement('canvas');
+                canvas.width = 1080;
+                canvas.height = 1440; // 3:4 ratio, great for standees
+                const ctx = canvas.getContext('2d');
+
+                // Draw background (Deep dark premium)
+                ctx.fillStyle = '#09090b'; // zinc-950
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Radial gradient highlight behind QR
+                const radial = ctx.createRadialGradient(canvas.width / 2, 720, 0, canvas.width / 2, 720, 800);
+                radial.addColorStop(0, '#27272a'); // zinc-800
+                radial.addColorStop(1, '#09090b'); // zinc-950
+                ctx.fillStyle = radial;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Gold Top Border Accent
+                const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                grad.addColorStop(0, '#d97706'); // amber-600
+                grad.addColorStop(0.5, '#fbbf24'); // amber-400
+                grad.addColorStop(1, '#d97706');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, 24);
+
+                // Subtitle
+                ctx.fillStyle = '#fbbf24'; // amber-400
+                ctx.font = '800 36px "Inter", system-ui, sans-serif';
+                ctx.fillText('S C A N   U N T U K   P E S A N', canvas.width / 2, 320);
+
+                // Draw white rounded box for QR Code
+                const qrSize = 640;
+                const qrX = (canvas.width - qrSize) / 2;
+                const qrY = 440;
+                const r = 48; // border radius
+                const pad = 64; // padding
+
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 60;
+                ctx.shadowOffsetY = 30;
+
+                const boxX = qrX - pad;
+                const boxY = qrY - pad;
+                const boxW = qrSize + pad * 2;
+                const boxH = qrSize + pad * 2;
+
+                ctx.beginPath();
+                ctx.moveTo(boxX + r, boxY);
+                ctx.lineTo(boxX + boxW - r, boxY);
+                ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + r, r);
+                ctx.lineTo(boxX + boxW, boxY + boxH - r);
+                ctx.arcTo(boxX + boxW, boxY + boxH, boxX + boxW - r, boxY + boxH, r);
+                ctx.lineTo(boxX + r, boxY + boxH);
+                ctx.arcTo(boxX, boxY + boxH, boxX, boxY + boxH - r, r);
+                ctx.lineTo(boxX, boxY + r);
+                ctx.arcTo(boxX, boxY, boxX + r, boxY, r);
+                ctx.closePath();
+                ctx.fill();
+
+                // Reset shadow
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                // Draw the actual QR Code Image
+                ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+
+                // Draw Footer (Powered by)
+                ctx.fillStyle = '#71717a'; // zinc-500
+                ctx.font = '500 28px "Inter", system-ui, sans-serif';
+                ctx.fillText('Platform pemesanan digital didukung oleh', canvas.width / 2, canvas.height - 120);
+
+                ctx.fillStyle = '#fbbf24'; // amber-400
+                ctx.font = '800 34px "Inter", system-ui, sans-serif';
+                ctx.fillText('pakaiapp.online', canvas.width / 2, canvas.height - 70);
+
+                // Export & Download
+                const finalDataUrl = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = finalDataUrl;
+                const cleanName = storeName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                a.download = `qr-standee-${cleanName}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                console.error('Failed to download QR code', e);
+                // Fallback for CORS or fetch issues: open in new tab
+                window.open(this.qrUrl, '_blank');
+            }
         },
 
         /* ===== OPTION MODAL (Variants: Single or Multi-select) ===== */
@@ -357,7 +469,7 @@ document.addEventListener('alpine:init', () => {
             const finalExtraLabel = this.extrasSelected.length
                 ? this.extrasSelected.join(', ')
                 : '';
-                
+
             let extraIds = [];
             if (this.optionProduct.extras && this.extrasSelected.length > 0) {
                 extraIds = this.optionProduct.extras
