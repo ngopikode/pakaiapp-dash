@@ -47,50 +47,31 @@ new class extends Component {
                     $dbVariants[$index] = $variant;
                 }
 
-                // 2. KALKULASI
-                $subtotal = collect($cart)->sum('subtotal');
-                $totalItemDiscount = collect($cart)->sum(fn($i) => (float)($i['itemDiscount'] ?? 0));
-                $globalDiscountAmount = (float)$globalDiscount;
-                $totalDiscount = $totalItemDiscount + $globalDiscountAmount;
-                $totalPrice = max(0, $subtotal - $globalDiscountAmount);
-                $paid = (float)$amountPaid ?: $totalPrice;
-                $change = max(0, $paid - $totalPrice);
-                $invoiceCode = 'INV-' . strtoupper(Str::random(6));
-
-                // 3. SIMPAN ORDER
-                $order = Order::create([
-                    'invoice_code' => $invoiceCode,
+                // Gunakan OrderService untuk logika tersentralisasi
+                $orderData = [
+                    'invoice_code' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
                     'customer_name' => $customerName ?: 'Pelanggan Umum',
                     'customer_phone' => $customerPhone ?: null,
                     'order_type' => 'retail',
                     'payment_method' => $paymentMethod,
-                    'subtotal' => collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']),
-                    'discount' => $totalDiscount,
-                    'total_price' => $totalPrice,
+                    'global_discount' => (float)$globalDiscount,
+                    'status' => 'completed',
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                ];
+
+                $orderService = app(\App\Services\OrderService::class);
+                $order = $orderService->processOrder($orderData, $cart);
+
+                $totalPrice = $order->total_price;
+                $paid = (float)$amountPaid ?: $totalPrice;
+                $change = max(0, $paid - $totalPrice);
+
+                $order->update([
                     'amount_paid' => $paid,
                     'change_amount' => $change,
-                    'status' => 'completed',
-                    'user_id' => Auth::id(),
                 ]);
 
-                // 4. SIMPAN DETAIL + POTONG STOK
-                foreach ($cart as $index => $item) {
-                    $variant = $dbVariants[$index];
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['id'],
-                        'variant_id' => $variant->id,
-                        'product_name' => $item['name'],
-                        'variant_name' => $item['variant_name'] ?? null,
-                        'quantity' => $item['quantity'],
-                        'price' => $variant->price,
-                        'cost' => $variant->cost,
-                        'discount' => (float)($item['itemDiscount'] ?? 0),
-                        'subtotal' => $item['subtotal'],
-                        'note' => null,
-                    ]);
-                    $variant->decrement('stock', $item['quantity']);
-                }
+                $invoiceCode = $order->invoice_code;
 
                 // ==========================================
                 // 5. POTONG SALDO KREDIT (WALLET MERCHANT)
@@ -136,6 +117,8 @@ new class extends Component {
                     'id' => $v->id,
                     'name' => $v->name,
                     'price' => (float)$v->price,
+                    'active_discount_price' => $v->active_discount_price ? (float)$v->active_discount_price : null,
+                    'active_discount_name' => $v->active_discount_name,
                     'stock' => (int)$v->stock,
                 ])->toArray(),
             ];
@@ -144,6 +127,8 @@ new class extends Component {
                 'id' => $variant->id,
                 'name' => $variant->name,
                 'price' => (float)$variant->price,
+                'active_discount_price' => $variant->active_discount_price ? (float)$variant->active_discount_price : null,
+                'active_discount_name' => $variant->active_discount_name,
                 'stock' => (int)$variant->stock,
             ];
 

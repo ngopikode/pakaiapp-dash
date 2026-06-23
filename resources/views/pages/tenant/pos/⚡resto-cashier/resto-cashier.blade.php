@@ -369,13 +369,13 @@
             if (this.optionSelected.length > 0) {
                 if (this.optionProduct.selection_type === 'multiple') {
                     const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                    basePrice = baseVariant ? parseFloat(baseVariant.price) : 0;
+                    basePrice = baseVariant ? parseFloat(baseVariant.active_discount_price || baseVariant.price) : 0;
                 } else {
                     const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                    basePrice = variant ? parseFloat(variant.price) : 0;
+                    basePrice = variant ? parseFloat(variant.active_discount_price || variant.price) : 0;
                 }
             } else {
-                basePrice = parseFloat(this.optionProduct.price) || 0;
+                basePrice = parseFloat(this.optionProduct.variants[0]?.active_discount_price || this.optionProduct.variants[0]?.price) || 0;
             }
             return (basePrice + this.extrasTotal) * this.optionQty;
         },
@@ -414,7 +414,7 @@
             const extrasLabel = this.extrasSelected.length ? this.extrasSelected.join(', ') : '';
             const finalVariantLabel = [combinedVariantName, extrasLabel].filter(Boolean).join(' + ');
 
-            const basePrice = parseFloat(variant.price) || 0;
+            const basePrice = parseFloat(variant.active_discount_price || variant.price) || 0;
             const finalUnitPrice = basePrice + this.extrasTotal;
 
             // Cek stok variant
@@ -455,11 +455,12 @@
                 showIslandToast('Varian produk tidak ditemukan.', 'danger');
                 return;
             }
+            let finalPrice = parseFloat(variant.active_discount_price || variant.price) || 0;
             let existing = this.cart.find(i => i.variant_id === variant.id);
             if (existing) {
                 if (existing.quantity + qty <= variant.stock) {
                     existing.quantity += qty;
-                    existing.subtotal = existing.quantity * variant.price;
+                    existing.subtotal = existing.quantity * finalPrice;
                 } else {
                     showIslandToast(`Stok sisa ${variant.stock}.`, 'warning');
                 }
@@ -471,7 +472,7 @@
                 this.cart.push({
                     id: product.id, variant_id: variant.id, name: product.name,
                     variant_name: product.has_variants ? variant.name : null,
-                    price: variant.price, quantity: qty, subtotal: variant.price * qty,
+                    price: finalPrice, quantity: qty, subtotal: finalPrice * qty,
                     stock: variant.stock, note: ''
                 });
             }

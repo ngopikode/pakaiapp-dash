@@ -133,7 +133,26 @@
         else if (optionOpen) { closeOption(); }
         else if (qrOpen)     { qrOpen = false; }
     "
+        @touchstart="handleTouchStart($event)"
+        @touchmove="handleTouchMove($event)"
+        @touchend="handleTouchEnd()"
     >
+        {{-- ===== PULL TO REFRESH INDICATOR (GLOBAL) ===== --}}
+        <div
+            class="max-w-xl mx-auto flex justify-center items-end overflow-hidden transition-all duration-200 ease-out"
+            :style="`height: ${isRefreshing ? 60 : Math.min(pullY, 60)}px; opacity: ${isRefreshing ? 1 : Math.min(pullY / 60, 1)}`"
+        >
+            <div class="flex items-center gap-2 text-[var(--text-secondary)] pb-3">
+                <template x-if="isRefreshing">
+                    <div class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
+                </template>
+                <template x-if="!isRefreshing">
+                    <div class="w-5 h-5 flex items-center justify-center transition-transform" :style="`transform: rotate(${pullY * 3}deg)`">↓</div>
+                </template>
+                <span class="text-xs font-bold" x-text="isRefreshing ? 'Memuat ulang menu...' : 'Tarik untuk refresh'"></span>
+            </div>
+        </div>
+
         {{-- ===== HERO (Pure Blade — zero extra DB query) ===== --}}
         @include('pages.tenant.store.resto._hero', ['setting' => $setting])
 

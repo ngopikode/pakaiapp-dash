@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\StoreSetting;
 use App\Models\TenantUser;
 use App\Services\DuitkuService;
 use App\Services\MidtransService;
+use App\Services\OrderService;
 use App\Traits\ApiResponserTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -142,127 +143,23 @@ class OrderApiController extends Controller
             $mappedOrderType = in_array($request->order_type, ['retail', 'dinein', 'takeaway', 'online', 'delivery'])
                 ? $request->order_type : 'retail';
 
-            $storeSetting = StoreSetting::first();
-            $taxRate = $storeSetting && $storeSetting->is_tax_active ? (float)$storeSetting->tax_rate : 0.00;
-            $serviceRate = $storeSetting && $storeSetting->is_service_charge_active ? (float)$storeSetting->service_charge_rate : 0.00;
-
-            $recalculatedItems = [];
-            $realSubtotal = 0;
-
-            foreach ($request->items as $item) {
-                $product = Product::find($item['product_id']);
-                if (!$product) continue;
-
-                $basePrice = (float)$product->price;
-                $cost = 0;
-                $variantIds = $item['variant_ids'] ?? [];
-                if (!empty($item['variant_id']) && !in_array($item['variant_id'], $variantIds)) {
-                    $variantIds[] = $item['variant_id'];
-                }
-
-                $validVariantsObjects = [];
-                if (!empty($variantIds)) {
-                    $variants = \App\Models\ProductVariant::with('recipes.rawMaterial')
-                        ->whereIn('id', $variantIds)
-                        ->where('product_id', $product->id)
-                        ->lockForUpdate()
-                        ->get();
-                    
-                    if ($product->selection_type === 'multiple') {
-                        $validVariantsObjects = $variants;
-                    } else {
-                        $firstVariant = $variants->first();
-                        if ($firstVariant) {
-                            $basePrice = (float)($firstVariant->active_discount_price ?? $firstVariant->price);
-                            $cost = $firstVariant->cost;
-                            $validVariantsObjects = collect([$firstVariant]);
-                        }
-                    }
-                }
-
-                $extraPrice = 0;
-                $validExtraIds = [];
-                if (!empty($item['extra_ids'])) {
-                    $extras = \App\Models\ProductExtra::whereIn('id', $item['extra_ids'])
-                        ->where('product_id', $product->id)
-                        ->get();
-                    $extraPrice = $extras->sum('price');
-                    $validExtraIds = $extras->pluck('id')->toArray();
-                }
-
-                $realItemPrice = $basePrice + $extraPrice;
-                $realItemSubtotal = $realItemPrice * (int)$item['quantity'];
-                
-                $realSubtotal += $realItemSubtotal;
-
-                $recalculatedItems[] = [
-                    'product_id' => $product->id,
-                    'variant_id' => $item['variant_id'] ?? null,
-                    'product_name' => $item['name'],
-                    'quantity' => (int)$item['quantity'],
-                    'price' => $realItemPrice,
-                    'cost' => $cost,
-                    'subtotal' => $realItemSubtotal,
-                    'selected_variants' => collect($validVariantsObjects)->pluck('id')->toArray(),
-                    'selected_extras' => $validExtraIds,
-                    'valid_variants_objects' => collect($validVariantsObjects)
-                ];
-            }
-
-            if (empty($recalculatedItems)) {
-                throw new \Exception('Semua produk dalam pesanan tidak valid atau tidak ditemukan.');
-            }
-
-            $serviceChargeAmount = round(($serviceRate / 100) * $realSubtotal);
-            $taxAmount = round(($taxRate / 100) * ($realSubtotal + $serviceChargeAmount));
-            $totalPrice = $realSubtotal + $serviceChargeAmount + $taxAmount;
-
-            $order = Order::create([
+            $orderData = [
                 'invoice_code' => $invoiceCode,
                 'customer_name' => $request->customer_name,
                 'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
                 'order_type' => $mappedOrderType,
                 'is_online' => true,
                 'table_number' => $mappedOrderType === 'dinein' ? $request->order_info : null,
                 'notes' => $mappedOrderType !== 'dinein' ? $request->order_info : null,
-                'subtotal' => $realSubtotal,
-                'tax_amount' => $taxAmount,
-                'service_charge_amount' => $serviceChargeAmount,
-                'tax_percentage' => $taxRate,
-                'service_charge_percentage' => $serviceRate,
-                'total_price' => $totalPrice,
-                'status' => 'pending',
                 'payment_method' => $gateway['db_method'],
                 'duitku_payment_method' => $gateway['duitku_method'],
-            ]);
+                'status' => 'pending',
+                'user_id' => Auth::id() ?? null,
+            ];
 
-            foreach ($recalculatedItems as $item) {
-                $order->items()->create([
-                    'product_id' => $item['product_id'],
-                    'variant_id' => $item['variant_id'],
-                    'product_name' => $item['product_name'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'cost' => $item['cost'],
-                    'subtotal' => $item['subtotal'],
-                    'selected_variants' => json_encode($item['selected_variants']),
-                    'selected_extras' => json_encode($item['selected_extras']),
-                ]);
-
-                foreach ($item['valid_variants_objects'] as $variant) {
-                    $variant->decrement('stock', $item['quantity']);
-
-                    if (tenant('store_type') === 'resto') {
-                        foreach ($variant->recipes as $recipe) {
-                            if ($recipe->rawMaterial) {
-                                $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return $order;
+            $orderService = app(OrderService::class);
+            return $orderService->processOrder($orderData, $request->items);
         });
     }
 

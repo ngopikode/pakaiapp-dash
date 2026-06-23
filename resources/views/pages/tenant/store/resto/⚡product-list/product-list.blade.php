@@ -3,58 +3,10 @@
     {{--    wire:init="$set('lazy', false)"--}}
     x-data="{
         viewMode: 'grid',
-        isRefreshing: false,
-        showFilter: false,
-        pullY: 0,
-        pullStartY: 0,
-
-        handleTouchStart(e) {
-            if (window.scrollY === 0) this.pullStartY = e.touches[0].clientY;
-            else this.pullStartY = 0;
-        },
-        handleTouchMove(e) {
-            if (!this.pullStartY || this.isRefreshing) return;
-            const dist = e.touches[0].clientY - this.pullStartY;
-            if (dist > 0 && window.scrollY <= 0) {
-                this.pullY = Math.min(dist, 100);
-            }
-        },
-        async handleTouchEnd() {
-            if (!this.pullStartY) return;
-            if (this.pullY > 60) {
-                this.isRefreshing = true;
-                this.pullY = 60;
-                await $wire.setCategory($wire.category);
-                await new Promise(r => setTimeout(r, 400));
-                this.isRefreshing = false;
-            }
-            this.pullY = 0;
-            this.pullStartY = 0;
-        }
+        showFilter: false
     }"
-    @touchstart="handleTouchStart($event)"
-    @touchmove="handleTouchMove($event)"
-    @touchend="handleTouchEnd()"
+    @refresh-menu-data.window="$wire.setCategory($wire.category).then(() => { isRefreshing = false; pullY = 0; })"
 >
-    {{-- Pull-to-Refresh Indicator --}}
-    <div
-        class="max-w-xl mx-auto flex justify-center items-end overflow-hidden transition-all duration-200 ease-out"
-        :style="`height: ${isRefreshing ? 60 : Math.min(pullY, 60)}px; opacity: ${isRefreshing ? 1 : Math.min(pullY / 60, 1)}`"
-    >
-        <div class="flex items-center gap-2 text-[var(--text-secondary)] pb-3">
-            <template x-if="isRefreshing">
-                <div
-                    class="w-5 h-5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin"></div>
-            </template>
-            <template x-if="!isRefreshing">
-                <div class="w-5 h-5 flex items-center justify-center transition-transform"
-                     :style="`transform: rotate(${pullY * 3}deg)`">↓
-                </div>
-            </template>
-            <span class="text-xs font-bold"
-                  x-text="isRefreshing ? 'Memuat ulang menu...' : 'Tarik untuk refresh'"></span>
-        </div>
-    </div>
 
     {{-- ===== STICKY SEARCH & CATEGORY BAR ===== --}}
     <div id="menu-start" class="scroll-mt-0 sticky top-0 z-40 bg-[var(--surface)]/90 backdrop-blur-xl border-b border-[var(--border)] shadow-sm shadow-[var(--border)]">
@@ -73,6 +25,9 @@
         <div class="max-w-xl mx-auto px-5 pb-3 flex items-center justify-between gap-3">
             <div class="flex gap-2 overflow-x-auto no-scrollbar flex-1 py-1">
                 <button wire:click="setCategory('all')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border {{ $category === 'all' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">Semua</button>
+                @if($this->hasPromoItems)
+                    <button wire:click="setCategory('promo')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border {{ $category === 'promo' ? 'bg-red-500 text-white shadow-lg border-red-500' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40' }}">🔥 Promo Spesial</button>
+                @endif
                 @foreach($categories as $cat)
                     <button wire:click="setCategory('{{ $cat }}')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border {{ $category === $cat ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">{{ $cat }}</button>
                 @endforeach
@@ -165,6 +120,8 @@
                         class="bg-[var(--bg-soft)] overflow-hidden shrink-0 relative transition-all duration-500 group-hover:shadow-inner w-full aspect-[5/4]"
                         :class="viewMode === 'list' ? '!w-24 !h-24 !aspect-square rounded-2xl' : ''"
                     >
+
+
                         @if($item['image'])
                             <img
                                 src="{{ $item['image'] }}"
@@ -231,8 +188,20 @@
                     >
                         {{-- FIX HARGA: Digabung di bawah, baik Grid maupun List dapet posisi yang sama --}}
                         <div class="mb-2 pointer-events-none">
+                            @if(!empty($item['active_discount_price']) && !empty($item['active_discount_name']))
+                                <div class="mb-1">
+                                    <span class="inline-block px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded text-[8px] font-black uppercase tracking-widest shadow-sm">% {{ $item['active_discount_name'] }}</span>
+                                </div>
+                            @endif
                             <h3 class="font-bold text-sm text-[var(--foreground)] leading-snug mb-0.5 truncate">{{ $item['name'] }}</h3>
-                            <p class="text-sm font-extrabold text-[var(--primary-color)] mb-0.5">{{ $item['formatted_price'] }}</p>
+                            @if(!empty($item['active_discount_price']))
+                                <div class="flex flex-col leading-tight mb-0.5">
+                                    <span class="text-[10px] text-red-400 line-through font-bold">Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                                    <span class="text-sm font-extrabold text-[var(--primary-color)]">Rp {{ number_format($item['active_discount_price'], 0, ',', '.') }}</span>
+                                </div>
+                            @else
+                                <p class="text-sm font-extrabold text-[var(--primary-color)] mb-0.5">{{ $item['formatted_price'] }}</p>
+                            @endif
                             <p class="text-[10px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{{ $item['description'] }}</p>
                         </div>
 

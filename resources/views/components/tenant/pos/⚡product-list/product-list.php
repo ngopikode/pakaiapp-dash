@@ -103,6 +103,8 @@ new class extends Component {
                 'selection_type' => $product->selection_type ?? 'single',
                 'max_selections' => (int)($product->max_selections ?? 1),
                 'price' => (float)$product->variants->min('price'),
+                'active_discount_price' => $product->variants->min('active_discount_price') ? (float)$product->variants->min('active_discount_price') : null,
+                'active_discount_name' => $product->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
                 'stock' => (int)$product->variants->sum('stock'),
                 'variants' => $product->variants->map(function ($v) {
                     return [
@@ -111,6 +113,8 @@ new class extends Component {
                         'sku' => $v->sku,
                         'cost' => (float)$v->cost,
                         'price' => (float)$v->price,
+                        'active_discount_price' => $v->active_discount_price ? (float)$v->active_discount_price : null,
+                        'active_discount_name' => $v->active_discount_name,
                         'stock' => (int)$v->stock,
                     ];
                 })->toArray(),
@@ -182,6 +186,8 @@ new class extends Component {
 
                 // Ambil harga terendah & total stok untuk tampilan grid
                 'price' => (float)$p->variants->min('price'),
+                'active_discount_price' => $p->variants->min('active_discount_price') ? (float)$p->variants->min('active_discount_price') : null,
+                'active_discount_name' => $p->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
                 'stock' => (int)$p->variants->sum('stock'),
 
                 // Kirim semua varian ke Frontend (Alpine)
@@ -192,6 +198,8 @@ new class extends Component {
                         'sku' => $v->sku,
                         'cost' => (float)$v->cost,
                         'price' => (float)$v->price,
+                        'active_discount_price' => $v->active_discount_price ? (float)$v->active_discount_price : null,
+                        'active_discount_name' => $v->active_discount_name,
                         'stock' => (int)$v->stock,
                     ];
                 })->toArray(),

@@ -87,6 +87,8 @@
             >
                 {{-- Product Image --}}
                 <div class="aspect-square w-full bg-zinc-100 relative overflow-hidden">
+
+
                     <template x-if="!p.is_active">
                         <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
                             <span class="px-3 py-1 bg-zinc-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Habis</span>
@@ -103,11 +105,24 @@
 
                 {{-- Product Info --}}
                 <div class="p-3.5 flex flex-col flex-1">
+                    <template x-if="p.active_discount_price && p.active_discount_name">
+                        <div class="mb-1">
+                            <span class="inline-block px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 rounded text-[8px] font-black uppercase tracking-widest shadow-sm" x-text="'% ' + p.active_discount_name"></span>
+                        </div>
+                    </template>
                     <h3 class="font-extrabold text-sm text-zinc-900 leading-tight mb-1 line-clamp-2" x-text="p.name"></h3>
                     <p class="text-[10px] text-zinc-500 leading-relaxed line-clamp-2 mb-3 flex-1" x-text="p.description"></p>
                     
                     <div class="flex flex-col gap-2 mt-auto">
-                        <span class="text-xs font-black text-[var(--primary-color)]" x-text="p.formatted_price"></span>
+                        <template x-if="p.active_discount_price">
+                            <div class="flex flex-col leading-tight">
+                                <span class="text-[10px] text-red-400 line-through font-bold" x-text="'Rp ' + formatRupiah(p.price)"></span>
+                                <span class="text-xs font-black text-[var(--primary-color)]" x-text="'Rp ' + formatRupiah(p.active_discount_price)"></span>
+                            </div>
+                        </template>
+                        <template x-if="!p.active_discount_price">
+                            <span class="text-xs font-black text-[var(--primary-color)]" x-text="p.formatted_price"></span>
+                        </template>
                         
                         <template x-if="p.is_active">
                             <template x-if="getCartQty(p.name) > 0">

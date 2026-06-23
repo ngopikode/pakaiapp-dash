@@ -15,6 +15,7 @@ class Order extends Model
         'notes',
         'customer_name',
         'customer_phone',
+        'customer_email',
         'order_type',
         'is_online',
         'payment_method',

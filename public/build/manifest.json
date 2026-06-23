@@ -60,7 +60,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/store.css": {
-    "file": "assets/store-DKLw136o.css",
+    "file": "assets/store-pLSYjpWr.css",
     "name": "store",
     "names": [
       "store.css"
@@ -69,7 +69,7 @@
     "isEntry": true
   },
   "resources/css/welcome.css": {
-    "file": "assets/welcome-DNZciwuF.css",
+    "file": "assets/welcome-BlIwOvrS.css",
     "name": "welcome",
     "names": [
       "welcome.css"
@@ -101,7 +101,7 @@
     ]
   },
   "resources/js/store.js": {
-    "file": "assets/store-Dx64LfIb.js",
+    "file": "assets/store-ICGC7M3z.js",
     "name": "store",
     "src": "resources/js/store.js",
     "isEntry": true,

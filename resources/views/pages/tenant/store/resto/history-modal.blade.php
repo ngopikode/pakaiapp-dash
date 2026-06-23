@@ -21,22 +21,22 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="translate-y-0 sm:scale-100 sm:opacity-100"
         x-transition:leave-end="translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
-        class="bg-[var(--background)] w-full max-w-md rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-[var(--border)] flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden"
+        class="bg-[var(--background)] w-full max-w-md rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-black/5 dark:border-white/5 flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden"
     >
         {{-- Handle bar for mobile dragging feel --}}
         <div class="flex justify-center py-3 sm:hidden">
-            <div class="w-12 h-1.5 bg-zinc-300 rounded-full"></div>
+            <div class="w-12 h-1.5 bg-zinc-300 dark:bg-zinc-700 rounded-full"></div>
         </div>
 
         {{-- Modal Header --}}
-        <div class="px-6 pb-4 pt-2 sm:pt-6 border-b border-[var(--border)] flex items-center justify-between shrink-0">
+        <div class="px-6 pb-4 pt-2 sm:pt-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between shrink-0">
             <div>
                 <h2 class="text-lg font-black text-[var(--foreground)] leading-none">Riwayat Pesanan</h2>
                 <p class="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider mt-1.5">Toko Online Kamu</p>
             </div>
             <button
                 @click="historyOpen = false"
-                class="p-2 bg-[var(--surface)] hover:bg-[var(--bg-soft)] border border-[var(--border)] hover:border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-all rounded-xl active:scale-90"
+                class="p-2 bg-[var(--surface)] hover:bg-[var(--bg-soft)] border border-black/5 dark:border-white/5 hover:border-black/5 dark:border-white/5 text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-all rounded-xl active:scale-90"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -53,7 +53,7 @@
             <template x-if="orderHistory.length === 0 && !historyLoading">
                 <div class="py-12 px-4 text-center flex flex-col items-center justify-center">
                     <div
-                        class="w-20 h-20 rounded-[2rem] bg-[var(--bg-soft)] border border-[var(--border)]/40 flex items-center justify-center mb-5 rotate-6 hover:rotate-0 transition-transform duration-300 shadow-inner">
+                        class="w-20 h-20 rounded-[2rem] bg-[var(--bg-soft)] border border-black/5 dark:border-white/5/40 flex items-center justify-center mb-5 rotate-6 hover:rotate-0 transition-transform duration-300 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
                              class="text-[var(--text-secondary)]">
@@ -93,10 +93,10 @@
                 <div class="space-y-4 pr-0.5">
                     <template x-for="order in orderHistory" :key="order.invoiceCode">
                         <div
-                            class="bg-[var(--surface)] rounded-2xl p-4 border border-[var(--border)] shadow-sm shadow-[var(--border)] hover:shadow-md hover:border-[var(--primary-color)]/30 hover:scale-[1.01] transition-all duration-300 flex flex-col gap-3 group">
+                            class="bg-[var(--surface)] rounded-2xl p-4 border border-black/5 dark:border-white/5 shadow-sm shadow-[var(--border)] hover:shadow-md hover:border-[var(--primary-color)]/30 hover:scale-[1.01] transition-all duration-300 flex flex-col gap-3 group">
 
                             {{-- Info Atas: Invoice, Tanggal & Tipe Pesanan --}}
-                            <div class="flex items-start justify-between pb-3 border-b border-zinc-50">
+                            <div class="flex items-start justify-between pb-3 border-b border-black/5 dark:border-white/5">
                                 <div>
                                     <span class="text-xs font-black tracking-tight text-[var(--foreground)] uppercase block"
                                           x-text="order.invoiceCode"></span>
@@ -108,11 +108,11 @@
                                     <span
                                         class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow-sm"
                                         :class="{
-                                            'bg-amber-50 text-amber-600 border border-amber-200/60': !order.status || order.status === 'pending',
-                                            'bg-sky-50 text-sky-600 border border-sky-200/60': order.status === 'paid',
-                                            'bg-blue-50 text-blue-600 border border-blue-200/60': order.status === 'progress',
-                                            'bg-emerald-50 text-emerald-600 border border-emerald-200/60': order.status === 'completed',
-                                            'bg-rose-50 text-rose-600 border border-rose-200/60': order.status === 'cancelled',
+                                            'bg-amber-100/50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30': !order.status || order.status === 'pending',
+                                            'bg-sky-100/50 text-sky-700 border border-sky-200/60 dark:bg-sky-500/20 dark:text-sky-400 dark:border-sky-500/30': order.status === 'paid',
+                                            'bg-blue-100/50 text-blue-700 border border-blue-200/60 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30': order.status === 'progress',
+                                            'bg-emerald-100/50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30': order.status === 'completed',
+                                            'bg-rose-100/50 text-rose-700 border border-rose-200/60 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30': order.status === 'cancelled',
                                         }"
                                         x-text="order.status === 'paid' ? 'Menunggu Disiapkan' : (order.status === 'progress' ? 'Sedang Diproses' : (order.status === 'completed' ? 'Selesai' : (order.status === 'cancelled' ? 'Batal' : 'Menunggu Pembayaran')))"
                                     ></span>
@@ -121,9 +121,9 @@
                                         <span
                                             class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider"
                                             :class="{
-                                                'bg-amber-50 text-amber-600 border border-amber-100/50': order.orderType === 'takeaway',
-                                                'bg-blue-50 text-blue-600 border border-blue-100/50': order.orderType === 'dinein',
-                                                'bg-emerald-50 text-emerald-600 border border-emerald-100/50': order.orderType === 'delivery',
+                                                'bg-amber-100/50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30': order.orderType === 'takeaway',
+                                                'bg-blue-100/50 text-blue-700 border border-blue-200/60 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30': order.orderType === 'dinein',
+                                                'bg-emerald-100/50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30': order.orderType === 'delivery',
                                             }"
                                             x-text="order.orderType === 'takeaway' ? 'Bungkus' : (order.orderType === 'dinein' ? 'Makan Sini' : (order.orderType === 'delivery' ? 'Diantar' : 'Online'))"
                                         ></span>
@@ -150,7 +150,7 @@
                             </div>
 
                             {{-- Info Bawah: Total & Tombol Aksi Detail --}}
-                            <div class="flex items-center justify-between pt-3 border-t border-zinc-50">
+                            <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
                                 <div>
                                     <span class="text-[9px] text-[var(--text-secondary)] font-bold uppercase tracking-wider block">Total Belanja</span>
                                     <span class="text-sm font-extrabold text-[var(--foreground)] tracking-tight"
@@ -159,7 +159,7 @@
                                 <div class="flex items-center gap-2">
                                     <a
                                         :href="'/order/' + order.invoiceCode"
-                                        class="px-3.5 py-2 bg-[var(--background)] group-hover:bg-[var(--primary-color)] text-[var(--foreground)] group-hover:text-[var(--background)] rounded-xl text-[10px] font-black uppercase tracking-wider border border-[var(--border)] group-hover:border-[var(--primary-color)] transition-all duration-300 flex items-center gap-1 active:scale-95 shadow-sm"
+                                        class="px-3.5 py-2 bg-[var(--background)] group-hover:bg-[var(--primary-color)] text-[var(--foreground)] group-hover:text-[var(--background)] rounded-xl text-[10px] font-black uppercase tracking-wider border border-black/5 dark:border-white/5 group-hover:border-[var(--primary-color)] transition-all duration-300 flex items-center gap-1 active:scale-95 shadow-sm"
                                     >
                                         <span>Detail</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"
@@ -181,11 +181,11 @@
         </div>
 
         {{-- Modal Footer --}}
-        <div class="px-6 py-4 bg-[var(--bg-soft)]/50 border-t border-[var(--border)] flex items-center justify-between shrink-0">
+        <div class="px-6 py-4 bg-[var(--bg-soft)]/50 border-t border-black/5 dark:border-white/5 flex items-center justify-between shrink-0">
             <template x-if="orderHistory.length > 0">
                 <button
                     @click="clearHistory()"
-                    class="py-2.5 px-3.5 bg-red-50/80 hover:bg-red-50 text-red-600 hover:text-red-700 transition-all rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1 border border-red-100/40"
+                    class="py-2.5 px-3.5 bg-red-100/50 hover:bg-red-100 text-red-600 dark:bg-red-500/20 dark:hover:bg-red-500/30 dark:text-red-400 transition-all rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1 border border-red-200/60 dark:border-red-500/30"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -202,7 +202,7 @@
 
             <button
                 @click="historyOpen = false"
-                class="py-3 px-6 bg-zinc-950 hover:bg-zinc-700 text-[var(--background)] rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-zinc-950/15 active:scale-95 transition-all ml-auto"
+                class="py-3 px-6 bg-[var(--foreground)] hover:opacity-90 text-[var(--background)] rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-[var(--foreground)]/15 active:scale-95 transition-all ml-auto"
             >
                 Tutup
             </button>

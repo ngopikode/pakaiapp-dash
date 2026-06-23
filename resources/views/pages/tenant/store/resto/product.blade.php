@@ -32,6 +32,8 @@
         'description'     => $product->description,
         'image'           => $product->image ? Storage::url($product->image) : null,
         'price'           => $product->price,
+        'active_discount_price' => $product->variants->min('active_discount_price'),
+        'active_discount_name'  => $product->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
         'formatted_price' => $product->formatted_price,
         'category'        => $product->category?->name ?? '',
         'is_active'       => $product->is_active,
@@ -43,6 +45,8 @@
             'id'    => $v->id,
             'name'  => $v->name,
             'price' => $v->price,
+            'active_discount_price' => $v->active_discount_price,
+            'active_discount_name'  => $v->active_discount_name,
         ])->toArray(),
         'extras'          => $product->extras->where('is_active', true)->map(fn ($e) => [
             'id'    => $e->id,
@@ -201,42 +205,9 @@
             get qtyInCart() {
                 const i = cart.find(x => x.cartName === this.product.name);
                 return i ? i.qty : 0;
-            },
-            isRefreshing: false,
-            pullY: 0,
-            pullStartY: 0,
-            handleTouchStart(e) {
-                if (window.scrollY === 0) this.pullStartY = e.touches[0].clientY;
-                else this.pullStartY = 0;
-            },
-            handleTouchMove(e) {
-                if (!this.pullStartY || this.isRefreshing) return;
-                const dist = e.touches[0].clientY - this.pullStartY;
-                if (dist > 0 && window.scrollY <= 0) {
-                    this.pullY = Math.min(dist, 100);
-                }
-            },
-            async handleTouchEnd() {
-                if (!this.pullStartY) return;
-                if (this.pullY > 60) {
-                    this.isRefreshing = true;
-                    this.pullY = 60;
-                    await new Promise(r => setTimeout(r, 400));
-                    if (typeof Livewire !== 'undefined') {
-                        Livewire.navigate(window.location.href);
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    this.pullY = 0;
-                }
-                this.pullStartY = 0;
             }
         }"
         @scroll.window="scrolled = window.scrollY > window.innerHeight * 0.25"
-        @touchstart="handleTouchStart($event)"
-        @touchmove="handleTouchMove($event)"
-        @touchend="handleTouchEnd()"
     >
         {{-- Floating header (transparent to solid on scroll) --}}
         <header
@@ -362,13 +333,21 @@
                             <span
                                 class="inline-block px-3 py-1.5 rounded-xl bg-[var(--bg-soft)] text-[var(--foreground)] text-[10px] font-black uppercase tracking-widest mb-3 border border-[var(--border)]">{{ $product->category->name }}</span>
                         @endif
+                        <template x-if="product.active_discount_price && product.active_discount_name">
+                            <span class="inline-block px-2 py-1 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm mb-3 ml-1" x-text="'% ' + product.active_discount_name"></span>
+                        </template>
                         <h1 class="text-[1.75rem] font-black text-[var(--foreground)] leading-tight tracking-tight">{{ $product->name }}</h1>
                     </div>
                     <div class="text-right pt-1 shrink-0 min-w-0">
-                        <div
-                            class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap">
-                            {{ $product->formatted_price }}
-                        </div>
+                        <template x-if="product.active_discount_price">
+                            <div class="flex flex-col items-end">
+                                <span class="text-[10px] text-red-400 line-through font-bold" x-text="formatPrice(product.price)"></span>
+                                <div class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap" x-text="formatPrice(product.active_discount_price)"></div>
+                            </div>
+                        </template>
+                        <template x-if="!product.active_discount_price">
+                            <div class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap" x-text="product.formatted_price"></div>
+                        </template>
                     </div>
                 </div>
 
@@ -407,8 +386,12 @@
                                     <span class="relative z-10">{{ $variant->name }}</span>
                                     @if($product->selection_type !== 'multiple')
                                         <span class="w-1 h-1 rounded-full bg-[var(--border)] relative z-10"></span>
-                                        <span
-                                            class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+                                        @if(!empty($variant->active_discount_price))
+                                            <span class="text-[10px] text-red-400 line-through relative z-10 font-bold">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+                                            <span class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->active_discount_price, 0, ',', '.') }}</span>
+                                        @else
+                                            <span class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+                                        @endif
                                     @endif
                                 </div>
                             @endforeach
@@ -504,7 +487,7 @@
                                      stroke-linejoin="round"><circle cx="12" cy="12"
                                                                                                          r="10"/><line
                                         x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
-                                Pilih Add-On &bull; {{ $product->formatted_price }}
+                                Pilih Add-On
                             </span>
                         </template>
                         <template
@@ -515,7 +498,7 @@
                                      stroke-linejoin="round"><line x1="12" x2="12"
                                                                                                        y1="5" y2="19"/><line
                                         x1="5" x2="19" y1="12" y2="12"/></svg>
-                                Tambah ke Keranjang &bull; {{ $product->formatted_price }}
+                                Tambah ke Keranjang
                             </span>
                         </template>
                     </button>

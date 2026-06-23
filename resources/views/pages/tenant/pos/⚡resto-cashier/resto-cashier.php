@@ -154,102 +154,35 @@ new class extends Component {
 
         try {
             return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $isTaxActive, $isServiceActive) {
-                $dbVariants = [];
+                $orderData = [
+                    'invoice_code' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                    'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
+                    'customer_name' => $customerName ?: 'Pelanggan Umum',
+                    'order_type' => $orderType,
+                    'payment_method' => 'cash',
+                    'status' => 'pending', // Belum bayar!
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    'is_tax_active' => $isTaxActive,
+                    'is_service_active' => $isServiceActive,
+                ];
 
-                foreach ($cart as $index => $item) {
-                    $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
-                    if (!$variant || $variant->stock < $item['quantity']) {
-                        throw new Exception("Stok '{$item['name']}' tidak cukup. Sisa: " . ($variant ? $variant->stock : 0));
-                    }
-                    $dbVariants[$index] = $variant;
-                }
-
-                $storeSetting = StoreSetting::first();
-                $taxRate = $isTaxActive ? (isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00) : 0.00;
-                $serviceRate = $isServiceActive ? (isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00) : 0.00;
-
-                $subtotal = collect($cart)->sum('subtotal');
-                $serviceChargeAmount = round(($serviceRate / 100) * $subtotal);
-                $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
-                $totalPrice = $subtotal + $serviceChargeAmount + $taxAmount;
-
+                $existingOrder = null;
                 if ($this->addToOrder && $this->existingOrder) {
-                    $order = $this->existingOrder;
-
+                    $existingOrder = $this->existingOrder;
                     // VALIDASI KEAMANAN: Pastikan pesanan belum selesai/dibatalkan saat tambah menu
-                    $isEditable = $order->status === 'pending' ||
-                                 ($order->status === 'progress' && $order->amount_paid < $order->total_price);
+                    $isEditable = $existingOrder->status === 'pending' ||
+                                 ($existingOrder->status === 'progress' && $existingOrder->amount_paid < $existingOrder->total_price);
 
                     if (!$isEditable) {
                         throw new Exception("Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.");
                     }
-
-                    // Update total for the existing order
-                    $newSubtotal = $order->subtotal + $subtotal;
-                    $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
-                    $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
-                    $newTotalPrice = $newSubtotal + $newServiceCharge + $newTaxAmount;
-
-                    $order->update([
-                        'subtotal' => $newSubtotal,
-                        'service_charge_amount' => $newServiceCharge,
-                        'tax_amount' => $newTaxAmount,
-                        'total_price' => $newTotalPrice,
-                        'kitchen_status' => 'waiting', // Wajib di-reset agar muncul di dapur
-                    ]);
-                    $invoiceCode = $order->invoice_code;
-                } else {
-                    $invoiceCode = 'INV-' . strtoupper(Str::random(6));
-
-                    $order = Order::create([
-                        'invoice_code' => $invoiceCode,
-                        'table_number' => $orderType === 'dinein' ? $tableNumber : null,
-                        'notes' => $orderType !== 'dinein' ? $tableNumber : null,
-                        'customer_name' => $customerName ?: 'Pelanggan Umum',
-                        'order_type' => $orderType,
-                        'payment_method' => 'cash',
-                        'subtotal' => $subtotal,
-                        'tax_amount' => $taxAmount,
-                        'service_charge_amount' => $serviceChargeAmount,
-                        'tax_percentage' => $taxRate,
-                        'service_charge_percentage' => $serviceRate,
-                        'discount' => 0,
-                        'total_price' => $totalPrice,
-                        'amount_paid' => 0,
-                        'change_amount' => 0,
-                        'status' => 'pending', // Belum bayar!
-                        'user_id' => Auth::id(),
-                    ]);
                 }
 
-                foreach ($cart as $index => $item) {
-                    $variant = $dbVariants[$index];
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['id'],
-                        'variant_id' => $variant->id,
-                        'product_name' => $item['name'],
-                        'variant_name' => $item['variant_name'] ?? null,
-                        'quantity' => $item['quantity'],
-                        'price' => (float)$item['price'],
-                        'discount' => 0,
-                        'subtotal' => $item['subtotal'],
-                        'note' => $item['note'] ?? null,
-                        // Tandai item ini belum diproses (baru ditambahkan)
-                        'kitchen_status' => 'waiting' // Asumsi ada field ini atau kalau tidak biarkan default
-                    ]);
-                    $variant->decrement('stock', $item['quantity']);
+                $orderService = app(\App\Services\OrderService::class);
+                $order = $orderService->processOrder($orderData, $cart, $existingOrder);
 
-                    if (tenant('store_type') === 'resto') {
-                        foreach ($variant->recipes as $recipe) {
-                            if ($recipe->rawMaterial) {
-                                $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
-                            }
-                        }
-                    }
-                }
-
-                return ['success' => true, 'invoice_code' => $invoiceCode];
+                return ['success' => true, 'invoice_code' => $order->invoice_code];
             });
         } catch (Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
@@ -266,115 +199,54 @@ new class extends Component {
 
         try {
             return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive, $isServiceActive) {
-                $dbVariants = [];
+                $orderData = [
+                    'invoice_code' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                    'table_number' => $orderType === 'dinein' ? $tableNumber : null,
+                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
+                    'customer_name' => $customerName ?: 'Pelanggan Umum',
+                    'order_type' => $orderType,
+                    'payment_method' => $paymentMethod,
+                    'global_discount' => (float)$discount,
+                    'status' => 'paid',
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    'is_tax_active' => $isTaxActive,
+                    'is_service_active' => $isServiceActive,
+                ];
 
-                foreach ($cart as $index => $item) {
-                    $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item['variant_id']);
-                    if (!$variant || $variant->stock < $item['quantity']) {
-                        throw new Exception("Stok '{$item['name']}' tidak cukup. Sisa: " . ($variant ? $variant->stock : 0));
-                    }
-                    $dbVariants[$index] = $variant;
-                }
-
-                $storeSetting = StoreSetting::first();
-                $storeName = $storeSetting?->name ?? 'Resto Kami';
-                $taxRate = $isTaxActive ? (isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00) : 0.00;
-                $serviceRate = $isServiceActive ? (isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00) : 0.00;
-
-                $subtotal = collect($cart)->sum('subtotal');
-                $serviceChargeAmount = round(($serviceRate / 100) * $subtotal);
-                $taxAmount = round(($taxRate / 100) * ($subtotal + $serviceChargeAmount));
-
-                $discountAmount = (float)$discount;
-
+                $existingOrder = null;
                 if ($this->addToOrder && $this->existingOrder) {
-                    $order = $this->existingOrder;
-
-                    $newSubtotal = $order->subtotal + $subtotal;
-                    $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
-                    $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
-                    $newTotalPrice = max(0, $newSubtotal + $newServiceCharge + $newTaxAmount - $discountAmount);
-
-                    $paid = (float)$amountPaid ?: $newTotalPrice;
-                    $change = max(0, $paid - $newTotalPrice);
-                    $invoiceCode = $order->invoice_code;
-
-                    $order->update([
-                        'payment_method' => $paymentMethod,
-                        'subtotal' => $newSubtotal,
-                        'service_charge_amount' => $newServiceCharge,
-                        'tax_amount' => $newTaxAmount,
-                        'discount' => $discountAmount,
-                        'total_price' => $newTotalPrice,
-                        'amount_paid' => $paid,
-                        'change_amount' => $change,
-                        'status' => 'paid',
-                        'kitchen_status' => 'waiting', // Wajib di-reset agar muncul di dapur
-                    ]);
-                } else {
-                    $totalPrice = max(0, $subtotal + $serviceChargeAmount + $taxAmount - $discountAmount);
-                    $paid = (float)$amountPaid ?: $totalPrice;
-                    $change = max(0, $paid - $totalPrice);
-                    $invoiceCode = 'INV-' . strtoupper(Str::random(6));
-
-                    $order = Order::create([
-                        'invoice_code' => $invoiceCode,
-                        'table_number' => $orderType === 'dinein' ? $tableNumber : null,
-                        'notes' => $orderType !== 'dinein' ? $tableNumber : null,
-                        'customer_name' => $customerName ?: 'Pelanggan Umum',
-                        'order_type' => $orderType,
-                        'payment_method' => $paymentMethod,
-                        'subtotal' => $subtotal,
-                        'tax_amount' => $taxAmount,
-                        'service_charge_amount' => $serviceChargeAmount,
-                        'tax_percentage' => $taxRate,
-                        'service_charge_percentage' => $serviceRate,
-                        'discount' => $discountAmount,
-                        'total_price' => $totalPrice,
-                        'amount_paid' => $paid,
-                        'change_amount' => $change,
-                        'status' => 'paid',
-                        'kitchen_status' => 'waiting',
-                        'user_id' => Auth::id(),
-                    ]);
+                    $existingOrder = $this->existingOrder;
                 }
 
-                foreach ($cart as $index => $item) {
-                    $variant = $dbVariants[$index];
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['id'],
-                        'variant_id' => $variant->id,
-                        'product_name' => $item['name'],
-                        'variant_name' => $item['variant_name'] ?? null,
-                        'quantity' => $item['quantity'],
-                        'price' => (float)$item['price'],
-                        'cost' => $variant->cost,
-                        'discount' => 0,
-                        'subtotal' => $item['subtotal'],
-                        'note' => $item['note'] ?? null,
-                    ]);
-                    $variant->decrement('stock', $item['quantity']);
+                $orderService = app(\App\Services\OrderService::class);
+                $order = $orderService->processOrder($orderData, $cart, $existingOrder);
 
-                    if (tenant('store_type') === 'resto') {
-                        foreach ($variant->recipes as $recipe) {
-                            if ($recipe->rawMaterial) {
-                                $recipe->rawMaterial->decrement('stock', $recipe->quantity_used * $item['quantity']);
-                            }
-                        }
-                    }
-                }
+                $totalPrice = $order->total_price;
+                $paid = (float)$amountPaid ?: $totalPrice;
+                $change = max(0, $paid - $totalPrice);
+
+                $order->update([
+                    'amount_paid' => $paid,
+                    'change_amount' => $change,
+                    'payment_method' => $paymentMethod,
+                    'status' => 'paid',
+                ]);
 
                 // --- POTONG SALDO WALLET ---
-                app(BillingService::class)->chargeTransactionFee($order);
+                app(\App\Services\BillingService::class)->chargeTransactionFee($order);
+
+                $storeName = \App\Models\StoreSetting::first()?->name ?? 'Resto Kami';
 
                 return [
-                    'success'       => true,
-                    'invoice_code'  => $order->invoice_code,
-                    'customer_name' => $order->customer_name,
-                    'customer_phone'=> null,
-                    'store_name'    => $storeName,
-                    'total_price'   => $totalPrice,
+                    'success' => true,
+                    'invoice_code' => $order->invoice_code,
+                    'customer_name' => $customerName ?: 'Pelanggan Umum',
+                    'table_number' => $tableNumber,
+                    'store_name' => $storeName,
+                    'total_price' => $totalPrice,
+                    'discount' => (float)$discount,
+                    'amount_paid' => $paid,
+                    'change_amount' => $change,
                 ];
             });
         } catch (Exception $e) {

@@ -63,6 +63,8 @@ new class extends Component {
                 'image' => $p->image ? Storage::url($p->image) : null,
                 'price' => $p->price,
                 'formatted_price' => $p->formatted_price,
+                'active_discount_price' => $p->variants->min('active_discount_price'),
+                'active_discount_name' => $p->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
                 'category' => $p->category?->name ?? '',
                 'is_active' => $p->is_active,
                 'has_variants' => $p->has_variants,
@@ -72,6 +74,8 @@ new class extends Component {
                     'id' => $v->id,
                     'name' => $v->name,
                     'price' => $v->price,
+                    'active_discount_price' => $v->active_discount_price,
+                    'active_discount_name' => $v->active_discount_name,
                 ])->toArray(),
             ])
             ->toArray();

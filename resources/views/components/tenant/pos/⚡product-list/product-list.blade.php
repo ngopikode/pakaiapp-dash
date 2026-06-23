@@ -75,6 +75,8 @@
                                     style="z-index: 2; font-size: 0.65rem; font-weight: 700;">Ada Opsi</span>
                             @endif
 
+
+
                             @if(!$product['has_variants'] && $product['stock'] <= 0)
                                 <span
                                     class="position-absolute top-0 start-0 m-2 badge bg-danger bg-opacity-90 shadow-sm rounded-pill py-1.5 px-2.5"
@@ -98,6 +100,11 @@
                             {{-- Info Content --}}
                             <div class="card-body p-3 text-center d-flex flex-column justify-content-between bg-body">
                                 <div>
+                                    @if(!empty($product['active_discount_price']) && !empty($product['active_discount_name']))
+                                        <div class="mb-1">
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-2 py-1" style="font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px;">% {{ $product['active_discount_name'] }}</span>
+                                        </div>
+                                    @endif
                                     <h6 class="fw-bold font-serif mb-1 text-truncate text-body"
                                         style="font-size: 0.9rem;">
                                         {{ $product['name'] }}
@@ -111,9 +118,18 @@
                                 </div>
                                 <div class="mt-2">
                                     @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))
-                                        <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
-                                            Rp {{ number_format($product['price'], 0, ',', '.') }}
-                                        </p>
+                                        @if(!empty($product['active_discount_price']))
+                                            <div class="d-flex flex-column">
+                                                <span class="text-decoration-line-through text-danger" style="font-size: 0.75rem; font-weight: 600;">Rp {{ number_format($product['price'], 0, ',', '.') }}</span>
+                                                <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
+                                                    Rp {{ number_format($product['active_discount_price'], 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        @else
+                                            <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
+                                                Rp {{ number_format($product['price'], 0, ',', '.') }}
+                                            </p>
+                                        @endif
                                         <small class="text-muted d-block mt-1"
                                                style="font-size: 0.7rem; font-weight: 500;">
                                             Sisa Stok: <span class="fw-bold text-body">{{ $product['stock'] }}</span>
@@ -124,7 +140,7 @@
                                             Mulai
                                             <span class="text-caramel-solid d-block d-md-inline mt-1 mt-md-0"
                                                   style="font-size: 1rem;">
-                                                Rp {{ number_format($product['price'], 0, ',', '.') }}
+                                                Rp {{ number_format(!empty($product['active_discount_price']) ? $product['active_discount_price'] : $product['price'], 0, ',', '.') }}
                                             </span>
                                         </p>
                                     @endif

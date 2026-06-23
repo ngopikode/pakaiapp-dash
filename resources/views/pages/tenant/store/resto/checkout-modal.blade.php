@@ -204,7 +204,7 @@
                             <div>
                                 <template x-for="item in cart" :key="item.cartName">
                                     <div
-                                        class="flex justify-between items-start mb-6 pb-6 border-b border-zinc-50 last:border-0 animate-slide-up rounded-xl transition-all"
+                                        class="flex justify-between items-start mb-6 pb-6 border-b border-black/5 dark:border-white/5 last:border-0 animate-slide-up rounded-xl transition-all"
                                         :class="item.unavailable ? 'bg-red-50/60 border border-red-100 px-3 pt-3 -mx-1' : ''"
                                     >
                                         <div class="flex-1 pr-4 min-w-0">

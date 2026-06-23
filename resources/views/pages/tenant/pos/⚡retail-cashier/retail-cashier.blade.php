@@ -356,7 +356,7 @@
                     id: product.id, variant_id: variant.id, name: product.name,
                     variant_name: product.has_variants ? variant.name : null,
                     sku: variant.sku,
-                    price: variant.price, quantity: 1, subtotal: variant.price,
+                    price: variant.active_discount_price || variant.price, quantity: 1, subtotal: variant.active_discount_price || variant.price,
                     stock: variant.stock, itemDiscount: 0
                 });
             }

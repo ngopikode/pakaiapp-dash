@@ -30,6 +30,11 @@ Proyek ini sudah dilengkapi file-file dokumentasi berekstensi `.md`. Alih-alih m
 | **Flowchart POS Kitchen** | [`POS_KITCHEN_FLOWCHART_ANALYSIS.md`](./POS_KITCHEN_FLOWCHART_ANALYSIS.md) | Analisis alur pesanan dari kasir ke dapur. |
 | **Docs: Livewire 4 Components**| [`livewire4docs/components.md`](./livewire4docs/components.md) | Referensi dokumentasi *offline* cara kerja komponen Livewire 4. Rujuk file ini untuk *best practice* versi terbaru Livewire. |
 | **Docs: MFC + Alpine Timing**| [`livewire4docs/mfc-alpine-architecture.md`](./livewire4docs/mfc-alpine-architecture.md) | Penjelasan krusial mengenai *timing* eksekusi asinkron file `.js` MFC Livewire 4 dan mengapa pendaftaran `Alpine.data()` harus tetap berada di `@script` pada *blade*. |
+| **Core Feature: ERD** | [`core-feature/pakaiapp-ai-menu-engine-erd.md`](./core-feature/pakaiapp-ai-menu-engine-erd.md) | ERD & Skema Database (Pondasi Data) untuk AI Menu Engine. |
+| **Core Feature: Livewire Map** | [`core-feature/pakaiapp-ai-menu-engine-livewire-map.md`](./core-feature/pakaiapp-ai-menu-engine-livewire-map.md) | Livewire Component Map & Logic Flow untuk AI Menu Engine. |
+| **Core Feature: PRD** | [`core-feature/pakaiapp-ai-menu-engine-prd.md`](./core-feature/pakaiapp-ai-menu-engine-prd.md) | Product Requirements Document (PRD) untuk AI Menu Engine. |
+| **Core Feature: Task Breakdown** | [`core-feature/pakaiapp-ai-menu-engine-task-breakdown.md`](./core-feature/pakaiapp-ai-menu-engine-task-breakdown.md) | Task Breakdown (Tiket Kerja Harian) untuk AI Menu Engine. |
+| **Core Feature: Wireframe** | [`core-feature/pakaiapp-ai-menu-engine-wireframe.md`](./core-feature/pakaiapp-ai-menu-engine-wireframe.md) | Wireframe & UI/UX Flow (Visualisasi Kasar) untuk AI Menu Engine. |
 
 ---
 > **Catatan untuk AI Agent:** Ketika kamu ditugaskan membuat fitur atau memperbaiki *bug*, patuhi tumpukan teknologi di atas (gunakan Livewire/Bootstrap, **jangan** buat komponen Vue/React/Tailwind jika tidak diminta). Perhatikan letak struktur *folder* multi-tenant, terutama perbedaan `migrations/` dan `migrations/tenant/`.
