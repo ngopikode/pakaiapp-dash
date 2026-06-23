@@ -270,9 +270,10 @@ document.addEventListener('alpine:init', () => {
                 const storeName = rawTitle.split('|')[0].trim();
 
                 // Subtitle
+                ctx.textAlign = 'center'; // IMPORTANT: This keeps everything centered!
                 ctx.fillStyle = '#fbbf24'; // amber-400
                 ctx.font = '800 36px "Inter", system-ui, sans-serif';
-                ctx.fillText('S C A N   U N T U K   P E S A N', canvas.width / 2, 320);
+                ctx.fillText('S C A N   U N T U K   P E S A N', canvas.width / 2, 280);
 
                 // Draw white rounded box for QR Code
                 const qrSize = 640;
