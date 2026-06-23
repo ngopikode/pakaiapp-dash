@@ -6,16 +6,16 @@
     $ogImage = $setting->og_image ? Storage::url($setting->og_image) : null;
 @endphp
 
-<header class="relative bg-[var(--background)] border-none mb-6">
-    <div class="h-48 w-full relative overflow-hidden bg-[var(--bg-soft)]">
+<header class="relative bg-[var(--background)] border-none mb-4">
+    <div class="h-32 w-full relative overflow-hidden bg-[var(--bg-soft)]">
         @if($ogImage)
             <img src="{{ $ogImage }}" alt="Cover" class="absolute inset-0 w-full h-full object-cover opacity-50" />
             <div class="absolute inset-0 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
         @endif
 
         @if($setting->hero_tagline)
-            <div class="absolute inset-0 flex items-center justify-center pt-8 z-10">
-                <p class="text-sm md:text-base font-serif italic text-[var(--foreground)]/90 drop-shadow-sm px-6 text-center max-w-[320px] leading-relaxed">
+            <div class="absolute inset-0 flex items-center justify-center pt-4 z-10">
+                <p class="text-xs md:text-sm font-serif italic text-[var(--foreground)]/90 drop-shadow-sm px-6 text-center max-w-[320px] leading-relaxed">
                     "{{ trim($setting->hero_tagline, '"') }}"
                 </p>
             </div>
@@ -56,15 +56,15 @@
         </div>
     </div>
 
-    <div class="px-6 -mt-10 relative flex flex-col items-center text-center pb-2">
+    <div class="px-6 -mt-8 relative flex flex-col items-center text-center pb-1">
         <!-- Logo -->
-        <div class="w-20 h-20 p-1 rounded-full shadow-2xl mb-3 relative z-10 bg-[var(--surface)] ring-1 ring-[var(--border)]">
+        <div class="w-16 h-16 p-0.5 rounded-full shadow-lg mb-2 relative z-10 bg-[var(--surface)] ring-1 ring-[var(--border)]">
             <div class="w-full h-full rounded-full flex items-center justify-center overflow-hidden bg-[var(--bg-soft)]">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $storeName }}" class="w-full h-full object-cover" />
                 @else
                     <div class="flex flex-col items-center justify-center h-full w-full text-center">
-                        <span class="font-serif italic text-xl text-[var(--primary)] font-bold">{{ substr($storeName, 0, 2) }}</span>
+                        <span class="font-serif italic text-lg text-[var(--primary)] font-bold">{{ substr($storeName, 0, 2) }}</span>
                     </div>
                 @endif
             </div>
@@ -77,7 +77,7 @@
         </div>
 
         <!-- Main Title (Brand + Title) -->
-        <h1 class="text-[28px] md:text-3xl font-black text-[var(--foreground)] tracking-tight leading-none mb-2">
+        <h1 class="text-xl md:text-2xl font-black text-[var(--foreground)] tracking-tight leading-none mb-1.5">
             @if($setting->navbar_brand_text)
                 {{ $setting->navbar_brand_text }} <span class="text-[var(--primary-color)]">{{ $setting->navbar_title ?: $storeName }}</span>
             @else
@@ -87,7 +87,7 @@
 
         <!-- Status Text (Below Title) -->
         @if($setting->hero_status_text)
-            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-[10px] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.15em] mb-4 shadow-sm">
+            <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-[9px] font-extrabold text-[var(--text-secondary)] uppercase tracking-[0.15em] mb-3 shadow-sm">
                 @if($setting->is_active)
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                 @else
@@ -98,15 +98,15 @@
         @endif
 
         <!-- Headline & Subtitle Inline -->
-        <div class="flex items-center justify-center gap-1.5 flex-wrap mb-2">
+        <div class="flex items-center justify-center gap-1.5 flex-wrap mb-1.5">
             @if($setting->hero_headline)
-                <span class="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-widest">{{ $setting->hero_headline }}</span>
+                <span class="text-[10px] font-bold text-[var(--foreground)] uppercase tracking-widest">{{ $setting->hero_headline }}</span>
             @endif
             @if($setting->hero_headline && $setting->navbar_subtitle)
                 <span class="w-1 h-1 rounded-full bg-[var(--border)] opacity-60"></span>
             @endif
             @if($setting->navbar_subtitle)
-                <span class="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{{ $setting->navbar_subtitle }}</span>
+                <span class="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{{ $setting->navbar_subtitle }}</span>
             @endif
         </div>
 
@@ -122,8 +122,8 @@
 
             <!-- Social Media Link -->
             @if($setting->hero_instagram_url)
-                <button @click="window.open('{{ $setting->hero_instagram_url }}', '_blank')" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-secondary)] hover:text-[#E1306C] hover:border-[#E1306C]/50 hover:bg-[#E1306C]/5 transition-all duration-300 shadow-sm active:scale-95 group">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-[#E1306C] transition-colors"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                <button @click="window.open('{{ $setting->hero_instagram_url }}', '_blank')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[10px] font-bold text-[var(--text-secondary)] hover:text-[#E1306C] hover:border-[#E1306C]/50 hover:bg-[#E1306C]/5 transition-all duration-300 shadow-sm active:scale-95 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:text-[#E1306C] transition-colors"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
                     Follow us on Instagram
                 </button>
             @endif
