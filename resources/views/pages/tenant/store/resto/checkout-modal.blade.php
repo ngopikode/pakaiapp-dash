@@ -226,9 +226,15 @@
                                                     </span>
                                                 </template>
                                             </div>
-                                            <p class="text-xs font-medium mt-1"
-                                               :class="item.unavailable ? 'text-[var(--border)]' : 'text-[var(--primary-color)]'"
-                                               x-text="formatPrice(item.price * item.qty)"></p>
+                                            <div class="mt-1">
+                                                <template x-if="item.originalPrice && item.originalPrice > item.price">
+                                                    <span class="text-[10px] font-bold line-through text-red-400 block"
+                                                          x-text="formatPrice(item.originalPrice * item.qty)"></span>
+                                                </template>
+                                                <p class="text-xs font-black"
+                                                   :class="item.unavailable ? 'text-[var(--border)]' : 'text-[var(--primary-color)]'"
+                                                   x-text="formatPrice(item.price * item.qty)"></p>
+                                            </div>
                                         </div>
 
                                         {{-- Unavailable: hanya tombol hapus --}}

@@ -49,8 +49,19 @@
                                                     <h6 class="fw-bold text-body mb-0" x-text="variant.name"></h6>
                                                 </div>
                                             </div>
-                                            <h6 class="fw-bold text-secondary mb-0"
-                                                x-text="optionProduct.selection_type === 'multiple' ? '' : '+ Rp ' + formatRupiah(variant.price)"></h6>
+                                            <template x-if="optionProduct.selection_type !== 'multiple'">
+                                                <div class="text-end">
+                                                    <template x-if="variant.active_discount_price">
+                                                        <div class="d-flex flex-column align-items-end">
+                                                            <span class="text-decoration-line-through text-danger fw-semibold" style="font-size: 0.7rem;" x-text="'Rp ' + formatRupiah(variant.price)"></span>
+                                                            <span class="fw-bold text-primary" style="font-size: 0.85rem;" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></span>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!variant.active_discount_price">
+                                                        <h6 class="fw-bold text-secondary mb-0" x-text="'+ Rp ' + formatRupiah(variant.price)"></h6>
+                                                    </template>
+                                                </div>
+                                            </template>
                                         </button>
                                     </template>
                                 </div>

@@ -195,13 +195,14 @@ document.addEventListener('alpine:init', () => {
                 ? `${item.name} (${selectedVariants})`
                 : item.name;
             const finalPrice = ('_is_calculated' in item) ? item.price : (parseFloat(item.active_discount_price || item.price) || 0);
+            const originalPrice = ('_is_calculated' in item) ? (item.originalPrice || item.price) : (parseFloat(item.price) || 0);
             const existing = this.cart.find((i) => i.cartName === cartName);
             if (existing) {
                 existing.qty += quantity;
-                // Update price just in case it changed
                 existing.price = finalPrice;
+                existing.originalPrice = originalPrice;
             } else {
-                this.cart.push({...item, price: finalPrice, cartName, qty: quantity, variant_id: variantId});
+                this.cart.push({...item, price: finalPrice, originalPrice, cartName, qty: quantity, variant_id: variantId});
             }
             this.saveCart();
             this.showToast('Berhasil ditambahkan ke keranjang!');
@@ -479,17 +480,20 @@ document.addEventListener('alpine:init', () => {
             if (!this.optionValid || !this.optionProduct) return;
 
             let finalPrice = 0;
+            let originalVariantPrice = 0;
             let finalVariantLabel = '';
             let variantId = null;
             let variantIds = [];
 
             if (!this.optionProduct.variants?.length || !this.optionProduct.has_variants) {
                 // No variant product
+                originalVariantPrice = parseFloat(this.optionProduct.price) || 0;
                 finalPrice = parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
                 variantId = this.optionProduct.default_variant_id || (this.optionProduct.variants?.[0]?.id || null);
                 if (variantId) variantIds.push(variantId);
             } else if (this.isMulti) {
                 // Multi selection (Checkbox)
+                originalVariantPrice = parseFloat(this.optionProduct.price) || 0;
                 finalPrice = parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
                 finalVariantLabel = this.optionSelected.join(', ');
                 variantIds = this.optionProduct.variants
@@ -500,6 +504,12 @@ document.addEventListener('alpine:init', () => {
                 const selectedVariant = this.optionProduct.variants.find(
                     (v) => v.name === this.optionSelected[0]
                 );
+                // Guard: block out-of-stock single variant
+                if (selectedVariant && selectedVariant.stock <= 0) {
+                    this.showToast('Stok varian ini sudah habis!', 'error');
+                    return;
+                }
+                originalVariantPrice = selectedVariant ? (parseFloat(selectedVariant.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
                 finalPrice = selectedVariant
                     ? parseFloat(selectedVariant.active_discount_price || selectedVariant.price) || 0
                     : parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
@@ -509,6 +519,7 @@ document.addEventListener('alpine:init', () => {
             }
 
             finalPrice += this.extrasTotal;
+            originalVariantPrice += this.extrasTotal;
 
             const finalExtraLabel = this.extrasSelected.length
                 ? this.extrasSelected.join(', ')
@@ -526,7 +537,7 @@ document.addEventListener('alpine:init', () => {
                 .join(' + ');
 
             this.addToCart(
-                {...this.optionProduct, price: finalPrice, _is_calculated: true, variant_ids: variantIds, extra_ids: extraIds},
+                {...this.optionProduct, price: finalPrice, originalPrice: originalVariantPrice, _is_calculated: true, variant_ids: variantIds, extra_ids: extraIds},
                 combinedLabel,
                 this.optionQty,
                 variantId

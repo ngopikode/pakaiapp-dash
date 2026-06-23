@@ -45,7 +45,7 @@ new class extends Component {
         $matchedVariantId = null;
 
         // 1. Cek Exact SKU Match
-        $product = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
+        $product = Product::with(['variants:id,product_id,sku,name,cost,price,stock,active_discount_price,active_discount_name'])
             ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
             ->whereHas('variants', fn($q) => $q->where('sku', $searchTerm))
@@ -61,7 +61,7 @@ new class extends Component {
         // 2. Jika bukan SKU exact, cek apakah query memfilter daftar menjadi TEPAT 1 produk
         if (!$product) {
             $words = array_filter(explode(' ', $searchTerm));
-            $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
+            $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock,active_discount_price,active_discount_name'])
                 ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
                 ->where('is_active', true)
                 ->where(function ($q) use ($words, $searchTerm) {
@@ -137,9 +137,10 @@ new class extends Component {
 
     public function with(): array
     {
-        $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock'])
+        $query = Product::with(['variants:id,product_id,sku,name,cost,price,stock,active_discount_price,active_discount_name'])
             ->when(tenant('store_type') === 'resto')->with(['extras' => fn($q) => $q->where('is_active', true)])
             ->where('is_active', true)
+            ->when($this->categoryFilter === 'promo', fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price')))
             ->when($this->search, function ($q) {
                 $searchTerm = trim($this->search);
                 $words = array_filter(explode(' ', $searchTerm));
@@ -170,7 +171,8 @@ new class extends Component {
                     }
                 });
             })
-            ->when($this->categoryFilter !== 'all' && empty($this->search), fn($q) => $q->where('category_id', $this->categoryFilter));
+            ->when($this->categoryFilter !== 'all' && $this->categoryFilter !== 'promo' && empty($this->search), fn($q) => $q->where('category_id', $this->categoryFilter));
+
 
         $totalCount = (clone $query)->count();
 
@@ -221,7 +223,8 @@ new class extends Component {
         return [
             'categories' => Category::orderBy('order_column')->get(),
             'products' => $products,
-            'hasMore' => $this->limit < $totalCount
+            'hasMore' => $this->limit < $totalCount,
+            'hasPromoItems' => Product::whereHas('variants', fn($q) => $q->whereNotNull('active_discount_price'))->where('is_active', true)->exists(),
         ];
     }
 };

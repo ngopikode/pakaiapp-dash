@@ -65,7 +65,7 @@
                         <div class="mb-3">
                             @foreach($order->items as $item)
                                 <div
-                                    class="d-flex justify-content-between align-items-center py-1 border-bottom border-dashed"
+                                    class="d-flex justify-content-between align-items-start py-1 border-bottom border-dashed"
                                     style="font-size: 0.85rem; border-color: var(--bs-border-color-translucent) !important;">
                                     <span class="text-body">
                                         <span class="fw-bold text-primary">{{ $item->quantity }}x</span>
@@ -73,15 +73,25 @@
                                         @if($item->variant_name)
                                             <small class="text-muted">({{ $item->variant_name }})</small>
                                         @endif
+                                        @if($item->discount > 0)
+                                            <br><small class="text-success fw-bold"><i class="bi bi-tag-fill me-1"></i>Hemat Rp {{ number_format($item->discount * $item->quantity, 0, ',', '.') }}</small>
+                                        @endif
                                         @if($item->note)
                                             <br><small class="text-warning fst-italic"><i
                                                     class="bi bi-chat-dots me-1"></i>{{ $item->note }}</small>
                                         @endif
                                     </span>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold text-nowrap" style="color: var(--brand-caramel, #b45309);">
-                                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                                        </span>
+                                        <div class="text-end">
+                                            @if($item->discount > 0)
+                                                <small class="text-danger text-decoration-line-through d-block" style="font-size: 0.75rem;">
+                                                    Rp {{ number_format(($item->price + $item->discount) * $item->quantity, 0, ',', '.') }}
+                                                </small>
+                                            @endif
+                                            <span class="fw-bold text-nowrap" style="color: var(--brand-caramel, #b45309);">
+                                                Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                                            </span>
+                                        </div>
                                         @if($order->status !== 'completed' && $order->status !== 'paid' && $item->kitchen_status === 'waiting')
                                         <button wire:click="voidItem({{ $item->id }})"
                                                 wire:confirm="Yakin ingin membatalkan item ini? Stok akan dikembalikan otomatis."
@@ -103,6 +113,12 @@
                                 <div class="d-flex justify-content-between align-items-center py-1 text-muted" style="font-size: 0.8rem;">
                                     <span>Pajak PB1 ({{ number_format($order->tax_percentage ?? 10, 0) }}%)</span>
                                     <span>Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            @if(($order->discount ?? 0) > 0)
+                                <div class="d-flex justify-content-between align-items-center py-1" style="font-size: 0.8rem;">
+                                    <span class="text-success fw-bold"><i class="bi bi-scissors me-1"></i>Diskon</span>
+                                    <span class="text-success fw-bold">- Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
                                 </div>
                             @endif
                         </div>

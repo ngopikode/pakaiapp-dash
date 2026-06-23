@@ -26,6 +26,13 @@
                 class="cat-btn {{ $categoryFilter === 'all' ? 'active' : '' }}">
             Semua Menu
         </button>
+        @if($hasPromoItems)
+        <button type="button" wire:click="$set('categoryFilter', 'promo')"
+                class="cat-btn {{ $categoryFilter === 'promo' ? 'active' : '' }}"
+                style="{{ $categoryFilter === 'promo' ? 'background: #ef4444; color: white; border-color: #ef4444;' : 'background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.3);' }}">
+            🔥 Promo
+        </button>
+        @endif
         @foreach($categories as $category)
             <button type="button" wire:click="$set('categoryFilter', '{{ $category->id }}')"
                     class="cat-btn {{ $categoryFilter == $category->id ? 'active' : '' }}">

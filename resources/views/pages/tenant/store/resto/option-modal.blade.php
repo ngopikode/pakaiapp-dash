@@ -32,22 +32,29 @@
             <div class="flex flex-col flex-1 min-h-0">
 
                 {{-- ===== HEADER ===== --}}
-                <div class="px-5 pt-3 pb-4 border-b border-[var(--border)] bg-[var(--surface)] rounded-t-[2rem] flex flex-col items-center shrink-0">
+                <div
+                    class="px-5 pt-3 pb-4 border-b border-[var(--border)] bg-[var(--surface)] rounded-t-[2rem] flex flex-col items-center shrink-0">
                     <div class="w-12 h-1.5 bg-zinc-200 rounded-full mb-4"></div>
                     <div class="w-full flex justify-between items-start">
                         <div>
-                            <h3 class="font-black text-lg text-[var(--foreground)] leading-tight" x-text="optionProduct.name"></h3>
+                            <h3 class="font-black text-lg text-[var(--foreground)] leading-tight"
+                                x-text="optionProduct.name"></h3>
                             <div class="flex items-center gap-2 mt-2">
-                                <span class="text-xs font-bold text-[var(--foreground)] bg-[var(--primary-color)]/20 px-2 py-1 rounded-md"
-                                      x-text="optionProduct.formatted_price"></span>
-                                <span class="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wide">
-                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && isMulti && optionProduct.has_variants">
+                                <span
+                                    class="text-xs font-bold text-[var(--foreground)] bg-[var(--primary-color)]/20 px-2 py-1 rounded-md"
+                                    x-text="optionProduct.formatted_price"></span>
+                                <span
+                                    class="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wide">
+                                    <template
+                                        x-if="optionProduct.variants && optionProduct.variants.length > 0 && isMulti && optionProduct.has_variants">
                                         <span x-text="`Pilih Maks ${maxSel} Varian`"></span>
                                     </template>
-                                    <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && !isMulti && optionProduct.has_variants">
+                                    <template
+                                        x-if="optionProduct.variants && optionProduct.variants.length > 0 && !isMulti && optionProduct.has_variants">
                                         <span>Pilih 1 Varian</span>
                                     </template>
-                                    <template x-if="!optionProduct.variants || optionProduct.variants.length === 0 || !optionProduct.has_variants">
+                                    <template
+                                        x-if="!optionProduct.variants || optionProduct.variants.length === 0 || !optionProduct.has_variants">
                                         <span>Pilih Add-On</span>
                                     </template>
                                 </span>
@@ -58,7 +65,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round" class="text-[var(--foreground)]">
-                                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                                <path d="M18 6 6 18"/>
+                                <path d="m6 6 12 12"/>
                             </svg>
                         </button>
                     </div>
@@ -70,8 +78,9 @@
                                 <div class="h-full bg-[var(--primary-color)] rounded-full transition-all duration-300"
                                      :style="`width: ${(optionSelected.length / maxSel) * 100}%`"></div>
                             </div>
-                            <span class="text-[10px] font-black text-[var(--text-secondary)] tabular-nums whitespace-nowrap"
-                                  x-text="`${optionSelected.length}/${maxSel}`"></span>
+                            <span
+                                class="text-[10px] font-black text-[var(--text-secondary)] tabular-nums whitespace-nowrap"
+                                x-text="`${optionSelected.length}/${maxSel}`"></span>
                         </div>
                     </template>
                 </div>
@@ -81,37 +90,55 @@
                     <div class="flex flex-col gap-2.5">
 
                         {{-- ----- VARIANTS ----- --}}
-                        <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
+                        <template
+                            x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
                             <div class="flex flex-col gap-2.5">
                                 <template x-for="variant in optionProduct.variants" :key="variant.id">
                                     <div
-                                        @click="toggleOption(variant.name)"
-                                        class="relative flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all active:scale-[0.98]"
-                                        :class="isOptionSelected(variant.name)
-                                            ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/10 shadow-sm shadow-[var(--primary-color)]/10'
-                                            : 'border-[var(--border)] bg-[var(--background)] hover:bg-[var(--bg-soft)]'"
+                                        @click="variant.stock > 0 ? toggleOption(variant.name) : null"
+                                        class="relative flex items-center justify-between p-3.5 rounded-xl border-2 transition-all"
+                                        :class="variant.stock <= 0
+                                            ? 'border-[var(--border)] bg-[var(--bg-soft)] opacity-50 cursor-not-allowed'
+                                            : isOptionSelected(variant.name)
+                                                ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/10 shadow-sm shadow-[var(--primary-color)]/10 cursor-pointer active:scale-[0.98]'
+                                                : 'border-[var(--border)] bg-[var(--background)] hover:bg-[var(--bg-soft)] cursor-pointer active:scale-[0.98]'"
                                     >
-                                        <div>
-                                            <span class="block font-bold text-sm"
-                                                  :class="isOptionSelected(variant.name) ? 'text-[var(--foreground)]' : 'text-[var(--foreground)]'"
-                                                  x-text="variant.name"></span>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="block font-bold text-sm text-[var(--foreground)]"
+                                                      x-text="variant.name"></span>
+                                                <template x-if="variant.stock <= 0">
+                                                    <span
+                                                        class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-100 text-red-500">Habis</span>
+                                                </template>
+                                            </div>
                                             <template x-if="!isMulti">
-                                                <span class="block text-xs font-black text-[var(--primary-color)] mt-0.5"
-                                                      x-text="formatPrice(variant.price)"></span>
+                                                <div class="flex items-center gap-1.5 mt-0.5">
+                                                    <template x-if="variant.active_discount_price">
+                                                        <span
+                                                            class="text-[10px] font-bold text-[var(--text-secondary)] line-through"
+                                                            x-text="formatPrice(variant.price)"></span>
+                                                    </template>
+                                                    <span class="block text-xs font-black text-[var(--primary-color)]"
+                                                          x-text="formatPrice(variant.active_discount_price || variant.price)"></span>
+                                                </div>
                                             </template>
                                         </div>
                                         {{-- Radio (single) --}}
                                         <template x-if="!isMulti">
-                                            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0"
-                                                 :class="isOptionSelected(variant.name) ? 'border-[var(--primary-color)]' : 'border-[var(--border)]'">
-                                                <div class="w-3 h-3 rounded-full bg-[var(--primary-color)] transition-transform"
-                                                     :class="isOptionSelected(variant.name) ? 'scale-100' : 'scale-0'"></div>
+                                            <div
+                                                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0"
+                                                :class="isOptionSelected(variant.name) ? 'border-[var(--primary-color)]' : 'border-[var(--border)]'">
+                                                <div
+                                                    class="w-3 h-3 rounded-full bg-[var(--primary-color)] transition-transform"
+                                                    :class="isOptionSelected(variant.name) ? 'scale-100' : 'scale-0'"></div>
                                             </div>
                                         </template>
                                         {{-- Checkbox (multi) --}}
                                         <template x-if="isMulti">
-                                            <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0"
-                                                 :class="isOptionSelected(variant.name) ? 'border-[var(--primary-color)] bg-[var(--primary-color)]' : 'border-[var(--border)] bg-[var(--surface)]'">
+                                            <div
+                                                class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0"
+                                                :class="isOptionSelected(variant.name) ? 'border-[var(--primary-color)] bg-[var(--primary-color)]' : 'border-[var(--border)] bg-[var(--surface)]'">
                                                 <svg x-show="isOptionSelected(variant.name)"
                                                      xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -130,10 +157,12 @@
                         <template x-if="optionProduct.extras && optionProduct.extras.length > 0">
                             <div>
                                 {{-- Divider hanya jika ada variants di atas --}}
-                                <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
+                                <template
+                                    x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
                                     <div class="flex items-center gap-3 my-3">
                                         <div class="flex-1 h-px bg-[var(--bg-soft)]"></div>
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Tambahan</span>
+                                        <span
+                                            class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Tambahan</span>
                                         <div class="flex-1 h-px bg-[var(--bg-soft)]"></div>
                                     </div>
                                 </template>
@@ -156,8 +185,9 @@
                                                       x-text="'+' + formatPrice(extra.price)"></span>
                                             </div>
                                             {{-- Checkbox --}}
-                                            <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0"
-                                                 :class="isExtraSelected(extra.name) ? 'border-[var(--primary-color)] bg-[var(--primary-color)]' : 'border-[var(--border)] bg-[var(--surface)]'">
+                                            <div
+                                                class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0"
+                                                :class="isExtraSelected(extra.name) ? 'border-[var(--primary-color)] bg-[var(--primary-color)]' : 'border-[var(--border)] bg-[var(--surface)]'">
                                                 <svg x-show="isExtraSelected(extra.name)"
                                                      xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -176,9 +206,11 @@
                 </div>
 
                 {{-- ===== BOTTOM: QTY + SUBMIT ===== --}}
-                <div class="shrink-0 p-5 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+                <div
+                    class="shrink-0 p-5 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
                     {{-- Qty --}}
-                    <div class="flex items-center justify-between mb-4 bg-[var(--background)] p-3 rounded-xl border border-[var(--border)]">
+                    <div
+                        class="flex items-center justify-between mb-4 bg-[var(--background)] p-3 rounded-xl border border-[var(--border)]">
                         <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-2">Jumlah</span>
                         <div class="flex items-center gap-4">
                             <button type="button" @click="optionQty = Math.max(1, optionQty - 1)"
@@ -195,7 +227,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                      stroke-linejoin="round">
-                                    <line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/>
+                                    <line x1="12" x2="12" y1="5" y2="19"/>
+                                    <line x1="5" x2="19" y1="12" y2="12"/>
                                 </svg>
                             </button>
                         </div>

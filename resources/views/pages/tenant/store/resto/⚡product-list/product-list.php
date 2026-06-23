@@ -147,6 +147,7 @@ new class extends Component {
                     'price' => $v->price,
                     'active_discount_price' => $v->active_discount_price,
                     'active_discount_name' => $v->active_discount_name,
+                    'stock' => $v->stock,
                 ])->toArray(),
                 'extras' => $p->extras->where('is_active', true)->map(fn($e) => [
                     'id' => $e->id,

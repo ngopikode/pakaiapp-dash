@@ -20,7 +20,7 @@
                 <i class="bi bi-shop-window text-warning me-1 d-none d-lg-inline-block"></i>Pesanan
             </h5>
         </div>
-        <button @click="clearCart" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle bg-body shadow-sm"
+        <button @click="clearCart" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle shadow-sm"
                 x-show="cart.length > 0" title="Bersihkan (F4)" style="width: 36px; height: 36px;">
             <i class="bi bi-trash3 fs-6"></i>
         </button>

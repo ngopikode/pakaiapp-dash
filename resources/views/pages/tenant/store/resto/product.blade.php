@@ -47,6 +47,7 @@
             'price' => $v->price,
             'active_discount_price' => $v->active_discount_price,
             'active_discount_name'  => $v->active_discount_name,
+            'stock' => $v->stock
         ])->toArray(),
         'extras'          => $product->extras->where('is_active', true)->map(fn ($e) => [
             'id'    => $e->id,
@@ -279,10 +280,11 @@
                 <template x-if="!isRefreshing">
                     <div class="w-5 h-5 flex items-center justify-center transition-transform"
                          :style="`transform: rotate(${pullY * 3}deg)`">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <polyline points="19 12 12 19 5 12"></polyline>
-                         </svg>
+                        </svg>
                     </div>
                 </template>
                 <span class="text-xs font-bold"
@@ -334,19 +336,26 @@
                                 class="inline-block px-3 py-1.5 rounded-xl bg-[var(--bg-soft)] text-[var(--foreground)] text-[10px] font-black uppercase tracking-widest mb-3 border border-[var(--border)]">{{ $product->category->name }}</span>
                         @endif
                         <template x-if="product.active_discount_price && product.active_discount_name">
-                            <span class="inline-block px-2 py-1 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm mb-3 ml-1" x-text="'% ' + product.active_discount_name"></span>
+                            <span
+                                class="inline-block px-2 py-1 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm mb-3 ml-1"
+                                x-text="'% ' + product.active_discount_name"></span>
                         </template>
                         <h1 class="text-[1.75rem] font-black text-[var(--foreground)] leading-tight tracking-tight">{{ $product->name }}</h1>
                     </div>
                     <div class="text-right pt-1 shrink-0 min-w-0">
                         <template x-if="product.active_discount_price">
                             <div class="flex flex-col items-end">
-                                <span class="text-[10px] text-red-400 line-through font-bold" x-text="formatPrice(product.price)"></span>
-                                <div class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap" x-text="formatPrice(product.active_discount_price)"></div>
+                                <span class="text-[10px] text-red-400 line-through font-bold"
+                                      x-text="formatPrice(product.price)"></span>
+                                <div
+                                    class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap"
+                                    x-text="formatPrice(product.active_discount_price)"></div>
                             </div>
                         </template>
                         <template x-if="!product.active_discount_price">
-                            <div class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap" x-text="product.formatted_price"></div>
+                            <div
+                                class="text-lg md:text-2xl font-black text-[var(--primary-color)] font-mono tracking-tighter whitespace-nowrap"
+                                x-text="product.formatted_price"></div>
                         </template>
                     </div>
                 </div>
@@ -388,9 +397,11 @@
                                         <span class="w-1 h-1 rounded-full bg-[var(--border)] relative z-10"></span>
                                         @if(!empty($variant->active_discount_price))
                                             <span class="text-[10px] text-red-400 line-through relative z-10 font-bold">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
-                                            <span class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->active_discount_price, 0, ',', '.') }}</span>
+                                            <span
+                                                class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->active_discount_price, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
+                                            <span
+                                                class="text-[var(--primary-color)] relative z-10 font-mono tracking-tight">Rp {{ number_format($variant->price, 0, ',', '.') }}</span>
                                         @endif
                                     @endif
                                 </div>
@@ -436,7 +447,8 @@
                 {{-- Stepper (non-variant, non-extra item already in cart) --}}
                 <template
                     x-if="qtyInCart > 0 && !product.has_variants && !(product.extras && product.extras.length > 0)">
-                    <div class="flex items-center justify-between rounded-2xl p-1.5 w-full bg-[var(--surface)] shadow-sm border border-[var(--border)]">
+                    <div
+                        class="flex items-center justify-between rounded-2xl p-1.5 w-full bg-[var(--surface)] shadow-sm border border-[var(--border)]">
                         <button @click="updateQty(product.name, -1)"
                                 class="w-12 h-12 flex items-center justify-center rounded-xl text-[var(--foreground)] hover:bg-[var(--bg-soft)] transition-all active:scale-90">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -445,7 +457,8 @@
                                 <line x1="5" x2="19" y1="12" y2="12"/>
                             </svg>
                         </button>
-                        <span class="font-black text-lg text-[var(--foreground)] tabular-nums" x-text="qtyInCart"></span>
+                        <span class="font-black text-lg text-[var(--foreground)] tabular-nums"
+                              x-text="qtyInCart"></span>
                         <button @click="addToCart(product)"
                                 class="w-12 h-12 flex items-center justify-center text-black bg-[var(--primary-color)] hover:brightness-110 rounded-xl transition-all active:scale-90">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -485,7 +498,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"><circle cx="12" cy="12"
-                                                                                                         r="10"/><line
+                                                                     r="10"/><line
                                         x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
                                 Pilih Add-On
                             </span>
@@ -496,7 +509,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"><line x1="12" x2="12"
-                                                                                                       y1="5" y2="19"/><line
+                                                                   y1="5" y2="19"/><line
                                         x1="5" x2="19" y1="12" y2="12"/></svg>
                                 Tambah ke Keranjang
                             </span>
@@ -523,7 +536,8 @@
                             </div>
                         </div>
                         <div class="relative flex items-center gap-2 pr-1">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-[var(--primary-color)] group-hover:text-white transition-colors">Checkout</span>
+                            <span
+                                class="text-[10px] font-black uppercase tracking-widest text-[var(--primary-color)] group-hover:text-white transition-colors">Checkout</span>
                             <div
                                 class="bg-[var(--surface)]/10 p-1.5 rounded-full group-hover:bg-[var(--primary-color)]/20 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
