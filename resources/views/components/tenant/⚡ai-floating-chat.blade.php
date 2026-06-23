@@ -84,9 +84,74 @@ new class extends Component
 };
 ?>
 
-<div class="fixed z-[1050] transition-all" 
-     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6'"
-     x-data="{ isOpen: false, showTooltip: true, contactModalOpen: false, showScroll: false }"
+<div class="fixed z-[1050]" 
+     x-ref="container"
+     :style="(!isOpen && isCustomPositioned) ? `left: ${x}px; top: ${y}px; bottom: auto; right: auto; transition: ${isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'};` : 'transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);'"
+     :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : ((!isOpen && isCustomPositioned) ? '' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6')"
+     x-data="{ 
+         isOpen: false, showTooltip: true, contactModalOpen: false, showScroll: false,
+         x: 0, y: 0, startX: 0, startY: 0, isDragging: false, moved: false, isCustomPositioned: false,
+         initDrag(e) {
+             if (this.isOpen) return;
+             this.isDragging = true;
+             this.moved = false;
+             let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+             let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+             const rect = this.$refs.container.getBoundingClientRect();
+             if (!this.isCustomPositioned) {
+                 this.x = rect.left;
+                 this.y = rect.top;
+                 this.isCustomPositioned = true;
+             }
+             this.startX = clientX - this.x;
+             this.startY = clientY - this.y;
+         },
+         doDrag(e) {
+             if (!this.isDragging) return;
+             let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+             let clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+             let newX = clientX - this.startX;
+             let newY = clientY - this.startY;
+             if (Math.abs(newX - this.x) > 3 || Math.abs(newY - this.y) > 3) {
+                 this.moved = true;
+                 this.showTooltip = false;
+             }
+             this.x = newX;
+             this.y = newY;
+         },
+         stopDrag() {
+             if (!this.isDragging) return;
+             this.isDragging = false;
+             if (!this.moved) return;
+             const btnRect = this.$refs.btn.getBoundingClientRect();
+             const screenWidth = window.innerWidth;
+             const screenHeight = window.innerHeight;
+             const btnCenterX = btnRect.left + btnRect.width / 2;
+             if (btnCenterX < screenWidth / 2) {
+                 this.x = this.x - (btnRect.left - 16);
+             } else {
+                 this.x = this.x + (screenWidth - 16 - btnRect.right);
+             }
+             if (btnRect.top < 16) {
+                 this.y = this.y - (btnRect.top - 16);
+             } else if (btnRect.bottom > screenHeight - 16) {
+                 this.y = this.y - (btnRect.bottom - (screenHeight - 16));
+             }
+         },
+         handleClick(e) {
+             if (this.moved) {
+                 e.preventDefault();
+                 e.stopPropagation();
+                 return;
+             }
+             this.isOpen = !this.isOpen;
+             this.showTooltip = false;
+         }
+     }"
+     @mousemove.window="doDrag"
+     @mouseup.window="stopDrag"
+     @touchmove.window="doDrag"
+     @touchend.window="stopDrag"
      @open-contact-modal.window="contactModalOpen = true"
      @close-contact-modal.window="contactModalOpen = false"
      @keydown.escape.window="if(!isOpen) { contactModalOpen = false }"
@@ -285,7 +350,7 @@ new class extends Component
             <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--foreground)] transform rotate-45"></div>
         </div>
 
-        <button type="button" class="bg-[var(--foreground)] text-[var(--background)] rounded-full shadow-2xl shadow-black/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-[var(--border)] relative z-10" @click="isOpen = !isOpen; showTooltip = false">
+        <button type="button" x-ref="btn" style="touch-action: none;" @mousedown="initDrag" @touchstart="initDrag" @click="handleClick" class="bg-[var(--foreground)] text-[var(--background)] rounded-full shadow-2xl shadow-black/30 flex items-center justify-center w-14 h-14 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-[var(--border)] relative z-10 cursor-grab active:cursor-grabbing">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
         </button>
     </div>
