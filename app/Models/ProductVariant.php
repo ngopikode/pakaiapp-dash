@@ -16,6 +16,8 @@ class ProductVariant extends Model
         'name',
         'cost',
         'price',
+        'active_discount_price',
+        'active_discount_name',
         'stock',
         'min_stock',
         'created_at',

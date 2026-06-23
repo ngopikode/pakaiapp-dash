@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Tenant;
 use App\Models\AiPricingRule;
+use App\Models\ProductVariant;
+use App\Models\Tenant;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Console\Command;
+use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById;
 
 class RunAiPricingRules extends Command
 {
@@ -25,9 +26,10 @@ class RunAiPricingRules extends Command
     protected $description = 'Evaluate and execute dynamic AI pricing rules across all active tenants';
 
     /**
-     * Execute the console command.
+     * @return void
+     * @throws TenantCouldNotBeIdentifiedById
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('Starting AI Pricing Evaluation...');
 
@@ -36,7 +38,7 @@ class RunAiPricingRules extends Command
         foreach ($tenants as $tenant) {
             tenancy()->initialize($tenant);
 
-            $this->info("Evaluating for tenant: {$tenant->id}");
+            $this->info("Evaluating for tenant: $tenant->id");
 
             // 1. Ambil semua rule yang aktif
             $rules = AiPricingRule::where('is_active', true)
@@ -47,19 +49,19 @@ class RunAiPricingRules extends Command
             $currentDay = $now->format('D'); // Mon, Tue, dll
             $currentTime = $now->format('H:i:s');
 
-            // Kita kumpulkan ID variant yang sedang dikontrol diskonnya saat ini, 
+            // Kita kumpulkan ID variant yang sedang dikontrol diskonnya saat ini,
             // agar variant lain yang tidak terkena diskon bisa di-reset.
             $activeVariantIds = [];
 
             foreach ($rules as $rule) {
                 $days = $rule->active_days ?? [];
-                
+
                 // Cek apakah hari ini dan jam ini sesuai dengan jadwal rule
                 $isDayMatch = in_array($currentDay, $days);
                 $isTimeMatch = ($currentTime >= $rule->start_time) && ($currentTime <= $rule->end_time);
 
                 if ($isDayMatch && $isTimeMatch) {
-                    $this->info("Rule [{$rule->rule_name}] is ACTIVE.");
+                    $this->info("Rule [$rule->rule_name] is ACTIVE.");
 
                     foreach ($rule->productVariants as $variant) {
                         $activeVariantIds[] = $variant->id;
@@ -88,7 +90,7 @@ class RunAiPricingRules extends Command
             }
 
             // 2. Reset semua variant yang dulunya punya diskon tapi sekarang tidak masuk dalam rule aktif
-            \App\Models\ProductVariant::whereNotNull('active_discount_price')
+            ProductVariant::whereNotNull('active_discount_price')
                 ->whereNotIn('id', $activeVariantIds)
                 ->update([
                     'active_discount_price' => null,
