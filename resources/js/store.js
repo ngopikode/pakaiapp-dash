@@ -265,6 +265,10 @@ document.addEventListener('alpine:init', () => {
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, canvas.width, 24);
 
+                // Store Name
+                const rawTitle = document.title || 'Menu';
+                const storeName = rawTitle.split('|')[0].trim();
+
                 // Subtitle
                 ctx.fillStyle = '#fbbf24'; // amber-400
                 ctx.font = '800 36px "Inter", system-ui, sans-serif';
