@@ -33,6 +33,16 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('storeApp', () => ({
         /* ===== THEME ===== */
         theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+        
+        toggleTheme() {
+            this.theme = this.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', this.theme);
+            if (this.theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        },
 
         /* ===== CART ===== */
         toast: {show: false, message: ''},
