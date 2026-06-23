@@ -30,7 +30,7 @@
         class="fixed inset-x-0 bottom-0 top-10 w-full sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:max-w-lg bg-[var(--surface)] z-[110] flex flex-col rounded-t-[2rem] overflow-hidden shadow-2xl sm:ring-1 sm:ring-[var(--border)]"
     >
         {{-- Header (Dynamic Multi-Step) --}}
-        <div class="p-5 flex justify-between items-center border-b border-[var(--border)] bg-[var(--surface)] sticky top-0 z-10 pt-6">
+        <div x-show="!orderSuccess" class="p-5 flex justify-between items-center border-b border-[var(--border)] bg-[var(--surface)] sticky top-0 z-10 pt-6">
             <div class="flex items-center gap-3">
                 <!-- Back Button (Step 2 Only) -->
                 <button
