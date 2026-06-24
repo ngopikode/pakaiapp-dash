@@ -89,7 +89,7 @@ new class extends Component
      :style="(!isOpen && isCustomPositioned) ? `left: ${x}px; top: ${y}px; bottom: auto; right: auto; transition: ${isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'};` : 'transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);'"
      :class="isOpen ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6' : ((!isOpen && isCustomPositioned) ? '' : 'bottom-[105px] right-4 sm:bottom-6 sm:right-6')"
      x-data="{ 
-         isOpen: false, showTooltip: true, contactModalOpen: false, showScroll: false,
+         isOpen: false, showTooltip: false, contactModalOpen: false, showScroll: false,
          x: 0, y: 0, startX: 0, startY: 0, isDragging: false, moved: false, isCustomPositioned: false,
          initDrag(e) {
              if (this.isOpen) return;
@@ -156,7 +156,12 @@ new class extends Component
      @close-contact-modal.window="contactModalOpen = false"
      @keydown.escape.window="if(!isOpen) { contactModalOpen = false }"
      x-show="!(typeof qrOpen !== 'undefined' && qrOpen) && !(typeof optionOpen !== 'undefined' && optionOpen) && !(typeof checkoutOpen !== 'undefined' && checkoutOpen) && !(typeof historyOpen !== 'undefined' && historyOpen) && !contactModalOpen"
-     x-init="setTimeout(() => showTooltip = false, 8000)"
+     x-init="
+         if (!localStorage.getItem('aiTooltipDismissed')) {
+             setTimeout(() => { showTooltip = true; }, 3000);
+             setTimeout(() => { showTooltip = false; localStorage.setItem('aiTooltipDismissed', '1'); }, 11000);
+         }
+     "
      x-effect="document.body.style.overflow = isOpen && window.innerWidth < 640 ? 'hidden' : '';
                if (isOpen) {
                    setTimeout(() => {
@@ -342,8 +347,8 @@ new class extends Component
         <div x-show="!isOpen && showTooltip" 
              x-transition.opacity.duration.500ms
              class="bg-[var(--foreground)] text-[var(--background)] text-sm font-bold pl-4 pr-2 py-3 rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] flex items-center gap-2 animate-[bounce_3s_infinite] relative">
-            <span class="cursor-pointer" @click="isOpen = true; showTooltip = false">✨ Hai, butuh rekomendasi menu?</span>
-            <button type="button" class="opacity-70 hover:opacity-100 p-1 flex items-center justify-center transition-opacity" @click.stop="showTooltip = false">
+            <span class="cursor-pointer" @click="isOpen = true; showTooltip = false; localStorage.setItem('aiTooltipDismissed', '1')">✨ Hai, butuh rekomendasi menu?</span>
+            <button type="button" class="opacity-70 hover:opacity-100 p-1 flex items-center justify-center transition-opacity" @click.stop="showTooltip = false; localStorage.setItem('aiTooltipDismissed', '1')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
             <!-- Segitiga penunjuk -->
