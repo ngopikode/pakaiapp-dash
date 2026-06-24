@@ -578,7 +578,8 @@ new class extends Component {
                     if (!$item) continue;
 
                     if ($splitQty < $item->quantity) {
-                        $newItemSubtotal = $item->price * $splitQty;
+                        $perItemSubtotal = $item->subtotal / $item->quantity;
+                        $newItemSubtotal = max(0, $perItemSubtotal * $splitQty);
                         \App\Models\OrderItem::create([
                             'order_id' => $newOrder->id,
                             'product_id' => $item->product_id,
@@ -595,7 +596,7 @@ new class extends Component {
                         $newSubtotal += $newItemSubtotal;
 
                         $remainQty = $item->quantity - $splitQty;
-                        $oldItemSubtotal = $item->price * $remainQty;
+                        $oldItemSubtotal = max(0, $perItemSubtotal * $remainQty);
                         $item->update([
                             'quantity' => $remainQty,
                             'subtotal' => $oldItemSubtotal,
@@ -677,6 +678,10 @@ new class extends Component {
 
                 if (in_array($sourceOrder->status, ['completed', 'cancelled']) || in_array($targetOrder->status, ['completed', 'cancelled'])) {
                     throw new \Exception("Tidak bisa menggabungkan pesanan yang sudah selesai atau dibatalkan.");
+                }
+
+                if ($sourceOrder->is_online !== $targetOrder->is_online) {
+                    throw new \Exception("Tidak bisa menggabungkan Pesanan Digital dengan Pesanan Kasir Manual.");
                 }
 
                 if ($sourceOrder->amount_paid > 0 || $targetOrder->amount_paid > 0) {

@@ -125,7 +125,7 @@
                                 </div>
                                 <div class="mt-2">
                                     @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))
-                                        @if(!empty($product['active_discount_price']))
+                                        @if(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'])
                                             <div class="d-flex flex-column">
                                                 <span class="text-decoration-line-through text-danger" style="font-size: 0.75rem; font-weight: 600;">Rp {{ number_format($product['price'], 0, ',', '.') }}</span>
                                                 <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
@@ -147,7 +147,7 @@
                                             Mulai
                                             <span class="text-caramel-solid d-block d-md-inline mt-1 mt-md-0"
                                                   style="font-size: 1rem;">
-                                                Rp {{ number_format(!empty($product['active_discount_price']) ? $product['active_discount_price'] : $product['price'], 0, ',', '.') }}
+                                                Rp {{ number_format(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'] ? $product['active_discount_price'] : $product['price'], 0, ',', '.') }}
                                             </span>
                                         </p>
                                     @endif

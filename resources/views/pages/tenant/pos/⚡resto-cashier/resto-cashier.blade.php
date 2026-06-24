@@ -1,10 +1,10 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
-        customerName: @json($existingOrder ? $existingOrder->customer_name : ""),
-        tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ""),
-        orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]["id"] ?? "dinein")),
-        isEditingOrder: @json($existingOrder ? true : false),
-        editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null),
+        customerName: window.posInitialData?.customerName || "",
+        tableNumber: window.posInitialData?.tableNumber || "",
+        orderType: window.posInitialData?.orderType || "dinein",
+        isEditingOrder: window.posInitialData?.isEditingOrder || false,
+        editInvoiceCode: window.posInitialData?.editInvoiceCode || null,
         taxRate: @json($taxRate),
         serviceChargeRate: @json($serviceChargeRate),
         isTaxActive: @json($isTaxActive),
@@ -17,7 +17,19 @@
      @open-mobile-cart.window="isMobileCartOpen = true"
      @close-mobile-cart.window="isMobileCartOpen = false"
      @force-cashier-tab.window="currentTab = 'cashier'"
+     @open-payment-modal.window="openPayForOrder($event.detail)"
+     @start-editing-order.window="isEditingOrder = true; editInvoiceCode = $event.detail.invoice_code; customerName = $event.detail.customer; tableNumber = $event.detail.table; orderType = $event.detail.type"
      x-cloak>
+
+    <script>
+        window.posInitialData = {
+            customerName: @json($existingOrder ? $existingOrder->customer_name : ""),
+            tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ""),
+            orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]["id"] ?? "dinein")),
+            isEditingOrder: @json($existingOrder ? true : false),
+            editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null)
+        };
+    </script>
 
     {{-- Premium Glassmorphism Loading Screen --}}
     <div wire:loading.flex wire:target="changeTab"
@@ -93,6 +105,22 @@
     {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
     <div x-show="currentTab === 'queue'" wire:loading.class="d-none" wire:target="changeTab" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
+        {{-- Tab Header with Refresh Button --}}
+        <div class="d-flex justify-content-between align-items-center mb-3 sticky-top bg-body-tertiary p-3 rounded-4 border shadow-sm" style="z-index: 10; border-color: var(--bs-border-color-translucent) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                    <i class="bi bi-clock-history fs-5"></i>
+                </div>
+                <h5 class="fw-bold mb-0 text-body">Pesanan Ditahan</h5>
+            </div>
+            
+            <button type="button" wire:click="$refresh" class="btn btn-outline-primary btn-sm rounded-pill fw-bold d-flex align-items-center gap-2 px-3 shadow-sm bg-body">
+                <i class="bi bi-arrow-clockwise" wire:loading.class="spinner-border spinner-border-sm" wire:target="$refresh"></i>
+                <span wire:loading.remove wire:target="$refresh">Refresh</span>
+                <span wire:loading wire:target="$refresh">Memuat...</span>
+            </button>
+        </div>
+
         @include('pages.tenant.post._queue-resto')
     </div>
 
@@ -198,18 +226,6 @@
             this.splitBillModalInstance = new bootstrap.Modal(document.getElementById('splitBillModal'));
             this.mergeModalInstance = new bootstrap.Modal(document.getElementById('mergeModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
-
-            window.addEventListener('open-payment-modal', (e) => {
-                this.openPayForOrder(e.detail);
-            });
-
-            window.addEventListener('start-editing-order', (e) => {
-                this.isEditingOrder = true;
-                this.editInvoiceCode = e.detail.invoice_code;
-                this.customerName = e.detail.customer;
-                this.tableNumber = e.detail.table;
-                this.orderType = e.detail.type;
-            });
         },
 
         splittingOrder: null,

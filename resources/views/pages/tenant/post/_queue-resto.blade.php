@@ -23,9 +23,16 @@
                                 {{ $order->created_at->diffForHumans() }}
                             </small>
                         </div>
-                        <span class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
-                            <i class="bi bi-hourglass-split me-1"></i>Pending
-                        </span>
+                        <div class="d-flex align-items-center gap-2">
+                            @if($order->is_online)
+                                <span class="badge bg-primary text-white rounded-pill fw-bold px-3 py-2 shadow-sm">
+                                    <i class="bi bi-phone me-1"></i>Menu Digital
+                                </span>
+                            @endif
+                            <span class="badge bg-warning text-dark rounded-pill fw-bold px-3 py-2">
+                                <i class="bi bi-hourglass-split me-1"></i>Pending
+                            </span>
+                        </div>
                     </div>
 
                     {{-- Order Info / Body Card --}}
@@ -85,7 +92,7 @@
                                         <div class="text-end">
                                             @if($item->discount > 0)
                                                 <small class="text-danger text-decoration-line-through d-block" style="font-size: 0.75rem;">
-                                                    Rp {{ number_format(($item->price + $item->discount) * $item->quantity, 0, ',', '.') }}
+                                                    Rp {{ number_format($item->subtotal + ($item->discount * $item->quantity), 0, ',', '.') }}
                                                 </small>
                                             @endif
                                             <span class="fw-bold text-nowrap" style="color: var(--brand-caramel, #b45309);">

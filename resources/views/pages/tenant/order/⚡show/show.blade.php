@@ -147,7 +147,7 @@
                         <div class="text-right shrink-0">
                             @if($item->discount > 0)
                                 <div class="text-[10px] text-[var(--text-secondary)] line-through decoration-red-500/50 mb-0.5">
-                                    Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}
+                                    Rp {{ number_format($item->subtotal + ($item->discount * $item->quantity), 0, ',', '.') }}
                                 </div>
                             @endif
                             <div class="font-black text-[var(--foreground)] text-sm tabular-nums">

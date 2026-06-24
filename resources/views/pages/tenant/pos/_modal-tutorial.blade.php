@@ -363,7 +363,7 @@
         </div>
     </template>
 </div>
-<div class="modal fade" id="tutorialModal" tabindex="-1" aria-hidden="true" wire:ignore>
+<div class="modal fade" id="tutorialModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
              style="border-radius: 1.5rem; max-height: 90vh; border-color: var(--bs-border-color-translucent) !important;">
