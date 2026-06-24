@@ -105,12 +105,13 @@
             </button>
         </div>
 
-        {{-- CENTER: Tagline — Shadow LEBIH TEBAL di light mode, shadow bawaan di dark mode --}}
+        {{-- CENTER: Tagline — Shadow LEBIH TEBAL & font agak ditebalkan di light mode, normal di dark mode --}}
         @if($setting->hero_tagline)
             <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none px-10">
                 <p class="text-sm font-serif italic text-white/95 text-center leading-relaxed max-w-[280px]
-                  [text-shadow:0_1px_2px_rgba(0,0,0,1),0_0_15px_rgba(0,0,0,0.9)]
-                  dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.5)]">
+          font-medium dark:font-normal
+          [text-shadow:0_1px_2px_rgba(0,0,0,1),0_0_15px_rgba(0,0,0,0.9)]
+          dark:[text-shadow:0_1px_8px_rgba(0,0,0,0.5)]">
                     "{{ trim($setting->hero_tagline, '"') }}"
                 </p>
             </div>
