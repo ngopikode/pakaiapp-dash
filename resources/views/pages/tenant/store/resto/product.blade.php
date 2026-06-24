@@ -203,12 +203,30 @@
         x-data="{
             product: @js($productData),
             scrolled: false,
+            pullY: 0,
+            isRefreshing: false,
+            startY: 0,
             get qtyInCart() {
                 const i = cart.find(x => x.cartName === this.product.name);
                 return i ? i.qty : 0;
             }
         }"
         @scroll.window="scrolled = window.scrollY > window.innerHeight * 0.25"
+        @touchstart.passive="startY = $event.touches[0].clientY"
+        @touchmove.passive="
+            if (window.scrollY === 0 && !isRefreshing) {
+                pullY = Math.max(0, $event.touches[0].clientY - startY);
+            }
+        "
+        @touchend="
+            if (pullY > 60 && !isRefreshing) {
+                isRefreshing = true;
+                pullY = 60;
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                pullY = 0;
+            }
+        "
     >
         {{-- Floating header (transparent to solid on scroll) --}}
         <header
