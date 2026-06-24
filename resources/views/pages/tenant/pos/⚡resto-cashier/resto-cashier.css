@@ -1,0 +1,91 @@
+/* Queue Card Styles */
+.queue-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-body-bg);
+}
+
+.queue-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+/* Header Gradient adapting to theme */
+.queue-header {
+    background: linear-gradient(to right, var(--bs-tertiary-bg), var(--bs-body-bg));
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+[data-bs-theme="dark"] .queue-header {
+    background: linear-gradient(to right, rgba(255,255,255,0.05), var(--bs-body-bg));
+}
+
+/* Meta Tags area */
+.queue-meta-area {
+    background-color: var(--bs-tertiary-bg);
+    border-bottom: 1px dashed var(--bs-border-color-translucent);
+}
+
+/* Total Box */
+.queue-total-box {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    border-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+}
+.queue-total-label {
+    color: var(--bs-primary);
+    opacity: 0.9;
+}
+.queue-total-value {
+    color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .queue-total-box {
+    background-color: rgba(var(--bs-primary-rgb), 0.15); 
+    border-color: rgba(var(--bs-primary-rgb), 0.3) !important;
+}
+[data-bs-theme="dark"] .queue-total-label {
+    color: var(--bs-primary);
+    opacity: 1;
+}
+[data-bs-theme="dark"] .queue-total-value {
+    color: var(--bs-primary);
+}
+
+.item-row {
+    transition: background-color 0.15s ease;
+}
+.item-row:hover {
+    background-color: var(--bs-tertiary-bg);
+}
+
+.btn-modern {
+    transition: all 0.2s ease;
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color-translucent);
+    color: var(--bs-body-color);
+}
+.btn-modern:hover {
+    transform: scale(1.02);
+    background-color: var(--bs-tertiary-bg);
+}
+.btn-modern:active {
+    transform: scale(0.98);
+}
+.btn-modern.btn-danger-modern {
+    background-color: rgba(var(--bs-danger-rgb), 0.1);
+    color: var(--bs-danger);
+    border-color: transparent;
+}
+.btn-modern.btn-danger-modern:hover {
+    background-color: rgba(var(--bs-danger-rgb), 0.2);
+}
+
+.queue-cta-btn {
+    background: linear-gradient(135deg, var(--bs-primary), var(--brand-accent-dark));
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+}
+.queue-cta-btn:hover {
+    background: linear-gradient(135deg, var(--brand-accent-dark), var(--brand-accent));
+}
