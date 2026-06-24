@@ -24,12 +24,15 @@
         </div>
         <div class="max-w-xl mx-auto px-5 pb-3 flex items-center justify-between gap-3">
             <div class="flex gap-2 overflow-x-auto no-scrollbar flex-1 py-1">
-                <button wire:click="setCategory('all')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border {{ $category === 'all' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">Semua</button>
+                <button wire:click="setCategory('all')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === 'all' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">Semua</button>
                 @if($this->hasPromoItems)
-                    <button wire:click="setCategory('promo')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border {{ $category === 'promo' ? 'bg-red-500 text-white shadow-lg border-red-500' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40' }}">🔥 Promo Spesial</button>
+                    <button wire:click="setCategory('promo')" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === 'promo' ? 'bg-red-500 text-white shadow-lg border-red-500' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                        Promo
+                    </button>
                 @endif
                 @foreach($categories as $cat)
-                    <button wire:click="setCategory('{{ $cat }}')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border {{ $category === $cat ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">{{ $cat }}</button>
+                    <button wire:click="setCategory('{{ $cat }}')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === $cat ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">{{ $cat }}</button>
                 @endforeach
             </div>
             <div class="flex bg-[var(--surface)] p-1 rounded-xl border border-[var(--border)] shadow-sm shrink-0">
@@ -193,7 +196,7 @@
                                     <span class="inline-block px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded text-[8px] font-black uppercase tracking-widest shadow-sm">% {{ $item['active_discount_name'] }}</span>
                                 </div>
                             @endif
-                            <h3 class="font-bold text-sm text-[var(--foreground)] leading-snug mb-0.5 truncate">{{ $item['name'] }}</h3>
+                            <h3 class="font-black text-sm text-[var(--foreground)] leading-snug mb-0.5 truncate">{{ $item['name'] }}</h3>
                             @if(!empty($item['active_discount_price']))
                                 <div class="flex flex-col leading-tight mb-0.5">
                                     <span class="text-[10px] text-red-400 line-through font-bold">Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
@@ -233,7 +236,7 @@
                                 <button
                                     {{ ! $item['is_active'] ? 'disabled' : '' }}
                                     @click="(item.has_variants || (item.extras && item.extras.length > 0)) ? openOption(item) : addToCart(item)"
-                                    class="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 {{ $item['is_active'] ? 'bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] shadow-sm hover:bg-[var(--primary-color)] hover:text-black hover:border-[var(--primary-color)] hover:shadow-md hover:shadow-[var(--primary-color)]/20 active:scale-95' : 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)] cursor-not-allowed' }}"
+                                    class="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 {{ $item['is_active'] ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)] border border-[var(--primary-color)]/30 hover:bg-[var(--primary-color)] hover:text-black hover:border-[var(--primary-color)] hover:shadow-md hover:shadow-[var(--primary-color)]/20 active:scale-95 cursor-pointer' : 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)] cursor-not-allowed' }}"
                                 >
                                     @if($item['is_active'])
                                         Tambah
@@ -252,8 +255,12 @@
                     </div>
                 </div>
             @empty
-                <div class="col-span-2 text-center py-16">
-                    <p class="text-[var(--border)] text-sm font-bold">Belum ada menu untuk kategori ini</p>
+                <div class="col-span-2 text-center py-16 flex flex-col items-center gap-3">
+                    <div class="w-14 h-14 rounded-2xl bg-[var(--bg-soft)] flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--border)]"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    </div>
+                    <p class="text-[var(--text-secondary)] text-sm font-bold">Belum ada menu</p>
+                    <p class="text-xs text-[var(--text-secondary)] opacity-60">untuk kategori ini</p>
                 </div>
             @endforelse
         </main>

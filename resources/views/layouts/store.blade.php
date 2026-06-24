@@ -209,6 +209,17 @@
                             <a href="mailto:support@pakaiapp.online" class="text-sm font-medium text-[var(--primary-color)] hover:brightness-90 underline decoration-[var(--primary-color)]/30 underline-offset-2">support@pakaiapp.online</a>
                         </div>
                     </div>
+                    @if($setting->hero_instagram_url)
+                    <div class="flex items-start gap-3">
+                        <div class="mt-0.5 text-[var(--text-secondary)]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Instagram</p>
+                            <a href="{{ $setting->hero_instagram_url }}" target="_blank" rel="noreferrer" class="text-sm font-medium text-[var(--primary-color)] hover:brightness-90 underline decoration-[var(--primary-color)]/30 underline-offset-2">{{ $setting->hero_instagram_url }}</a>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="mt-6 pt-4 border-t border-[var(--border)]">
