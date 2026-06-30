@@ -7,6 +7,7 @@ use App\Tenant\Models\Core\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Shared\Traits\ApiResponserTrait;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class OrderHistoryApiController extends Controller
 {
@@ -27,7 +28,7 @@ class OrderHistoryApiController extends Controller
         }
         
         if (!is_array($invoiceCodes) || empty($invoiceCodes)) {
-            return $this->successResponse([]);
+            return $this->successResponse(data: []);
         }
 
         // Limit maximum invoices to prevent payload spam/DoS
@@ -37,7 +38,7 @@ class OrderHistoryApiController extends Controller
         $invoiceCodes = array_filter($invoiceCodes, 'is_string');
 
         if (empty($invoiceCodes)) {
-            return $this->successResponse([]);
+            return $this->successResponse(data: []);
         }
 
         $orders = Order::with('items')
@@ -64,6 +65,6 @@ class OrderHistoryApiController extends Controller
                 ];
             });
 
-        return $this->successResponse($orders);
+        return $this->successResponse(data: $orders);
     }
 }

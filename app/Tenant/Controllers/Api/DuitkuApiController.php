@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Shared\Traits\ApiResponserTrait;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class DuitkuApiController extends Controller
 {
@@ -24,7 +25,7 @@ class DuitkuApiController extends Controller
     public function getPaymentMethods(Request $request): JsonResponse
     {
         if (!config('duitku.enabled')) {
-            return $this->errorResponse([], 'Duitku payment gateway is disabled.', 403);
+            return $this->errorResponse(errors: [], message: 'Duitku payment gateway is disabled.', code: ResponseAlias::HTTP_FORBIDDEN);
         }
 
         $request->validate([
@@ -33,10 +34,10 @@ class DuitkuApiController extends Controller
 
         try {
             $methods = $this->duitkuService->getPaymentMethods((int)$request->amount);
-            return $this->successResponse($methods);
+            return $this->successResponse(data: $methods);
         } catch (Throwable $e) {
             Log::error('[Duitku] getPaymentMethods error', ['error' => $e->getMessage()]);
-            return $this->errorResponse([], 'Gagal mengambil metode pembayaran.', 500);
+            return $this->errorResponse(errors: [], message: 'Gagal mengambil metode pembayaran.', code: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
