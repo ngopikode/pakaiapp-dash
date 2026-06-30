@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Throwable;
+use App\Shared\Traits\ApiResponserTrait;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 /**
  * DuitkuController
@@ -42,6 +44,8 @@ use Throwable;
  */
 class DuitkuController extends Controller
 {
+    use ApiResponserTrait;
+
     public function __construct()
     {
         if (!config('duitku.enabled')) {
@@ -524,5 +528,26 @@ class DuitkuController extends Controller
         }
 
         return 'transfer';
+    }
+
+    /**
+     * Fetch Duitku Payment Methods for Onboarding
+     */
+    public function getPaymentMethods(Request $request): JsonResponse
+    {
+        if (!config('duitku.enabled')) {
+            return $this->errorResponse(errors: [], message: 'Duitku payment gateway is disabled.', code: ResponseAlias::HTTP_FORBIDDEN);
+        }
+
+        $request->validate(['amount' => 'required|numeric|min:1']);
+
+        try {
+            $service = new DuitkuService();
+            $methods = $service->getPaymentMethods((int)$request->amount);
+            return $this->successResponse(data: $methods);
+        } catch (Throwable $e) {
+            Log::error('[Duitku Central] getPaymentMethods error', ['error' => $e->getMessage()]);
+            return $this->errorResponse(errors: [], message: 'Gagal mengambil metode pembayaran.', code: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

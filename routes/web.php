@@ -4,7 +4,6 @@ use App\Central\Controllers\AuthController;
 use App\Central\Controllers\DuitkuController;
 use App\Central\Controllers\MidtransController;
 use App\Shared\Middleware\IpWhitelist;
-use App\Central\Services\DuitkuService;
 use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
@@ -35,20 +34,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('/api/register-tenant', [AuthController::class, 'registerTenant']);
 
         // Fetch Duitku Payment Methods for Onboarding
-        Route::get('/api/duitku/payment-methods', function (\Illuminate\Http\Request $request) {
-            if (!config('duitku.enabled')) {
-                return response()->json(['success' => false, 'message' => 'Duitku payment gateway is disabled.'], 403);
-            }
-            $request->validate(['amount' => 'required|numeric|min:1']);
-            try {
-                $service = new DuitkuService();
-                $methods = $service->getPaymentMethods((int)$request->amount);
-                return response()->json(['success' => true, 'data' => $methods]);
-            } catch (Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('[Duitku Central] getPaymentMethods error', ['error' => $e->getMessage()]);
-                return response()->json(['success' => false, 'message' => 'Gagal mengambil metode pembayaran.'], 500);
-            }
-        });
+        Route::get('/api/duitku/payment-methods', [DuitkuController::class, 'getPaymentMethods']);
 
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
         Route::post('/duitku/callback', [DuitkuController::class, 'callback'])
