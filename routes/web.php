@@ -1,5 +1,6 @@
 <?php
 
+use App\Central\Controllers\ArticleController;
 use App\Central\Controllers\AuthController;
 use App\Central\Controllers\DuitkuController;
 use App\Central\Controllers\MidtransController;
@@ -11,10 +12,10 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::view('/', 'welcome')->name('home');
         Route::view('/kasir-cafe', 'pages.landing-cafe')->name('landing.cafe');
         Route::view('/kasir-toko-kelontong', 'pages.landing-retail')->name('landing.retail');
-        
-        Route::get('/blog', [\App\Central\Controllers\ArticleController::class, 'index'])->name('blog.index');
-        Route::get('/blog/{slug}', [\App\Central\Controllers\ArticleController::class, 'show'])->name('blog.show');
-        
+
+        Route::get('/blog', [ArticleController::class, 'index'])->name('blog.index');
+        Route::get('/blog/{slug}', [ArticleController::class, 'show'])->name('blog.show');
+
         Route::livewire('central-admin', 'pages::central.central-admin')->name('central-admin');
 
         // Central Pages (Register, Login, Status Onboarding)
