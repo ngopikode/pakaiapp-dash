@@ -11,6 +11,7 @@ use App\Central\Models\TenantRegistration;
 use App\Central\Models\User;
 use App\Central\Services\BillingService;
 use App\Central\Services\DuitkuService;
+use App\Central\Services\TenantRegistrationService;
 use App\Tenant\Services\TenantWalletService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -387,31 +388,7 @@ class DuitkuController extends Controller
                     ]);
 
                     // Restore stock
-                    $order->load('items.variant.recipes.rawMaterial');
-                    foreach ($order->items as $item) {
-                        $variantIds = [];
-                        if (!empty($item->selected_variants)) {
-                            $variantIds = is_string($item->selected_variants) ? json_decode($item->selected_variants, true) : $item->selected_variants;
-                        } elseif ($item->variant_id) {
-                            $variantIds = [$item->variant_id];
-                        }
-
-                        if (!empty($variantIds)) {
-                            $variantsToRestore = \App\Tenant\Models\Core\ProductVariant::with('recipes.rawMaterial')->whereIn('id', $variantIds)->get();
-                            $storeType = tenant('store_type');
-                            foreach ($variantsToRestore as $variantToRestore) {
-                                $variantToRestore->increment('stock', $item->quantity);
-
-                                if ($storeType === 'resto') {
-                                    foreach ($variantToRestore->recipes as $recipe) {
-                                        if ($recipe->rawMaterial) {
-                                            $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    $order->restoreStock();
 
                     return;
                 }
@@ -451,31 +428,7 @@ class DuitkuController extends Controller
                 ]);
 
                 // Restore stock
-                $order->load('items.variant.recipes.rawMaterial');
-                foreach ($order->items as $item) {
-                    $variantIds = [];
-                    if (!empty($item->selected_variants)) {
-                        $variantIds = is_string($item->selected_variants) ? json_decode($item->selected_variants, true) : $item->selected_variants;
-                    } elseif ($item->variant_id) {
-                        $variantIds = [$item->variant_id];
-                    }
-
-                    if (!empty($variantIds)) {
-                        $variantsToRestore = \App\Tenant\Models\Core\ProductVariant::with('recipes.rawMaterial')->whereIn('id', $variantIds)->get();
-                        $storeType = tenant('store_type');
-                        foreach ($variantsToRestore as $variantToRestore) {
-                            $variantToRestore->increment('stock', $item->quantity);
-
-                            if ($storeType === 'resto') {
-                                foreach ($variantToRestore->recipes as $recipe) {
-                                    if ($recipe->rawMaterial) {
-                                        $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                $order->restoreStock();
 
                 Log::info('[Duitku Central] Pembayaran gagal/dibatalkan, stok dikembalikan', ['invoiceCode' => $invoiceCode]);
 
