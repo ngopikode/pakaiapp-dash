@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Order;
+use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -75,12 +75,12 @@ new class extends Component {
             if ($newStatus === 'cancelled') {
                 foreach ($order->items as $item) {
                     if ($item->variant_id) {
-                        \App\Models\ProductVariant::where('id', $item->variant_id)
+                        \App\Tenant\Models\Core\ProductVariant::where('id', $item->variant_id)
                             ->increment('stock', $item->quantity);
                     }
                 }
                 if ($order->getOriginal('status') !== 'pending') {
-                    app(\App\Services\BillingService::class)->processVoidPenalty($order);
+                    app(\App\Central\Services\BillingService::class)->processVoidPenalty($order);
                 }
             }
         });

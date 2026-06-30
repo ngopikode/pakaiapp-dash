@@ -18,7 +18,7 @@ Route::prefix('auth')->group(function () {
             return redirect()->route('login');
         }
 
-        $user = \App\Models\User::where('email', $email)->first();
+        $user = \App\Central\Models\User::where('email', $email)->first();
         if ($user) {
             \Illuminate\Support\Facades\Auth::login($user);
             \Illuminate\Support\Facades\Cache::forget('auto_login_' . $token);

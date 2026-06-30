@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\RawMaterial;
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\Category;
+use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Resto\RawMaterial;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;

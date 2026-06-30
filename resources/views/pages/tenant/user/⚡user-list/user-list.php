@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\TenantUser;
-use App\Models\User;
+use App\Tenant\Models\Core\TenantUser;
+use App\Central\Models\User;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;

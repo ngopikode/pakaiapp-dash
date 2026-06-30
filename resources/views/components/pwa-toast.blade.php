@@ -3,7 +3,7 @@
     $isTenant = function_exists('tenant') && tenant('id');
     $appName = 'Pakaiapp';
     if ($isTenant) {
-        $setting = \App\Models\StoreSetting::first();
+        $setting = \App\Tenant\Models\Core\StoreSetting::first();
         $appName = ($setting->name ?? tenant('id')) . ' Dashboard';
     }
 @endphp

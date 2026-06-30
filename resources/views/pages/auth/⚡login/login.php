@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\StoreSetting;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

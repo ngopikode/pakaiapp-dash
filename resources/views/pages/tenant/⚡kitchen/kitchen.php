@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Order;
+use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -40,7 +40,7 @@ class extends Component {
 
     public function markItemAsProcessing($itemId): void
     {
-        $item = \App\Models\OrderItem::with('order')->find($itemId);
+        $item = \App\Tenant\Models\Core\OrderItem::with('order')->find($itemId);
         if ($item && $item->kitchen_status === 'waiting' && $item->order && $item->order->status !== 'cancelled') {
             $item->update(['kitchen_status' => 'processing']);
             $this->recalculateOrderStatus($item->order);
@@ -52,7 +52,7 @@ class extends Component {
 
     public function markItemAsReady($itemId): void
     {
-        $item = \App\Models\OrderItem::with('order')->find($itemId);
+        $item = \App\Tenant\Models\Core\OrderItem::with('order')->find($itemId);
         if ($item && $item->kitchen_status === 'processing' && $item->order && $item->order->status !== 'cancelled') {
             $item->update(['kitchen_status' => 'ready']);
             $this->recalculateOrderStatus($item->order);

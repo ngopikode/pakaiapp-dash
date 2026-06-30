@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\OpenAiMenuService;
+use App\Tenant\Services\OpenAiMenuService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Lazy;

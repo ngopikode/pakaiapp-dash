@@ -1,5 +1,5 @@
 @php
-    use App\Models\StoreSetting;
+    use App\Tenant\Models\Core\StoreSetting;
     use Illuminate\Support\Facades\Storage;
 
     $setting = StoreSetting::where('is_active', true)->first();

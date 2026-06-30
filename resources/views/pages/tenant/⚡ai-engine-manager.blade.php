@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\AiPricingRule;
+use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Core\ProductVariant;
+use App\Tenant\Models\Ai\AiPricingRule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -91,7 +91,7 @@ class extends Component {
         }
     }
 
-    public function generateAiSuggestion(\App\Services\OpenAiMenuService $aiService)
+    public function generateAiSuggestion(\App\Tenant\Services\OpenAiMenuService $aiService)
     {
         $this->validate(['aiPrompt' => 'required|string|min:3']);
 

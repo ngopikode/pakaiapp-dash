@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\CentralAuthController;
-use App\Http\Controllers\CentralDuitkuController;
-use App\Http\Controllers\CentralMidtransController;
-use App\Http\Middleware\DuitkuIpWhitelist;
-use App\Http\Middleware\MidtransIpWhitelist;
-use App\Services\DuitkuService;
+use App\Central\Controllers\AuthController;
+use App\Central\Controllers\DuitkuController;
+use App\Central\Controllers\MidtransController;
+use App\Shared\Middleware\IpWhitelist;
+use App\Central\Services\DuitkuService;
 use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
@@ -14,26 +13,26 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::view('/kasir-cafe', 'pages.landing-cafe')->name('landing.cafe');
         Route::view('/kasir-toko-kelontong', 'pages.landing-retail')->name('landing.retail');
         
-        Route::get('/blog', [\App\Http\Controllers\ArticleController::class, 'index'])->name('blog.index');
-        Route::get('/blog/{slug}', [\App\Http\Controllers\ArticleController::class, 'show'])->name('blog.show');
+        Route::get('/blog', [\App\Central\Controllers\ArticleController::class, 'index'])->name('blog.index');
+        Route::get('/blog/{slug}', [\App\Central\Controllers\ArticleController::class, 'show'])->name('blog.show');
         
         Route::livewire('central-admin', 'pages::central.central-admin')->name('central-admin');
 
         // Central Pages (Register, Login, Status Onboarding)
-        Route::get('/register', [CentralAuthController::class, 'showRegister'])->name('register');
-        Route::get('/login', [CentralAuthController::class, 'showLogin'])->name('central.login');
+        Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+        Route::get('/login', [AuthController::class, 'showLogin'])->name('central.login');
 
-        Route::get('/register/status/{invoice_code}', [CentralAuthController::class, 'registerStatus'])->name('register.status');
-        Route::get('/api/register/status/{invoice_code}', [CentralAuthController::class, 'apiRegisterStatus']);
+        Route::get('/register/status/{invoice_code}', [AuthController::class, 'registerStatus'])->name('register.status');
+        Route::get('/api/register/status/{invoice_code}', [AuthController::class, 'apiRegisterStatus']);
 
-        Route::post('/api/central-login', [CentralAuthController::class, 'centralLogin']);
+        Route::post('/api/central-login', [AuthController::class, 'centralLogin']);
 
         // Email Verification OTP Endpoints
-        Route::post('/api/request-otp', [CentralAuthController::class, 'requestOtp']);
-        Route::post('/api/verify-otp', [CentralAuthController::class, 'verifyOtp']);
+        Route::post('/api/request-otp', [AuthController::class, 'requestOtp']);
+        Route::post('/api/verify-otp', [AuthController::class, 'verifyOtp']);
 
         // Self-Serve Tenant Registration Handler
-        Route::post('/api/register-tenant', [CentralAuthController::class, 'registerTenant']);
+        Route::post('/api/register-tenant', [AuthController::class, 'registerTenant']);
 
         // Fetch Duitku Payment Methods for Onboarding
         Route::get('/api/duitku/payment-methods', function (\Illuminate\Http\Request $request) {
@@ -52,18 +51,18 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
 
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
-        Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
+        Route::post('/duitku/callback', [DuitkuController::class, 'callback'])
             ->name('duitku.callback')
-            ->middleware(DuitkuIpWhitelist::class);
-        Route::get('/duitku/return', [CentralDuitkuController::class, 'return'])
+            ->middleware(IpWhitelist::class);
+        Route::get('/duitku/return', [DuitkuController::class, 'return'])
             ->name('duitku.return');
-        Route::get('/duitku/status/{invoiceCode}', [CentralDuitkuController::class, 'status'])
+        Route::get('/duitku/status/{invoiceCode}', [DuitkuController::class, 'status'])
             ->name('duitku.status')
             ->where('invoiceCode', '[A-Za-z0-9\-~_]+');
 
         // ─── Midtrans Payment Gateway — Central Callbacks ───────────────────────
-        Route::post('/midtrans/notification', [CentralMidtransController::class, 'notification'])
+        Route::post('/midtrans/notification', [MidtransController::class, 'notification'])
             ->name('midtrans.notification')
-            ->middleware(MidtransIpWhitelist::class);
+            ->middleware(IpWhitelist::class);
     });
 }

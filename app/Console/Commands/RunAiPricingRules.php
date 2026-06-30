@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\AiPricingRule;
-use App\Models\ProductVariant;
-use App\Models\Tenant;
+use App\Tenant\Models\Ai\AiPricingRule;
+use App\Tenant\Models\Core\ProductVariant;
+use App\Central\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById;

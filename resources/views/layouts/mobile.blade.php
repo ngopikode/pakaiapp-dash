@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Models\StoreSetting::value('navbar_brand_text') ?? config('app.name', 'Detail Pesanan') }}</title>
+    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Tenant\Models\Core\StoreSetting::value('navbar_brand_text') ?? config('app.name', 'Detail Pesanan') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -3,7 +3,7 @@
     $totalQris = $todayOrders->where('payment_method', 'qris')->sum('total_price');
     $totalTransfer = $todayOrders->where('payment_method', 'transfer')->sum('total_price');
     $grandTotalSales = $todayOrders->sum('total_price');
-    $storeSetting = \App\Models\StoreSetting::first();
+    $storeSetting = \App\Tenant\Models\Core\StoreSetting::first();
     $storeName = $storeSetting->name ?? 'Toko Kami';
 @endphp
 

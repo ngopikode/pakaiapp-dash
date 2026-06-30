@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
         \Illuminate\Support\Facades\Event::listen(
             \Illuminate\Auth\Events\Login::class,
-            \App\Listeners\EnforceSessionLimits::class,
+            \App\Shared\Listeners\EnforceSessionLimits::class,
         );
     }
 

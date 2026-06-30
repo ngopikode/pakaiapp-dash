@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;

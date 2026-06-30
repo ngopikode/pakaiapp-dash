@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Tenant;
-use App\Models\User;
-use App\Models\StoreSetting;
-use App\Models\Category;
-use App\Models\Product;
+use App\Central\Models\Tenant;
+use App\Central\Models\User;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Models\Core\Category;
+use App\Tenant\Models\Core\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -34,7 +34,7 @@ class MigrationSeeder extends Seeder
             StoreSetting::truncate();
             Category::truncate();
             Product::truncate();
-            \App\Models\ProductVariant::truncate();
+            \App\Tenant\Models\Core\ProductVariant::truncate();
             \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             StoreSetting::create([
@@ -123,7 +123,7 @@ class MigrationSeeder extends Seeder
             StoreSetting::truncate();
             Category::truncate();
             Product::truncate();
-            \App\Models\ProductVariant::truncate();
+            \App\Tenant\Models\Core\ProductVariant::truncate();
             \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             StoreSetting::create([

@@ -45,6 +45,6 @@ class ArticleSeeder extends Seeder
             ]
         ];
 
-        \App\Models\Article::insert($articles);
+        \App\Central\Models\Article::insert($articles);
     }
 }

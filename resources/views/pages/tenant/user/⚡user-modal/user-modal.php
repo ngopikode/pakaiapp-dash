@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\TenantUser;
+use App\Tenant\Models\Core\TenantUser;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -41,7 +41,7 @@ new class extends Component {
     #[Computed]
     public function storeType()
     {
-        return \App\Models\StoreSetting::first()?->store_type ?? 'retail';
+        return \App\Tenant\Models\Core\StoreSetting::first()?->store_type ?? 'retail';
     }
 
     public function save(): void

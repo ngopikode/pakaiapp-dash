@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Central;
 
-use App\Models\Tenant;
-use App\Services\TenantWalletService;
+use App\Central\Models\Tenant;
+use App\Tenant\Services\TenantWalletService;
 use Exception;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

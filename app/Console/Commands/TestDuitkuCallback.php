@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Order;
-use App\Models\Tenant;
+use App\Tenant\Models\Core\Order;
+use App\Central\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 

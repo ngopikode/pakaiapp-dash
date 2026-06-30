@@ -1,7 +1,7 @@
 <?php
 
 use Livewire\Component;
-use App\Services\OpenAiSupportService;
+use App\Tenant\Services\OpenAiSupportService;
 
 new class extends Component {
     public $messages = [];

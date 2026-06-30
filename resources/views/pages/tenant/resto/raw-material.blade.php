@@ -5,7 +5,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
-use App\Models\RawMaterial;
+use App\Tenant\Models\Resto\RawMaterial;
 
 new #[Title("Resep")]
 class extends Component {

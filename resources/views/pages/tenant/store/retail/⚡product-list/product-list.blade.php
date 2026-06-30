@@ -1,4 +1,4 @@
-@php use App\Models\Product; @endphp
+@php use App\Tenant\Models\Core\Product; @endphp
 <div
     x-data="{
         isRefreshing: false,
