@@ -23,6 +23,19 @@ use Throwable;
 
 class MidtransController extends Controller
 {
+    protected ?TenantRegistrationService $tenantRegistrationService = null;
+    protected ?BillingService $billingService = null;
+
+    protected function tenantRegistrationService(): TenantRegistrationService
+    {
+        return $this->tenantRegistrationService ??= app(TenantRegistrationService::class);
+    }
+
+    protected function billingService(): BillingService
+    {
+        return $this->billingService ??= app(BillingService::class);
+    }
+
     /**
      * Handle notification/webhook dari Midtrans.
      * Endpoint ini diletakkan di central domain.
@@ -81,7 +94,7 @@ class MidtransController extends Controller
                     $registration->update(['status' => 'paid']);
 
                     // Create Tenant
-                    app(TenantRegistrationService::class)->completeRegistration($registration);
+                    $this->tenantRegistrationService()->completeRegistration($registration);
                 } else if ($status === 'failed') {
                     $registration->update(['status' => 'failed']);
                 }
@@ -123,7 +136,7 @@ class MidtransController extends Controller
                     $registration->update(['status' => 'paid']);
 
                     // Create Tenant
-                    app(TenantRegistrationService::class)->completeRegistration($registration);
+                    $this->tenantRegistrationService()->completeRegistration($registration);
                 } else if ($status === 'failed') {
                     $registration->update(['status' => 'failed']);
                 }
@@ -224,7 +237,7 @@ class MidtransController extends Controller
                 ]);
 
                 // --- POTONG SALDO WALLET (DYNAMIC PAYG CAPPING) ---
-                app(BillingService::class)->chargeTransactionFee($order);
+                $this->billingService()->chargeTransactionFee($order);
             } else if ($status === 'cancelled') {
                 $order->update([
                     'status' => 'cancelled',

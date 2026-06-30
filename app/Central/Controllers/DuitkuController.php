@@ -45,6 +45,25 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
  */
 class DuitkuController extends Controller
 {
+    protected ?TenantRegistrationService $tenantRegistrationService = null;
+    protected ?BillingService $billingService = null;
+    protected ?TenantWalletService $tenantWalletService = null;
+
+    protected function tenantRegistrationService(): TenantRegistrationService
+    {
+        return $this->tenantRegistrationService ??= app(TenantRegistrationService::class);
+    }
+
+    protected function billingService(): BillingService
+    {
+        return $this->billingService ??= app(BillingService::class);
+    }
+
+    protected function tenantWalletService(): TenantWalletService
+    {
+        return $this->tenantWalletService ??= app(TenantWalletService::class);
+    }
+
     use ApiResponserTrait;
 
     public function __construct()
@@ -101,59 +120,7 @@ class DuitkuController extends Controller
                     $registration->update(['status' => 'paid']);
 
                     // Create Tenant
-                    try {
-                        $domainUrl = $registration->tenant_id . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online');
-                        Artisan::call('tenant:create', [
-                            'name' => $registration->store_name,
-                            '--id' => $registration->tenant_id,
-                            '--type' => $registration->store_type,
-                            '--domain' => $domainUrl,
-                            '--plan' => $registration->plan,
-                        ]);
-
-                        $plainPassword = $registration->password; // Retrieve plain password
-                        $createdTenant = Tenant::find($registration->tenant_id);
-                        $createdTenant?->run(function () use ($registration, $plainPassword) {
-                            User::firstOrCreate(
-                                ['email' => $registration->email],
-                                [
-                                    'name' => $registration->owner_name,
-                                    'password' => $plainPassword, // Set plain password (Laravel casts handles the hashing)
-                                    'role' => 'manager'
-                                ]
-                            );
-                        });
-
-                        // Securely hash the password inside the central DB now that store is ready
-                        $registration->update([
-                            'status' => 'created',
-                            'password' => Hash::make($plainPassword)
-                        ]);
-
-                        // Send Welcome Email
-                        $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
-                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
-
-                        Mail::to($registration->email)->send(
-                            new SystemEmail($emailTitle, $emailBody, 'Buka Dashboard', "https://$domainUrl/auth/login")
-                        );
-
-                        Log::info('[Duitku Central] Tenant Registration Success', ['tenant_id' => $registration->tenant_id]);
-                    } catch (Exception $e) {
-                        Log::error('[Duitku Central] Failed to create tenant after payment', ['error' => $e->getMessage()]);
-
-                        // Send Failure Email
-                        $emailTitle = "Pendaftaran Toko Gagal";
-                        $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda. Namun, mohon maaf terjadi kesalahan sistem saat menyiapkan toko Anda ($registration->store_name). Tim kami sedang menelusuri masalah ini secara manual.\n\nSilakan hubungi tim support kami dengan melampirkan email ini agar segera ditindaklanjuti.\n\nSalam,\nTim Pakaiapp";
-
-                        try {
-                            Mail::to($registration->email)->send(
-                                new SystemEmail($emailTitle, $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
-                            );
-                        } catch (Exception $mailEx) {
-                            Log::error('[Duitku Central] Failed to send failure email: ' . $mailEx->getMessage());
-                        }
-                    }
+                    $this->tenantRegistrationService()->completeRegistration($registration);
                 } elseif ($resultCode === '01') {
                     $registration->update(['status' => 'failed']);
                 }
@@ -403,7 +370,7 @@ class DuitkuController extends Controller
                 // ── KREDIT WALLET ──────────────────────────────────────────────
                 // Uang dari customer yang berhasil masuk via Duitku dikreditkan ke
                 // wallet tenant sebagai catatan kas masuk digital.
-                $walletService = app(TenantWalletService::class);
+                $walletService = $this->tenantWalletService();
 
                 $walletService->addBalance(
                     $amountPaid,
@@ -412,7 +379,7 @@ class DuitkuController extends Controller
                 );
 
                 // Potong biaya layanan pakaiapp dengan sistem dinamis
-                $billingService = app(BillingService::class);
+                $billingService = $this->billingService();
                 $billingService->chargeTransactionFee($order);
                 // ──────────────────────────────────────────────────────────────
 
