@@ -21,9 +21,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Random\RandomException;
+use App\Shared\Traits\ApiResponserTrait;
 
 class AuthController extends Controller
 {
+    use ApiResponserTrait;
     private const array DISPOSABLE_EMAIL_DOMAINS = [
         'yopmail.com', 'mailinator.com', 'tempmail.com', '10minutemail.com',
         'sharklasers.com', 'guerrillamail.com', 'dispostable.com', 'getairmail.com',
@@ -52,7 +54,7 @@ class AuthController extends Controller
     {
         $registration = TenantRegistration::where('invoice_code', $invoiceCode)->first();
         if (!$registration) {
-            return response()->json(['status' => 'failed', 'message' => 'Registration not found'], 404);
+            return $this->failResponse([], 404, 'Registration not found');
         }
 
         $centralDomain = config('tenancy.central_domains')[2] ?? 'pakaiapp.online';
@@ -64,8 +66,8 @@ class AuthController extends Controller
             $domainUrl = 'https://' . $registration->tenant_id . '.' . $centralDomain . '/auth/auto-login?token=' . $autoLoginToken;
         }
 
-        return response()->json([
-            'status' => $registration->status,
+        return $this->successResponse([
+            'payment_status' => $registration->status,
             'redirect_url' => $domainUrl,
             'payment_url' => $registration->duitku_payment_url ?? null,
         ]);
@@ -86,14 +88,10 @@ class AuthController extends Controller
                 ->get();
 
             if ($registrations->isEmpty()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Email ini belum terdaftar atau toko belum selesai disiapkan.'
-                ]);
+                return $this->failResponse([], 404, 'Email ini belum terdaftar atau toko belum selesai disiapkan.');
             }
 
-            return response()->json([
-                'status' => 'success',
+            return $this->successResponse([
                 'type' => 'email',
                 'stores' => $registrations->map(function ($reg) {
                     $centralDomain = config('tenancy.central_domains')[2] ?? 'pakaiapp.online';
@@ -116,8 +114,7 @@ class AuthController extends Controller
                 $centralDomain = config('tenancy.central_domains')[2] ?? 'pakaiapp.online';
                 $domain = $slug . '.' . $centralDomain;
             }
-            return response()->json([
-                'status' => 'success',
+            return $this->successResponse([
                 'type' => 'subdomain',
                 'redirect_url' => 'https://' . $domain . '/auth/login'
             ]);
@@ -126,16 +123,10 @@ class AuthController extends Controller
         // 3. Check if shop is pending registration
         $regPending = TenantRegistration::where('tenant_id', $slug)->first();
         if ($regPending) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Toko Anda sedang disiapkan atau menunggu pembayaran. Silakan cek status pendaftaran.'
-            ]);
+            return $this->failResponse([], 403, 'Toko Anda sedang disiapkan atau menunggu pembayaran. Silakan cek status pendaftaran.');
         }
 
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Toko atau Email tidak ditemukan. Harap periksa kembali.'
-        ]);
+        return $this->failResponse([], 404, 'Toko atau Email tidak ditemukan. Harap periksa kembali.');
     }
 
     /**
@@ -150,7 +141,7 @@ class AuthController extends Controller
 
         // Check if there is already a verified token (prevent requesting again if already verified)
         if (Cache::get('email_verified_' . $email)) {
-            return response()->json(['status' => 'error', 'message' => 'Email ini sudah terverifikasi.']);
+            return $this->failResponse([], 400, 'Email ini sudah terverifikasi.');
         }
 
         // Generate 6 digit OTP
@@ -168,10 +159,10 @@ class AuthController extends Controller
             Mail::to($email)->send(
                 new SystemEmail($emailTitle, $emailBody, 'Lanjutkan Pendaftaran', $resumeUrl)
             );
-            return response()->json(['status' => 'success', 'message' => 'OTP berhasil dikirim ke email Anda.']);
+            return $this->successResponse([], 'OTP berhasil dikirim ke email Anda.');
         } catch (Exception $e) {
             Log::error("Failed to send OTP email: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim email OTP. Silakan coba lagi.']);
+            return $this->errorResponse([], 'Gagal mengirim email OTP. Silakan coba lagi.', 500);
         }
     }
 
@@ -185,7 +176,7 @@ class AuthController extends Controller
         $cachedOtp = Cache::get('otp_register_' . $request->email);
 
         if (!$cachedOtp || $cachedOtp !== $request->otp) {
-            return response()->json(['status' => 'error', 'message' => 'Kode OTP tidak valid atau sudah kedaluwarsa.']);
+            return $this->failResponse([], 400, 'Kode OTP tidak valid atau sudah kedaluwarsa.');
         }
 
         // Mark email as verified for 30 minutes
@@ -193,7 +184,7 @@ class AuthController extends Controller
         // Remove OTP from cache
         Cache::forget('otp_register_' . $request->email);
 
-        return response()->json(['status' => 'success', 'message' => 'Email berhasil diverifikasi!']);
+        return $this->successResponse([], 'Email berhasil diverifikasi!');
     }
 
     public function registerTenant(Request $request)
@@ -210,7 +201,7 @@ class AuthController extends Controller
 
         // Validate Email Verification
         if (!Cache::get('email_verified_' . $validated['email'])) {
-            return response()->json(['status' => 'error', 'message' => 'Email belum diverifikasi. Silakan verifikasi email terlebih dahulu.']);
+            return $this->failResponse([], 400, 'Email belum diverifikasi. Silakan verifikasi email terlebih dahulu.');
         }
 
         // Sanitize WhatsApp
@@ -226,27 +217,18 @@ class AuthController extends Controller
             $rateKey = 'free_registration_limit_' . $ip;
             if (RateLimiter::tooManyAttempts($rateKey, 2)) {
                 $seconds = RateLimiter::availableIn($rateKey);
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Batas pendaftaran toko gratis terlampaui untuk perangkat Anda. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.'
-                ]);
+                return $this->failResponse([], 429, 'Batas pendaftaran toko gratis terlampaui untuk perangkat Anda. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.');
             }
 
             // Layer 2: Cookie Fingerprint Protection
             if ($request->hasCookie('pakaiapp_free_trial_claimed')) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Perangkat/Browser Anda terdeteksi sudah pernah mendaftarkan Toko Gratis. Untuk mendaftarkan toko tambahan, silakan pilih Paket Santai atau Paket Premium.'
-                ]);
+                return $this->failResponse([], 403, 'Perangkat/Browser Anda terdeteksi sudah pernah mendaftarkan Toko Gratis. Untuk mendaftarkan toko tambahan, silakan pilih Paket Santai atau Paket Premium.');
             }
 
             // Layer 3: Disposable / Temporary Email Blocker
             $emailDomain = strtolower(substr(strrchr($validated['email'], "@"), 1));
             if (in_array($emailDomain, self::DISPOSABLE_EMAIL_DOMAINS)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pendaftaran Toko Gratis dibatasi. Silakan gunakan alamat email utama/resmi Anda (seperti Gmail, Yahoo, Outlook, atau domain instansi).'
-                ]);
+                return $this->failResponse([], 400, 'Pendaftaran Toko Gratis dibatasi. Silakan gunakan alamat email utama/resmi Anda (seperti Gmail, Yahoo, Outlook, atau domain instansi).');
             }
 
             // Layer 4: Gmail Dot & Plus Alias Normalization
@@ -264,10 +246,7 @@ class AuthController extends Controller
             }
 
             if ($hasFreeStore) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Alamat email ini sudah terdaftar untuk Toko Gratis lainnya. Untuk mendaftarkan toko tambahan, silakan pilih Paket Santai atau Paket Premium.'
-                ]);
+                return $this->failResponse([], 400, 'Alamat email ini sudah terdaftar untuk Toko Gratis lainnya. Untuk mendaftarkan toko tambahan, silakan pilih Paket Santai atau Paket Premium.');
             }
 
             // Layer 5: WhatsApp Unique Limit (1 free trial store per WA number)
@@ -277,10 +256,7 @@ class AuthController extends Controller
                 ->exists();
 
             if ($hasFreeWa) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Nomor WhatsApp ini sudah terdaftar untuk Toko Gratis lainnya. Silakan gunakan nomor lain atau pilih Paket Santai/Premium.'
-                ]);
+                return $this->failResponse([], 400, 'Nomor WhatsApp ini sudah terdaftar untuk Toko Gratis lainnya. Silakan gunakan nomor lain atau pilih Paket Santai/Premium.');
             }
 
             // Hit Rate Limiter
@@ -290,7 +266,7 @@ class AuthController extends Controller
         // Create tenant slug/subdomain
         $slug = Str::slug($validated['namaToko']);
         if (Tenant::where('id', $slug)->exists() || TenantRegistration::where('tenant_id', $slug)->where('status', 'paid')->exists()) {
-            return response()->json(['status' => 'error', 'message' => 'Nama toko (subdomain) ini sudah terpakai. Silakan gunakan nama lain.']);
+            return $this->failResponse([], 400, 'Nama toko (subdomain) ini sudah terpakai. Silakan gunakan nama lain.');
         }
 
         $amount = 0;
@@ -366,11 +342,9 @@ class AuthController extends Controller
                 $autoLoginToken = Str::random(40);
                 Cache::put('auto_login_' . $autoLoginToken, $registration->email, now()->addMinutes(15));
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Toko berhasil dibuat! Anda akan dialihkan ke dashboard.',
+                return $this->successResponse([
                     'redirect_url' => 'https://' . $domainUrl . '/auth/auto-login?token=' . $autoLoginToken
-                ])->withCookie($cookie);
+                ], 'Toko berhasil dibuat! Anda akan dialihkan ke dashboard.')->withCookie($cookie);
             } catch (Exception $e) {
                 Log::error("Free registration failed: " . $e->getMessage());
 
@@ -386,7 +360,7 @@ class AuthController extends Controller
                     Log::error("Failed to send failure email: " . $mailEx->getMessage());
                 }
 
-                return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan sistem saat membuat toko.']);
+                return $this->errorResponse([], 'Terjadi kesalahan sistem saat membuat toko.', 500);
             }
         }
 
@@ -410,8 +384,8 @@ class AuthController extends Controller
                 ->send((new SystemEmail($emailTitle, $emailBody, 'Konfirmasi via WA', $waUrl))
                     ->from('billing@pakaiapp.online', 'Pakaiapp Billing'));
 
-            return response()->json([
-                'status' => 'manual',
+            return $this->successResponse([
+                'payment_status' => 'manual',
                 'redirect_url' => $waUrl
             ]);
         }
@@ -431,14 +405,14 @@ class AuthController extends Controller
                     ->send((new SystemEmail($emailTitle, $emailBody))
                         ->from('billing@pakaiapp.online', 'Pakaiapp Billing'));
 
-                return response()->json([
-                    'status' => 'payment_required_midtrans',
+                return $this->successResponse([
+                    'payment_status' => 'payment_required_midtrans',
                     'snap_token' => $snapToken,
                     'invoice_code' => $invoiceCode,
                 ]);
             } catch (Exception $e) {
                 Log::error("Gagal create snap token registrasi: " . $e->getMessage());
-                return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke layanan pembayaran Midtrans.']);
+                return $this->errorResponse([], 'Gagal terhubung ke layanan pembayaran Midtrans.', 500);
             }
         }
 
@@ -460,14 +434,14 @@ class AuthController extends Controller
                 ->send((new SystemEmail($emailTitle, $emailBody, 'Lanjutkan Pembayaran', $duitkuInvoice['payment_url']))
                     ->from('billing@pakaiapp.online', 'Pakaiapp Billing'));
 
-            return response()->json([
-                'status' => 'payment_required_duitku',
+            return $this->successResponse([
+                'payment_status' => 'payment_required_duitku',
                 'payment_url' => $duitkuInvoice['payment_url'],
                 'invoice_code' => $invoiceCode,
             ]);
         } catch (Exception $e) {
             Log::error("Gagal create Duitku invoice registrasi: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke layanan pembayaran Duitku.']);
+            return $this->errorResponse([], 'Gagal terhubung ke layanan pembayaran Duitku.', 500);
         }
     }
 

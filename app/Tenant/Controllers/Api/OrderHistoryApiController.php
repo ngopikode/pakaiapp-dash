@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Tenant\Models\Core\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Shared\Traits\ApiResponserTrait;
 
 class OrderHistoryApiController extends Controller
 {
+    use ApiResponserTrait;
+
     public function index(Request $request): JsonResponse
     {
         $invoiceCodes = $request->input('invoices', []);
@@ -24,7 +27,7 @@ class OrderHistoryApiController extends Controller
         }
         
         if (!is_array($invoiceCodes) || empty($invoiceCodes)) {
-            return response()->json(['success' => true, 'data' => []]);
+            return $this->successResponse([]);
         }
 
         // Limit maximum invoices to prevent payload spam/DoS
@@ -34,7 +37,7 @@ class OrderHistoryApiController extends Controller
         $invoiceCodes = array_filter($invoiceCodes, 'is_string');
 
         if (empty($invoiceCodes)) {
-            return response()->json(['success' => true, 'data' => []]);
+            return $this->successResponse([]);
         }
 
         $orders = Order::with('items')
@@ -61,9 +64,6 @@ class OrderHistoryApiController extends Controller
                 ];
             });
 
-        return response()->json([
-            'success' => true,
-            'data' => $orders
-        ]);
+        return $this->successResponse($orders);
     }
 }

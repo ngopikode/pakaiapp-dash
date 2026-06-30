@@ -434,8 +434,9 @@
             fetch('/api/register/status/' + invoiceCode)
                 .then(r => r.json())
                 .then(res => {
-                    renderStatus(res.status, res.redirect_url, res.payment_url);
-                    if (res.status === 'pending' || res.status === 'paid') {
+                    const data = res.data || {};
+                    renderStatus(data.payment_status || 'failed', data.redirect_url, data.payment_url);
+                    if (data.payment_status === 'pending' || data.payment_status === 'paid') {
                         setTimeout(fetchRegistrationDetails, 3000);
                     }
                 })

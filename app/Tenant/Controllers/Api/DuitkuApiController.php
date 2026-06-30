@@ -10,9 +10,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Shared\Traits\ApiResponserTrait;
 
 class DuitkuApiController extends Controller
 {
+    use ApiResponserTrait;
     public function __construct(
         protected readonly DuitkuService $duitkuService
     )
@@ -22,10 +24,7 @@ class DuitkuApiController extends Controller
     public function getPaymentMethods(Request $request): JsonResponse
     {
         if (!config('duitku.enabled')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Duitku payment gateway is disabled.'
-            ], 403);
+            return $this->errorResponse([], 'Duitku payment gateway is disabled.', 403);
         }
 
         $request->validate([
@@ -34,16 +33,10 @@ class DuitkuApiController extends Controller
 
         try {
             $methods = $this->duitkuService->getPaymentMethods((int)$request->amount);
-            return response()->json([
-                'success' => true,
-                'data' => $methods
-            ]);
+            return $this->successResponse($methods);
         } catch (Throwable $e) {
             Log::error('[Duitku] getPaymentMethods error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil metode pembayaran.'
-            ], 500);
+            return $this->errorResponse([], 'Gagal mengambil metode pembayaran.', 500);
         }
     }
 }
