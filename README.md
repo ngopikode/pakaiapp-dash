@@ -12,6 +12,10 @@ Didevelop oleh **ngopikode**.
 - **Multi-Tenancy:** Stancl/Tenancy (Arsitektur Multi-Database)
 - **Asset Bundler:** Vite
 
+## 📚 Dokumentasi
+
+Semua dokumentasi proyek (PRD, ERD, flowchart, arsitektur, referensi) terpusat di direktori [`.docs/`](.docs/README.md).
+
 ## ✨ Fitur Utama
 
 - **Isolasi Data Penuh:** Setiap *tenant* (toko) memiliki *database* fisiknya sendiri (Multi-Database).
