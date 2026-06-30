@@ -4,6 +4,7 @@ use App\Central\Controllers\ArticleController;
 use App\Central\Controllers\AuthController;
 use App\Central\Controllers\DuitkuController;
 use App\Central\Controllers\MidtransController;
+use App\Central\Http\Middleware\DuitkuEnabled;
 use App\Shared\Middleware\IpWhitelist;
 use Illuminate\Support\Facades\Route;
 
@@ -35,17 +36,20 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('/api/register-tenant', [AuthController::class, 'registerTenant']);
 
         // Fetch Duitku Payment Methods for Onboarding
-        Route::get('/api/duitku/payment-methods', [DuitkuController::class, 'getPaymentMethods']);
+        Route::get('/api/duitku/payment-methods', [DuitkuController::class, 'getPaymentMethods'])
+            ->middleware(DuitkuEnabled::class);
 
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
         Route::post('/duitku/callback', [DuitkuController::class, 'callback'])
             ->name('duitku.callback')
-            ->middleware(IpWhitelist::class);
+            ->middleware([IpWhitelist::class, DuitkuEnabled::class]);
         Route::get('/duitku/return', [DuitkuController::class, 'return'])
-            ->name('duitku.return');
+            ->name('duitku.return')
+            ->middleware(DuitkuEnabled::class);
         Route::get('/duitku/status/{invoiceCode}', [DuitkuController::class, 'status'])
             ->name('duitku.status')
-            ->where('invoiceCode', '[A-Za-z0-9\-~_]+');
+            ->where('invoiceCode', '[A-Za-z0-9\-~_]+')
+            ->middleware(DuitkuEnabled::class);
 
         // ─── Midtrans Payment Gateway — Central Callbacks ───────────────────────
         Route::post('/midtrans/notification', [MidtransController::class, 'notification'])

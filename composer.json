@@ -17,6 +17,7 @@
         "livewire/livewire": "^4.1",
         "midtrans/midtrans-php": "^2.6",
         "resend/resend-laravel": "^1.4",
+        "spatie/laravel-data": "^4.23",
         "stancl/tenancy": "^3.10"
     },
     "require-dev": {
