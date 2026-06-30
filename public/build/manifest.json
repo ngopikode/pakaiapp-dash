@@ -60,7 +60,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/store.css": {
-    "file": "assets/store-pLSYjpWr.css",
+    "file": "assets/store-BXTlBhci.css",
     "name": "store",
     "names": [
       "store.css"
@@ -69,7 +69,7 @@
     "isEntry": true
   },
   "resources/css/welcome.css": {
-    "file": "assets/welcome-BlIwOvrS.css",
+    "file": "assets/welcome-Cz8tLvWZ.css",
     "name": "welcome",
     "names": [
       "welcome.css"
