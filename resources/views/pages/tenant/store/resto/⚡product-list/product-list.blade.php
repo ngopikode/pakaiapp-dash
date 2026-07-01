@@ -166,7 +166,6 @@
             class="max-w-xl mx-auto px-5 mt-4"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
         >
-            @island(name: 'products')
             @forelse($this->products as $index => $item)
                 @php $delay = $index < 20 ? $index * 50 : 0; @endphp
 
@@ -354,7 +353,6 @@
                     <p class="text-xs text-[var(--text-secondary)] opacity-60">untuk kategori ini</p>
                 </div>
             @endforelse
-            @endisland
         </main>
 
         {{-- ===== INFINITE SCROLL SENTINEL & LOAD MORE SKELETON ===== --}}
