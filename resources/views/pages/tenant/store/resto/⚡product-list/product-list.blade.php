@@ -1,8 +1,10 @@
+@php use App\Tenant\Models\Core\Product; @endphp
 <div
     {{--    wire:init="$set('lazy', false)"--}}
     x-data="{
         viewMode: $wire.entangle('viewMode').live,
-        showFilter: false
+        showFilter: false,
+        sort: $wire.entangle('sort')
     }"
     @refresh-menu-data.window="$wire.setCategory($wire.category).then(() => { isRefreshing = false; pullY = 0; })"
 >
@@ -192,7 +194,7 @@
 
                     {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
                     @if($item['is_active'])
-                        <a href="{{ route('product.show', new \App\Tenant\Models\Core\Product($item)) }}"
+                        <a href="{{ route('product.show', new Product($item)) }}"
                            wire:navigate.hover
                            class="absolute inset-0 z-10"></a>
                     @endif
@@ -243,7 +245,7 @@
                                 </svg>
                             </button>
                             <button
-                                @click="window.open('{{ route('product.story', new \App\Tenant\Models\Core\Product($item)) }}', '_blank')"
+                                @click="window.open('{{ route('product.story', new Product($item)) }}', '_blank')"
                                 class="bg-[var(--surface)]/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[#25D366] hover:text-[var(--background)] hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90 group/story"
                                 aria-label="Share ke Status WA">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -459,8 +461,9 @@
                 <section>
                     <h3 class="text-sm font-bold text-[var(--foreground)] mb-3">Sort By</h3>
                     <div class="grid grid-cols-2 gap-3">
-                        <button wire:click="setSort('popular')"
-                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'popular' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                        <button @click="sort = 'popular'"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm"
+                                :class="sort === 'popular' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -469,8 +472,9 @@
                             </svg>
                             <span class="text-sm">Popular</span>
                         </button>
-                        <button wire:click="setSort('newest')"
-                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'newest' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                        <button @click="sort = 'newest'"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm"
+                                :class="sort === 'newest' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -479,8 +483,9 @@
                             </svg>
                             <span class="text-sm">Newest</span>
                         </button>
-                        <button wire:click="setSort('lowest_price')"
-                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'lowest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                        <button @click="sort = 'lowest_price'"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm"
+                                :class="sort === 'lowest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                  stroke-linejoin="round">
@@ -489,8 +494,9 @@
                             </svg>
                             <span class="text-sm">Terendah</span>
                         </button>
-                        <button wire:click="setSort('highest_price')"
-                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'highest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                        <button @click="sort = 'highest_price'"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm"
+                                :class="sort === 'highest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                  stroke-linejoin="round">
