@@ -46,6 +46,7 @@ Dokumentasi referensi eksternal (offline).
 | [Components](references/livewire4/components.md) | Referensi komponen Livewire 4 (markdown) |
 | [Components (HTML)](references/livewire4/components.html) | Versi HTML dari dokumen di atas |
 | [MFC + Alpine Architecture](references/livewire4/mfc-alpine-architecture.md) | Panduan timing MFC + Alpine.js |
+| [Upgrade Guide](references/livewire4/upgrade-guide.md) | Panduan upgrade dari Livewire v3 ke v4 |
 
 ### Midtrans
 

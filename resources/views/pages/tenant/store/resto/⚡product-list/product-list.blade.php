@@ -377,9 +377,9 @@
                 <section>
                     <h3 class="text-sm font-bold text-[var(--foreground)] mb-3">Price Range</h3>
                     <div class="flex gap-4 items-center">
-                        <div class="relative flex-1 group"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input wire:model.defer="minPrice" inputmode="numeric" placeholder="Min" class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all" type="number"></div>
+                        <div class="relative flex-1 group"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input wire:model="minPrice" inputmode="numeric" placeholder="Min" class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all" type="number"></div>
                         <span class="text-[var(--text-secondary)] font-bold">-</span>
-                        <div class="relative flex-1 group"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input wire:model.defer="maxPrice" inputmode="numeric" placeholder="Max" class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all" type="number"></div>
+                        <div class="relative flex-1 group"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input wire:model="maxPrice" inputmode="numeric" placeholder="Max" class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all" type="number"></div>
                     </div>
                 </section>
             </div>
