@@ -117,4 +117,41 @@ class Product extends Model
             get: fn() => $this->variants->sum('stock'),
         );
     }
+
+    /**
+     * Format array khusus untuk frontend (AlpineJS).
+     * Mencegah duplikasi format data antara halaman katalog dan detail produk.
+     */
+    public function toFrontendArray(): array
+    {
+        return [
+            'id'              => $this->id,
+            'name'            => $this->name,
+            'description'     => $this->description,
+            'image'           => $this->image ? \Illuminate\Support\Facades\Storage::url($this->image) : null,
+            'price'           => $this->price,
+            'active_discount_price' => $this->variants->min('active_discount_price'),
+            'active_discount_name'  => $this->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
+            'formatted_price' => $this->formatted_price,
+            'category'        => $this->category?->name ?? '',
+            'is_active'       => $this->is_active,
+            'has_variants'    => $this->has_variants,
+            'selection_type'  => $this->selection_type ?? 'single',
+            'max_selections'  => $this->max_selections ?? 1,
+            'default_variant_id' => $this->variants->firstWhere('name', 'Default')?->id ?? $this->variants->first()?->id,
+            'variants'        => $this->variants->map(fn ($v) => [
+                'id'    => $v->id,
+                'name'  => $v->name,
+                'price' => $v->price,
+                'active_discount_price' => $v->active_discount_price,
+                'active_discount_name'  => $v->active_discount_name,
+                'stock' => $v->stock
+            ])->toArray(),
+            'extras'          => $this->extras->where('is_active', true)->map(fn ($e) => [
+                'id'    => $e->id,
+                'name'  => $e->name,
+                'price' => $e->price,
+            ])->values()->toArray(),
+        ];
+    }
 }

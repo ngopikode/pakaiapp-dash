@@ -126,34 +126,7 @@ new class extends Component {
 
         return $query->forPage($this->page, 10)
             ->get()
-            ->map(fn(Product $p) => [
-                'id' => $p->id,
-                'name' => $p->name,
-                'description' => $p->description,
-                'image' => $p->image ? Storage::url($p->image) : null,
-                'price' => $p->price,
-                'formatted_price' => $p->formatted_price,
-                'active_discount_price' => $p->variants->min('active_discount_price'),
-                'active_discount_name' => $p->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
-                'category' => $p->category?->name ?? '',
-                'is_active' => $p->is_active,
-                'has_variants' => $p->has_variants,
-                'selection_type' => $p->selection_type ?? 'single',
-                'max_selections' => $p->max_selections ?? 1,
-                'variants' => $p->variants->map(fn($v) => [
-                    'id' => $v->id,
-                    'name' => $v->name,
-                    'price' => $v->price,
-                    'active_discount_price' => $v->active_discount_price,
-                    'active_discount_name' => $v->active_discount_name,
-                    'stock' => $v->stock,
-                ])->toArray(),
-                'extras' => $p->extras->where('is_active', true)->map(fn($e) => [
-                    'id' => $e->id,
-                    'name' => $e->name,
-                    'price' => $e->price,
-                ])->values()->toArray(),
-            ])
+            ->map(fn(Product $p) => $p->toFrontendArray())
             ->toArray();
     }
 };
