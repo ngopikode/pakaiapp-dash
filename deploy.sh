@@ -91,8 +91,13 @@ artisan optimize:clear
 # ==============================================================================
 # 6. BUILD CACHE BARU
 # ==============================================================================
-log "⚙️  Membangun ulang cache (config, route, view, event)..."
-artisan optimize
+# Note: route:cache sengaja tidak dijalankan.
+# Multi-domain foreach loop di web.php mendaftarkan route name yang sama
+# untuk setiap domain (home, blog.index, dll.) — ini incompatible dengan
+# route:cache yang mensyaratkan nama route unik. Ini adalah keterbatasan
+# desain Stancl Tenancy + Route::domain() loop, bukan bug.
+log "⚙️  Membangun ulang cache (config, view, event)..."
+artisan config:cache
 artisan view:cache
 artisan event:cache
 
