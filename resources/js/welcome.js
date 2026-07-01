@@ -217,12 +217,12 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(r => r.json())
             .then(data => {
-                if (data.status === 'success') {
-                    if (data.type === 'subdomain') {
-                        window.location.href = data.redirect_url;
-                    } else if (data.type === 'email') {
+                if (data.status === 'success' && data.data) {
+                    if (data.data.type === 'subdomain') {
+                        window.location.href = data.data.redirect_url;
+                    } else if (data.data.type === 'email') {
                         storeListContainer.style.display = 'block';
-                        data.stores.forEach(store => {
+                        data.data.stores.forEach(store => {
                             const card = document.createElement('div');
                             card.className = 'store-card';
                             
@@ -637,32 +637,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                 hideLoading();
                 
                 if (data.status === 'success') {
-                    localStorage.removeItem('register_progress');
-                    showCustomAlert(
-                        'success',
-                        'Toko Berhasil Dibuat!',
-                        'Selamat! Akun dan toko Anda telah berhasil dibuat. Silakan cek kotak masuk atau folder spam email Anda (' + formData.email + ') untuk mendapatkan link login, email, dan password Anda. Jangan lupa untuk segera mengubah password setelah berhasil login demi keamanan.',
-                        () => {
-                            window.location.href = data.redirect_url;
-                        },
-                        'Buka Dashboard Toko'
-                    );
-                } else if (data.status === 'manual') {
-                    localStorage.removeItem('register_progress');
-                    showCustomAlert('info', 'Pendaftaran Dicatat', 'Selesaikan pembayaran manual via WhatsApp.', () => {
-                        window.open(data.redirect_url, '_blank'); window.location.href = '/';
-                    }, 'Buka WhatsApp');
-                } else if (data.status === 'payment_required_duitku') {
-                    localStorage.removeItem('register_progress');
-                    window.location.href = data.payment_url;
-                } else if (data.status === 'payment_required_midtrans') {
-                    localStorage.removeItem('register_progress');
-                    window.snap.pay(data.snap_token, {
-                        onSuccess: () => window.location.href = '/register/status/' + data.invoice_code,
-                        onPending: () => window.location.href = '/register/status/' + data.invoice_code,
-                        onError: () => showToast('Pembayaran gagal.'),
-                        onClose: () => window.location.href = '/register/status/' + data.invoice_code
-                    });
+                    const payStatus = data.data?.payment_status;
+                    
+                    if (!payStatus) {
+                        localStorage.removeItem('register_progress');
+                        showCustomAlert(
+                            'success',
+                            'Toko Berhasil Dibuat!',
+                            'Selamat! Akun dan toko Anda telah berhasil dibuat. Silakan cek kotak masuk atau folder spam email Anda (' + formData.email + ') untuk mendapatkan link login, email, dan password Anda. Jangan lupa untuk segera mengubah password setelah berhasil login demi keamanan.',
+                            () => {
+                                window.location.href = data.data.redirect_url;
+                            },
+                            'Buka Dashboard Toko'
+                        );
+                    } else if (payStatus === 'manual') {
+                        localStorage.removeItem('register_progress');
+                        showCustomAlert('info', 'Pendaftaran Dicatat', 'Selesaikan pembayaran manual via WhatsApp.', () => {
+                            window.open(data.data.redirect_url, '_blank'); window.location.href = '/';
+                        }, 'Buka WhatsApp');
+                    } else if (payStatus === 'payment_required_duitku') {
+                        localStorage.removeItem('register_progress');
+                        window.location.href = data.data.payment_url;
+                    } else if (payStatus === 'payment_required_midtrans') {
+                        localStorage.removeItem('register_progress');
+                        window.snap.pay(data.data.snap_token, {
+                            onSuccess: () => window.location.href = '/register/status/' + data.data.invoice_code,
+                            onPending: () => window.location.href = '/register/status/' + data.data.invoice_code,
+                            onError: () => showToast('Pembayaran gagal.'),
+                            onClose: () => window.location.href = '/register/status/' + data.data.invoice_code
+                        });
+                    }
                 } else {
                     showToast('Oops, terjadi kesalahan: ' + data.message);
                 }

@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Category;
-use App\Models\Product;
+use App\Tenant\Models\Core\Category;
+use App\Tenant\Models\Core\Product;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;

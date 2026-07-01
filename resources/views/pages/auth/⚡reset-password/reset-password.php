@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
-use App\Models\StoreSetting;
+use App\Central\Models\User;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Computed;

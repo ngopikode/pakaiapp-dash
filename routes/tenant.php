@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\DuitkuApiController;
-use App\Http\Controllers\Api\OrderApiController;
-use App\Http\Controllers\Api\OrderHistoryApiController;
-use App\Http\Controllers\Api\RestaurantApiController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MenuController;
-use App\Http\Controllers\TenantManifestController;
-use App\Http\Middleware\FileUrlMiddleware;
+use App\Tenant\Controllers\Api\DuitkuApiController;
+use App\Tenant\Controllers\Api\OrderApiController;
+use App\Tenant\Controllers\Api\OrderHistoryApiController;
+use App\Tenant\Controllers\Api\RestaurantApiController;
+use App\Tenant\Controllers\Web\HomeController;
+use App\Tenant\Controllers\Web\MenuController;
+use App\Tenant\Controllers\Web\TenantManifestController;
+use App\Shared\Middleware\FileUrlMiddleware;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;

@@ -1,9 +1,9 @@
 @php
-    use App\Models\StoreSetting;
+    use App\Tenant\Models\Core\StoreSetting;
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Str;
 
-    /** @var \App\Models\Product $product */
+    /** @var \App\Tenant\Models\Core\Product $product */
 
     $setting = StoreSetting::first();
 

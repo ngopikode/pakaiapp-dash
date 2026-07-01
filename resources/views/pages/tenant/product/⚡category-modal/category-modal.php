@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Category;
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\Category;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;

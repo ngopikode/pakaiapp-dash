@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\WalletTransaction;
-use App\Services\TenantWalletService;
+use App\Tenant\Models\Core\WalletTransaction;
+use App\Tenant\Services\TenantWalletService;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;

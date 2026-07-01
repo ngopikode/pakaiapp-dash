@@ -1,7 +1,7 @@
 <?php
 
-use App\Services\DuitkuService;
-use App\Models\Order;
+use App\Central\Services\DuitkuService;
+use App\Tenant\Models\Core\Order;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Request;

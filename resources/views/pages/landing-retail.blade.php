@@ -1,4 +1,4 @@
-@php use App\Models\GlobalSetting; @endphp
+@php use App\Central\Models\GlobalSetting; @endphp
     <!DOCTYPE html>
 <html lang="id" class="dark" data-bs-theme="dark" id="html-root">
 <head>

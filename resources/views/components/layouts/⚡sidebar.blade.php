@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -77,7 +77,7 @@ new class extends Component {
     <div class="sidebar-heading px-4 py-3 border-bottom d-flex align-items-center"
          style="border-color: var(--bs-border-color) !important; min-height: 70px;">
         <h5 class="m-0 font-serif fw-bolder fs-5" style="letter-spacing: -0.02em; color: var(--brand-caramel, #B67332);">
-            {{ \App\Models\StoreSetting::value('navbar_brand_text') ?? 'Navigasi Toko' }}
+            {{ \App\Tenant\Models\Core\StoreSetting::value('navbar_brand_text') ?? 'Navigasi Toko' }}
         </h5>
     </div>
     @endif

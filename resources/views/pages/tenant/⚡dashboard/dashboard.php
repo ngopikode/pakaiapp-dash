@@ -2,10 +2,10 @@
 
 namespace App\Livewire;
 
-use App\Models\Order;
-use App\Models\Product;
-use App\Models\StoreSetting;
-use App\Services\TenantWalletService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\TenantWalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

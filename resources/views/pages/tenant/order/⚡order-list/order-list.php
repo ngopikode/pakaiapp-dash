@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Order;
+use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -81,12 +81,12 @@ new class extends Component {
             if ($status === 'cancelled') {
                 foreach ($order->items as $item) {
                     if ($item->variant_id) {
-                        \App\Models\ProductVariant::where('id', $item->variant_id)
+                        \App\Tenant\Models\Core\ProductVariant::where('id', $item->variant_id)
                             ->increment('stock', $item->quantity);
                     }
                 }
                 if ($order->getOriginal('status') !== 'pending') {
-                    app(\App\Services\BillingService::class)->processVoidPenalty($order);
+                    app(\App\Central\Services\BillingService::class)->processVoidPenalty($order);
                 }
             }
         });
@@ -114,7 +114,7 @@ new class extends Component {
         try {
             $newOrderId = \Illuminate\Support\Facades\DB::transaction(function () use ($order, $itemsToSplitData) {
                 // 1. Create New Order
-                $storeSetting = \App\Models\StoreSetting::first();
+                $storeSetting = \App\Tenant\Models\Core\StoreSetting::first();
                 $taxRate = $order->tax_percentage ?? 10.00;
                 $serviceRate = $order->service_charge_percentage ?? 5.00;
 
@@ -158,7 +158,7 @@ new class extends Component {
                     if ($splitQty < $item->quantity) {
                         // Create item for new order
                         $newItemSubtotal = $item->price * $splitQty;
-                        \App\Models\OrderItem::create([
+                        \App\Tenant\Models\Core\OrderItem::create([
                             'order_id' => $newOrder->id,
                             'product_id' => $item->product_id,
                             'variant_id' => $item->variant_id,
@@ -260,7 +260,7 @@ new class extends Component {
             'progressCount' => $counts->get('progress', 0),
             'completedCount' => $counts->get('completed', 0),
             'cancelledCount' => $counts->get('cancelled', 0),
-            'storeType' => \App\Models\StoreSetting::first()?->store_type ?? 'retail',
+            'storeType' => \App\Tenant\Models\Core\StoreSetting::first()?->store_type ?? 'retail',
         ];
     }
 };

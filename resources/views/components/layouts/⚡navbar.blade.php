@@ -1,7 +1,7 @@
 <?php
 
 use Livewire\Component;
-use App\Models\Order;
+use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Computed;
 
 new class extends Component {

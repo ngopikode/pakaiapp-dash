@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\ProductVariant;
-use App\Models\StoreSetting;
-use App\Services\TenantWalletService;
-use App\Services\BillingService;
-use App\Services\DuitkuService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\OrderItem;
+use App\Tenant\Models\Core\ProductVariant;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\TenantWalletService;
+use App\Central\Services\BillingService;
+use App\Central\Services\DuitkuService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -59,7 +59,7 @@ new class extends Component {
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ];
 
-                $orderService = app(\App\Services\OrderService::class);
+                $orderService = app(\App\Tenant\Services\OrderService::class);
                 $order = $orderService->processOrder($orderData, $cart);
 
                 $totalPrice = $order->total_price;
@@ -190,8 +190,8 @@ new class extends Component {
         // Email opsional di kasir — fallback ke email manager jika tidak diisi
         $resolvedEmail = trim($customerEmail ?? '');
         if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-            $manager = \App\Models\TenantUser::where('role', 'manager')->first()
-                ?? \App\Models\TenantUser::first();
+            $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
+                ?? \App\Tenant\Models\Core\TenantUser::first();
             $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
         }
 
@@ -251,8 +251,8 @@ new class extends Component {
 
         $resolvedEmail = trim($customerEmail ?? '');
         if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-            $manager = \App\Models\TenantUser::where('role', 'manager')->first()
-                ?? \App\Models\TenantUser::first();
+            $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
+                ?? \App\Tenant\Models\Core\TenantUser::first();
             $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
         }
 
@@ -274,7 +274,7 @@ new class extends Component {
                     'postalCode' => '00000',
                 ];
 
-                $midtransService = new \App\Services\MidtransService();
+                $midtransService = new \App\Central\Services\MidtransService();
                 $tenantId = tenant()->getTenantKey();
 
                 $snapToken = $midtransService->createSnapToken(

@@ -1,8 +1,8 @@
 <?php
 
 use Livewire\Component;
-use App\Models\AiChatSession;
-use App\Services\OpenAiMenuService;
+use App\Tenant\Models\Ai\AiChatSession;
+use App\Tenant\Services\OpenAiMenuService;
 use Illuminate\Support\Str;
 
 new class extends Component
@@ -15,7 +15,7 @@ new class extends Component
     public function mount()
     {
         try {
-            $setting = \App\Models\StoreSetting::first();
+            $setting = \App\Tenant\Models\Core\StoreSetting::first();
             if ($setting && $setting->name) {
                 $this->storeName = 'Asisten ' . $setting->name;
             }
@@ -221,7 +221,7 @@ new class extends Component
                                     
                                     if (empty($variantIds)) return '';
                                     
-                                    $variants = \App\Models\ProductVariant::with('product')->whereIn('id', $variantIds)->get();
+                                    $variants = \App\Tenant\Models\Core\ProductVariant::with('product')->whereIn('id', $variantIds)->get();
                                     if ($variants->isEmpty() || !$variants->first()->product) return '';
                                     
                                     $product = $variants->first()->product;
@@ -240,7 +240,7 @@ new class extends Component
                                     $extraNames = [];
                                     $validExtraIds = [];
                                     if (!empty($extraIds)) {
-                                        $extras = \App\Models\ProductExtra::whereIn('id', $extraIds)
+                                        $extras = \App\Tenant\Models\Core\ProductExtra::whereIn('id', $extraIds)
                                             ->where('product_id', $product->id)
                                             ->get();
                                         $extraPrice = $extras->sum('price');

@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Order;
-use App\Services\TenantWalletService;
-use App\Services\DuitkuService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Services\TenantWalletService;
+use App\Central\Services\DuitkuService;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -82,8 +82,8 @@ new class extends Component {
                     // Email opsional di kasir — fallback ke email manager jika tidak diisi
                     $resolvedEmail = trim($this->duitkuCustomerEmail ?? '');
                     if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-                        $manager = \App\Models\TenantUser::where('role', 'manager')->first()
-                            ?? \App\Models\TenantUser::first();
+                        $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
+                            ?? \App\Tenant\Models\Core\TenantUser::first();
                         $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
                     }
 

@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Central;
 
-use App\Models\StoreSetting;
-use App\Models\Tenant;
-use App\Models\User;
-use App\Services\TenantWalletService;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Central\Models\Tenant;
+use App\Central\Models\User;
+use App\Tenant\Services\TenantWalletService;
 use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use App\Models\TenantRegistration;
-use App\Mail\SystemEmail;
+use App\Central\Models\TenantRegistration;
+use App\Shared\Mail\SystemEmail;
 
 new #[Layout('layouts::central', ['title' => 'Gatekeeper | Pakaiapp'])]
 class extends Component {

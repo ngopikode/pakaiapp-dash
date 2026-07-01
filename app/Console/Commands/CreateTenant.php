@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\StoreSetting;
-use App\Models\Tenant;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Central\Models\Tenant;
 use DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -113,7 +113,7 @@ class CreateTenant extends Command
 
             // Initialize Wallet and Inject Initial Balance based on subscription plan
             try {
-                $walletService = app(\App\Services\TenantWalletService::class);
+                $walletService = app(\App\Tenant\Services\TenantWalletService::class);
                 $wallet = $walletService->getWallet();
 
                 $initialBalance = 10000; // Default Free: Rp 10.000

@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\User;
-use App\Models\StoreSetting;
+use App\Central\Models\User;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\SystemEmail;
+use App\Shared\Mail\SystemEmail;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

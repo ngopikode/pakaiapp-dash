@@ -1,4 +1,4 @@
-@php use App\Models\GlobalSetting; @endphp
+@php use App\Central\Models\GlobalSetting; @endphp
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth" id="html-root">
 <head>

@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Models\Quota;
-use App\Services\SettingService;
-use App\Services\TenantWalletService;
+use App\Central\Models\Quota;
+use App\Tenant\Services\SettingService;
+use App\Tenant\Services\TenantWalletService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;

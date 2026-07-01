@@ -1,4 +1,4 @@
-@php use App\Models\StoreSetting; @endphp
+@php use App\Tenant\Models\Core\StoreSetting; @endphp
     <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Models\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
+    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Tenant\Models\Core\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
 
     <script>
         const theme = localStorage.getItem('theme') || 'light';
