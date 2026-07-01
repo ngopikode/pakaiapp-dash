@@ -1,97 +1,115 @@
-// Import all of Bootstrap’s CSS
+// Import all of Bootstrap's CSS
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* ==========================================================================
-   1. CORE VARIABLES (Premium Earthy Palette)
+   1. CORE VARIABLES — Selaras dengan landing page (welcome.css)
+   60% → Background gelap (navy/slate)
+   30% → Surface, border, teks sekunder
+   10% → Aksen oranye #10B981
    ========================================================================== */
 :root {
-    /* Brand Colors */
-    --brand-espresso: #321E14;
-    --brand-caramel: #B67332;
-    --brand-mocha: #846A58;
-    --brand-latte: #F9F7F5;
+    /* Brand Colors — sama persis dengan welcome.css */
+    --brand-accent:       #10B981;
+    --brand-accent-dark:  #059669;
+    --brand-accent-light: #34D399;
+    --brand-green:        #22C55E;
+    --brand-red:          #EF4444;
+    --brand-purple:       #A78BFA;
+    --brand-sky:          #38BDF8;
+
+    /* Backward compat alias (used in some components) */
+    --brand-espresso: #1E293B;
+    --brand-caramel:  #10B981;
+    --brand-mocha:    #64748B;
+    --brand-latte:    #F8FAFC;
 
     /* Typography */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-serif: 'Plus Jakarta Sans', sans-serif;
     --bs-body-font-family: var(--font-sans);
 
-    /* --- LIGHT MODE MAPPINGS (Default) --- */
+    /* --- LIGHT MODE (Default) --- */
+    /* Primary = orange accent */
+    --bs-primary:     #10B981;
+    --bs-primary-rgb: 16, 185, 129;
 
-    /* Primary & Secondary */
-    --bs-primary: var(--brand-espresso);
-    --bs-primary-rgb: 50, 30, 20;
-    --bs-secondary: var(--brand-mocha);
-    --bs-secondary-rgb: 132, 106, 88;
-    --bs-warning: var(--brand-caramel);
-    --bs-warning-rgb: 182, 115, 50;
+    /* Secondary = slate */
+    --bs-secondary:     #64748B;
+    --bs-secondary-rgb: 100, 116, 139;
+
+    /* Warning = amber */
+    --bs-warning:     #F59E0B;
+    --bs-warning-rgb: 245, 158, 11;
+
+    /* Success = green */
+    --bs-success:     #22C55E;
+    --bs-success-rgb: 34, 197, 94;
 
     /* Links */
-    --bs-link-color: var(--brand-caramel);
-    --bs-link-hover-color: var(--brand-espresso);
+    --bs-link-color:       #10B981;
+    --bs-link-hover-color: #EA6D0E;
 
     /* Surface & Backgrounds */
-    --bs-body-bg: var(--brand-latte);
-    --bs-body-bg-rgb: 249, 247, 245;
-    --bs-secondary-bg: #FFFFFF;
-    --bs-tertiary-bg: #F0EBE6;
+    --bs-body-bg:        #FFFFFF;
+    --bs-body-bg-rgb:    255, 255, 255;
+    --bs-secondary-bg:   #F8FAFC;
+    --bs-tertiary-bg:    #F1F5F9;
 
-    /* Text Colors */
-    --bs-body-color: #211B17;
-    --bs-body-color-rgb: 33, 27, 23;
-    --bs-secondary-color: #7A6F68;
-    --bs-tertiary-color: #A3978F;
+    /* Text */
+    --bs-body-color:     #0F172A;
+    --bs-body-color-rgb: 15, 23, 42;
+    --bs-secondary-color:#475569;
+    --bs-tertiary-color: #64748B;
 
     /* Borders & Cards */
-    --bs-border-color: #E9E2DB;
-    --bs-border-color-translucent: rgba(50, 30, 20, 0.1);
-    --bs-card-bg: #FFFFFF;
-    --bs-card-cap-bg: rgba(249, 247, 245, 0.5);
+    --bs-border-color:              #E2E8F0;
+    --bs-border-color-translucent:  rgba(15, 23, 42, 0.08);
+    --bs-card-bg:     #FFFFFF;
+    --bs-card-cap-bg: rgba(248, 250, 252, 0.6);
 
-    /* Utility Colors Baseline (Light Mode) */
-    --bs-white-rgb: 255, 255, 255; /* Untuk .bg-white, .text-white */
-    --bs-light-rgb: 248, 249, 250; /* Untuk .bg-light, .text-light */
-    --bs-dark-rgb: 33, 37, 41; /* Untuk .bg-dark, .text-dark */
-    --bs-black-rgb: 0, 0, 0; /* Untuk .bg-black, .text-black */
+    /* Utility */
+    --bs-white-rgb: 255, 255, 255;
+    --bs-light-rgb: 248, 250, 252;
+    --bs-dark-rgb:  15, 23, 42;
+    --bs-black-rgb: 0, 0, 0;
 }
 
 /* ==========================================================================
-   2. DARK MODE OVERRIDES (Deep Espresso Vibe)
+   2. DARK MODE — Deep navy (selaras dengan landing page)
    ========================================================================== */
 [data-bs-theme="dark"] {
-    /* Brand Adjustments (Lebih terang agar kontras) */
-    --bs-primary: #D4A373;
-    --bs-primary-rgb: 212, 163, 115;
-    --bs-warning: #E8B97D;
-    --bs-warning-rgb: 232, 185, 125;
-    --bs-link-color: #D4A373;
-    --bs-link-hover-color: #EBE3D5;
+    /* Accent tetap oranye, lebih terang */
+    --bs-primary:     #34D399;
+    --bs-primary-rgb: 52, 211, 153;
+    --bs-warning:     #FCD34D;
+    --bs-warning-rgb: 252, 211, 77;
+    --bs-link-color:       #34D399;
+    --bs-link-hover-color: #FED7AA;
 
-    /* Surface & Backgrounds */
-    --bs-body-bg: #120F0D; /* Hitam pekat warm tone */
-    --bs-body-bg-rgb: 18, 15, 13;
-    --bs-secondary-bg: #1C1815; /* Card background level 1 */
-    --bs-tertiary-bg: #25211E; /* Card background level 2 */
+    /* Surface & Backgrounds — navy gelap, sama dengan landing page */
+    --bs-body-bg:        #0D1117;
+    --bs-body-bg-rgb:    13, 17, 23;
+    --bs-secondary-bg:   #1C2333;  /* card level 1 */
+    --bs-tertiary-bg:    #222D40;  /* card level 2 */
 
-    /* Text Colors */
-    --bs-body-color: #EBE3D5; /* Putih gading (nyaman di mata) */
-    --bs-body-color-rgb: 235, 227, 213;
-    --bs-secondary-color: #A89B91;
-    --bs-tertiary-color: #7A6F68;
+    /* Text */
+    --bs-body-color:     #F0F4F8;
+    --bs-body-color-rgb: 240, 244, 248;
+    --bs-secondary-color:#8898B0;
+    --bs-tertiary-color: #4A5A72;
 
-    /* Borders & Cards */
-    --bs-border-color: #2F2924;
-    --bs-border-color-translucent: rgba(235, 227, 213, 0.1);
-    --bs-card-bg: #1C1815;
-    --bs-card-cap-bg: rgba(37, 33, 30, 0.5);
+    /* Borders */
+    --bs-border-color:              #2A3447;
+    --bs-border-color-translucent:  rgba(240, 244, 248, 0.08);
+    --bs-card-bg:     #1C2333;
+    --bs-card-cap-bg: rgba(34, 45, 64, 0.6);
 
-    /* 🎩 MAGIC INVERT: Mengakali Utility Class Bootstrap (.bg-white, .text-dark dll) */
-    /* Membuat .bg-white menjadi gelap dan .text-dark menjadi terang secara otomatis! */
-    --bs-white-rgb: 28, 24, 21; /* #1C1815 -> .bg-white jadi warna card gelap */
-    --bs-light-rgb: 37, 33, 30; /* #25211E -> .bg-light jadi warna surface gelap */
-    --bs-dark-rgb: 235, 227, 213; /* #EBE3D5 -> .text-dark jadi terang (putih gading) */
-    --bs-black-rgb: 255, 255, 255; /* #FFFFFF -> .text-black jadi putih bersih */
+    /* 🎩 Utility class inversion */
+    --bs-white-rgb: 28, 35, 51;   /* .bg-white → card gelap */
+    --bs-light-rgb: 34, 45, 64;   /* .bg-light → surface gelap */
+    --bs-dark-rgb:  240, 244, 248; /* .text-dark → putih terang */
+    --bs-black-rgb: 255, 255, 255;
 }
 
 
@@ -118,7 +136,8 @@ body {
 }
 
 #page-content-wrapper {
-    width: 100%;
+    width: 0;
+    min-width: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -166,6 +185,7 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     font-weight: 600 !important;
     font-size: 0.9rem !important;
     margin: 0.3rem 0.85rem !important;
+    width: calc(100% - 1.7rem) !important;
     padding: 0.75rem 1.15rem !important;
     border-radius: 0.85rem !important;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -176,14 +196,13 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 }
 
 .list-group-item-action:hover {
-    background-color: rgba(var(--brand-caramel-rgb, 182, 115, 50), 0.05) !important;
-    border-color: rgba(var(--brand-caramel-rgb, 182, 115, 50), 0.1) !important;
-    color: var(--brand-caramel, #B67332) !important;
-    transform: translateX(4px);
+    background-color: rgba(16, 185, 129, 0.06) !important;
+    border-color: rgba(16, 185, 129, 0.12) !important;
+    color: #10B981 !important;
 }
 
 .list-group-item-action:hover i {
-    color: var(--brand-caramel, #B67332) !important;
+    color: #10B981 !important;
     transform: scale(1.1);
 }
 
@@ -192,19 +211,21 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     font-size: 1.15rem;
 }
 
-/* Premium active state */
+/* Solid active state — orange left border accent (10%) */
 .list-group-item-action.active {
-    background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14)) !important;
-    border-color: transparent !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(182, 115, 50, 0.15) !important;
-    transform: translateX(4px);
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    border-left: 3px solid #10B981 !important;
+    color: #10B981 !important;
+    box-shadow: none !important;
 }
 
 [data-bs-theme="dark"] .list-group-item-action.active {
-    background: linear-gradient(135deg, var(--bs-primary, #D4A373), var(--bs-tertiary-bg, #25211E)) !important;
-    color: #120F0D !important;
-    box-shadow: 0 4px 12px rgba(212, 163, 115, 0.1) !important;
+    background-color: rgba(52, 211, 153, 0.1) !important;
+    border-left-color: #34D399 !important;
+    border-color: rgba(52, 211, 153, 0.15) !important;
+    color: #34D399 !important;
+    box-shadow: none !important;
 }
 
 .list-group-item-action.active i {
@@ -340,12 +361,12 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 /* NProgress Loader */
 #nprogress .bar {
-    background: var(--brand-caramel, #B67332) !important;
+    background: #10B981 !important;
     height: 3px !important;
 }
 
 #nprogress .peg {
-    box-shadow: 0 0 10px var(--brand-caramel, #B67332), 0 0 5px var(--brand-caramel, #B67332) !important;
+    box-shadow: 0 0 10px #10B981, 0 0 5px #10B981 !important;
 }
 
 /* SVG & Icon Fix untuk Dark Mode (.btn-close dll) */
@@ -419,7 +440,7 @@ div:where(.swal2-container) div:where(.swal2-popup) {
     border: 3px solid transparent;
     border-radius: 50%;
     animation: loader-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-top-color: var(--brand-caramel, #B67332);
+    border-top-color: #10B981;
 }
 
 .loader-ring:nth-child(1) { animation-delay: -0.45s; }
@@ -447,3 +468,132 @@ div:where(.swal2-container) div:where(.swal2-popup) {
     to { opacity: 0.95; }
 }
 
+
+/* ==========================================================================
+   8. DASHBOARD TYPOGRAPHY & UTILITY CLASSES
+   ========================================================================== */
+
+/* Stat Numbers — angka KPI utama, harus paling menonjol */
+.stat-number {
+    font-family: var(--font-serif), sans-serif;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    color: inherit;
+}
+
+.stat-number-lg {
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    letter-spacing: -2px;
+}
+
+/* Stat Labels — deskripsi di bawah angka */
+.stat-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.75;
+    letter-spacing: 0.01em;
+}
+
+/* Card Section Title */
+.card-section-title {
+    font-family: var(--font-serif), sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+    letter-spacing: -0.2px;
+}
+
+/* Page Header Name */
+.page-store-name {
+    font-family: var(--font-serif), sans-serif;
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    color: var(--bs-body-color);
+    line-height: 1.1;
+}
+
+/* Greeting Label above store name */
+.page-greeting-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.35rem;
+}
+
+/* Solid accent stat card */
+.stat-card-primary {
+    background-color: #10B981 !important;   /* orange — aksen 10% */
+    border: none !important;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25) !important;
+}
+
+.stat-card-dark {
+    background-color: #1E293B !important;   /* slate-800 — netral gelap */
+    border: none !important;
+    box-shadow: 0 8px 24px rgba(30, 41, 59, 0.3) !important;
+}
+
+.stat-card-wallet {
+    background-color: #0F172A !important;   /* slate-900 — deep dark */
+    border: none !important;
+    border-left: 4px solid #10B981 !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Rank badges — solid flat */
+.rank-badge-solid {
+    width: 26px;
+    height: 26px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.rank-badge-solid.gold   { background-color: #F59E0B; color: #1c1400; }
+.rank-badge-solid.silver { background-color: #94A3B8; color: #0f172a; }
+.rank-badge-solid.bronze { background-color: #D97706; color: #1c0d00; }
+.rank-badge-solid.other  { background-color: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
+
+/* Solid CTA button — orange, same as landing page hero CTA */
+.btn-caramel-solid {
+    background-color: #10B981 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    font-weight: 700;
+    border-radius: 100px;
+    padding: 0.65rem 1.5rem;
+    transition: all 0.25s ease;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+.btn-caramel-solid:hover {
+    background-color: #EA6D0E !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+
+/* New Order Notification — orange left border accent */
+.notif-new-order {
+    background-color: rgba(16, 185, 129, 0.05) !important;
+    border: 1px solid rgba(16, 185, 129, 0.15) !important;
+    border-left: 4px solid #10B981 !important;
+    border-radius: 1.25rem;
+}
+[data-bs-theme="dark"] .notif-new-order {
+    background-color: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    border-left-color: #34D399 !important;
+}

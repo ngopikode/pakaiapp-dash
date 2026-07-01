@@ -1,19 +1,23 @@
 <?php
 
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\Category;
+use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Resto\RawMaterial;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-new class extends Component {
+new #[Title("Form Produk")]
+class extends Component {
     use WithFileUploads;
 
     public ?Product $product = null;
 
     public array $categories = [];
+    public array $rawMaterials = [];
     public string $selectedCategoryType = 'retail';
 
     public string $name = '';
@@ -30,7 +34,9 @@ new class extends Component {
     public float $basePrice = 0;
     public int $baseStock = 0;
     public int $baseMinStock = 0;
+    public string $baseSku = '';
 
+    public array $baseRecipes = [];
     public array $variants = [];
     public array $extras = [];
 
@@ -38,6 +44,9 @@ new class extends Component {
     {
         $this->selectedCategoryType = StoreSetting::value('store_type') ?? 'retail';
         $this->categories = Category::select('id', 'name', 'type')->orderBy('name')->get()->toArray();
+        if ($this->selectedCategoryType === 'resto') {
+            $this->rawMaterials = RawMaterial::select('id', 'name', 'unit')->orderBy('name')->get()->toArray();
+        }
 
         if ($product && $product->exists) {
             $this->product = $product;
@@ -52,13 +61,25 @@ new class extends Component {
 
             if ($this->hasVariants) {
                 foreach ($product->variants as $variant) {
+                    $variantRecipes = [];
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($variant->recipes as $recipe) {
+                            $variantRecipes[] = [
+                                'id' => $recipe->id,
+                                'raw_material_id' => $recipe->raw_material_id,
+                                'quantity_used' => (float)$recipe->quantity_used,
+                            ];
+                        }
+                    }
                     $this->variants[] = [
                         'id' => $variant->id,
                         'name' => $variant->name,
+                        'sku' => $variant->sku ?? '',
                         'cost' => (float)$variant->cost,
                         'price' => (float)$variant->price,
                         'stock' => $variant->stock,
                         'minStock' => $variant->min_stock,
+                        'recipes' => $variantRecipes,
                     ];
                 }
             } else {
@@ -68,6 +89,16 @@ new class extends Component {
                     $this->basePrice = (float)$defaultVariant->price;
                     $this->baseStock = $defaultVariant->stock;
                     $this->baseMinStock = $defaultVariant->min_stock;
+                    $this->baseSku = $defaultVariant->sku ?? '';
+                    if (tenant('store_type') === 'resto') {
+                        foreach ($defaultVariant->recipes as $recipe) {
+                            $this->baseRecipes[] = [
+                                'id' => $recipe->id,
+                                'raw_material_id' => $recipe->raw_material_id,
+                                'quantity_used' => (float)$recipe->quantity_used,
+                            ];
+                        }
+                    }
                 }
             }
 
@@ -89,7 +120,7 @@ new class extends Component {
 
     public function addVariant(): void
     {
-        $this->variants[] = ['id' => null, 'name' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => ''];
+        $this->variants[] = ['id' => null, 'name' => '', 'sku' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => '', 'recipes' => []];
     }
 
     public function removeVariant(int $index): void
@@ -107,6 +138,28 @@ new class extends Component {
     {
         unset($this->extras[$index]);
         $this->extras = array_values($this->extras);
+    }
+
+    public function addBaseRecipe(): void
+    {
+        $this->baseRecipes[] = ['id' => null, 'raw_material_id' => '', 'quantity_used' => ''];
+    }
+
+    public function removeBaseRecipe(int $index): void
+    {
+        unset($this->baseRecipes[$index]);
+        $this->baseRecipes = array_values($this->baseRecipes);
+    }
+
+    public function addVariantRecipe(int $variantIndex): void
+    {
+        $this->variants[$variantIndex]['recipes'][] = ['id' => null, 'raw_material_id' => '', 'quantity_used' => ''];
+    }
+
+    public function removeVariantRecipe(int $variantIndex, int $recipeIndex): void
+    {
+        unset($this->variants[$variantIndex]['recipes'][$recipeIndex]);
+        $this->variants[$variantIndex]['recipes'] = array_values($this->variants[$variantIndex]['recipes']);
     }
 
     public function save(): void
@@ -157,6 +210,7 @@ new class extends Component {
                             ['id' => $variantData['id'] ?? null],
                             [
                                 'name' => $variantData['name'],
+                                'sku' => $variantData['sku'] ?? null,
                                 'cost' => $variantData['cost'] ?: 0,
                                 'price' => $variantData['price'] ?: 0,
                                 'stock' => $variantData['stock'] ?: 0,
@@ -164,12 +218,32 @@ new class extends Component {
                             ]
                         );
                         $variantIdsToKeep[] = $variant->id;
+
+                        if (tenant('store_type') === 'resto') {
+                            $recipeIdsToKeep = [];
+                            if (isset($variantData['recipes'])) {
+                                foreach ($variantData['recipes'] as $recipeData) {
+                                    if (!empty($recipeData['raw_material_id'])) {
+                                        $recipe = $variant->recipes()->updateOrCreate(
+                                            ['id' => $recipeData['id'] ?? null],
+                                            [
+                                                'raw_material_id' => $recipeData['raw_material_id'],
+                                                'quantity_used' => $recipeData['quantity_used'] ?: 0,
+                                            ]
+                                        );
+                                        $recipeIdsToKeep[] = $recipe->id;
+                                    }
+                                }
+                            }
+                            $variant->recipes()->whereNotIn('id', $recipeIdsToKeep)->delete();
+                        }
                     }
                 }
             } else {
                 $defaultVariant = $product->variants()->updateOrCreate(
                     ['name' => 'Default'],
                     [
+                        'sku' => $this->baseSku ?: null,
                         'cost' => $this->baseCost ?: 0,
                         'price' => $this->basePrice ?: 0,
                         'stock' => $this->baseStock ?: 0,
@@ -177,6 +251,23 @@ new class extends Component {
                     ]
                 );
                 $variantIdsToKeep[] = $defaultVariant->id;
+
+                if (tenant('store_type') === 'resto') {
+                    $recipeIdsToKeep = [];
+                    foreach ($this->baseRecipes as $recipeData) {
+                        if (!empty($recipeData['raw_material_id'])) {
+                            $recipe = $defaultVariant->recipes()->updateOrCreate(
+                                ['id' => $recipeData['id'] ?? null],
+                                [
+                                    'raw_material_id' => $recipeData['raw_material_id'],
+                                    'quantity_used' => $recipeData['quantity_used'] ?: 0,
+                                ]
+                            );
+                            $recipeIdsToKeep[] = $recipe->id;
+                        }
+                    }
+                    $defaultVariant->recipes()->whereNotIn('id', $recipeIdsToKeep)->delete();
+                }
             }
             $product->variants()->whereNotIn('id', $variantIdsToKeep)->delete();
 

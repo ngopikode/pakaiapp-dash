@@ -25,16 +25,18 @@
 }
 
 .btn-tab.btn-primary {
-    background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14)) !important;
+    background-color: #F97316 !important;
+    background-image: none !important;
     border-color: transparent !important;
     color: #ffffff !important;
-    box-shadow: 0 6px 16px rgba(182, 115, 50, 0.2) !important;
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.2) !important;
 }
 
 [data-bs-theme="dark"] .btn-tab.btn-primary {
-    background: linear-gradient(135deg, var(--bs-primary, #D4A373), var(--bs-tertiary-bg, #25211E)) !important;
-    color: #120F0D !important;
-    box-shadow: 0 6px 16px rgba(212, 163, 115, 0.15) !important;
+    background-color: #F97316 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.2) !important;
 }
 
 /* Mobile Scrolling segmented tabs */
@@ -148,18 +150,19 @@
 
 /* 5. Sleek Buttons */
 .brand-gradient-btn {
-    background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-espresso, #321E14)) !important;
+    background: #F97316 !important;
     border: none !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    box-shadow: 0 4px 14px rgba(182, 115, 50, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.2) !important;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     border-radius: 50rem !important;
 }
 
 .brand-gradient-btn:hover {
+    background: #EA580C !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(182, 115, 50, 0.32) !important;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.32) !important;
     opacity: 0.95;
     color: #ffffff !important;
 }
@@ -175,13 +178,14 @@
 }
 
 [data-bs-theme="dark"] .brand-gradient-btn {
-    background: linear-gradient(135deg, var(--bs-primary, #D4A373), var(--bs-tertiary-bg, #25211E)) !important;
-    color: #120F0D !important;
-    box-shadow: 0 4px 14px rgba(212, 163, 115, 0.15) !important;
+    background: #F97316 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.2) !important;
 }
 
 [data-bs-theme="dark"] .brand-gradient-btn:hover {
-    box-shadow: 0 6px 20px rgba(212, 163, 115, 0.25) !important;
+    background: #EA580C !important;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3) !important;
 }
 
 /* 6. Sticky Mobile Footer Drawer */

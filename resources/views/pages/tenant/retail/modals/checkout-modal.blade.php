@@ -4,7 +4,7 @@
 
     <div x-show="checkoutOpen" x-transition:enter="transition-transform ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition-transform ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="fixed inset-0 bg-white z-[110] flex flex-col mt-10 rounded-t-[2rem] overflow-hidden">
         
-        <div class="p-5 flex justify-between items-center border-b border-zinc-100 bg-white sticky top-0 z-10 pt-6">
+        <div x-show="!orderSuccess" class="p-5 flex justify-between items-center border-b border-zinc-100 bg-white sticky top-0 z-10 pt-6">
             <div class="flex items-center gap-3">
                 <button x-show="checkoutStep === 2" @click="showPaymentSelector ? showPaymentSelector = false : checkoutStep = 1" class="p-2 bg-zinc-50 rounded-full hover:bg-zinc-100 transition-all shrink-0 active:scale-90" style="display: none;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-900"><path d="m15 18-6-6 6-6"/></svg>

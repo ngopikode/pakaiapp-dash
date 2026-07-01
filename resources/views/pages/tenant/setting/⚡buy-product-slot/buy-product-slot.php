@@ -2,13 +2,16 @@
 
 namespace App\Livewire;
 
-use App\Models\Quota;
-use App\Services\TenantWalletService;
+use App\Central\Models\Quota;
+use App\Tenant\Services\SettingService;
+use App\Tenant\Services\TenantWalletService;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new class extends Component {
+new #[Title("Beli Slot")]
+class extends Component {
     // Konfigurasi Harga & Jumlah Slot
     public int $additionalSlots = 50;
     public int $price = 10000; // Rp 10.000
@@ -29,7 +32,7 @@ new class extends Component {
                 app(TenantWalletService::class)->deductBalance(
                     $this->price,
                     $quota, // Gunakan model Quota sebagai referensi Ledger transaksi
-                    "Pembelian otomatis penambahan {$this->additionalSlots} slot produk"
+                    "Pembelian otomatis penambahan $this->additionalSlots slot produk"
                 );
 
                 // 3. Jika saldo sukses dipotong, tambahkan total slotnya
@@ -37,7 +40,7 @@ new class extends Component {
             });
 
             // Beri notifikasi sukses
-            $this->dispatch('notify', message: "Mantap! Slot produk berhasil ditambah {$this->additionalSlots}. Silakan upload menu baru Anda!", type: 'success');
+            $this->dispatch('notify', message: "Mantap! Slot produk berhasil ditambah $this->additionalSlots. Silakan upload menu baru Anda!", type: 'success');
 
             // Opsional: Jika kamu punya komponen list produk, trigger refresh
             $this->dispatch('product-slot-updated');
@@ -53,7 +56,10 @@ new class extends Component {
         return [
             'quota' => Quota::firstOrCreate(
                 ['type' => 'PRODUCT_SLOT'],
-                ['total_slots' => 50, 'used_slots' => 0]
+                [
+                    'total_slots' => app(SettingService::class)->get('product_slots', tenant(), 12),
+                    'used_slots' => 0
+                ]
             ),
             'walletBalance' => app(TenantWalletService::class)->getWallet()->balance
         ];

@@ -1,7 +1,7 @@
 <?php
 
 use Livewire\Component;
-use App\Models\Order;
+use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Computed;
 
 new class extends Component {
@@ -34,43 +34,40 @@ new class extends Component {
     <div class="d-flex align-items-center justify-content-between w-100 flex-nowrap">
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
-            <!-- Mobile Toggle (Offcanvas) -->
-            <button class="btn text-primary border-0 p-2 d-md-none" type="button" data-bs-toggle="offcanvas"
+            <!-- Mobile/Tablet Toggle (Offcanvas) -->
+            <button class="btn text-primary border-0 p-2 d-lg-none" type="button" data-bs-toggle="offcanvas"
                     data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
                 <i class="bi bi-list fs-4"></i>
             </button>
-
-            <!-- Desktop Toggle -->
-            <button class="btn text-primary border-0 p-2 d-none d-md-block" id="sidebarToggle">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-
-            <h5 class="m-0 font-serif fw-bold d-none d-md-block text-truncate" style="max-width: 300px;">
-                {{ $header ?? 'Dashboard' }}
-            </h5>
-
-            <span class="fs-6 fw-bold font-serif d-md-none text-truncate" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
+            <span class="fs-6 fw-bold font-serif text-truncate d-lg-none" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
                 {{ $header ?? 'Dashboard' }}
             </span>
+
+            <!-- Desktop Toggle -->
+            <button class="btn text-primary border-0 p-2 d-none d-lg-block" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <h5 class="m-0 font-serif fw-bold text-truncate d-none d-lg-block" style="max-width: 300px;">
+                {{ $header ?? 'Dashboard' }}
+            </h5>
         </div>
 
         <ul class="navbar-nav ms-auto flex-row align-items-center gap-2 gap-lg-3">
 
             <li class="nav-item">
                 <button
-                    x-data="themeToggle"
-                    @click="toggleTheme()"
+                    x-data="{ theme: localStorage.getItem('theme') || 'light' }" @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.setAttribute('data-bs-theme', theme)"
                     class="btn btn-link nav-link text-secondary p-2"
                     title="Ganti Tema"
                 >
-                    <i x-show="theme === 'dark'" class="bi bi-sun-fill fs-5 text-warning" x-cloak></i>
+                    <i x-show="theme === 'dark'" class="ph-fill ph-sun fs-5 text-warning" x-cloak></i>
 
-                    <i x-show="theme === 'light'" class="bi bi-moon-stars fs-5" x-cloak></i>
+                    <i x-show="theme === 'light'" class="ph-fill ph-moon fs-5" x-cloak></i>
                 </button>
             </li>
 
             <li class="nav-item dropdown">
-                <a class="nav-link text-secondary position-relative p-2 hover-lift d-flex align-items-center" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" wire:poll.15s>
+                <a class="nav-link text-secondary position-relative p-2 hover-lift d-flex align-items-center" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" wire:poll.15s.visible>
                     <i class="bi bi-bell fs-5" id="notifBellIcon"></i>
                     @if($this->pendingOrdersCount > 0)
                         <span
@@ -92,7 +89,7 @@ new class extends Component {
 
                     @if($this->pendingOrdersCount > 0)
                         <li>
-                            <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate>
+                            <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate.hover>
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <span class="fw-bold text-body fs-6"><i class="bi bi-bag-check-fill text-primary me-2"></i>Pesanan Baru</span>
                                     <small class="text-primary fw-bold"><i class="bi bi-arrow-right"></i></small>
@@ -110,7 +107,7 @@ new class extends Component {
                     @endif
 
                     <li class="border-top">
-                        <a href="{{ route('order') }}" wire:navigate class="dropdown-item text-center py-2 text-primary fw-bold small rounded-bottom-4">Lihat Semua Pesanan</a>
+                        <a href="{{ route('order') }}" wire:navigate.hover class="dropdown-item text-center py-2 text-primary fw-bold small rounded-bottom-4">Lihat Semua Pesanan</a>
                     </li>
                 </ul>
             </li>
@@ -125,7 +122,7 @@ new class extends Component {
                         <span class="fw-bold">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
                     </div>
 
-                    <div class="d-none d-lg-block text-start lh-1">
+                    <div class="text-start lh-1 d-none d-lg-block">
                         <div class="fw-bold small text-dark text-truncate" style="max-width: 120px;">
                             {{ Auth::user()->name ?? 'User' }}
                         </div>
@@ -135,13 +132,13 @@ new class extends Component {
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2"
                     aria-labelledby="navbarDropdown">
-                    <li class="d-lg-none px-3 py-2 border-bottom mb-2">
+                    <li class="px-3 py-2 border-bottom mb-2 d-lg-none">
                         <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
                         <small class="text-muted">Admin</small>
                     </li>
 
                     <li>
-                        <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate><i
+                        <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate.hover><i
                                 class="bi bi-person me-2"></i>
                             Edit Profil
                         </a>

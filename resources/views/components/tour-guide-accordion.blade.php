@@ -6,6 +6,7 @@
                 isPositioned: false,
                 currentStep: 0,
                 positioningTimeout: null,
+                hasProducts: true,
                 steps: [
                     {
                         target: '#tour-accordion-edit-category',
@@ -58,6 +59,16 @@
                         let firstAccordionBtn = document.querySelector('.cat-accordion-btn.collapsed');
                         if (firstAccordionBtn) {
                             firstAccordionBtn.click();
+                        } else {
+                            // Kategori / produk masih kosong
+                            Swal.fire({
+                                title: 'Kategori Masih Kosong',
+                                html: 'Silakan buat <b>Kategori baru</b> dan tambahkan <b>Produk pertama</b> Anda terlebih dahulu untuk memulai panduan ini.',
+                                icon: 'info',
+                                confirmButtonColor: '#F97316',
+                                confirmButtonText: 'Saya Mengerti'
+                            });
+                            return;
                         }
                     }
 
@@ -79,6 +90,11 @@
                 },
 
                 nextStep() {
+                    if (this.currentStep === 0 && !this.hasProducts) {
+                        this.endTour();
+                        return;
+                    }
+
                     if (this.currentStep < this.steps.length - 1) {
                         this.isPositioned = false;
                         this.currentStep++;
@@ -120,6 +136,10 @@
                             this.endTour();
                         }
                         return;
+                    }
+
+                    if (this.currentStep === 0) {
+                        this.hasProducts = !!(document.querySelector('.premium-prod-card') || document.querySelector('.list-product-row'));
                     }
 
                     const rect = targetElement.getBoundingClientRect();
@@ -218,12 +238,7 @@
                  :style="tooltipStyle"
                  :class="isPositioned ? 'opacity-100 visible' : 'opacity-0 invisible'">
                 <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                         style="border-radius: 1rem; pointer-events: none; z-index: 0;">
-                        <div class="position-absolute opacity-10"
-                             style="background-color: var(--brand-caramel); width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; filter: blur(30px);"></div>
-                    </div>
-
+                  
                     <div class="position-relative" style="z-index: 1;">
                         <div class="d-flex align-items-center mb-3">
                             <div class="bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -240,10 +255,11 @@
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top"
                              style="border-color: var(--bs-border-color) !important;">
                             <div class="d-flex gap-1">
-                                <template x-for="(step, index) in steps" :key="index">
-                                    <div class="rounded-pill transition-all"
-                                         :class="index === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
-                                         :style="index === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
+                                <template x-for="(step, idx) in steps" :key="idx">
+                                    <div x-show="idx === 0 || hasProducts"
+                                         class="rounded-pill transition-all"
+                                         :class="idx === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
+                                         :style="idx === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
                                     </div>
                                 </template>
                             </div>
@@ -261,7 +277,7 @@
                                         class="btn btn-sm btn-primary fw-bold rounded-pill px-4 transition-all"
                                         style="background-color: var(--brand-caramel) !important; border-color: var(--brand-caramel) !important;"
                                         @click="nextStep()"
-                                        x-text="currentStep === steps.length - 1 ? 'Selesai' : 'Lanjut'"></button>
+                                        x-text="(currentStep === steps.length - 1 || (currentStep === 0 && !hasProducts)) ? 'Selesai' : 'Lanjut'"></button>
                             </div>
                         </div>
                     </div>

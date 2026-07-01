@@ -1,75 +1,59 @@
 <?php
 
-use App\Http\Controllers\CentralDuitkuController;
-use App\Http\Controllers\CentralMidtransController;
+use App\Central\Controllers\ArticleController;
+use App\Central\Controllers\AuthController;
+use App\Central\Controllers\DuitkuController;
+use App\Central\Controllers\MidtransController;
+use App\Central\Http\Middleware\DuitkuEnabled;
+use App\Shared\Middleware\IpWhitelist;
 use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
         Route::view('/', 'welcome')->name('home');
+        Route::view('/kasir-cafe', 'pages.landing-cafe')->name('landing.cafe');
+        Route::view('/kasir-toko-kelontong', 'pages.landing-retail')->name('landing.retail');
+
+        Route::get('/blog', [ArticleController::class, 'index'])->name('blog.index');
+        Route::get('/blog/{slug}', [ArticleController::class, 'show'])->name('blog.show');
+
         Route::livewire('central-admin', 'pages::central.central-admin')->name('central-admin');
 
-        // Lead submission handler from the chatbot
-        Route::post('/api/send-lead', function (\Illuminate\Http\Request $request) {
-            $validated = $request->validate([
-                'jenisBisnis' => 'required|string|max:100',
-                'jumlahCabang' => 'required|string|max:100',
-                'namaToko' => 'required|string|max:100',
-                'namaOwner' => 'required|string|max:100',
-                'noWa' => 'required|string|max:50',
-            ]);
+        // Central Pages (Register, Login, Status Onboarding)
+        Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+        Route::get('/login', [AuthController::class, 'showLogin'])->name('central.login');
 
-            // Log the lead for the administrators in laravel.log
-            \Illuminate\Support\Facades\Log::info('New Lead Received from landing page:', $validated);
+        Route::get('/register/status/{invoice_code}', [AuthController::class, 'registerStatus'])->name('register.status');
+        Route::get('/api/register/status/{invoice_code}', [AuthController::class, 'apiRegisterStatus']);
 
-            // Optional: Send to Telegram Bot if credentials are provided in .env
-            $botToken = '7725874331:AAHNnwXrnkymBJEfD0PaPZFNsemwcB77vsI';
-            $chatId = '5554516703';
+        Route::post('/api/central-login', [AuthController::class, 'centralLogin']);
 
-            if ($botToken && $chatId) {
-                try {
-                    $waClean = preg_replace('/[^0-9]/', '', $validated['noWa']);
-                    // If no wa begins with '0', replace with '62'
-                    if (str_starts_with($waClean, '0')) {
-                        $waClean = '62' . substr($waClean, 1);
-                    }
-                    
-                    $message = "🚀 *New Lead Registered on Pakaiapp!*\n\n"
-                        . "👤 *Owner:* " . $validated['namaOwner'] . "\n"
-                        . "🏪 *Toko:* " . $validated['namaToko'] . "\n"
-                        . "🍔 *Bisnis:* " . $validated['jenisBisnis'] . "\n"
-                        . "🏢 *Cabang:* " . $validated['jumlahCabang'] . "\n"
-                        . "📞 *WhatsApp:* [https://wa.me/{$waClean}](https://wa.me/{$waClean})\n";
+        // Email Verification OTP Endpoints
+        Route::post('/api/request-otp', [AuthController::class, 'requestOtp']);
+        Route::post('/api/verify-otp', [AuthController::class, 'verifyOtp']);
 
-                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
-                        'chat_id' => $chatId,
-                        'text' => $message,
-                        'parse_mode' => 'Markdown',
-                    ]);
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Failed to send lead to Telegram: ' . $e->getMessage());
-                }
-            }
+        // Self-Serve Tenant Registration Handler
+        Route::post('/api/register-tenant', [AuthController::class, 'registerTenant']);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Lead successfully registered.'
-            ]);
-        })->name('api.send-lead');
+        // Fetch Duitku Payment Methods for Onboarding
+        Route::get('/api/duitku/payment-methods', [DuitkuController::class, 'getPaymentMethods'])
+            ->middleware(DuitkuEnabled::class);
 
         // ─── Duitku Payment Gateway — Central Callbacks ───────────────────────
-        Route::post('/duitku/callback', [CentralDuitkuController::class, 'callback'])
+        Route::post('/duitku/callback', [DuitkuController::class, 'callback'])
             ->name('duitku.callback')
-            ->middleware(\App\Http\Middleware\DuitkuIpWhitelist::class);
-        Route::get('/duitku/return', [CentralDuitkuController::class, 'return'])
-            ->name('duitku.return');
-        Route::get('/duitku/status/{invoiceCode}', [CentralDuitkuController::class, 'status'])
+            ->middleware([IpWhitelist::class, DuitkuEnabled::class]);
+        Route::get('/duitku/return', [DuitkuController::class, 'return'])
+            ->name('duitku.return')
+            ->middleware(DuitkuEnabled::class);
+        Route::get('/duitku/status/{invoiceCode}', [DuitkuController::class, 'status'])
             ->name('duitku.status')
-            ->where('invoiceCode', '[A-Za-z0-9\-~_]+');
+            ->where('invoiceCode', '[A-Za-z0-9\-~_]+')
+            ->middleware(DuitkuEnabled::class);
 
         // ─── Midtrans Payment Gateway — Central Callbacks ───────────────────────
-        Route::post('/midtrans/notification', [CentralMidtransController::class, 'notification'])
+        Route::post('/midtrans/notification', [MidtransController::class, 'notification'])
             ->name('midtrans.notification')
-            ->middleware(\App\Http\Middleware\MidtransIpWhitelist::class);
+            ->middleware(IpWhitelist::class);
     });
 }

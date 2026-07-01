@@ -74,7 +74,7 @@
 
                 @if (Route::has('password.request'))
                     <a class="text-decoration-none small fw-bold text-primary"
-                       href="{{ route('password.request') }}" wire:navigate>
+                       href="{{ route('password.request') }}" wire:navigate.hover>
                         Lupa Password?
                     </a>
                 @endif

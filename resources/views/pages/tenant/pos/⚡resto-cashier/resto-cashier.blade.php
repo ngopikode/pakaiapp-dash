@@ -1,99 +1,92 @@
-<div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data="restoPos()"
-     @add-product.window="handleProductClick($event.detail.product)"
+<div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data='restoPos({
+        currentTab: $wire.entangle("activeTab").live,
+        customerName: window.posInitialData?.customerName || "",
+        tableNumber: window.posInitialData?.tableNumber || "",
+        orderType: window.posInitialData?.orderType || "dinein",
+        isEditingOrder: window.posInitialData?.isEditingOrder || false,
+        editInvoiceCode: window.posInitialData?.editInvoiceCode || null,
+        taxRate: @json($taxRate),
+        serviceChargeRate: @json($serviceChargeRate),
+        isTaxActive: @json($isTaxActive),
+        isServiceActive: @json($isServiceChargeActive),
+        duitkuEnabled: {{ config("duitku.enabled") ? "true" : "false" }}
+    })'
+     @add-product.window="handleProductClick($event.detail.product, $event.detail.variantId)"
      @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"
      @keydown.window="handleKeydown($event)"
      @open-mobile-cart.window="isMobileCartOpen = true"
      @close-mobile-cart.window="isMobileCartOpen = false"
+     @force-cashier-tab.window="currentTab = 'cashier'"
+     @open-payment-modal.window="openPayForOrder($event.detail)"
+     @start-editing-order.window="isEditingOrder = true; editInvoiceCode = $event.detail.invoice_code; customerName = $event.detail.customer; tableNumber = $event.detail.table; orderType = $event.detail.type"
      x-cloak>
 
-    <style>
-        @media (max-width: 767.98px) {
-            .mobile-help-fab {
-                position: fixed !important;
-                bottom: 24px !important;
-                right: 24px !important;
-                width: 48px !important;
-                height: 48px !important;
-                z-index: 1040 !important;
-                background: linear-gradient(135deg, var(--brand-caramel, #B67332), var(--brand-mocha, #846A58)) !important;
-                color: #ffffff !important;
-                border: 1px solid rgba(255, 255, 255, 0.15) !important;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
-                margin: 0 !important;
-                display: flex !important;
-                transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s ease, box-shadow 0.2s ease !important;
-            }
-
-            .mobile-help-fab.active-cart {
-                bottom: 96px !important; /* Raised to float above the bottom "View Cart" checkout button */
-            }
-
-            .mobile-help-fab:hover, .mobile-help-fab:active {
-                transform: scale(1.08) !important;
-                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25) !important;
-            }
-
-            .mobile-help-fab i {
-                font-size: 1.3rem !important; /* Slightly larger icon for comfortable mobile tapping */
-            }
-        }
-    </style>
+    <script>
+        window.posInitialData = {
+            customerName: @json($existingOrder ? $existingOrder->customer_name : ""),
+            tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ""),
+            orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]["id"] ?? "dinein")),
+            isEditingOrder: @json($existingOrder ? true : false),
+            editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null)
+        };
+    </script>
 
     {{-- Premium Glassmorphism Loading Screen --}}
-    <div wire:loading wire:target="changeTab"
-         class="position-absolute top-0 start-0 w-100 h-100"
-         style="z-index: 2000; background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(8px); border-radius: 1.5rem; transition: all 0.3s ease;">
-        <div class="w-100 h-100 d-flex justify-content-center align-items-center">
-            <div class="text-center bg-body p-4 rounded-4 shadow border"
-                 style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
-                <div class="spinner-border text-warning mb-3" role="status"
-                     style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
-                <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
+    <div wire:loading.flex wire:target="changeTab"
+         class="position-fixed top-0 start-0 w-100 h-100 justify-content-center align-items-center"
+         style="z-index: 9999; background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(8px); transition: all 0.3s ease;">
+        <div class="text-center bg-body p-4 rounded-4 shadow border"
+             style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
+            <div class="spinner-border text-warning mb-3" role="status"
+                 style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
+                <span class="visually-hidden">Loading...</span>
             </div>
+            <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
+            <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
         </div>
     </div>
 
-    {{-- Tab Navigation (Safe Context Colors) --}}
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
-        <div class="d-flex gap-2">
-            <button wire:click="changeTab('cashier')"
-                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                    :class="currentTab === 'cashier' ? 'btn-primary shadow' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                    style="border-radius: 1rem;">
-                <i class="bi bi-plus-circle"></i> Kasir Baru
+    {{-- Tab Navigation (Premium Segmented Control) --}}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
+        <div class="bg-body-tertiary p-1 rounded-pill border d-inline-flex shadow-sm" style="border-color: var(--bs-border-color-translucent) !important;">
+            <!-- Tab: Kasir Baru -->
+            <button wire:click="changeTab('cashier')" @click="if(isEditingOrder) window.location.href='/cashier'"
+                    class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0"
+                    :class="currentTab === 'cashier' ? 'bg-body shadow-sm text-primary' : 'text-secondary hover-bg-light'"
+                    style="font-size: 0.9rem;">
+                <i class="bi bi-calculator-fill fs-6"></i>
+                <span class="d-none d-sm-inline">Kasir Baru</span>
+                <span class="d-inline d-sm-none">Kasir</span>
             </button>
-            <button wire:click="changeTab('queue')" title="Daftar Antrean"
-                    class="btn fw-bold px-4 py-2 d-flex align-items-center gap-2 transition-all"
-                    :class="currentTab === 'queue' ? 'btn-warning shadow text-dark' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                    style="border-radius: 1rem;">
-                <i class="bi bi-hourglass-split"></i>
-                <span>Antrian</span>
 
+            <!-- Tab: Open Bill -->
+            <button wire:click="changeTab('queue')" title="Daftar Open Bill"
+                    class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0 position-relative"
+                    :class="currentTab === 'queue' ? 'bg-body shadow-sm text-info' : 'text-secondary hover-bg-light'"
+                    style="font-size: 0.9rem;">
+                <i class="bi bi-receipt fs-6"></i>
+                <span class="d-none d-sm-inline">Open Bill</span>
+                <span class="d-inline d-sm-none">Bill</span>
+                
                 @if($pendingOrders->count() > 0)
-                    <!-- Badge digeser masuk secara inline (sejajar teks), dijamin gak bakal mentok ujung layar luar lagi -->
-                    <small class="bg-danger text-white fw-bold d-flex align-items-center justify-content-center px-2"
-                           style="min-width: 20px; height: 20px; font-size: 0.7rem; border-radius: 10px; margin-left: 2px;">
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.65rem;">
                         {{ $pendingOrders->count() }}
-                    </small>
+                    </span>
                 @endif
             </button>
         </div>
 
-        {{-- Premium Help Button (Dynamic FAB on Mobile, Standard Circle on Desktop) --}}
-        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('start-pos-tour'))"
-                class="btn btn-outline-secondary bg-body-tertiary border text-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all me-3 me-lg-0 mobile-help-fab"
-                :class="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0 ? 'active-cart' : ''"
-                style="width: 40px; height: 40px; border-radius: 50% !important;"
+        {{-- Premium Help Button (Now gracefully sitting in the header) --}}
+        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
+                class="btn btn-light bg-body border fw-bold rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all hover-scale text-warning me-1 me-lg-0"
+                style="width: 44px; height: 44px; border-color: var(--bs-border-color-translucent) !important;"
                 title="Panduan & Tutorial Penggunaan">
-            <i class="bi bi-question-circle fs-5"></i>
+            <i class="bi bi-lightbulb-fill fs-5"></i>
         </button>
     </div>
 
     {{-- ===== TAB 1: KASIR BARU ===== --}}
-    <div x-show="currentTab === 'cashier'" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
+    <div x-show="currentTab === 'cashier'" wire:loading.class="d-none" wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
 
         <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
@@ -110,8 +103,24 @@
     </div>
 
     {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="currentTab === 'queue'" class="flex-grow-1 overflow-y-auto bg-transparent" style="min-height: 0;"
+    <div x-show="currentTab === 'queue'" wire:loading.class="d-none" wire:target="changeTab" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
+        {{-- Tab Header with Refresh Button --}}
+        <div class="d-flex justify-content-between align-items-center mb-3 sticky-top bg-body-tertiary p-3 rounded-4 border shadow-sm" style="z-index: 10; border-color: var(--bs-border-color-translucent) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                    <i class="bi bi-clock-history fs-5"></i>
+                </div>
+                <h5 class="fw-bold mb-0 text-body">Pesanan Ditahan</h5>
+            </div>
+            
+            <button type="button" wire:click="$refresh" class="btn btn-outline-primary btn-sm rounded-pill fw-bold d-flex align-items-center gap-2 px-3 shadow-sm bg-body">
+                <i class="bi bi-arrow-clockwise" wire:loading.class="spinner-border spinner-border-sm" wire:target="$refresh"></i>
+                <span wire:loading.remove wire:target="$refresh">Refresh</span>
+                <span wire:loading wire:target="$refresh">Memuat...</span>
+            </button>
+        </div>
+
         @include('pages.tenant.post._queue-resto')
     </div>
 
@@ -120,7 +129,7 @@
         <button
             class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
             @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309); border: none; box-shadow: 0 10px 25px rgba(180, 83, 9, 0.4);">
+            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
             <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>
@@ -132,46 +141,43 @@
     @include('pages.tenant.pos._modal-success')
     @include('pages.tenant.pos._pos-tour-guide', ['mode' => 'resto'])
 
-    {{-- ===== OPTION MODAL ===== --}}
     @include('pages.tenant.pos._modal-option')
+    @include('pages.tenant.order.⚡order-list._modal-split-bill')
+    @include('pages.tenant.pos._modal-merge-resto')
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
         <x-tenant.order.cancel-modal/>
     </div>
 
-</div>
-
-@if(config('midtrans.client_key'))
-    @push('scripts')
-        <script
-            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-            data-client-key="{{ config('midtrans.client_key') }}"></script>
-    @endpush
-@endif
 
 @script
 <script>
-    Alpine.data('restoPos', () => ({
+    Alpine.data('restoPos', (config) => ({
+
         cart: [],
         isMobileCartOpen: false,
 
-        currentTab: $wire.entangle('activeTab').live,
+        currentTab: config.currentTab,
 
         selectedProduct: null,
         variantModalInstance: null,
         paymentModalInstance: null,
         successModalInstance: null,
         optionModalInstance: null,
+        splitBillModalInstance: null,
+        mergeModalInstance: null,
 
         optionProduct: null,
         optionSelected: [],
         extrasSelected: [],
         optionQty: 1,
 
-        customerName: '',
-        tableNumber: '',
-        orderType: @json($restoOrderTypes[0]['id'] ?? 'dinein'),
+        customerName: config.customerName,
+        tableNumber: config.tableNumber,
+        orderType: config.orderType,
+        isEditingOrder: config.isEditingOrder,
+        editInvoiceCode: config.editInvoiceCode,
         paymentMethod: 'cash',
         amountPaid: '',
         payDiscount: 0,
@@ -182,9 +188,7 @@
         duitkuPaymentMethods: [],     // Daftar metode pembayaran Duitku dinamis
 
         async fetchDuitkuMethods() {
-            @if(!config('duitku.enabled'))
-                return;
-            @endif
+            if (!config.duitkuEnabled) return;
             if (this.payTotal <= 0) return;
             try {
                 const res = await fetch(`/api/duitku/payment-methods?amount=${this.payTotal}`);
@@ -209,17 +213,73 @@
         lastOrder: {},
         payingOrder: null,
 
-        taxRate: @json($taxRate),
-        serviceChargeRate: @json($serviceChargeRate),
-        isTaxActive: @json($isTaxActive),
-        isServiceActive: @json($isServiceChargeActive),
+        taxRate: config.taxRate,
+        serviceChargeRate: config.serviceChargeRate,
+        isTaxActive: config.isTaxActive,
+        isServiceActive: config.isServiceActive,
 
         init() {
             this.variantModalInstance = new bootstrap.Modal(document.getElementById('variantModal'));
             this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
             this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
             this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
+            this.splitBillModalInstance = new bootstrap.Modal(document.getElementById('splitBillModal'));
+            this.mergeModalInstance = new bootstrap.Modal(document.getElementById('mergeModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
+        },
+
+        splittingOrder: null,
+        splitItems: [],
+        get splitTotalItems() {
+            return this.splitItems.reduce((acc, curr) => acc + curr.qtyToSplit, 0);
+        },
+        openSplitModal(order) {
+            this.splittingOrder = order;
+            this.splitItems = order.items.map(i => ({
+                id: i.id,
+                name: i.product_name,
+                variant_name: i.variant_name,
+                price: parseFloat(i.price),
+                maxQty: parseInt(i.quantity),
+                qtyToSplit: 0
+            }));
+            this.splitBillModalInstance.show();
+        },
+        submitSplitOrder() {
+            if (this.splitTotalItems === 0) {
+                showIslandToast('Pilih minimal 1 item untuk dipisah.', 'warning');
+                return;
+            }
+            const totalOriginalItems = this.splitItems.reduce((acc, curr) => acc + curr.maxQty, 0);
+            if (this.splitTotalItems === totalOriginalItems) {
+                showIslandToast('Anda memilih semua item. Gunakan Bayar biasa saja.', 'warning');
+                return;
+            }
+            
+            const dataToSend = this.splitItems.filter(i => i.qtyToSplit > 0).map(i => ({
+                id: i.id,
+                qty: i.qtyToSplit
+            }));
+            
+            this.$wire.splitOrder(this.splittingOrder.id, dataToSend);
+        },
+
+        mergeTargetId: null,
+        mergeTargetInvoice: '',
+        mergeSourceId: '',
+        openMergeModal(order) {
+            this.mergeTargetId = order.id;
+            this.mergeTargetInvoice = order.invoice_code;
+            this.mergeSourceId = '';
+            this.mergeModalInstance.show();
+        },
+        submitMergeOrder() {
+            if (!this.mergeSourceId) {
+                showIslandToast('Pilih pesanan yang akan digabungkan.', 'warning');
+                return;
+            }
+            this.$wire.mergeOrder(this.mergeSourceId, this.mergeTargetId);
+            this.mergeModalInstance.hide();
         },
 
         get subTotal() {
@@ -237,16 +297,30 @@
             return this.subTotal + this.serviceChargeAmount + this.taxAmount;
         },
         get payTotal() {
-            return this.payingOrder ? Math.max(0, (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) - (parseFloat(this.payDiscount) || 0)) : this.subTotalWithCharges;
+            let t = this.payingOrder ? (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) : this.subTotalWithCharges;
+            let p = this.payingOrder ? (parseFloat(this.payingOrder.amount_paid) || 0) : 0;
+            let d = this.payDiscount || 0;
+            return Math.max(0, t - p - d);
         },
         get getChange() {
             return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);
         },
 
-        handleProductClick(product) {
+        handleProductClick(product, variantId = null) {
             if (product.stock <= 0) {
                 showIslandToast('Stok habis!', 'warning');
                 return;
+            }
+            if (!product.variants || product.variants.length === 0) {
+                showIslandToast('Produk ini belum memiliki varian harga yang valid.', 'danger');
+                return;
+            }
+            if (variantId) {
+                let variant = product.variants.find(v => v.id === variantId);
+                if (variant) {
+                    this.addToCart(product, variant);
+                    return;
+                }
             }
             if (product.selection_type === 'multiple' || (product.has_variants && product.variants.length > 1) || (product.extras && product.extras.length > 0)) {
                 this.openOptionModal(product);
@@ -311,13 +385,13 @@
             if (this.optionSelected.length > 0) {
                 if (this.optionProduct.selection_type === 'multiple') {
                     const baseVariant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                    basePrice = baseVariant ? parseFloat(baseVariant.price) : 0;
+                    basePrice = baseVariant ? parseFloat(baseVariant.active_discount_price || baseVariant.price) : 0;
                 } else {
                     const variant = this.optionProduct.variants.find(v => v.name === this.optionSelected[0]);
-                    basePrice = variant ? parseFloat(variant.price) : 0;
+                    basePrice = variant ? parseFloat(variant.active_discount_price || variant.price) : 0;
                 }
             } else {
-                basePrice = parseFloat(this.optionProduct.price) || 0;
+                basePrice = parseFloat(this.optionProduct.variants[0]?.active_discount_price || this.optionProduct.variants[0]?.price) || 0;
             }
             return (basePrice + this.extrasTotal) * this.optionQty;
         },
@@ -356,7 +430,7 @@
             const extrasLabel = this.extrasSelected.length ? this.extrasSelected.join(', ') : '';
             const finalVariantLabel = [combinedVariantName, extrasLabel].filter(Boolean).join(' + ');
 
-            const basePrice = parseFloat(variant.price) || 0;
+            const basePrice = parseFloat(variant.active_discount_price || variant.price) || 0;
             const finalUnitPrice = basePrice + this.extrasTotal;
 
             // Cek stok variant
@@ -393,11 +467,16 @@
         },
 
         addToCart(product, variant, qty = 1) {
+            if (!variant) {
+                showIslandToast('Varian produk tidak ditemukan.', 'danger');
+                return;
+            }
+            let finalPrice = parseFloat(variant.active_discount_price || variant.price) || 0;
             let existing = this.cart.find(i => i.variant_id === variant.id);
             if (existing) {
                 if (existing.quantity + qty <= variant.stock) {
                     existing.quantity += qty;
-                    existing.subtotal = existing.quantity * variant.price;
+                    existing.subtotal = existing.quantity * finalPrice;
                 } else {
                     showIslandToast(`Stok sisa ${variant.stock}.`, 'warning');
                 }
@@ -409,7 +488,7 @@
                 this.cart.push({
                     id: product.id, variant_id: variant.id, name: product.name,
                     variant_name: product.has_variants ? variant.name : null,
-                    price: variant.price, quantity: qty, subtotal: variant.price * qty,
+                    price: finalPrice, quantity: qty, subtotal: finalPrice * qty,
                     stock: variant.stock, note: ''
                 });
             }
@@ -462,13 +541,22 @@
             }
             this.isSubmitting = true;
             try {
-                const result = await $wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
+                const result = await this.$wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
                 if (result && result.success) {
-                    showIslandToast(`Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
+                    showIslandToast(this.isEditingOrder ? `Tambahan disimpan ke ${result.invoice_code}!` : `Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
                     this.clearCart();
                     this.customerName = '';
                     this.tableNumber = '';
                     Livewire.dispatch('stock-updated');
+                    
+                    if (this.isEditingOrder) {
+                        setTimeout(() => { 
+                            this.isEditingOrder = false;
+                            this.editInvoiceCode = null;
+                            this.$wire.cancelEditOrder();
+                            this.currentTab = 'queue';
+                        }, 500);
+                    }
                 } else if (result && result.error) {
                     showIslandToast(result.error, 'danger');
                     Livewire.dispatch('stock-updated');
@@ -507,8 +595,8 @@
         },
 
         async submitPayment() {
-            if (this.paymentMethod === 'cash' && (this.amountPaid < this.payTotal || !this.amountPaid)) {
-                showIslandToast('Uang tidak cukup!', 'warning');
+            if (this.paymentMethod === 'cash' && !this.amountPaid) {
+                showIslandToast('Masukkan nominal pembayaran untuk Cash.', 'warning');
                 return;
             }
 
@@ -539,7 +627,7 @@
                     if (this.payingOrder) {
                         // Bayar pesanan yang ada (antrean) tanpa duplikasi
                         if (this.paymentMethod === 'duitku') {
-                            result = await $wire.generateDuitkuPayment(
+                            result = await this.$wire.generateDuitkuPayment(
                                 this.payingOrder.id, this.duitkuMethod, custEmail
                             );
                             if (result && result.success && result.payment_url) {
@@ -555,7 +643,7 @@
                             this.isSubmitting = false;
                             return;
                         } else if (this.paymentMethod === 'digital') {
-                            result = await $wire.generateMidtransPayment(
+                            result = await this.$wire.generateMidtransPayment(
                                 this.payingOrder.id, custEmail
                             );
                             if (result && result.success && result.snap_token) {
@@ -669,11 +757,11 @@
 
                 // Cash / QRIS manual / Transfer — flow Livewire seperti biasa
                 if (this.payingOrder) {
-                    result = await $wire.processPayment(
+                    result = await this.$wire.processPayment(
                         this.payingOrder.id, this.paymentMethod, this.payDiscount || 0, this.amountPaid
                     );
                 } else {
-                    result = await $wire.processDirectCheckout(
+                    result = await this.$wire.processDirectCheckout(
                         this.cart, this.customerName, this.tableNumber, this.orderType, this.paymentMethod, this.payDiscount || 0, this.amountPaid, this.isTaxActive, this.isServiceActive
                     );
                 }
@@ -726,7 +814,7 @@
             if (e.key === 'F8') {
                 e.preventDefault();
                 this.currentTab = this.currentTab === 'cashier' ? 'queue' : 'cashier';
-                $wire.changeTab(this.currentTab);
+                this.$wire.changeTab(this.currentTab);
                 return;
             }
 
@@ -758,7 +846,7 @@
         },
         sendWa() {
             if (this.lastOrder.customer_phone) {
-                $wire.updateCustomerPhone(this.lastOrder.invoice_code, this.lastOrder.customer_phone);
+                this.$wire.updateCustomerPhone(this.lastOrder.invoice_code, this.lastOrder.customer_phone);
                 let phone = this.formatPhoneForWA(this.lastOrder.customer_phone);
                 let url = `${window.location.origin}/invoice/${this.lastOrder.invoice_code}`;
                 let msg = `Halo Kak *${this.lastOrder.customer_name}*,\n\nTerima kasih!\nStruk: ${url}\nTotal: Rp ${this.formatRupiah(this.lastOrder.total_price)}`;
@@ -776,6 +864,9 @@
             this.lastOrder = {};
             this.payingOrder = null;
         }
+    
     }));
 </script>
 @endscript
+
+</div>

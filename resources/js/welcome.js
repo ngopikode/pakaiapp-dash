@@ -1,0 +1,807 @@
+import "@phosphor-icons/web/bold";
+import "@phosphor-icons/web/fill";
+import "@phosphor-icons/web/regular";
+document.addEventListener('DOMContentLoaded', function () {
+    /* ---- INIT ---- */
+    if (typeof AOS !== 'undefined') AOS.init({ once: true, duration: 600, offset: 40 });
+
+    /* ---- SMOOTH SCROLL for anchor links ---- */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    /* ---- KALKULATOR ---- */
+    const slider      = document.getElementById('trxSlider');
+    const trxDisplay  = document.getElementById('trxDisplay');
+    const costEl      = document.getElementById('costPakaiapp');
+    const costNote    = document.getElementById('costNote');
+    const unlimitedEl = document.getElementById('unlimitedBadge');
+
+    if (slider) {
+        slider.addEventListener('input', function () {
+        const trx = parseInt(this.value);
+        trxDisplay.textContent = trx.toLocaleString('id-ID');
+
+        const trxFee = window.PAKAIAAPP_CONFIG ? window.PAKAIAAPP_CONFIG.trxFee : 300;
+        const cappingLimit = window.PAKAIAAPP_CONFIG ? window.PAKAIAAPP_CONFIG.cappingLimit : 150000;
+        const cappingLimitFormatted = window.PAKAIAAPP_CONFIG ? window.PAKAIAAPP_CONFIG.cappingLimitFormatted : '150.000';
+
+        let cost = trx * trxFee;
+        const isUnlimited = cost >= cappingLimit;
+        if (isUnlimited) cost = cappingLimit;
+
+        if (trx === 0) {
+            costEl.textContent = 'GRATIS!';
+            costEl.style.color = '';
+            costNote.textContent = 'Tidak ada transaksi = tidak ada biaya.';
+            unlimitedEl.style.display = 'none';
+        } else if (isUnlimited) {
+            costEl.textContent = 'Rp ' + cappingLimitFormatted;
+            costEl.style.color = '';
+            costNote.textContent = 'Maks. biaya per bulan — sisanya GRATIS tak terbatas!';
+            unlimitedEl.style.display = 'inline-flex';
+        } else {
+            costEl.textContent = 'Rp ' + cost.toLocaleString('id-ID');
+            costEl.style.color = '';
+            costNote.textContent = 'Rp ' + trxFee + ' × ' + trx.toLocaleString('id-ID') + ' transaksi';
+            unlimitedEl.style.display = 'none';
+        }
+    });
+}
+    /* ---- FAQ TOGGLE ---- */
+    window.toggleFaq = function (btn) {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    };
+}); // end DOMContentLoaded
+
+const themeToggle = document.getElementById('theme-toggle');
+const htmlRoot = document.getElementById('html-root');
+const themeIcon = document.getElementById('theme-icon');
+
+function setDark() {
+    if (htmlRoot) {
+        htmlRoot.classList.add('dark');
+        htmlRoot.setAttribute('data-bs-theme', 'dark');
+    }
+    if (themeIcon) {
+        themeIcon.classList.remove('ph-moon');
+        themeIcon.classList.add('ph-sun');
+    }
+}
+
+function setLight() {
+    if (htmlRoot) {
+        htmlRoot.classList.remove('dark');
+        htmlRoot.setAttribute('data-bs-theme', 'light');
+    }
+    if (themeIcon) {
+        themeIcon.classList.remove('ph-sun');
+        themeIcon.classList.add('ph-moon');
+    }
+}
+
+// 1. Determine Expiry
+const themeExpiry = localStorage.getItem('theme_expiry');
+const now = new Date().getTime();
+if (themeExpiry && now > parseInt(themeExpiry)) {
+    localStorage.removeItem('theme');
+    localStorage.removeItem('theme_expiry');
+}
+
+// 2. Set Initial Theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    setLight();
+} else if (savedTheme === 'dark') {
+    setDark();
+} else {
+    // Default logic based on hour (6 PM to 6 AM is dark mode)
+    const hour = new Date().getHours();
+    if (hour >= 18 || hour < 6) {
+        setDark();
+    } else {
+        setLight();
+    }
+}
+
+// 3. Toggle Logic
+if (themeToggle && htmlRoot) {
+    themeToggle.addEventListener('click', () => {
+        const isDark = htmlRoot.classList.contains('dark');
+        // Set Expiry to 12 hours from now
+        const expiry = new Date().getTime() + (12 * 60 * 60 * 1000);
+        localStorage.setItem('theme_expiry', expiry.toString());
+        
+        if (isDark) {
+            setLight();
+            localStorage.setItem('theme', 'light');
+        } else {
+            setDark();
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+}
+
+
+
+// --- CHAT WIDGET ---
+window.toggleChat = function() {
+    const widget = document.getElementById('chatWidget');
+    const btn = document.getElementById('fabMainBtn');
+    const icon = document.getElementById('fabMainIcon');
+    
+    if (widget.classList.contains('open')) {
+        widget.classList.remove('open');
+        btn.classList.remove('open');
+        icon.className = 'ph-fill ph-chat-teardrop-dots';
+    } else {
+        widget.classList.add('open');
+        btn.classList.add('open');
+        icon.className = 'ph-bold ph-x';
+    }
+};
+
+let toastTimeout;
+let modalCallback = null;
+
+window.showToast = function(message) {
+    const toastMsg = document.getElementById('toastMsg');
+    const toast = document.getElementById('customToast');
+    if(!toast || !toastMsg) return;
+    toastMsg.innerText = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+window.showCustomAlert = function(type, title, text, callback = null, btnText = 'Tutup') {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalBtn = document.getElementById('modalBtn');
+    const customModal = document.getElementById('customModal');
+    if(!customModal || !modalTitle) return;
+    
+    modalTitle.innerText = title;
+    modalDesc.innerText = text;
+    modalBtn.innerText = btnText;
+
+    const icon = document.getElementById('modalIcon');
+    if (type === 'success') icon.innerHTML = '<i class="ph-fill ph-check-circle text-emerald-500"></i>';
+    else if (type === 'error') icon.innerHTML = '<i class="ph-fill ph-x-circle text-red-500"></i>';
+    else icon.innerHTML = '<i class="ph-fill ph-info text-blue-500"></i>';
+
+    modalCallback = callback;
+    customModal.classList.add('show');
+};
+
+window.closeCustomAlert = function() {
+    const customModal = document.getElementById('customModal');
+    if(!customModal) return;
+    customModal.classList.remove('show');
+    if (modalCallback) { modalCallback(); modalCallback = null; }
+};
+
+// --- LOGIN LOGIC ---
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.getElementById('formLogin')) {
+        document.getElementById('formLogin').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btnSubmitLogin');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Mencari...';
+            btn.disabled = true;
+
+            const loginInput = document.getElementById('login_input').value;
+            const storeListContainer = document.getElementById('storeListContainer');
+            const storeList = document.getElementById('storeList');
+
+            storeListContainer.style.display = 'none';
+            storeList.innerHTML = '';
+
+            fetch('/api/central-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                body: JSON.stringify({ login_input: loginInput })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success' && data.data) {
+                    if (data.data.type === 'subdomain') {
+                        window.location.href = data.data.redirect_url;
+                    } else if (data.data.type === 'email') {
+                        storeListContainer.style.display = 'block';
+                        data.data.stores.forEach(store => {
+                            const card = document.createElement('div');
+                            card.className = 'store-card';
+                            
+                            const info = document.createElement('div');
+                            info.className = 'store-info';
+                            
+                            const name = document.createElement('span');
+                            name.className = 'store-name';
+                            name.textContent = store.store_name;
+                            
+                            const sub = document.createElement('span');
+                            sub.className = 'store-subdomain';
+                            sub.textContent = store.tenant_id + '.pakaiapp.online';
+                            
+                            info.appendChild(name);
+                            info.appendChild(sub);
+                            
+                            const link = document.createElement('a');
+                            link.className = 'btn-open-store';
+                            link.href = store.url;
+                            link.textContent = 'Buka Dashboard';
+                            
+                            card.appendChild(info);
+                            card.appendChild(link);
+                            
+                            storeList.appendChild(card);
+                        });
+                    }
+                } else {
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert('error', 'Pencarian Gagal', data.message || 'Terjadi kesalahan sistem.');
+                    } else {
+                        alert('Pencarian Gagal: ' + (data.message || 'Terjadi kesalahan sistem.'));
+                    }
+                }
+            })
+            .catch(() => {
+                if (window.showCustomAlert) {
+                    window.showCustomAlert('error', 'Koneksi Gagal', 'Gagal menghubungi server central.');
+                } else {
+                    alert('Koneksi Gagal: Gagal menghubungi server central.');
+                }
+            })
+            .finally(() => {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            });
+        });
+    }
+});
+
+// --- REGISTER AI PROMPT LOGIC ---
+document.addEventListener('DOMContentLoaded', async () => {
+    if (document.getElementById('promptMain')) {
+        const questionArea = document.getElementById('questionArea');
+        const aiQuestion = document.getElementById('aiQuestion');
+        const aiSubQuestion = document.getElementById('aiSubQuestion');
+        const inputContainer = document.getElementById('inputContainer');
+        const chatInput = document.getElementById('chatInput');
+        const btnSend = document.getElementById('btnSend');
+        const choicesContainer = document.getElementById('choicesContainer');
+        const btnStepBack = document.getElementById('btnStepBack');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+
+        let currentStepIndex = 0;
+        let formData = { namaToko: '', jenisBisnis: '', namaOwner: '', noWa: '', email: '', paket: '', payment_method: '' };
+        let isEmailVerified = false;
+
+        const savedProgress = localStorage.getItem('register_progress');
+        if (savedProgress) {
+            try {
+                const parsed = JSON.parse(savedProgress);
+                if (parsed && parsed.formData) {
+                    formData = parsed.formData;
+                    currentStepIndex = parsed.currentStepIndex || 0;
+                    isEmailVerified = parsed.isEmailVerified || false;
+                }
+            } catch (e) {}
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeEmail = urlParams.get('resume_email');
+        if (resumeEmail) {
+            formData.email = resumeEmail;
+            if (formData.namaToko) {
+                // Have localstorage (same device)
+                if (currentStepIndex < 4 && !isEmailVerified) {
+                    currentStepIndex = 4; // TanyaOTP
+                }
+            } else {
+                // No localstorage (different device) - MUST start from 0 because backend requires all fields
+                currentStepIndex = 0;
+                showToast('Lanjutkan pendaftaran Anda.');
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        function saveProgress() {
+            localStorage.setItem('register_progress', JSON.stringify({
+                formData: formData,
+                currentStepIndex: currentStepIndex,
+                isEmailVerified: isEmailVerified
+            }));
+        }
+
+        let isProcessing = false;
+        let selectedPaymentMethod = '';
+
+        // Sequence of steps (Shortened for better UX)
+        const steps = [
+            { id: 'TanyaNama', q: 'Halo! Siapa nama toko atau bisnis Anda?', sub: 'Mari kita siapkan kasir cerdas Anda dalam hitungan detik.', type: 'text', placeholder: 'Ketik nama tokomu di sini...' },
+            { id: 'TanyaBisnis', q: 'Termasuk dalam kategori apakah bisnis Anda?', sub: 'Untuk menyesuaikan fitur sistem.', type: 'choice', choices: [{l: 'F&B (Resto, Cafe, Warung)', v: 'F&B (Resto/Cafe)'}, {l: 'Retail (Baju, Kelontong)', v: 'Retail (Toko/Butik)'}] },
+            { id: 'TanyaWa', q: 'Berapa nomor WhatsApp aktif Anda?', sub: 'Untuk mengirimkan informasi penting terkait toko.', type: 'tel', placeholder: 'Contoh: 08123456789' },
+            { id: 'TanyaEmail', q: 'Terakhir, apa alamat email aktif Anda?', sub: 'Kami akan mengirimkan OTP ke email ini.', type: 'email', placeholder: 'Contoh: nama@email.com' },
+            { id: 'TanyaOTP', q: 'Masukkan 6 angka OTP', sub: 'Cek kotak masuk atau folder spam email Anda.', type: 'number', placeholder: 'Ketik 6 angka OTP di sini...' }
+        ];
+
+
+
+        function showLoading(text) {
+            loadingText.innerText = text;
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        async function askStep(index, instant = false) {
+            if (index < 0) return;
+            const step = steps[index];
+            currentStepIndex = index;
+            saveProgress();
+
+            selectedPaymentMethod = '';
+            const btnContainer = document.getElementById('confirmPaymentContainer');
+            if (btnContainer) {
+                btnContainer.style.display = 'none';
+                btnContainer.innerHTML = '';
+            }
+            
+            // Force clear chat input before changing steps
+            if (chatInput) chatInput.value = '';
+            
+            if (!instant) {
+                // Fade out
+                questionArea.classList.add('fade-out');
+                inputContainer.style.display = 'none';
+                choicesContainer.style.display = 'none';
+                btnStepBack.style.display = index > 0 ? 'inline-flex' : 'none';
+
+                await new Promise(r => setTimeout(r, 400)); // wait for fade out
+            } else {
+                inputContainer.style.display = 'none';
+                choicesContainer.style.display = 'none';
+                btnStepBack.style.display = index > 0 ? 'inline-flex' : 'none';
+            }
+            
+            // Update text
+            aiQuestion.innerText = step.q;
+            aiSubQuestion.innerText = step.sub;
+               if (step.type === 'choice') {
+                if (step.id === 'TanyaPayment') {
+                    let midtransHtml = '';
+                    if (window.PAKAIAAPP_CONFIG && window.PAKAIAAPP_CONFIG.midtransEnabled) {
+                        midtransHtml = `
+                            <!-- Opsi 2: Midtrans -->
+                            <div class="payment-card-option midtrans-opt" onclick="selectPaymentOption(event, 'midtrans', 'midtrans-opt')">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon midtrans-icon">
+                                        <i class="ph-fill ph-credit-card"></i>
+                                    </div>
+                                    <div class="payment-card-content">
+                                        <div class="payment-card-title-row">
+                                            <h4 class="payment-card-title">Pembayaran Instan (Midtrans)</h4>
+                                            <span class="sandbox-badge midtrans-badge">Mode Uji Coba (Sandbox Midtrans)</span>
+                                        </div>
+                                        <p class="payment-card-desc">Bayar langsung menggunakan e-wallet atau VA. Pembayaran instan terverifikasi otomatis.</p>
+                                        <div class="sandbox-warning">
+                                            <i class="ph-fill ph-warning"></i>
+                                            <span>Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    let duitkuHtml = '';
+                    if (window.PAKAIAAPP_CONFIG && window.PAKAIAAPP_CONFIG.duitkuEnabled) {
+                        duitkuHtml = `
+                            <!-- Opsi 3: Duitku -->
+                            <div class="payment-card-option duitku-opt-card" id="optionDuitkuCard" onclick="expandDuitkuOptions(event)">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon duitku-icon">
+                                        <i class="ph-fill ph-wallet"></i>
+                                    </div>
+                                    <div class="payment-card-content" style="width: 100%;">
+                                        <div class="payment-card-title-row">
+                                            <h4 class="payment-card-title">Transfer & E-Wallet Otomatis (Duitku)</h4>
+                                            <span class="sandbox-badge duitku-badge">Mode Uji Coba (Sandbox Duitku)</span>
+                                        </div>
+                                        <p class="payment-card-desc">Bayar otomatis menggunakan QRIS, ShopeePay, OVO, LinkAja, atau berbagai Virtual Account.</p>
+                                        <div class="sandbox-warning" style="margin-bottom: 12px;">
+                                            <i class="ph-fill ph-warning"></i>
+                                            <span>Pembayaran sedang dalam tahap simulasi. Jangan gunakan data asli.</span>
+                                        </div>
+
+                                        <!-- Sub-opsi List (Duitku Payment Methods) -->
+                                        <div id="duitkuMethodsContainer" class="duitku-methods-container" style="display: none;" onclick="event.stopPropagation()">
+                                            <div class="duitku-methods-header">
+                                                <span class="duitku-methods-label">Pilih Saluran Pembayaran Duitku:</span>
+                                                <span id="loadingDuitkuMethods" class="duitku-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-1" style="width: 10px; height: 10px;"></span> Memuat...</span>
+                                            </div>
+                                            <div id="duitkuMethodsGrid" class="duitku-methods-grid">
+                                                <!-- Metode pembayaran dimasukkan via Javascript -->
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    choicesContainer.innerHTML = `
+                        <div class="payment-methods-panel" style="width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 10px; max-width: 540px; margin-left: auto; margin-right: auto; text-align: left;">
+                            
+                            <!-- Opsi 1: Manual -->
+                            <div class="payment-card-option manual-opt" onclick="selectPaymentOption(event, 'manual', 'manual-opt')">
+                                <div class="payment-card-header">
+                                    <div class="payment-card-icon wa-icon">
+                                        <i class="ph-fill ph-whatsapp-logo"></i>
+                                    </div>
+                                    <div class="payment-card-content">
+                                        <h4 class="payment-card-title">Transfer Manual (Bantuan WA Admin)</h4>
+                                        <p class="payment-card-desc">Konfirmasi pembayaran manual secara personal. Admin aktif 5-10 menit.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${midtransHtml}
+                            ${duitkuHtml}
+
+                        </div>
+                    `;
+                } else {
+                    choicesContainer.innerHTML = step.choices.map(c => `
+                        <button class="btn-choice-pill" onclick="handleChoiceClick('${c.v}')">
+                            ${c.l}
+                        </button>
+                    `).join('');
+                }
+                choicesContainer.style.display = 'flex';
+            } else {
+                chatInput.type = step.type;
+                chatInput.placeholder = step.placeholder;
+                
+                // Set existing value if they went back
+                if (step.id === 'TanyaNama' && formData.namaToko) chatInput.value = formData.namaToko;
+                
+                else if (step.id === 'TanyaWa' && formData.noWa) chatInput.value = formData.noWa;
+                else if (step.id === 'TanyaEmail' && formData.email) chatInput.value = formData.email;
+
+                if (step.type === 'number' && step.id === 'TanyaOTP') chatInput.maxLength = 6;
+                else chatInput.removeAttribute('maxLength');
+                inputContainer.style.display = 'flex';
+            }
+
+            if (!instant) {
+                // Fade in
+                questionArea.classList.remove('fade-out');
+                if (step.type !== 'choice') {
+                    setTimeout(() => chatInput.focus(), 400);
+                }
+            } else {
+                if (step.type !== 'choice') {
+                    chatInput.focus();
+                }
+            }
+        }
+
+        btnSend.addEventListener('click', processInput);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') processInput(); });
+        
+        btnStepBack.addEventListener('click', () => {
+            if (isProcessing) return;
+            // Go back one step logic
+            let prevIndex = currentStepIndex - 1;
+            // Skip TanyaOTP if email was verified but we go back past password? No, just keep it simple.
+            // If they go back from OTP, they want to change email.
+            if (steps[currentStepIndex].id === 'TanyaOTP') {
+                isEmailVerified = false; // Reset if they go back to change email
+            }
+            if (steps[prevIndex].id === 'TanyaPayment') {
+                prevIndex = steps.findIndex(s => s.id === 'TanyaPaket');
+            }
+            askStep(prevIndex);
+        });
+
+        async function processInput() {
+            if (isProcessing) return;
+            const val = chatInput.value.trim();
+            const step = steps[currentStepIndex];
+            
+            if (step.type !== 'choice' && !val) return;
+
+            isProcessing = true;
+            btnSend.innerHTML = '<i class="ph-bold ph-dots-three"></i>';
+            btnSend.disabled = true;
+
+            if (step.id === 'TanyaNama') {
+                formData.namaToko = val;
+                askStep(currentStepIndex + 1);
+            } else if (step.id === 'TanyaWa') {
+                if (val.length < 9 || isNaN(val.replace(/\+/g, ''))) {
+                    showToast('Nomor WA tidak valid.');
+                } else {
+                    formData.noWa = val;
+                    askStep(currentStepIndex + 1);
+                }
+            } else if (step.id === 'TanyaEmail') {
+                if (!val.includes('@')) {
+                    showToast('Email tidak valid.');
+                } else {
+                    formData.email = val;
+                    showLoading('Mengirimkan OTP ke email Anda...');
+                    try {
+                        let res = await fetch('/api/request-otp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                            body: JSON.stringify({email: formData.email})
+                        });
+                        let data = await res.json();
+                        hideLoading();
+                        if (data.status === 'success') {
+                            askStep(currentStepIndex + 1);
+                        } else {
+                            showToast(data.message);
+                        }
+                    } catch (e) {
+                        hideLoading();
+                        showToast('Gagal terhubung ke server.');
+                    }
+                }
+            } else if (step.id === 'TanyaOTP') {
+                if (val.length !== 6) {
+                    showToast('Masukkan 6 digit kode OTP.');
+                } else {
+                    showLoading('Memverifikasi OTP...');
+                    try {
+                        let res = await fetch('/api/verify-otp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                            body: JSON.stringify({email: formData.email, otp: val})
+                        });
+                        let data = await res.json();
+                        hideLoading();
+                        if (data.status === 'success') {
+                            isEmailVerified = true;
+                            saveProgress();
+                            finalizeRegistration(); // Directly finalize!
+                        } else {
+                            showToast('Kode OTP salah atau kedaluwarsa.');
+                        }
+                    } catch (e) {
+                        hideLoading();
+                        showToast('Gagal verifikasi jaringan.');
+                    }
+                }
+            }
+
+            isProcessing = false;
+            btnSend.innerHTML = '<i class="ph-bold ph-arrow-up"></i>';
+            btnSend.disabled = false;
+        }
+
+        window.handleChoiceClick = async function(value) {
+            if (isProcessing) return;
+            const step = steps[currentStepIndex];
+            
+            if (step.id === 'TanyaBisnis') {
+                formData.jenisBisnis = value;
+                askStep(currentStepIndex + 1);
+            } else if (step.id === 'TanyaPaket') {
+                formData.paket = value;
+                if (value === 'free') {
+                    formData.payment_method = 'free';
+                    finalizeRegistration();
+                } else {
+                    askStep(currentStepIndex + 1); // TanyaPayment
+                }
+            } else if (step.id === 'TanyaPayment') {
+                formData.payment_method = value;
+                finalizeRegistration();
+            }
+        };
+
+        async function finalizeRegistration() {
+            showLoading('Bagus sekali! Menyiapkan toko Anda...');
+            if (!formData.namaOwner) formData.namaOwner = 'Owner ' + formData.namaToko;
+            formData.paket = 'free'; // Pakaiapp is now purely Pay Per Transaction
+            formData.payment_method = 'free';
+            try {
+                let res = await fetch('/api/register-tenant', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify(formData)
+                });
+                let data = await res.json();
+                hideLoading();
+                
+                if (data.status === 'success') {
+                    const payStatus = data.data?.payment_status;
+                    
+                    if (!payStatus) {
+                        localStorage.removeItem('register_progress');
+                        showCustomAlert(
+                            'success',
+                            'Toko Berhasil Dibuat!',
+                            'Selamat! Akun dan toko Anda telah berhasil dibuat. Silakan cek kotak masuk atau folder spam email Anda (' + formData.email + ') untuk mendapatkan link login, email, dan password Anda. Jangan lupa untuk segera mengubah password setelah berhasil login demi keamanan.',
+                            () => {
+                                window.location.href = data.data.redirect_url;
+                            },
+                            'Buka Dashboard Toko'
+                        );
+                    } else if (payStatus === 'manual') {
+                        localStorage.removeItem('register_progress');
+                        showCustomAlert('info', 'Pendaftaran Dicatat', 'Selesaikan pembayaran manual via WhatsApp.', () => {
+                            window.open(data.data.redirect_url, '_blank'); window.location.href = '/';
+                        }, 'Buka WhatsApp');
+                    } else if (payStatus === 'payment_required_duitku') {
+                        localStorage.removeItem('register_progress');
+                        window.location.href = data.data.payment_url;
+                    } else if (payStatus === 'payment_required_midtrans') {
+                        localStorage.removeItem('register_progress');
+                        window.snap.pay(data.data.snap_token, {
+                            onSuccess: () => window.location.href = '/register/status/' + data.data.invoice_code,
+                            onPending: () => window.location.href = '/register/status/' + data.data.invoice_code,
+                            onError: () => showToast('Pembayaran gagal.'),
+                            onClose: () => window.location.href = '/register/status/' + data.data.invoice_code
+                        });
+                    }
+                } else {
+                    showToast('Oops, terjadi kesalahan: ' + data.message);
+                }
+            } catch (e) {
+                hideLoading();
+                showToast('Gagal menghubungi server.');
+            }
+        }
+
+        window.expandDuitkuOptions = async function(event) {
+            event.stopPropagation();
+            const container = document.getElementById('duitkuMethodsContainer');
+            const grid = document.getElementById('duitkuMethodsGrid');
+            const loader = document.getElementById('loadingDuitkuMethods');
+            
+            // Toggle container
+            if (container.style.display === 'block') {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            // If already loaded, do not fetch again
+            if (grid.children.length > 0) return;
+            
+            loader.style.display = 'inline-flex';
+            try {
+                const amount = formData.paket === 'santai' ? 50000 : 150000;
+                const res = await fetch('/api/duitku/payment-methods?amount=' + amount);
+                const data = await res.json();
+                loader.style.display = 'none';
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    grid.innerHTML = data.data.map(m => `
+                        <div class="duitku-method-card" onclick="selectDuitkuMethodOption(event, '${m.paymentMethod}', this)">
+                            ${m.paymentImage ? `<img src="${m.paymentImage}" alt="${m.paymentName}">` : ''}
+                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text); line-height: 1.2;">${m.paymentName}</div>
+                            <div style="font-size: 0.62rem; color: var(--text-muted); font-weight: 500;">+Rp ${parseInt(m.fee).toLocaleString('id-ID')}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; font-size: 0.78rem; color: var(--red); padding: 10px;">Gagal memuat metode pembayaran Duitku. Silakan coba lagi.</div>`;
+                }
+            } catch (e) {
+                loader.style.display = 'none';
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; font-size: 0.78rem; color: var(--red); padding: 10px;">Terjadi kesalahan jaringan.</div>`;
+            }
+        };
+
+        window.selectPaymentOption = function(event, value, cardClass) {
+            if (isProcessing) return;
+            event.stopPropagation();
+
+            // Clear all selected classes
+            document.querySelectorAll('.payment-card-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.duitku-method-card').forEach(el => el.classList.remove('selected'));
+
+            // Highlight the selected main card
+            const clickedCard = document.querySelector('.' + cardClass);
+            if (clickedCard) {
+                clickedCard.classList.add('selected');
+            }
+
+            selectedPaymentMethod = value;
+
+            // Render/Update Confirm Button
+            renderConfirmPaymentButton();
+        };
+
+        window.selectDuitkuMethodOption = function(event, value, cardElement) {
+            if (isProcessing) return;
+            event.stopPropagation();
+
+            // Clear all selected classes
+            document.querySelectorAll('.payment-card-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.duitku-method-card').forEach(el => el.classList.remove('selected'));
+
+            // Highlight Duitku main card
+            const clickedCard = document.getElementById('optionDuitkuCard');
+            if (clickedCard) {
+                clickedCard.classList.add('selected');
+            }
+
+            // Highlight Duitku sub-card
+            cardElement.classList.add('selected');
+
+            selectedPaymentMethod = value;
+
+            // Render/Update Confirm Button
+            renderConfirmPaymentButton();
+        };
+
+        function renderConfirmPaymentButton() {
+            let btnContainer = document.getElementById('confirmPaymentContainer');
+            if (!btnContainer) {
+                btnContainer = document.createElement('div');
+                btnContainer.id = 'confirmPaymentContainer';
+                btnContainer.className = 'btn-confirm-payment-container';
+                choicesContainer.appendChild(btnContainer);
+            }
+            btnContainer.style.display = 'flex';
+
+            let btnText = 'Lanjutkan & Buat Toko';
+            let iconClass = 'ph-arrow-right';
+
+            if (selectedPaymentMethod === 'manual') {
+                btnText = 'Hubungi Admin via WhatsApp';
+                iconClass = 'ph-whatsapp-logo';
+            } else if (selectedPaymentMethod === 'midtrans') {
+                btnText = 'Bayar Instan (Midtrans Sandbox)';
+                iconClass = 'ph-credit-card';
+            } else {
+                btnText = 'Bayar Otomatis (Duitku Sandbox)';
+                iconClass = 'ph-wallet';
+            }
+
+            btnContainer.innerHTML = `
+                <button class="btn-confirm-payment" onclick="confirmPaymentChoice()">
+                    <i class="ph-bold ${iconClass}"></i> ${btnText}
+                </button>
+            `;
+        }
+
+        window.confirmPaymentChoice = function() {
+            if (!selectedPaymentMethod || isProcessing) return;
+            formData.payment_method = selectedPaymentMethod;
+            finalizeRegistration();
+        };
+
+        // Initialize First Step
+        if (currentStepIndex > 0) {
+            askStep(currentStepIndex, true);
+        } else {
+            setTimeout(() => askStep(0), 100);
+        }
+    }
+});

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\StoreSetting;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -28,7 +28,8 @@ class extends Component {
         if (Auth::attempt($credentials, $this->form['remember'])) {
             session()->regenerate();
 
-            if (auth()->user()->role === 'manager') $this->redirect('/dashboard');
+            if (auth()->user()->role === 'manager') $this->redirectRoute('dashboard');
+            elseif (auth()->user()->role === 'kitchen') $this->redirectRoute('kitchen');
             else $this->redirectRoute('cashier');
         }
 

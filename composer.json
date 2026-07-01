@@ -10,11 +10,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-mbstring": "*",
         "intervention/image": "^4.1",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.1",
         "midtrans/midtrans-php": "^2.6",
+        "resend/resend-laravel": "^1.4",
+        "spatie/laravel-data": "^4.23",
         "stancl/tenancy": "^3.10"
     },
     "require-dev": {
@@ -30,6 +33,9 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "App\\Central\\": "app/Central/",
+            "App\\Tenant\\": "app/Tenant/",
+            "App\\Shared\\": "app/Shared/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -56,6 +62,10 @@
             "npm run build:ssr",
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,queue,logs,ssr --kill-others"
+        ],
+        "release": [
+            "Composer\\Config::disableProcessTimeout",
+            "npm run build"
         ],
         "lint": [
             "pint --parallel"

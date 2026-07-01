@@ -1,3 +1,7 @@
+import '@phosphor-icons/web/bold';
+import '@phosphor-icons/web/fill';
+import '@phosphor-icons/web/regular';
+
 /**
  * Store front-end logic (Alpine.js components).
  *
@@ -28,10 +32,59 @@ document.addEventListener('alpine:init', () => {
     // STORE APP — global cart + modals state
     // -------------------------------------------------------------------------
     Alpine.data('storeApp', () => ({
+        /* ===== THEME ===== */
+        theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+
+        toggleTheme() {
+            this.theme = this.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', this.theme);
+            if (this.theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        },
+
         /* ===== CART ===== */
         toast: {show: false, message: ''},
         qrOpen: false,
         cart: JSON.parse(localStorage.getItem('ezmenu-cart') || '[]'),
+
+        /* ===== PULL TO REFRESH ===== */
+        isRefreshing: false,
+        pullY: 0,
+        pullStartY: 0,
+
+        handleTouchStart(e) {
+            if (window.scrollY === 0) this.pullStartY = e.touches[0].clientY;
+            else this.pullStartY = 0;
+        },
+        handleTouchMove(e) {
+            if (!this.pullStartY || this.isRefreshing) return;
+            const dist = e.touches[0].clientY - this.pullStartY;
+            if (dist > 0 && window.scrollY <= 0) {
+                this.pullY = Math.min(dist, 100);
+            }
+        },
+        async handleTouchEnd() {
+            if (!this.pullStartY) return;
+            if (this.pullY > 60) {
+                this.isRefreshing = true;
+                this.pullY = 60;
+                
+                // Dispatch event so livewire can refresh (for product-list)
+                window.dispatchEvent(new CustomEvent('refresh-menu-data'));
+                
+                // Backup refresh for non-livewire pages (product detail)
+                if (typeof Livewire === 'undefined') {
+                    await new Promise(r => setTimeout(r, 400));
+                    window.location.reload();
+                }
+            } else {
+                this.pullY = 0;
+            }
+            this.pullStartY = 0;
+        },
 
         /* ===== ORDER HISTORY ===== */
         historyOpen: false,
@@ -111,6 +164,7 @@ document.addEventListener('alpine:init', () => {
                 paymentMethod: orderData.paymentMethod,
                 paymentName: orderData.paymentName,
                 status: orderData.status || 'pending',
+                waUrl: orderData.waUrl || null,
                 items: orderData.items.map(i => ({
                     name: i.cartName || i.name,
                     qty: i.qty,
@@ -136,15 +190,19 @@ document.addEventListener('alpine:init', () => {
             localStorage.setItem('ezmenu-cart', JSON.stringify(this.cart));
         },
 
-        addToCart(item, selectedVariants = '', quantity = 1) {
+        addToCart(item, selectedVariants = '', quantity = 1, variantId = null) {
             const cartName = selectedVariants
                 ? `${item.name} (${selectedVariants})`
                 : item.name;
+            const finalPrice = ('_is_calculated' in item) ? item.price : (parseFloat(item.active_discount_price || item.price) || 0);
+            const originalPrice = ('_is_calculated' in item) ? (item.originalPrice || item.price) : (parseFloat(item.price) || 0);
             const existing = this.cart.find((i) => i.cartName === cartName);
             if (existing) {
                 existing.qty += quantity;
+                existing.price = finalPrice;
+                existing.originalPrice = originalPrice;
             } else {
-                this.cart.push({...item, cartName, qty: quantity});
+                this.cart.push({...item, price: finalPrice, originalPrice, cartName, qty: quantity, variant_id: variantId});
             }
             this.saveCart();
             this.showToast('Berhasil ditambahkan ke keranjang!');
@@ -200,10 +258,126 @@ document.addEventListener('alpine:init', () => {
         /* ===== QR MODAL ===== */
         get qrUrl() {
             return (
-                'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+                'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' +
                 encodeURIComponent(window.location.href) +
                 '&bgcolor=ffffff&color=000000&margin=10'
             );
+        },
+
+        async downloadQr() {
+            try {
+                // Fetch the image as a blob
+                const response = await fetch(this.qrUrl);
+                const blob = await response.blob();
+
+                // Create an Image object from the blob
+                const qrImage = new Image();
+                const blobUrl = URL.createObjectURL(blob);
+
+                await new Promise((resolve, reject) => {
+                    qrImage.onload = resolve;
+                    qrImage.onerror = reject;
+                    qrImage.src = blobUrl;
+                });
+
+                // Create Canvas for the Poster
+                const canvas = document.createElement('canvas');
+                canvas.width = 1080;
+                canvas.height = 1440; // 3:4 ratio, great for standees
+                const ctx = canvas.getContext('2d');
+
+                // Draw background (Deep dark premium)
+                ctx.fillStyle = '#09090b'; // zinc-950
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Radial gradient highlight behind QR
+                const radial = ctx.createRadialGradient(canvas.width / 2, 720, 0, canvas.width / 2, 720, 800);
+                radial.addColorStop(0, '#27272a'); // zinc-800
+                radial.addColorStop(1, '#09090b'); // zinc-950
+                ctx.fillStyle = radial;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Gold Top Border Accent
+                const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                grad.addColorStop(0, '#d97706'); // amber-600
+                grad.addColorStop(0.5, '#fbbf24'); // amber-400
+                grad.addColorStop(1, '#d97706');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, 24);
+
+                // Store Name
+                const rawTitle = document.title || 'Menu';
+                const storeName = rawTitle.split('|')[0].trim();
+
+                // Subtitle
+                ctx.textAlign = 'center'; // IMPORTANT: This keeps everything centered!
+                ctx.fillStyle = '#fbbf24'; // amber-400
+                ctx.font = '800 36px "Inter", system-ui, sans-serif';
+                ctx.fillText('S C A N   U N T U K   P E S A N', canvas.width / 2, 280);
+
+                // Draw white rounded box for QR Code
+                const qrSize = 640;
+                const qrX = (canvas.width - qrSize) / 2;
+                const qrY = 440;
+                const r = 48; // border radius
+                const pad = 64; // padding
+
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 60;
+                ctx.shadowOffsetY = 30;
+
+                const boxX = qrX - pad;
+                const boxY = qrY - pad;
+                const boxW = qrSize + pad * 2;
+                const boxH = qrSize + pad * 2;
+
+                ctx.beginPath();
+                ctx.moveTo(boxX + r, boxY);
+                ctx.lineTo(boxX + boxW - r, boxY);
+                ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + r, r);
+                ctx.lineTo(boxX + boxW, boxY + boxH - r);
+                ctx.arcTo(boxX + boxW, boxY + boxH, boxX + boxW - r, boxY + boxH, r);
+                ctx.lineTo(boxX + r, boxY + boxH);
+                ctx.arcTo(boxX, boxY + boxH, boxX, boxY + boxH - r, r);
+                ctx.lineTo(boxX, boxY + r);
+                ctx.arcTo(boxX, boxY, boxX + r, boxY, r);
+                ctx.closePath();
+                ctx.fill();
+
+                // Reset shadow
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                // Draw the actual QR Code Image
+                ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+
+                // Draw Footer (Powered by)
+                ctx.fillStyle = '#71717a'; // zinc-500
+                ctx.font = '500 28px "Inter", system-ui, sans-serif';
+                ctx.fillText('Platform pemesanan digital didukung oleh', canvas.width / 2, canvas.height - 120);
+
+                ctx.fillStyle = '#fbbf24'; // amber-400
+                ctx.font = '800 34px "Inter", system-ui, sans-serif';
+                ctx.fillText('pakaiapp.online', canvas.width / 2, canvas.height - 70);
+
+                // Export & Download
+                const finalDataUrl = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = finalDataUrl;
+                const cleanName = storeName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                a.download = `qr-standee-${cleanName}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                console.error('Failed to download QR code', e);
+                // Fallback for CORS or fetch issues: open in new tab
+                window.open(this.qrUrl, '_blank');
+            }
         },
 
         /* ===== OPTION MODAL (Variants: Single or Multi-select) ===== */
@@ -229,7 +403,7 @@ document.addEventListener('alpine:init', () => {
             } else {
                 // Single: pre-select first variant for better UX
                 this.optionSelected =
-                    product.variants && product.variants.length > 0
+                    product.variants && product.variants.length > 0 && product.has_variants
                         ? [product.variants[0].name]
                         : [];
             }
@@ -283,58 +457,92 @@ document.addEventListener('alpine:init', () => {
         },
         get optionValid() {
             // Valid kalau ada variant yang dipilih (atau produk tidak punya variant)
-            return this.optionProduct?.variants?.length
+            return (this.optionProduct?.variants?.length && this.optionProduct.has_variants)
                 ? this.optionSelected.length > 0
                 : true;
         },
         get optionTotalPrice() {
             if (!this.optionProduct) return 0;
             let basePrice;
-            if (!this.optionProduct.variants?.length) {
-                basePrice = parseFloat(this.optionProduct.price) || 0;
+            if (!this.optionProduct.variants?.length || !this.optionProduct.has_variants) {
+                basePrice = parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
             } else if (this.isMulti) {
-                basePrice = parseFloat(this.optionProduct.price) || 0;
+                basePrice = parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
             } else {
                 const v = this.optionProduct.variants.find(
                     (v) => v.name === this.optionSelected[0]
                 );
-                basePrice = v ? (parseFloat(v.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
+                basePrice = v ? (parseFloat(v.active_discount_price || v.price) || 0) : (parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0);
             }
             return (basePrice + this.extrasTotal) * this.optionQty;
         },
         confirmOption() {
             if (!this.optionValid || !this.optionProduct) return;
 
-            // Hitung harga variant
-            let price;
-            let variantLabel = '';
-            if (!this.optionProduct.variants?.length) {
-                price = parseFloat(this.optionProduct.price) || 0;
+            let finalPrice = 0;
+            let originalVariantPrice = 0;
+            let finalVariantLabel = '';
+            let variantId = null;
+            let variantIds = [];
+
+            if (!this.optionProduct.variants?.length || !this.optionProduct.has_variants) {
+                // No variant product
+                originalVariantPrice = parseFloat(this.optionProduct.price) || 0;
+                finalPrice = parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
+                variantId = this.optionProduct.default_variant_id || (this.optionProduct.variants?.[0]?.id || null);
+                if (variantId) variantIds.push(variantId);
             } else if (this.isMulti) {
-                price = parseFloat(this.optionProduct.price) || 0;
-                variantLabel = this.optionSelected.join(', ');
+                // Multi selection (Checkbox)
+                originalVariantPrice = parseFloat(this.optionProduct.price) || 0;
+                finalPrice = parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
+                finalVariantLabel = this.optionSelected.join(', ');
+                variantIds = this.optionProduct.variants
+                    .filter(v => this.optionSelected.includes(v.name))
+                    .map(v => v.id);
             } else {
-                const v = this.optionProduct.variants.find(
+                // Single selection (Radio)
+                const selectedVariant = this.optionProduct.variants.find(
                     (v) => v.name === this.optionSelected[0]
                 );
-                price = v ? (parseFloat(v.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
-                variantLabel = this.optionSelected[0] || '';
+                // Guard: block out-of-stock single variant
+                if (selectedVariant && selectedVariant.stock <= 0) {
+                    this.showToast('Stok varian ini sudah habis!', 'error');
+                    return;
+                }
+                originalVariantPrice = selectedVariant ? (parseFloat(selectedVariant.price) || 0) : (parseFloat(this.optionProduct.price) || 0);
+                finalPrice = selectedVariant
+                    ? parseFloat(selectedVariant.active_discount_price || selectedVariant.price) || 0
+                    : parseFloat(this.optionProduct.active_discount_price || this.optionProduct.price) || 0;
+                finalVariantLabel = this.optionSelected[0] || '';
+                variantId = selectedVariant ? selectedVariant.id : null;
+                if (variantId) variantIds.push(variantId);
             }
 
-            // Tambahkan harga extras
-            price += this.extrasTotal;
+            finalPrice += this.extrasTotal;
+            originalVariantPrice += this.extrasTotal;
 
-            // Bangun label lengkap untuk cartName
-            const extrasLabel = this.extrasSelected.length
+            const finalExtraLabel = this.extrasSelected.length
                 ? this.extrasSelected.join(', ')
                 : '';
-            const selectedLabel = [variantLabel, extrasLabel].filter(Boolean).join(' + ');
+
+            let extraIds = [];
+            if (this.optionProduct.extras && this.extrasSelected.length > 0) {
+                extraIds = this.optionProduct.extras
+                    .filter(e => this.extrasSelected.includes(e.name))
+                    .map(e => e.id);
+            }
+
+            const combinedLabel = [finalVariantLabel, finalExtraLabel]
+                .filter(Boolean)
+                .join(' + ');
 
             this.addToCart(
-                {...this.optionProduct, price},
-                selectedLabel,
-                this.optionQty
+                {...this.optionProduct, price: finalPrice, originalPrice: originalVariantPrice, _is_calculated: true, variant_ids: variantIds, extra_ids: extraIds},
+                combinedLabel,
+                this.optionQty,
+                variantId
             );
+
             this.closeOption();
         },
 
@@ -410,6 +618,21 @@ document.addEventListener('alpine:init', () => {
             this.taxRate = parseFloat(root.dataset.taxRate) || 0;
             this.isServiceActive = root.dataset.serviceActive === '1';
             this.serviceRate = parseFloat(root.dataset.serviceRate) || 0;
+
+            // Apply theme reliably on every component init (solves Livewire navigation reset)
+            if (this.theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Connection state handlers
+            window.addEventListener('offline', () => {
+                this.showToast('Koneksi terputus. Anda sedang offline.', 5000);
+            });
+            window.addEventListener('online', () => {
+                this.showToast('Koneksi kembali terhubung.', 3000);
+            });
 
             this.loadHistory();
 
@@ -495,9 +718,14 @@ document.addEventListener('alpine:init', () => {
                 order_type: this.orderType,
                 order_info: this.customerInfo.trim() || null,
                 total_price: this.totalOrderPrice,
-                payment_method: this.isDigitalMethod ? 'digital' : (this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash'),
+                payment_method: this.isDigitalMethod
+                    ? 'digital'
+                    : this.isDuitkuMethod ? this.selectedPaymentMethod : 'cash',
                 items: this.cart.map((item) => ({
                     product_id: item.id,
+                    variant_id: item.variant_id || null,
+                    variant_ids: item.variant_ids || [],
+                    extra_ids: item.extra_ids || [],
                     name: item.cartName,
                     quantity: item.qty,
                     price: parseFloat(item.price)
@@ -629,7 +857,7 @@ document.addEventListener('alpine:init', () => {
                     const waText = waLines.filter((l) => l !== null).join('\n');
 
                     // 2. Bikin URL WA-nya
-                    const finalWaUrl = `https://wa.me/${this._waNumber}?text=${encodeURIComponent(waText)}`;
+                    const finalWaUrl = `https://wa.me/${this.waNumber}?text=${encodeURIComponent(waText)}`;
 
                     // 3. Simpan URL-nya ke state orderSuccess (biar tombol di HTML bisa pake link ini buat RESEND)
                     this.orderSuccess = {
@@ -645,7 +873,8 @@ document.addEventListener('alpine:init', () => {
                         orderType: this.orderType,
                         paymentMethod: 'cash',
                         paymentName: 'Bayar Manual / Di Kasir',
-                        items: this.cart
+                        items: this.cart,
+                        waUrl: finalWaUrl
                     });
 
                     // 4. BUKA OTOMATIS KE WA (Persis kayak fitur asli lu)
@@ -750,23 +979,23 @@ document.addEventListener('alpine:init', () => {
 });
 
 let storeNavLoaderHtml = `
-<div id="dynamic-nav-loader" class="fixed inset-0 z-[9999] bg-zinc-50/70 backdrop-blur-md flex flex-col items-center justify-center gap-6 pointer-events-auto" style="display: flex;">
+<div id="dynamic-nav-loader" class="fixed inset-0 z-[9999] bg-[var(--background)]/80 backdrop-blur-md flex flex-col items-center justify-center gap-6 pointer-events-auto" style="display: flex;">
     <div class="relative">
-        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 animate-bounce">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center shadow-2xl shadow-zinc-900/20 border border-zinc-800 animate-bounce">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary-color,#f59e0b)]">
                 <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
                 <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.9.9 2.1 1.4 3.4 1.4H20v-3.5c0-1.3-.5-2.5-1.4-3.4z"/>
                 <path d="m2 22 7.5-7.5"/>
             </svg>
         </div>
-        <div class="absolute -inset-2 rounded-[2rem] border-2 border-dashed border-zinc-200 animate-spin" style="animation-duration:3s"></div>
+        <div class="absolute -inset-2 rounded-[2rem] border-2 border-dashed border-[var(--primary-color)]/50 animate-spin" style="animation-duration:3s"></div>
     </div>
     <div class="text-center space-y-1.5">
-        <p class="text-zinc-800 text-sm font-black tracking-tight">Menyiapkan Menu</p>
-        <div class="flex items-center justify-center gap-1">
-            <div class="w-1.5 h-1.5 rounded-full bg-zinc-300 animate-bounce" style="animation-delay:0ms"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style="animation-delay:150ms"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style="animation-delay:300ms"></div>
+        <p class="text-[var(--foreground)] text-sm font-black tracking-tight">Menyiapkan Menu</p>
+        <div class="flex items-center justify-center gap-1.5">
+            <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-1"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-2"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-3"></div>
         </div>
     </div>
 </div>
@@ -848,5 +1077,14 @@ document.addEventListener('livewire:navigated', () => {
 });
 
 document.addEventListener('livewire:initialized', () => {
+    window.hideStoreLoader();
+});
+
+// Emergency fallbacks so the loader doesn't spin forever
+window.addEventListener('offline', () => {
+    window.hideStoreLoader();
+});
+
+document.addEventListener('livewire:navigate.error', () => {
     window.hideStoreLoader();
 });

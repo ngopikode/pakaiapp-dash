@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Category;
-use App\Models\Product;
+use App\Tenant\Models\Core\Category;
+use App\Tenant\Models\Core\Product;
 use Livewire\Attributes\On;
 use Livewire\Component;
 

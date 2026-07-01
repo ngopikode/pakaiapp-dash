@@ -15,7 +15,10 @@
          },
          openGuide() {
              this.dismiss();
-             window.dispatchEvent(new CustomEvent('start-pos-tour'));
+             window.dispatchEvent(new CustomEvent('force-cashier-tab'));
+             setTimeout(() => {
+                 window.dispatchEvent(new CustomEvent('start-pos-tour'));
+             }, 300);
          }
      }"
      @tutorial-opened.window="showBanner = false"
@@ -26,8 +29,16 @@
      x-transition:leave="transition ease-in duration-200"
      x-transition:leave-start="opacity-100 translate-y-0 scale-100"
      x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-     class="position-fixed bottom-0 start-0 m-3 m-md-4 p-3 shadow-lg border text-body"
+     class="tour-guide-toast position-fixed bottom-0 start-0 m-3 m-md-4 p-3 shadow-lg border text-body"
      style="z-index: 1040; width: 320px; border-radius: 1.25rem; background: rgba(var(--bs-body-bg-rgb), 0.85); backdrop-filter: blur(12px); border-color: var(--bs-border-color-translucent) !important;">
+     
+    <style>
+        @media (max-width: 768px) {
+            .tour-guide-toast {
+                bottom: calc(var(--bottom-nav-height, 65px) + env(safe-area-inset-bottom, 0px)) !important;
+            }
+        }
+    </style>
 
     <div class="d-flex align-items-start gap-3">
         <div
@@ -45,7 +56,7 @@
                 Pelajari cara cepat menggunakan halaman kasir ini melalui panduan interaktif kami.
             </p>
             <button @click="openGuide()" class="btn btn-warning btn-sm fw-bold rounded-pill w-100 text-white"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; font-size: 0.75rem;">
+                    style="background: #F97316; border: none; font-size: 0.75rem;">
                 Buka Panduan <i class="bi bi-arrow-right ms-1"></i>
             </button>
         </div>
@@ -97,9 +108,9 @@
                                 position: 'left'
                             },
                             {
-                                target: '[title="Daftar Tunda"]',
-                                title: 'Tunda Pesanan (F8)',
-                                content: 'Pelanggan belum selesai memilih? Klik Tunda untuk menyimpan keranjang secara aman di memori lokal, lalu panggil kembali melalui tombol Daftar.',
+                                target: '#tour-cart-actions',
+                                title: 'Aksi Cepat Keranjang',
+                                content: 'Sangat praktis! ⏸️ TUNDA (F8): Simpan keranjang sementara. 📋 DAFTAR: Buka kembali pesanan yang tertunda. 🗑️ BATAL (F4): Hapus seluruh isi keranjang.',
                                 position: 'left'
                             },
                             {
@@ -131,14 +142,14 @@
                         let arr = [
                             {
                                 target: '#tour-pos-search',
-                                title: 'Cari Produk & Kitchen Notes',
-                                content: 'Cari menu di sini. Anda juga bisa menulis catatan khusus per menu (seperti "tanpa es" atau "tidak pedas") langsung di bawah setiap item keranjang.',
+                                title: 'Cari Menu',
+                                content: 'Gunakan kolom pencarian ini untuk menemukan menu dengan cepat saat pelanggan memesan.',
                                 position: 'bottom'
                             },
                             {
                                 target: '.tour-product-item',
-                                title: 'Pilih Menu & Catatan',
-                                content: 'Klik menu pada daftar ini untuk memasukkannya ke pesanan. Setelah masuk keranjang, Anda bisa menambahkan catatan dapur khusus.',
+                                title: 'Pilih Menu',
+                                content: 'Klik menu pada daftar ini untuk menambahkannya langsung ke keranjang pesanan.',
                                 position: 'right'
                             }
                         ];
@@ -167,8 +178,8 @@
                             },
                             {
                                 target: '#tour-resto-save',
-                                title: 'Simpan Antrean (F3)',
-                                content: 'Gunakan ini untuk pesanan "Makan di Tempat" (Dine In) yang belum lunas. Pesanan akan dikirim ke dapur dan masuk Daftar Antrean.',
+                                title: 'Simpan Bill (F3)',
+                                content: 'Gunakan ini untuk pesanan "Makan di Tempat" (Dine In) yang belum lunas. Pesanan akan dikirim ke dapur dan masuk Daftar Open Bill.',
                                 position: 'left'
                             },
                             {
@@ -178,8 +189,8 @@
                                 position: 'left'
                             },
                             {
-                                target: '[title="Daftar Antrean"]',
-                                title: 'Kelola Antrean',
+                                target: '[title="Daftar Open Bill"]',
+                                title: 'Kelola Open Bill',
                                 content: 'Untuk pesanan yang disimpan tadi, buka tab ini saat pelanggan siap untuk melunasi pesanannya.',
                                 position: 'bottom'
                             },
@@ -230,6 +241,26 @@
                 },
 
                 startTour() {
+                    // Cek jika produk sama sekali belum ada di kasir
+                    let productExists = document.querySelector('.tour-product-item');
+                    if (!productExists) {
+                        Swal.fire({
+                            title: 'Belum Ada Produk',
+                            html: 'Halaman kasir belum memiliki produk untuk dipajang dan dijual.<br><br>Silakan tambahkan produk Anda terlebih dahulu di menu <b>Produk</b> sebelum memulai panduan kasir.',
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#F97316',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: '<i class="bi bi-box-seam me-1"></i> Kelola Produk',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '{{ route("product") }}';
+                            }
+                        });
+                        return;
+                    }
+
                     if (this.isActive) return;
                     
                     this.currentStep = 0;
@@ -268,7 +299,7 @@
                     const step = this.currentStepData;
                     if (!step) return;
 
-                    const cartTargets = ['#tour-cart-items', '[title="Daftar Tunda"]', '[x-model="customerPhone"]', '[x-model\\.number="globalDiscount"]', '#tour-retail-pay', '[x-model="isTaxActive"]', '#tour-resto-save', '#tour-resto-pay'];
+                    const cartTargets = ['#tour-cart-items', '#tour-cart-actions', '[x-model="customerPhone"]', '[x-model\\.number="globalDiscount"]', '#tour-retail-pay', '[x-model="isTaxActive"]', '#tour-resto-save', '#tour-resto-pay'];
                     const isCartStep = cartTargets.includes(step.target);
                     const isProductGridStep = step.target === '.tour-product-item' || step.target === '#tour-pos-search';
                     
@@ -416,11 +447,6 @@
                  :style="tooltipStyle"
                  :class="isPositioned ? 'opacity-100 visible' : 'opacity-0 invisible'">
                 <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                         style="border-radius: 1rem; pointer-events: none; z-index: 0;">
-                        <div class="position-absolute opacity-10"
-                             style="background-color: var(--brand-caramel); width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; filter: blur(30px);"></div>
-                    </div>
 
                     <div class="position-relative" style="z-index: 1;">
                         <div class="d-flex align-items-center mb-3">
@@ -439,10 +465,10 @@
                              style="border-color: var(--bs-border-color) !important;">
                             
                             <div class="d-flex justify-content-center gap-1 w-100">
-                                <template x-for="(step, index) in steps" :key="index">
+                                <template x-for="(step, idx) in steps" :key="index">
                                     <div class="rounded-pill transition-all"
-                                         :class="index === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
-                                         :style="index === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
+                                         :class="idx === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
+                                         :style="idx === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
                                     </div>
                                 </template>
                             </div>

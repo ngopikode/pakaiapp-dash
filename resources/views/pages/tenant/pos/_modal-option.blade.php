@@ -1,4 +1,4 @@
-<div class="modal fade modal-bottom-mobile" id="optionModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="optionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg bg-body text-body"
              style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -9,10 +9,10 @@
                 <div>
                     <h5 class="fw-bold mb-1">Pilih Varian</h5>
                     <p class="text-secondary small mb-0" x-text="optionProduct ? optionProduct.name : ''"></p>
-                    <template x-if="optionProduct && optionProduct.selection_type === 'multiple'">
+                    <div x-show="optionProduct && optionProduct.selection_type === 'multiple'">
                         <span class="badge bg-warning text-dark mt-1 fw-bold"
-                              x-text="'Pilih maks ' + optionProduct.max_selections + ' pilihan'"></span>
-                    </template>
+                              x-text="'Pilih maks ' + (optionProduct ? optionProduct.max_selections : 0) + ' pilihan'"></span>
+                    </div>
                 </div>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -20,55 +20,62 @@
             {{-- Body Modal --}}
             <div class="modal-body p-4 bg-body" style="border-radius: 0 0 1.5rem 1.5rem;">
                 <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height: 50vh;">
-                    <template x-if="optionProduct">
+                    <div x-show="optionProduct">
                         <div>
                             {{-- ----- VARIANTS ----- --}}
-                            <template x-if="optionProduct.variants && optionProduct.variants.length > 0 && optionProduct.has_variants">
+                            <div x-show="optionProduct?.variants?.length > 0 && optionProduct?.has_variants">
                                 <div class="d-flex flex-column gap-2 mb-3">
-                                    <template x-for="variant in optionProduct.variants" :key="variant.id">
+                                    <template x-for="variant in (optionProduct?.variants || [])" :key="variant.id">
                                         <button type="button"
                                                 class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all bg-body"
                                                 :class="{
-                                                        'opacity-50 bg-body-tertiary': variant.stock <= 0,
                                                         'border-warning bg-warning bg-opacity-10': isOptionSelected(variant.name),
+                                                        'bg-body-tertiary opacity-50': variant.stock <= 0,
                                                         'border-secondary border-opacity-25': variant.stock > 0 && !isOptionSelected(variant.name)
                                                     }"
                                                 :disabled="variant.stock <= 0"
                                                 @click="if(variant.stock > 0) toggleOption(variant)"
                                                 style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
                                             <div class="d-flex align-items-center gap-3">
-                                                <template x-if="optionProduct.selection_type === 'multiple'">
-                                                    <i class="bi fs-4"
-                                                       :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-warning' : 'bi-square text-secondary opacity-50'"></i>
-                                                </template>
-                                                <template x-if="optionProduct.selection_type !== 'multiple'">
-                                                    <i class="bi fs-4"
-                                                       :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-warning' : 'bi-circle text-secondary opacity-50'"></i>
-                                                </template>
+                                                <i class="bi fs-4" x-show="optionProduct?.selection_type === 'multiple'"
+                                                   :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-warning' : 'bi-square text-secondary opacity-50'"></i>
+                                                <i class="bi fs-4" x-show="optionProduct?.selection_type !== 'multiple'"
+                                                   :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-warning' : 'bi-circle text-secondary opacity-50'"></i>
                                                 <div>
                                                     <h6 class="fw-bold text-body mb-0" x-text="variant.name"></h6>
                                                 </div>
                                             </div>
-                                            <h6 class="fw-bold text-secondary mb-0"
-                                                x-text="optionProduct.selection_type === 'multiple' ? '' : '+ Rp ' + formatRupiah(variant.price)"></h6>
+                                            <div class="text-end" x-show="optionProduct?.selection_type !== 'multiple'">
+                                                <template x-if="variant.active_discount_price && Number(variant.active_discount_price) > 0 && Number(variant.active_discount_price) < Number(variant.price)">
+                                                    <div class="d-flex flex-column align-items-end">
+                                                        <span class="text-decoration-line-through text-danger fw-semibold" style="font-size: 0.7rem;" x-text="'Rp ' + formatRupiah(variant.price)"></span>
+                                                        <span class="fw-bold text-primary" style="font-size: 0.85rem;" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></span>
+                                                    </div>
+                                                </template>
+                                                <template x-if="!variant.active_discount_price || Number(variant.active_discount_price) === 0 || Number(variant.active_discount_price) >= Number(variant.price)">
+                                                    <div>
+                                                        <h6 class="fw-bold text-secondary mb-0" x-text="'+ Rp ' + formatRupiah(variant.price)"></h6>
+                                                    </div>
+                                                </template>
+                                            </div>
                                         </button>
                                     </template>
                                 </div>
-                            </template>
+                            </div>
 
                             {{-- ----- ADD-ONS / EXTRAS ----- --}}
-                            <template x-if="optionProduct.extras && optionProduct.extras.length > 0">
+                            <div x-show="optionProduct?.extras?.length > 0">
                                 <div>
-                                    <template x-if="optionProduct.has_variants">
+                                    <div x-show="optionProduct?.has_variants">
                                         <div class="d-flex align-items-center gap-3 my-3">
                                             <div class="flex-1 border-bottom"></div>
                                             <span class="text-secondary small fw-bold text-uppercase">Tambahan / Extra</span>
                                             <div class="flex-1 border-bottom"></div>
                                         </div>
-                                    </template>
+                                    </div>
 
                                     <div class="d-flex flex-column gap-2">
-                                        <template x-for="extra in optionProduct.extras" :key="extra.id">
+                                        <template x-for="extra in (optionProduct?.extras || [])" :key="extra.id">
                                             <button type="button"
                                                     class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all bg-body"
                                                     :class="{
@@ -90,9 +97,9 @@
                                         </template>
                                     </div>
                                 </div>
-                            </template>
+                            </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
 
                 {{-- Qty + Confirm --}}
@@ -114,7 +121,7 @@
                     </div>
                     <button @click="confirmOption"
                             class="btn btn-primary fw-bold w-100 py-3 d-flex justify-content-between align-items-center shadow-sm text-white border-0"
-                            style="border-radius: 1rem; background: linear-gradient(135deg, #ca8a04, #b45309);"
+                            style="border-radius: 1rem; background: #F97316;"
                             :disabled="optionProduct && optionProduct.has_variants && optionSelected.length === 0">
                         <span><i class="bi bi-cart-plus me-2"></i>Tambahkan ke Keranjang</span>
                         <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>

@@ -1,5 +1,5 @@
 {{-- Modal Held Orders --}}
-<div class="modal fade" id="heldOrdersModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
+<div class="modal fade" id="heldOrdersModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
             <div class="modal-header border-bottom bg-body-tertiary px-4 py-3" style="border-radius: 1.5rem 1.5rem 0 0;">

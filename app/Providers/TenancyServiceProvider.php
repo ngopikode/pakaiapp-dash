@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Http\Middleware\FileUrlMiddleware;
-use App\Jobs\CreateFrameworkDirectoriesForTenant;
+use App\Shared\Middleware\FileUrlMiddleware;
+use App\Shared\Jobs\CreateFrameworkDirectoriesForTenant;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;

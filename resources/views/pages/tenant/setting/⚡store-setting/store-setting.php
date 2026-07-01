@@ -1,10 +1,12 @@
 <?php
 
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\StoreSetting;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-new class extends Component {
+new #[Title("Pengaturan Toko")]
+class extends Component {
     use WithFileUploads;
 
     // Properti penampung data
@@ -60,12 +62,12 @@ new class extends Component {
             $this->address = $setting->address;
             $this->is_active = $setting->is_active;
             $this->store_type = $setting->store_type ?? 'resto';
-            $this->is_dinein_active = (bool) $setting->is_dinein_active;
-            $this->is_takeaway_active = (bool) $setting->is_takeaway_active;
-            $this->is_delivery_active = (bool) $setting->is_delivery_active;
-            $this->is_tax_active = isset($setting->is_tax_active) ? (bool)$setting->is_tax_active : true;
+            $this->is_dinein_active = (bool)$setting->is_dinein_active;
+            $this->is_takeaway_active = (bool)$setting->is_takeaway_active;
+            $this->is_delivery_active = (bool)$setting->is_delivery_active;
+            $this->is_tax_active = !isset($setting->is_tax_active) || (bool)$setting->is_tax_active;
             $this->tax_rate = isset($setting->tax_rate) ? (float)$setting->tax_rate : 10.00;
-            $this->is_service_charge_active = isset($setting->is_service_charge_active) ? (bool)$setting->is_service_charge_active : true;
+            $this->is_service_charge_active = !isset($setting->is_service_charge_active) || (bool)$setting->is_service_charge_active;
             $this->service_charge_rate = isset($setting->service_charge_rate) ? (float)$setting->service_charge_rate : 5.00;
 
             $this->logo = $setting->logo;

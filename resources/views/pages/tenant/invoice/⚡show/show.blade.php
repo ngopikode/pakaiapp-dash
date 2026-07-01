@@ -5,18 +5,18 @@
         Tersalin!
     </div>
 
-    <div class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
+    <div class="mx-auto mb-4 d-flex flex-nowrap justify-content-center align-items-center gap-2 no-print w-100"
          style="max-width: 450px;">
-        <button onclick="window.print()"
-                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2 px-3 py-2">
+        <button @click="$wire.markAsPrinted().then(() => setTimeout(() => window.print(), 150))"
+                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-1 gap-sm-2 px-2 py-2 flex-grow-1" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
             <i class="bi bi-printer"></i> Cetak
         </button>
         <button onclick="downloadReceipt()"
-                class="btn btn-primary rounded-3 shadow-sm px-3 py-2 d-flex align-items-center gap-2">
-            <i class="bi bi-download"></i> Download
+                class="btn btn-primary rounded-3 shadow-sm px-2 py-2 d-flex justify-content-center align-items-center gap-1 gap-sm-2 flex-grow-1 fw-bold" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
+            <i class="bi bi-download"></i> Simpan
         </button>
         <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank"
-           class="btn btn-success rounded-3 shadow-sm px-3 py-2 d-flex align-items-center gap-2">
+           class="btn btn-success rounded-3 shadow-sm px-2 py-2 d-flex justify-content-center align-items-center gap-1 gap-sm-2 flex-grow-1 fw-bold" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
             <i class="bi bi-whatsapp"></i> Bagikan
         </a>
     </div>
@@ -280,8 +280,15 @@
             @endif
         </div>
 
-        <div class="dashed-border py-3 mb-3">
-            <h6 class="text-center fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 3px;">E-Receipt</h6>
+        <div class="dashed-border py-3 mb-3 text-center">
+            @if($order->is_printed)
+                <div class="mb-2">
+                     <h2 class="fw-bold text-dark text-uppercase mb-1" style="letter-spacing: 2px; border: 2px solid #000; display: inline-block; padding: 4px 12px; font-size: 1.2rem;">COPY / REPRINT</h2>
+                     <p class="small text-muted mb-0" style="font-size: 0.7rem;">Dicetak ulang pada: {{ now()->format('d M Y, H:i') }}</p>
+                </div>
+            @else
+                <h6 class="fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 3px;">E-Receipt</h6>
+            @endif
         </div>
 
         <div class="mb-4 small">
@@ -291,7 +298,7 @@
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Tanggal</span>
-                <span class="fw-bold text-dark">{{ $order->created_at->format('d M Y, H:i') }}</span>
+                <span class="fw-bold text-dark">{{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Tipe Pesanan</span>
@@ -311,22 +318,7 @@
                 <span class="fw-bold text-dark text-end" style="max-width: 60%;">{{ $order->notes }}</span>
             </div>
             @endif
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Status Pesanan</span>
-                <span class="fw-bold text-dark">
-                    @if($order->status == 'pending')
-                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Menunggu Pembayaran</span>
-                    @elseif($order->status == 'paid')
-                        <span class="badge bg-info text-dark" style="font-size: 0.7rem;">Menunggu Disiapkan</span>
-                    @elseif($order->status == 'progress')
-                        <span class="badge bg-primary" style="font-size: 0.7rem;">Sedang Diproses</span>
-                    @elseif($order->status == 'completed')
-                        <span class="badge bg-success" style="font-size: 0.7rem;">Selesai</span>
-                    @else
-                        <span class="badge bg-secondary text-uppercase" style="font-size: 0.7rem;">{{ $order->status }}</span>
-                    @endif
-                </span>
-            </div>
+
             <div class="d-flex justify-content-between mb-2">
                 <span class="text-muted">Pelanggan</span>
                 <div class="text-end fw-bold text-dark">
@@ -451,7 +443,11 @@
 
         <div class="text-center mt-4 pt-3 dashed-border">
             <div class="text-center mb-3">
-                <div id="receipt-qrcode" class="d-inline-block p-2 bg-white rounded-2 border" style="line-height:0;"></div>
+                <img id="receipt-qrcode" 
+                     src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/invoice/' . $order->invoice_code)) }}&bgcolor=ffffff&color=111827&margin=0" 
+                     alt="QR Code" 
+                     class="d-inline-block p-2 bg-white rounded-2 border" 
+                     style="width: 90px; height: 90px; object-fit: contain;">
                 <div class="text-muted mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">{{ $order->invoice_code }}</div>
             </div>
             <p class="fw-bold text-dark mb-1">Terima Kasih!</p>
@@ -462,137 +458,6 @@
 </div>
 
 @assets
-<style>
-    .receipt-container {
-        max-width: 420px;
-        margin: 0 auto;
-        background: #fff;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        border-radius: 12px 12px 0 0;
-        position: relative;
-        padding-bottom: 25px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .receipt-container::after {
-        content: "";
-        position: absolute;
-        bottom: -10px;
-        left: 0;
-        right: 0;
-        height: 10px;
-        background-size: 20px 20px;
-        background-repeat: repeat-x;
-        background-image: linear-gradient(135deg, #fff 25%, transparent 25%),
-        linear-gradient(225deg, #fff 25%, transparent 25%);
-        background-position: 0 0;
-    }
-
-    .dashed-border {
-        border-top: 2px dashed #cbd5e1;
-    }
-
-    .receipt-monospace {
-        font-family: 'Courier Prime', 'Courier New', Courier, monospace;
-    }
-
-    .payment-box {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid #e2e8f0 !important;
-        background-color: #f8fafc !important;
-    }
-
-    .status-stamp {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        font-size: 1.5rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        border: 3px solid;
-        border-radius: 8px;
-        padding: 4px 12px;
-        transform: translateY(-50%) rotate(-12deg);
-        opacity: 0.15;
-        pointer-events: none;
-        z-index: 10;
-        letter-spacing: 2px;
-    }
-
-    .stamp-paid {
-        color: #16a34a;
-        border-color: #16a34a;
-    }
-
-    .stamp-unpaid {
-        color: #dc2626;
-        border-color: #dc2626;
-    }
-
-    @media print {
-        .receipt-container {
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-            width: 100% !important;
-        }
-
-        .receipt-container::after {
-            display: none !important;
-        }
-
-        .no-print {
-            display: none !important;
-        }
-
-        body {
-            background-color: #fff !important;
-        }
-    }
-
-    /* Premium Custom Duitku UI Styles */
-    .payment-instruction-container {
-        max-width: 420px;
-        margin: 0 auto;
-        background: #fff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(0, 0, 0, 0.06);
-    }
-
-    .custom-toast {
-        transition: opacity 0.3s ease;
-        background-color: #111827 !important;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        letter-spacing: 0.5px;
-    }
-
-    .animate-pulse {
-        animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse-animation {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: .5;
-        }
-    }
-
-    .accordion-button:focus {
-        box-shadow: none !important;
-    }
-
-    .accordion-button:not(.collapsed) {
-        color: #111827 !important;
-        background-color: #f8fafc !important;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -636,19 +501,5 @@
         });
     }
 
-    // Generate QR Code untuk struk
-    document.addEventListener('DOMContentLoaded', function () {
-        const qrEl = document.getElementById('receipt-qrcode');
-        if (qrEl && typeof QRCode !== 'undefined') {
-            new QRCode(qrEl, {
-                text: '{{ $order->invoice_code }}',
-                width: 90,
-                height: 90,
-                colorDark: '#111827',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.M
-            });
-        }
-    });
 </script>
 @endassets

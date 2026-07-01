@@ -45,7 +45,7 @@
                             <button type="submit"
                                     class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2"
                                     wire:loading.attr="disabled"
-                                    style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+                                    style="background: #F97316; border: none;">
                                 <span wire:loading.remove wire:target="save">
                                     <i class="bi bi-check2-circle"></i> Simpan
                                 </span>

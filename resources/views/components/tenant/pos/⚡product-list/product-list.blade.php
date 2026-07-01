@@ -4,10 +4,19 @@
     <div class="mb-4">
         <div class="position-relative">
             <i class="bi bi-search position-absolute text-muted fs-5"
-               style="top: 50%; left: 1.25rem; transform: translateY(-50%);"></i>
+               style="top: 50%; left: 1.25rem; transform: translateY(-50%); pointer-events: none;"></i>
             <input type="text" id="tour-pos-search" class="form-control form-control-lg glass-search ps-5 py-2.5"
-                   style="border-radius: 2rem; font-size: 0.95rem;"
-                   wire:model.live.debounce.300ms="search" placeholder="Cari menu atau produk jualan...">
+                   style="border-radius: 2rem; font-size: 0.95rem; padding-right: 3rem;"
+                   wire:model.live.debounce.300ms="search" 
+                   wire:keydown.enter="handleEnter($event.target.value)"
+                   placeholder="Cari menu atau produk jualan...">
+                   
+            @if(strlen(trim($search)) > 0)
+                <button type="button" wire:click="$set('search', '')" class="btn btn-link position-absolute text-muted p-0 border-0 shadow-none d-flex align-items-center justify-content-center"
+                        style="top: 50%; right: 1.25rem; transform: translateY(-50%); z-index: 5;" title="Bersihkan Pencarian">
+                    <i class="bi bi-x-circle-fill fs-5 opacity-50 hover-opacity-100 transition-all"></i>
+                </button>
+            @endif
         </div>
     </div>
 
@@ -17,6 +26,13 @@
                 class="cat-btn {{ $categoryFilter === 'all' ? 'active' : '' }}">
             Semua Menu
         </button>
+        @if($hasPromoItems)
+        <button type="button" wire:click="$set('categoryFilter', 'promo')"
+                class="cat-btn {{ $categoryFilter === 'promo' ? 'active' : '' }}"
+                style="{{ $categoryFilter === 'promo' ? 'background: #ef4444; color: white; border-color: #ef4444;' : 'background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.3);' }}">
+            🔥 Promo
+        </button>
+        @endif
         @foreach($categories as $category)
             <button type="button" wire:click="$set('categoryFilter', '{{ $category->id }}')"
                     class="cat-btn {{ $categoryFilter == $category->id ? 'active' : '' }}">
@@ -54,10 +70,8 @@
                 @forelse($products as $product)
                     <div class="col tour-product-item">
                         <div
-                            class="card h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
-                            style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;"
-                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 30px rgba(180, 83, 9, 0.15)';"
-                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.02)';"
+                            class="card product-card-hover h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
+                            style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02);"
                             x-data
                             @click="$dispatch('add-product', { product: {{ json_encode($product) }} })">
 
@@ -67,6 +81,8 @@
                                     class="position-absolute top-0 end-0 m-2 badge bg-primary bg-opacity-90 shadow-sm rounded-pill py-1.5 px-2.5"
                                     style="z-index: 2; font-size: 0.65rem; font-weight: 700;">Ada Opsi</span>
                             @endif
+
+
 
                             @if(!$product['has_variants'] && $product['stock'] <= 0)
                                 <span
@@ -91,16 +107,36 @@
                             {{-- Info Content --}}
                             <div class="card-body p-3 text-center d-flex flex-column justify-content-between bg-body">
                                 <div>
+                                    @if(!empty($product['active_discount_price']) && !empty($product['active_discount_name']))
+                                        <div class="mb-1">
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-2 py-1" style="font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px;">% {{ $product['active_discount_name'] }}</span>
+                                        </div>
+                                    @endif
                                     <h6 class="fw-bold font-serif mb-1 text-truncate text-body"
                                         style="font-size: 0.9rem;">
                                         {{ $product['name'] }}
                                     </h6>
+                                    @if(tenant('store_type') === 'retail' && count($product['variants']) > 0)
+                                        <div class="text-secondary mb-1 text-truncate" style="font-size: 0.75rem;" title="{{ collect($product['variants'])->pluck('sku')->filter()->join(', ') }}">
+                                            <i class="bi bi-upc-scan me-1"></i>
+                                            {{ collect($product['variants'])->pluck('sku')->filter()->join(', ') ?: 'No SKU' }}
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="mt-2">
                                     @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))
-                                        <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
-                                            Rp {{ number_format($product['price'], 0, ',', '.') }}
-                                        </p>
+                                        @if(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'])
+                                            <div class="d-flex flex-column">
+                                                <span class="text-decoration-line-through text-danger" style="font-size: 0.75rem; font-weight: 600;">Rp {{ number_format($product['price'], 0, ',', '.') }}</span>
+                                                <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
+                                                    Rp {{ number_format($product['active_discount_price'], 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        @else
+                                            <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
+                                                Rp {{ number_format($product['price'], 0, ',', '.') }}
+                                            </p>
+                                        @endif
                                         <small class="text-muted d-block mt-1"
                                                style="font-size: 0.7rem; font-weight: 500;">
                                             Sisa Stok: <span class="fw-bold text-body">{{ $product['stock'] }}</span>
@@ -111,7 +147,7 @@
                                             Mulai
                                             <span class="text-caramel-solid d-block d-md-inline mt-1 mt-md-0"
                                                   style="font-size: 1rem;">
-                                                Rp {{ number_format($product['price'], 0, ',', '.') }}
+                                                Rp {{ number_format(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'] ? $product['active_discount_price'] : $product['price'], 0, ',', '.') }}
                                             </span>
                                         </p>
                                     @endif

@@ -39,6 +39,12 @@ class AppServiceProvider extends ServiceProvider
                 ? \Illuminate\Cache\RateLimiting\Limit::none()
                 : \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
         });
+
+
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Login::class,
+            \App\Shared\Listeners\EnforceSessionLimits::class,
+        );
     }
 
     /**

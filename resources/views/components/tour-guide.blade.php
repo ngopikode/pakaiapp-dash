@@ -237,12 +237,6 @@
                  :style="tooltipStyle"
                  :class="isPositioned ? 'opacity-100 visible' : 'opacity-0 invisible'">
             <div class="card-body p-4 position-relative">
-                <!-- Decorative accent -->
-                <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden"
-                     style="border-radius: 1rem; pointer-events: none; z-index: 0;">
-                    <div class="position-absolute bg-primary opacity-10"
-                         style="width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; filter: blur(30px);"></div>
-                </div>
 
                 <div class="position-relative" style="z-index: 1;">
                     <div class="d-flex align-items-center mb-3">
@@ -260,10 +254,10 @@
                     <div class="d-flex justify-content-between align-items-center pt-3 border-top"
                          style="border-color: var(--bs-border-color) !important;">
                         <div class="d-flex gap-1">
-                            <template x-for="(step, index) in steps" :key="index">
+                            <template x-for="(step, idx) in steps" :key="index">
                                 <div class="rounded-pill transition-all"
-                                     :class="index === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
-                                     :style="index === currentStep ? 'width: 16px; height: 6px;' : 'width: 6px; height: 6px;'">
+                                     :class="idx === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
+                                     :style="idx === currentStep ? 'width: 16px; height: 6px;' : 'width: 6px; height: 6px;'">
                                 </div>
                             </template>
                         </div>

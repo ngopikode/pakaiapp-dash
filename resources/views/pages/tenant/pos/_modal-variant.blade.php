@@ -24,12 +24,26 @@
                                     style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
                                 <div>
                                     <h6 class="fw-bold text-body mb-1" x-text="variant.name"></h6>
+                                    <template x-if="variant.sku">
+                                        <div class="text-secondary mb-2" style="font-size: 0.75rem;">
+                                            <i class="bi bi-upc-scan me-1"></i><span x-text="variant.sku"></span>
+                                        </div>
+                                    </template>
                                     <span class="small badge rounded-pill fw-medium"
                                           :class="variant.stock > 0 ? 'bg-body-tertiary text-secondary border' : 'bg-danger text-white'"
                                           x-text="variant.stock > 0 ? 'Tersedia: ' + variant.stock : 'Stok Habis'"></span>
                                 </div>
-                                <h5 class="fw-bold mb-0" style="color: var(--brand-caramel, #b45309);"
-                                    x-text="'Rp ' + formatRupiah(variant.price)"></h5>
+                                <div class="text-end">
+                                    <template x-if="variant.active_discount_price && Number(variant.active_discount_price) > 0 && Number(variant.active_discount_price) < Number(variant.price)">
+                                        <div class="d-flex flex-column align-items-end">
+                                            <span class="text-decoration-line-through text-danger fw-semibold" style="font-size: 0.7rem;" x-text="'Rp ' + formatRupiah(variant.price)"></span>
+                                            <h5 class="fw-bold mb-0" style="color: var(--brand-caramel, #b45309);" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></h5>
+                                        </div>
+                                    </template>
+                                    <template x-if="!variant.active_discount_price || Number(variant.active_discount_price) === 0 || Number(variant.active_discount_price) >= Number(variant.price)">
+                                        <h5 class="fw-bold mb-0" style="color: var(--brand-caramel, #b45309);" x-text="'Rp ' + formatRupiah(variant.price)"></h5>
+                                    </template>
+                                </div>
                             </button>
                         </template>
                     </template>

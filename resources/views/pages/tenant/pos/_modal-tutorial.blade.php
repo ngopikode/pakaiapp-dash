@@ -26,8 +26,16 @@
      x-transition:leave="transition ease-in duration-200"
      x-transition:leave-start="opacity-100 translate-y-0 scale-100"
      x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-     class="position-fixed bottom-0 start-0 m-3 m-md-4 p-3 shadow-lg border text-body"
+     class="tour-guide-toast position-fixed bottom-0 start-0 m-3 m-md-4 p-3 shadow-lg border text-body"
      style="z-index: 1040; width: 320px; border-radius: 1.25rem; background: rgba(var(--bs-body-bg-rgb), 0.85); backdrop-filter: blur(12px); border-color: var(--bs-border-color-translucent) !important;">
+     
+    <style>
+        @media (max-width: 768px) {
+            .tour-guide-toast {
+                bottom: calc(var(--bottom-nav-height, 65px) + env(safe-area-inset-bottom, 0px)) !important;
+            }
+        }
+    </style>
 
     <div class="d-flex align-items-start gap-3">
         <div
@@ -45,7 +53,7 @@
                 Pelajari cara cepat menggunakan halaman kasir ini melalui panduan interaktif kami.
             </p>
             <button @click="openGuide()" class="btn btn-warning btn-sm fw-bold rounded-pill w-100 text-white"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; font-size: 0.75rem;">
+                    style="background: #F97316; border: none; font-size: 0.75rem;">
                 Buka Panduan <i class="bi bi-arrow-right ms-1"></i>
             </button>
         </div>
@@ -78,10 +86,10 @@
                                 position: 'left'
                             },
                             {
-                                target: '[title="Daftar Tunda"]',
-                                title: 'Tunda Pesanan (F8)',
-                                content: 'Pelanggan belum selesai memilih? Klik Tunda untuk menyimpan keranjang secara aman di memori lokal, lalu panggil kembali melalui tombol Daftar.',
-                                position: 'bottom'
+                                target: '#tour-cart-actions',
+                                title: 'Aksi Cepat Keranjang',
+                                content: 'Sangat praktis! ⏸️ TUNDA (F8): Simpan keranjang sementara. 📋 DAFTAR: Buka kembali pesanan yang tertunda. 🗑️ BATAL (F4): Hapus seluruh isi keranjang.',
+                                position: 'left'
                             },
                             {
                                 target: '[x-model="customerPhone"]',
@@ -94,14 +102,14 @@
                         return [
                             {
                                 target: '#tour-pos-search',
-                                title: 'Cari Produk & Kitchen Notes',
-                                content: 'Cari menu di sini. Anda juga bisa menulis catatan khusus per menu (seperti "tanpa es" atau "tidak pedas") langsung di bawah setiap item keranjang.',
+                                title: 'Cari Menu',
+                                content: 'Gunakan kolom pencarian ini untuk menemukan menu dengan cepat saat pelanggan memesan.',
                                 position: 'bottom'
                             },
                             {
-                                target: '[title="Daftar Antrean"]',
-                                title: 'Simpan & Pelunasan Antrean',
-                                content: 'Simpan pesanan dengan tombol Simpan Sementara. Saat pelanggan siap membayar, buka Daftar Antrean dan lunasi.',
+                                target: '[title="Daftar Open Bill"]',
+                                title: 'Simpan & Pelunasan Bill',
+                                content: 'Simpan pesanan dengan tombol Simpan Bill. Saat pelanggan siap membayar, buka Daftar Open Bill dan lunasi.',
                                 position: 'bottom'
                             },
                             {
@@ -325,10 +333,10 @@
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top"
                              style="border-color: var(--bs-border-color) !important;">
                             <div class="d-flex gap-1">
-                                <template x-for="(step, index) in steps" :key="index">
+                                <template x-for="(step, idx) in steps" :key="index">
                                     <div class="rounded-pill transition-all"
-                                         :class="index === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
-                                         :style="index === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
+                                         :class="idx === currentStep ? 'bg-primary' : 'bg-secondary bg-opacity-25'"
+                                         :style="idx === currentStep ? 'width: 16px; height: 6px; background-color: var(--brand-caramel) !important;' : 'width: 6px; height: 6px;'">
                                     </div>
                                 </template>
                             </div>
@@ -355,14 +363,14 @@
         </div>
     </template>
 </div>
-<div class="modal fade" id="tutorialModal" tabindex="-1" aria-hidden="true" wire:ignore>
+<div class="modal fade" id="tutorialModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
              style="border-radius: 1.5rem; max-height: 90vh; border-color: var(--bs-border-color-translucent) !important;">
 
             {{-- Header (Premium Gradient) --}}
             <div class="modal-header border-bottom px-4 py-3 flex-shrink-0 text-white"
-                 style="border-radius: 1.5rem 1.5rem 0 0; background: linear-gradient(135deg, #ca8a04, #b45309); border: none;">
+                 style="border-radius: 1.5rem 1.5rem 0 0; background: #F97316; border: none;">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-journal-bookmark-fill fs-4"></i>
                     <h5 class="fw-bold mb-0">Panduan & Tutorial Penggunaan</h5>
@@ -515,7 +523,7 @@
                     </div>
 
                     <div class="row g-3">
-                        <!-- Step 1: Kitchen Notes -->
+                        <!-- Step 1: Meja & Pelanggan -->
                         <div class="col-md-6">
                             <div class="card h-100 p-3 border shadow-sm bg-body-tertiary"
                                  style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -523,20 +531,18 @@
                                     <div
                                         class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center p-2.5"
                                         style="width: 48px; height: 48px;">
-                                        <i class="bi bi-chat-dots fs-4"></i>
+                                        <i class="bi bi-people fs-4"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-body">Kitchen Notes (Catatan Dapur)</h6>
-                                        <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Tuliskan catatan
-                                            khusus per menu (seperti <em>"tanpa es"</em> atau <em>"tidak pedas"</em>)
-                                            langsung dari kolom input catatan di bawah setiap item keranjang belanja.
+                                        <h6 class="fw-bold mb-1 text-body">Nomor Meja & Pelanggan</h6>
+                                        <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Jangan lupa isi nomor meja pelanggan saat mereka makan di tempat (Dine-in). Anda juga bisa menyimpan nomor HP pelanggan untuk keperluan keanggotaan.
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Step 2: Antrean Pending -->
+                        <!-- Step 2: Open Bill Pending -->
                         <div class="col-md-6">
                             <div class="card h-100 p-3 border shadow-sm bg-body-tertiary"
                                  style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -547,9 +553,9 @@
                                         <i class="bi bi-hourglass-split fs-4"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-body">Simpan Antrean (Dapur)</h6>
+                                        <h6 class="fw-bold mb-1 text-body">Open Bill (Dapur)</h6>
                                         <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Gunakan tombol
-                                            <strong>Simpan Antrian</strong> jika pelanggan memesan terlebih dahulu dan
+                                            <strong>Simpan Bill</strong> jika pelanggan memesan terlebih dahulu dan
                                             akan membayar nanti setelah selesai makan. Dapur dapat langsung melihat
                                             catatan.</p>
                                     </div>
@@ -577,7 +583,7 @@
                             </div>
                         </div>
 
-                        <!-- Step 4: Pelunasan Antrean -->
+                        <!-- Step 4: Pelunasan Open Bill -->
                         <div class="col-md-6">
                             <div class="card h-100 p-3 border shadow-sm bg-body-tertiary"
                                  style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
@@ -590,9 +596,8 @@
                                     <div>
                                         <h6 class="fw-bold mb-1 text-body">Pelunasan Pesanan Pending</h6>
                                         <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Ketika pelanggan
-                                            siap membayar, buka tab <strong>Daftar Antrean</strong>, cari invoice
-                                            mereka, dan klik <strong>Bayar Sekarang</strong> untuk menyelesaikan
-                                            pelunasan.</p>
+                                            siap membayar, buka tab <strong>Daftar Open Bill</strong>, cari invoice
+                                            dan tekan tombol <strong>Bayar</strong>.</p>
                                     </div>
                                 </div>
                             </div>
@@ -617,7 +622,7 @@
                                 <span
                                     class="badge bg-body border text-secondary py-2 w-100 text-start d-flex justify-content-between align-items-center">
                                     <span><kbd
-                                            class="bg-dark text-white px-1 rounded small">F3</kbd> Simpan Antrean</span>
+                                            class="bg-dark text-white px-1 rounded small">F3</kbd> Simpan Bill</span>
                                     <i class="bi bi-hourglass-split text-warning"></i>
                                 </span>
                             </div>
@@ -704,7 +709,7 @@
                 Pelajari cara cepat menggunakan halaman kasir ini melalui panduan interaktif kami.
             </p>
             <button @click="openGuide()" class="btn btn-warning btn-sm fw-bold rounded-pill w-100 text-white"
-                    style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; font-size: 0.75rem;">
+                    style="background: #F97316; border: none; font-size: 0.75rem;">
                 Buka Panduan <i class="bi bi-arrow-right ms-1"></i>
             </button>
         </div>

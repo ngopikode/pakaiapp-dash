@@ -95,19 +95,6 @@
                         <!-- Tampilan Duitku -->
                         <template x-if="paymentMethod === 'duitku'">
                             <div class="d-flex flex-column h-100 py-2">
-                                <style>
-                                    .border-translucent {
-                                        border-color: rgba(0, 0, 0, 0.08) !important;
-                                    }
-                                    .scale-active {
-                                        transform: scale(0.98);
-                                        border-width: 2px !important;
-                                        box-shadow: 0 4px 12px rgba(202, 138, 4, 0.15) !important;
-                                    }
-                                    .transition-all {
-                                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                                    }
-                                </style>
 
                                 <!-- Banner Info Duitku -->
                                 <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-3 mb-3 text-center text-sm-start d-flex flex-column flex-sm-row align-items-center gap-3">
@@ -148,10 +135,10 @@
                                                 <button
                                                     @click="duitkuMethod = method.paymentMethod"
                                                     type="button"
-                                                    class="btn w-100 h-100 p-2.5 rounded-3 border d-flex flex-column align-items-center justify-content-center gap-1.5 transition-all text-center"
+                                                    class="btn w-100 h-100 p-2 rounded-3 border d-flex flex-column align-items-center justify-content-center gap-1 transition-all text-center"
                                                     :class="duitkuMethod === method.paymentMethod 
-                                                        ? 'bg-warning bg-opacity-10 border-warning text-dark shadow-sm fw-bold scale-active' 
-                                                        : 'bg-body-tertiary text-body border-translucent hover:bg-body'"
+                                                        ? 'bg-warning bg-opacity-10 border-warning text-dark shadow-sm fw-bold' 
+                                                        : 'bg-body-tertiary text-body border'"
                                                     style="min-height: 72px;"
                                                 >
                                                     <!-- Image Container -->
@@ -171,16 +158,16 @@
                                     <label class="form-label small fw-bold text-muted mb-1.5 text-uppercase tracking-wider" style="font-size: 0.65rem;">
                                         2. Kirim Tagihan ke Email Customer <span class="text-muted">(opsional)</span>
                                     </label>
-                                    <div class="p-3 bg-light rounded-4 border">
+                                    <div class="p-3 bg-body-tertiary rounded-4 border">
                                         <div class="input-group">
-                                            <span class="input-group-text bg-body-tertiary border border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
+                                            <span class="input-group-text bg-body border border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
                                             <input type="email"
-                                                   class="form-control bg-body border border-start-0 fw-bold py-2 text-dark"
+                                                   class="form-control bg-body border border-start-0 fw-bold py-2 text-body"
                                                    placeholder="contoh: customer@email.com"
                                                    x-model="duitkuCustomerEmail" 
                                                    style="font-size: 0.85rem;" />
                                         </div>
-                                        <div class="d-flex align-items-center gap-1.5 text-muted mt-2" style="font-size: 0.68rem;">
+                                        <div class="d-flex align-items-center gap-1 text-muted mt-2" style="font-size: 0.68rem;">
                                             <i class="bi bi-info-circle-fill text-warning"></i>
                                             <span>Kosongkan jika tidak ada — sistem akan pakai email toko secara otomatis.</span>
                                         </div>
@@ -302,9 +289,9 @@
                     </button>
                     <button @click="submitPayment"
                             class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white"
-                            style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none;"
+                            style="background: #F97316; border: none;"
                             :disabled="isSubmitting
-                                || (paymentMethod === 'cash' && (!amountPaid || getChange < 0))
+                                || (paymentMethod === 'cash' && !amountPaid)
                                 || (paymentMethod === 'duitku' && !duitkuMethod)"
                     >
                         <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">

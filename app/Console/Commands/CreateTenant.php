@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\StoreSetting;
-use App\Models\Tenant;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Central\Models\Tenant;
 use DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -17,7 +17,7 @@ class CreateTenant extends Command
      *
      * @var string
      */
-    protected $signature = 'tenant:create {name} {--type=resto} {--domain=}';
+    protected $signature = 'tenant:create {name} {--id=} {--type=resto} {--domain=} {--plan=free}';
 
     /**
      * The console command description.
@@ -34,13 +34,14 @@ class CreateTenant extends Command
         $name = $this->argument('name');
         $type = $this->option('type');
         $domain = $this->option('domain');
+        $idOpt = $this->option('id');
 
         if (!in_array($type, ['resto', 'retail'])) {
             $this->error("Invalid tenant type. Must be 'resto' or 'retail'.");
             return 1;
         }
 
-        $tenantId = Str::slug($name);
+        $tenantId = $idOpt ?: Str::slug($name);
 
         if (!$domain) {
             $domain = $tenantId . '.' . parse_url(config('app.url'), PHP_URL_HOST);
@@ -51,13 +52,28 @@ class CreateTenant extends Command
             return 1;
         }
 
-        $this->info("Creating $type tenant: $name ($tenantId)");
+        $plan = strtolower($this->option('plan'));
 
-        // 1. Create Tenant Object (Ini biasanya otomatis trigger job CreateDatabase)
-        $tenant = Tenant::create([
+        $this->info("Creating $type tenant: $name ($tenantId) with plan: $plan");
+
+        $tenantData = [
             'id' => $tenantId,
             'store_type' => $type,
-        ]);
+            'subscription_plan' => $plan,
+        ];
+
+        // Contoh implementasi dinamis override berdasarkan paket langganan saat register
+        if ($plan === 'santai') {
+            $tenantData['trx_fee'] = 250; // Harga khusus
+            $tenantData['capping_limit'] = 100000;
+        } elseif ($plan === 'premium') {
+            $tenantData['trx_fee'] = 150; // Super murah
+            $tenantData['capping_limit'] = 50000; // Cepat gratis
+            $tenantData['product_slots'] = 100; // Kuota awal melimpah
+        }
+
+        // 1. Create Tenant Object
+        $tenant = Tenant::create($tenantData);
 
         $tenant->domains()->create(['domain' => $domain]);
 
@@ -88,12 +104,33 @@ class CreateTenant extends Command
         DB::purge('tenant');
 
         // 4. Masuk ke environment tenant untuk insert data
-        $tenant->run(function () use ($name, $type) {
+        $tenant->run(function () use ($name, $type, $plan) {
             StoreSetting::create([
                 'name' => $name,
                 'store_type' => $type,
                 'is_active' => true,
             ]);
+
+            // Initialize Wallet and Inject Initial Balance based on subscription plan
+            try {
+                $walletService = app(\App\Tenant\Services\TenantWalletService::class);
+                $wallet = $walletService->getWallet();
+
+                $initialBalance = 10000; // Default Free: Rp 10.000
+                if ($plan === 'santai') {
+                    $initialBalance = 50000;
+                } elseif ($plan === 'premium') {
+                    $initialBalance = 150000;
+                }
+
+                $walletService->addBalance(
+                    $initialBalance,
+                    $wallet,
+                    "Saldo awal pendaftaran Paket " . ucfirst($plan)
+                );
+            } catch (\Exception $e) {
+                Log::error("Failed to initialize wallet balance for tenant: " . $e->getMessage());
+            }
         });
 
         $this->info("Default StoreSetting initialized.");

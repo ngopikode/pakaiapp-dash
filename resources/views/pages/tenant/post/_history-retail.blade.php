@@ -3,7 +3,7 @@
     $totalQris = $todayOrders->where('payment_method', 'qris')->sum('total_price');
     $totalTransfer = $todayOrders->where('payment_method', 'transfer')->sum('total_price');
     $grandTotalSales = $todayOrders->sum('total_price');
-    $storeSetting = \App\Models\StoreSetting::first();
+    $storeSetting = \App\Tenant\Models\Core\StoreSetting::first();
     $storeName = $storeSetting->name ?? 'Toko Kami';
 @endphp
 
@@ -31,10 +31,10 @@
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card p-3 border-0 shadow-sm text-white"
-             style="border-radius: 1.25rem; background: linear-gradient(135deg, #ca8a04, #b45309);">
-            <span class="opacity-75 small fw-bold"><i class="bi bi-graph-up me-1"></i>Total Omset</span>
-            <h5 class="fw-bold mb-0 mt-1 text-white">Rp {{ number_format($grandTotalSales, 0, ',', '.') }}</h5>
+        <div class="card p-3 border shadow-sm bg-body"
+             style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
+            <span class="text-secondary small fw-bold"><i class="bi bi-graph-up me-1" style="color: #F97316 !important;"></i>Total Omset</span>
+            <h5 class="fw-bold mb-0 mt-1 text-body" style="color: #F97316 !important;">Rp {{ number_format($grandTotalSales, 0, ',', '.') }}</h5>
         </div>
     </div>
 </div>
@@ -157,8 +157,8 @@
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                     <button @click="openPayForOrder({{ json_encode($order) }})"
-                                            class="btn btn-sm btn-warning w-100 fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 border-0"
-                                            style="border-radius: 0.75rem; font-size: 0.85rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);">
+                                            class="btn btn-sm btn-primary w-100 fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 border-0 text-white"
+                                            style="border-radius: 0.75rem; font-size: 0.85rem; background-color: #F97316; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.15);">
                                         <i class="bi bi-credit-card-2-front"></i> Bayar Sekarang
                                     </button>
 

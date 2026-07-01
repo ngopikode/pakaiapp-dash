@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Middleware\CheckRole;
+use App\Shared\Middleware\CheckRole;
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,12 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectTo(
+            guests: '/auth/login',
+        );
         $middleware->group('universal', []);
         $middleware->trustProxies(at: '*');
         $middleware->alias([
             'role' => CheckRole::class,
         ]);
-        $middleware->validateCsrfTokens(except: [
+        $middleware->web(append: [
+        ]);
+        $middleware->preventRequestForgery(except: [
             'duitku/callback',
             'midtrans/notification',
         ]);

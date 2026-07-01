@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Order;
-use App\Models\StoreSetting;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\StoreSetting;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -21,10 +21,16 @@ class extends Component {
         $this->store = StoreSetting::first();
     }
 
-    // Auto-refresh order dari database (dipicu oleh wire:poll saat pending)
     public function refreshOrder(): void
     {
         $this->order->refresh();
+    }
+
+    public function markAsPrinted(): void
+    {
+        if (!$this->order->is_printed) {
+            $this->order->update(['is_printed' => true]);
+        }
     }
 
     // Mengambil nama dan logo secara dinamis dari API Duitku (Tanpa Hardcoding!)
@@ -33,7 +39,7 @@ class extends Component {
         $code = strtoupper($this->order->duitku_payment_method ?? '');
         
         try {
-            $service = new \App\Services\DuitkuService();
+            $service = new \App\Central\Services\DuitkuService();
             // Ambil daftar metode aktif dari API berdasarkan nominal order secara real-time
             $activeMethods = $service->getPaymentMethods((int) $this->order->total_price);
             

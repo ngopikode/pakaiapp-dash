@@ -1,5 +1,5 @@
 @php
-    use App\Models\StoreSetting;
+    use App\Tenant\Models\Core\StoreSetting;
     use Illuminate\Support\Facades\Storage;
 
     $setting = StoreSetting::where('is_active', true)->first();
@@ -23,8 +23,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Toko Tidak Ditemukan</title>
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     @vite(['resources/css/store.css'])
 </head>
 <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6">
@@ -65,8 +65,8 @@
             <link rel="icon" type="image/png" href="{{ Storage::url($setting->logo) }}">
             <link rel="apple-touch-icon" href="{{ Storage::url($setting->logo) }}">
         @else
-            <link rel="icon" type="image/png" href="/logo.png">
-            <link rel="apple-touch-icon" href="/logo.png">
+            <link rel="icon" type="image/x-icon" href="/favicon.ico">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         @endif
 
         <meta property="og:title" content="{{ $setting->og_title ?: ($storeName . ' | Toko Online') }}"/>
@@ -75,7 +75,7 @@
         @if($setting->og_image)
             <meta property="og:image" content="{{ Storage::url($setting->og_image) }}"/>
         @else
-            <meta property="og:image" content="/logo.png"/>
+            <meta property="og:image" content="/apple-touch-icon.png"/>
         @endif
         <meta property="og:type" content="website"/>
 
@@ -126,7 +126,7 @@
 
         {{-- ===== GLOBAL TOAST ===== --}}
         <div
-            class="fixed top-4 left-4 right-4 z-[300] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-6 sm:w-auto sm:min-w-[280px] bg-zinc-900 text-white px-5 py-3.5 rounded-2xl sm:rounded-full shadow-2xl shadow-zinc-900/30 transition-all duration-500 ease-out flex items-center justify-center sm:justify-start gap-3 border border-white/5 backdrop-blur-xl pointer-events-none"
+            class="fixed top-4 left-4 right-4 z-[9999] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:top-6 sm:w-auto sm:min-w-[280px] bg-[var(--foreground)] text-[var(--background)] px-5 py-3.5 rounded-2xl sm:rounded-full shadow-2xl shadow-zinc-900/30 transition-all duration-500 ease-out flex items-center justify-center sm:justify-start gap-3 border border-white/5 backdrop-blur-xl pointer-events-none -translate-y-8 opacity-0 scale-95"
             :class="toast.show ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-8 opacity-0 scale-95'"
         >
             <div class="bg-emerald-500 rounded-full p-1 text-white shrink-0 shadow-lg shadow-emerald-500/30">

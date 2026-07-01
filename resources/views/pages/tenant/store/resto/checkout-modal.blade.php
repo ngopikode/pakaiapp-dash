@@ -27,46 +27,46 @@
         x-transition:leave="transition-transform ease-in duration-200"
         x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full"
-        class="fixed inset-0 bg-white z-[110] flex flex-col mt-10 rounded-t-[2rem] overflow-hidden"
+        class="fixed inset-x-0 bottom-0 top-10 w-full sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:max-w-lg bg-[var(--surface)] z-[110] flex flex-col rounded-t-[2rem] overflow-hidden shadow-2xl sm:ring-1 sm:ring-[var(--border)]"
     >
         {{-- Header (Dynamic Multi-Step) --}}
-        <div class="p-5 flex justify-between items-center border-b border-zinc-100 bg-white sticky top-0 z-10 pt-6">
+        <div x-show="!orderSuccess" class="p-5 flex justify-between items-center border-b border-[var(--border)] bg-[var(--surface)] sticky top-0 z-10 pt-6">
             <div class="flex items-center gap-3">
                 <!-- Back Button (Step 2 Only) -->
                 <button
                     x-show="checkoutStep === 2"
                     @click="showPaymentSelector ? showPaymentSelector = false : checkoutStep = 1"
-                    class="p-2 bg-zinc-50 rounded-full hover:bg-zinc-100 transition-all shrink-0 active:scale-90"
+                    class="p-2 bg-[var(--background)] rounded-full hover:bg-[var(--bg-soft)] transition-all shrink-0 active:scale-90"
                     style="display: none;"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                         class="text-zinc-900">
+                         class="text-[var(--foreground)]">
                         <path d="m15 18-6-6 6-6"/>
                     </svg>
                 </button>
 
                 <div>
                     <!-- Step 1 Title -->
-                    <h2 x-show="checkoutStep === 1" class="text-lg font-black tracking-tight text-zinc-900 uppercase">
+                    <h2 x-show="checkoutStep === 1" class="text-lg font-black tracking-tight text-[var(--foreground)] uppercase">
                         Pesanan Kamu</h2>
-                    <p x-show="checkoutStep === 1" class="text-[10px] text-zinc-400 font-semibold">Pastikan pesanan
+                    <p x-show="checkoutStep === 1" class="text-[10px] text-[var(--text-secondary)] font-semibold">Pastikan pesanan
                         sudah sesuai ya</p>
 
                     <!-- Step 2 Title -->
-                    <h2 x-show="checkoutStep === 2" class="text-lg font-black tracking-tight text-zinc-900 uppercase"
+                    <h2 x-show="checkoutStep === 2" class="text-lg font-black tracking-tight text-[var(--foreground)] uppercase"
                         style="display: none;"
                         x-text="showPaymentSelector ? 'Pilih Metode Bayar' : 'Pilih Pembayaran'"></h2>
-                    <p x-show="checkoutStep === 2" class="text-[10px] text-zinc-400 font-semibold"
+                    <p x-show="checkoutStep === 2" class="text-[10px] text-[var(--text-secondary)] font-semibold"
                        style="display: none;"
                        x-text="showPaymentSelector ? 'Pilih metode pembayaran yang kamu inginkan' : 'Lengkapi info & metode pembayaran'"></p>
                 </div>
             </div>
 
-            <button @click="closeCheckout" class="p-2 bg-zinc-50 rounded-full hover:bg-zinc-100 transition-colors">
+            <button @click="closeCheckout" class="p-2 bg-[var(--background)] rounded-full hover:bg-[var(--bg-soft)] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="text-zinc-900">
+                     class="text-[var(--foreground)]">
                     <path d="M18 6 6 18"/>
                     <path d="m6 6 12 12"/>
                 </svg>
@@ -91,18 +91,18 @@
                     </svg>
                 </div>
 
-                <h3 class="text-xl font-black text-zinc-900 mb-1">Pesanan Terkirim! 🎉</h3>
-                <p class="text-xs font-medium text-zinc-400 mb-1">Pesanan kamu sudah masuk ke sistem toko.</p>
-                <p class="text-xs font-medium text-zinc-500 mb-6">
+                <h3 class="text-xl font-black text-[var(--foreground)] mb-1">Pesanan Terkirim! 🎉</h3>
+                <p class="text-xs font-medium text-[var(--text-secondary)] mb-1">Pesanan kamu sudah masuk ke sistem toko.</p>
+                <p class="text-xs font-medium text-[var(--text-secondary)] mb-6">
                     Yuk, langsung ke kasir untuk konfirmasi dan selesaikan pembayaranmu.
                 </p>
 
                 {{-- Interactive Invoice Card --}}
                 <div
-                    class="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 w-full mb-3 flex items-center justify-between gap-4">
+                    class="bg-[var(--background)] rounded-2xl p-4 border border-[var(--border)] w-full mb-3 flex items-center justify-between gap-4">
                     <div class="text-left min-w-0">
-                        <span class="text-[9px] font-black text-zinc-400 uppercase tracking-widest block mb-0.5">Kode Invoice</span>
-                        <span class="text-sm font-mono font-black text-zinc-900 block truncate"
+                        <span class="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-widest block mb-0.5">Kode Invoice</span>
+                        <span class="text-sm font-mono font-black text-[var(--foreground)] block truncate"
                               x-text="orderSuccess.invoiceCode"></span>
                     </div>
                     <button
@@ -111,8 +111,8 @@
                             copied = true;
                             setTimeout(() => copied = false, 2000);
                         "
-                        class="shrink-0 flex items-center gap-1 px-3 py-2 bg-white rounded-xl border border-zinc-200/60 text-[10px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-sm shadow-zinc-100"
-                        :class="copied ? 'text-emerald-600 border-emerald-200 bg-emerald-50/30' : 'text-zinc-600 hover:bg-zinc-50'"
+                        class="shrink-0 flex items-center gap-1 px-3 py-2 bg-[var(--surface)] rounded-xl border border-[var(--border)] text-[10px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-sm shadow-[var(--border)]"
+                        :class="copied ? 'text-emerald-600 border-emerald-200 bg-emerald-50/30' : 'text-[var(--foreground)] hover:bg-[var(--background)]'"
                     >
                         <span x-text="copied ? 'Tersalin!' : 'Salin'"></span>
                         <svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
@@ -131,8 +131,8 @@
                 </div>
 
                 {{-- Total Bayar Badge --}}
-                <div class="bg-zinc-900 text-white rounded-2xl p-4 w-full mb-8 flex items-center justify-between">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Total Tagihan</span>
+                <div class="bg-[var(--foreground)] text-[var(--background)] rounded-2xl p-4 w-full mb-8 flex items-center justify-between">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Total Tagihan</span>
                     <span class="text-base font-black font-mono text-[var(--primary-color)]"
                           x-text="orderSuccess.total"></span>
                 </div>
@@ -143,7 +143,7 @@
                     <a
                         :href="'/invoice/' + orderSuccess.invoiceCode"
                         target="_blank"
-                        class="w-full bg-[var(--primary-color)] text-zinc-900 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-105 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[var(--primary-color)]/20"
+                        class="w-full bg-[var(--primary-color)] text-[var(--foreground)] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-105 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[var(--primary-color)]/20"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -160,7 +160,7 @@
                     <button
                         @click="window.open(orderSuccess.waUrl, '_blank')"
                         type="button"
-                        class="w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#20bd5a] transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20"
+                        class="w-full bg-[#25D366] text-[var(--background)] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#20bd5a] transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                              fill="currentColor">
@@ -173,7 +173,7 @@
                     {{-- 3. Tertiary Action: Kembali Browsing Menu --}}
                     <button
                         @click="closeCheckout"
-                        class="w-full bg-zinc-50 text-zinc-500 py-3.5 mt-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-zinc-100 border border-zinc-200/40 transition-all active:scale-[0.98]"
+                        class="w-full bg-[var(--background)] text-[var(--text-secondary)] py-3.5 mt-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[var(--bg-soft)] border border-[var(--border)]/40 transition-all active:scale-[0.98]"
                     >
                         Kembali ke Menu
                     </button>
@@ -196,7 +196,7 @@
                     {{-- Cart Items --}}
                     <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 pb-4">
                         <template x-if="cart.length === 0">
-                            <div class="text-center py-10 text-zinc-400 text-sm font-bold">Keranjang masih kosong nih
+                            <div class="text-center py-10 text-[var(--text-secondary)] text-sm font-bold">Keranjang masih kosong nih
                             </div>
                         </template>
 
@@ -204,13 +204,13 @@
                             <div>
                                 <template x-for="item in cart" :key="item.cartName">
                                     <div
-                                        class="flex justify-between items-start mb-6 pb-6 border-b border-zinc-50 last:border-0 animate-slide-up rounded-xl transition-all"
+                                        class="flex justify-between items-start mb-6 pb-6 border-b border-black/5 dark:border-white/5 last:border-0 animate-slide-up rounded-xl transition-all"
                                         :class="item.unavailable ? 'bg-red-50/60 border border-red-100 px-3 pt-3 -mx-1' : ''"
                                     >
                                         <div class="flex-1 pr-4 min-w-0">
                                             <div class="flex items-center gap-2 flex-wrap mb-0.5">
                                                 <h4 class="font-bold text-sm leading-tight"
-                                                    :class="item.unavailable ? 'text-zinc-400 line-through' : 'text-zinc-900'"
+                                                    :class="item.unavailable ? 'text-[var(--text-secondary)] line-through' : 'text-[var(--foreground)]'"
                                                     x-text="item.cartName"></h4>
                                                 <template x-if="item.unavailable">
                                                     <span
@@ -226,9 +226,15 @@
                                                     </span>
                                                 </template>
                                             </div>
-                                            <p class="text-xs font-medium mt-1"
-                                               :class="item.unavailable ? 'text-zinc-300' : 'text-[var(--primary-color)]'"
-                                               x-text="formatPrice(item.price * item.qty)"></p>
+                                            <div class="mt-1">
+                                                <template x-if="item.originalPrice && item.originalPrice > item.price">
+                                                    <span class="text-[10px] font-bold line-through text-red-400 block"
+                                                          x-text="formatPrice(item.originalPrice * item.qty)"></span>
+                                                </template>
+                                                <p class="text-xs font-black"
+                                                   :class="item.unavailable ? 'text-[var(--border)]' : 'text-[var(--primary-color)]'"
+                                                   x-text="formatPrice(item.price * item.qty)"></p>
+                                            </div>
                                         </div>
 
                                         {{-- Unavailable: hanya tombol hapus --}}
@@ -254,15 +260,15 @@
                                         {{-- Available: stepper normal --}}
                                         <template x-if="!item.unavailable">
                                             <div
-                                                class="flex items-center gap-3 bg-zinc-50 p-1 rounded-lg border border-zinc-100">
+                                                class="flex items-center gap-3 bg-[var(--background)] p-1 rounded-lg border border-[var(--border)]">
                                                 <button @click="updateQty(item.cartName, -1)"
-                                                        class="w-7 h-7 rounded-md bg-white text-zinc-900 flex items-center justify-center shadow-sm hover:bg-zinc-100 font-bold text-lg leading-none">
+                                                        class="w-7 h-7 rounded-md bg-[var(--surface)] text-[var(--foreground)] flex items-center justify-center shadow-sm hover:bg-[var(--bg-soft)] font-bold text-lg leading-none">
                                                     -
                                                 </button>
                                                 <span class="font-black text-xs w-4 text-center tabular-nums"
                                                       x-text="item.qty"></span>
                                                 <button @click="updateQty(item.cartName, 1)"
-                                                        class="w-7 h-7 rounded-md bg-zinc-900 text-white flex items-center justify-center shadow-sm hover:bg-zinc-800 font-bold text-lg leading-none">
+                                                        class="w-7 h-7 rounded-md bg-[var(--foreground)] text-[var(--background)] flex items-center justify-center shadow-sm hover:bg-zinc-700 font-bold text-lg leading-none">
                                                     +
                                                 </button>
                                             </div>
@@ -274,14 +280,14 @@
                     </div>
 
                     {{-- Bottom Form Step 1 --}}
-                    <div class="shrink-0 p-6 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                    <div class="shrink-0 p-6 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                         {{-- Order Type Options --}}
                         <div class="grid grid-cols-{{ count($orderTypes ?? [['id'=>'takeaway']]) }} gap-2 mb-5">
                             @foreach($orderTypes ?? [['id'=>'takeaway', 'label'=>'Takeaway']] as $type)
                                 <button
                                     @click="orderType = '{{ $type['id'] }}'"
                                     class="py-3 rounded-xl border-2 text-xs font-extrabold transition-all flex flex-col items-center justify-center gap-1.5"
-                                    :class="orderType === '{{ $type['id'] }}' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-zinc-50 text-zinc-400 border-transparent'"
+                                    :class="orderType === '{{ $type['id'] }}' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--background)] text-[var(--text-secondary)] border-transparent'"
                                 >
                                     {{ $type['label'] }}
                                 </button>
@@ -290,26 +296,29 @@
 
                         {{-- Total Price Preview for Step 1 --}}
                         <div class="flex items-center justify-between mb-4 px-1">
-                            <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Subtotal</span>
-                            <span class="text-base font-black text-zinc-900" x-text="formatPrice(totalCart)"></span>
+                            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Subtotal</span>
+                            <span class="text-base font-black text-[var(--foreground)]" x-text="formatPrice(totalCart)"></span>
                         </div>
 
                         {{-- Lanjut ke Pembayaran Button --}}
                         <button
                             @click="nextStep"
                             :disabled="cart.length === 0 || cart.some(i => i.unavailable)"
-                            class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                            class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg relative overflow-hidden group"
                             :class="cart.length === 0 || cart.some(i => i.unavailable)
-                                ? 'bg-zinc-200 text-zinc-400'
-                                : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/10'"
+                                ? 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
+                                : 'bg-[var(--primary-color)] text-black hover:brightness-110 shadow-[var(--primary-color)]/20 border border-[var(--primary-color)]'"
                         >
-                            <span>Lanjut ke Pembayaran</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                 stroke-linejoin="round">
-                                <path d="M5 12h14"/>
-                                <path d="m12 5 7 7-7 7"/>
-                            </svg>
+                            <div x-show="cart.length > 0 && !cart.some(i => i.unavailable)" class="absolute inset-0 bg-white/20 animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <span class="relative z-10 flex items-center gap-2">
+                                <span>Lanjut ke Pembayaran</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M5 12h14"/>
+                                    <path d="m12 5 7 7-7 7"/>
+                                </svg>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -330,7 +339,7 @@
 
                             {{-- Inputs --}}
                             <div class="mb-5">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Informasi
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Informasi
                                     Pemesan</p>
                                 <div class="space-y-3">
                                     <!-- Nama Pemesan -->
@@ -339,7 +348,7 @@
                                              viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                              stroke-linejoin="round"
-                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">
                                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                             <circle cx="12" cy="7" r="4"/>
                                         </svg>
@@ -347,7 +356,7 @@
                                             x-model="customerName"
                                             type="text"
                                             placeholder="Nama Pemesan"
-                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
+                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
                                         />
                                     </div>
 
@@ -360,7 +369,7 @@
                                              viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                              stroke-linejoin="round"
-                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">
                                             <rect width="20" height="16" x="2" y="4" rx="2"/>
                                             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                                         </svg>
@@ -368,7 +377,7 @@
                                             x-model="customerEmail"
                                             type="email"
                                             placeholder="Email (wajib)"
-                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
+                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
                                         />
                                     </div>
 
@@ -378,7 +387,7 @@
                                              viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                              stroke-linejoin="round"
-                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                             class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">
                                             <!-- Icon Meja (Dine In) -->
                                             <path x-show="orderType === 'dinein'"
                                                   d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -396,7 +405,7 @@
                                             x-model="customerInfo"
                                             type="text"
                                             :placeholder="orderType === 'dinein' ? 'Nomor Meja' : (orderType === 'takeaway' ? 'Catatan (misal: bungkus pisah)' : 'Alamat Lengkap Pengantaran')"
-                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
+                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
                                         />
                                     </div>
                                 </div>
@@ -404,12 +413,12 @@
 
                             {{-- Selected Payment Method Card --}}
                             <div class="mb-4">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Metode
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Metode
                                     Pembayaran</p>
 
                                 <div
                                     @click="showPaymentSelector = true"
-                                    class="p-4 bg-zinc-50 border border-zinc-100 rounded-2xl flex items-center justify-between hover:bg-zinc-100/50 hover:border-zinc-200 transition-all cursor-pointer active:scale-[0.99] select-none shadow-sm shadow-zinc-100/50"
+                                    class="p-4 bg-[var(--background)] border border-[var(--border)] rounded-2xl flex items-center justify-between hover:bg-[var(--bg-soft)]/50 hover:border-[var(--border)] transition-all cursor-pointer active:scale-[0.99] select-none shadow-sm shadow-[var(--border)]"
                                 >
                                     <div class="flex items-center gap-3">
                                         <!-- Cash Option Selected -->
@@ -427,9 +436,9 @@
                                                     </svg>
                                                 </div>
                                                 <div class="text-left">
-                                                    <h4 class="text-xs font-black text-zinc-950 uppercase tracking-wide leading-none mb-1">
+                                                    <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">
                                                         Bayar Manual di Kasir</h4>
-                                                    <p class="text-[9px] text-zinc-400 font-semibold">Bayar tunai/manual
+                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Bayar tunai/manual
                                                         di kasir outlet</p>
                                                 </div>
                                             </div>
@@ -449,9 +458,9 @@
                                                     </svg>
                                                 </div>
                                                 <div class="text-left">
-                                                    <h4 class="text-xs font-black text-zinc-950 uppercase tracking-wide leading-none mb-1">
+                                                    <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">
                                                         QRIS / Transfer / E-Wallet</h4>
-                                                    <p class="text-[9px] text-zinc-400 font-semibold">Bayar online
+                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Bayar online
                                                         otomatis & instan</p>
                                                 </div>
                                             </div>
@@ -462,7 +471,7 @@
                                             x-if="selectedPaymentMethod !== 'cash' && selectedPaymentMethod !== 'digital'">
                                             <div class="flex items-center gap-3">
                                                 <div
-                                                    class="w-9 h-9 bg-white p-1 rounded-xl border border-zinc-200/60 flex items-center justify-center shrink-0">
+                                                    class="w-9 h-9 bg-[var(--surface)] p-1 rounded-xl border border-[var(--border)] flex items-center justify-center shrink-0">
                                                     <img
                                                         :src="duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentImage"
                                                         class="max-w-full max-h-full object-contain"
@@ -471,10 +480,10 @@
                                                 </div>
                                                 <div class="text-left">
                                                     <h4
-                                                        class="text-xs font-black text-zinc-950 uppercase tracking-wide leading-none mb-1"
+                                                        class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1"
                                                         x-text="duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital Payment'"
                                                     ></h4>
-                                                    <p class="text-[9px] text-zinc-400 font-semibold">Metode Pembayaran
+                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Metode Pembayaran
                                                         Digital Duitku</p>
                                                 </div>
                                             </div>
@@ -483,12 +492,12 @@
 
                                     <!-- Ubah Button & Chevron -->
                                     <div
-                                        class="flex items-center gap-2 text-zinc-500 hover:text-zinc-800 transition-colors">
+                                        class="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
                                         <span
-                                            class="text-[10px] font-black uppercase tracking-wider bg-zinc-200/50 text-zinc-600 px-2.5 py-1 rounded-lg">Ubah</span>
+                                            class="text-[10px] font-black uppercase tracking-wider bg-zinc-200/50 text-[var(--foreground)] px-2.5 py-1 rounded-lg">Ubah</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                                             stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400">
+                                             stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-secondary)]">
                                             <path d="m9 18 6-6-6-6"/>
                                         </svg>
                                     </div>
@@ -498,43 +507,44 @@
 
                         {{-- Total & Submit --}}
                         <div
-                            class="shrink-0 p-6 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            class="shrink-0 p-6 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                             <!-- Breakdown Box -->
-                            <div class="space-y-2 mb-4 px-1 text-xs font-semibold text-zinc-500">
+                            <div class="space-y-2 mb-4 px-1 text-xs font-semibold text-[var(--text-secondary)]">
                                 <div class="flex items-center justify-between">
                                     <span>Subtotal</span>
-                                    <span class="text-zinc-900 font-black" x-text="formatPrice(totalCart)"></span>
+                                    <span class="text-[var(--foreground)] font-black" x-text="formatPrice(totalCart)"></span>
                                 </div>
                                 <div class="flex items-center justify-between"
                                      x-show="isServiceActive && serviceChargeAmount > 0" style="display: none;">
                                     <span>Biaya Layanan (<span x-text="serviceRate"></span>%)</span>
-                                    <span class="text-zinc-900 font-black"
+                                    <span class="text-[var(--foreground)] font-black"
                                           x-text="formatPrice(serviceChargeAmount)"></span>
                                 </div>
                                 <div class="flex items-center justify-between" x-show="isTaxActive && taxAmount > 0"
                                      style="display: none;">
                                     <span>Pajak PB1 (<span x-text="taxRate"></span>%)</span>
-                                    <span class="text-zinc-900 font-black" x-text="formatPrice(taxAmount)"></span>
+                                    <span class="text-[var(--foreground)] font-black" x-text="formatPrice(taxAmount)"></span>
                                 </div>
-                                <hr class="border-zinc-100 my-1">
+                                <hr class="border-[var(--border)] my-1">
                             </div>
 
                             <div class="flex items-center justify-between mb-3 px-1">
                                 <span
-                                    class="text-xs font-black text-zinc-900 uppercase tracking-wider">Total Tagihan</span>
-                                <span class="text-lg font-black text-zinc-900"
+                                    class="text-xs font-black text-[var(--foreground)] uppercase tracking-wider">Total Tagihan</span>
+                                <span class="text-lg font-black text-[var(--foreground)]"
                                       x-text="formatPrice(totalOrderPrice)"></span>
                             </div>
 
                             <button
                                 @click="processOrder"
                                 :disabled="cart.length === 0 || checkoutLoading || cart.some(i => i.unavailable)"
-                                class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                                class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg relative overflow-hidden group"
                                 :class="cart.length === 0 || cart.some(i => i.unavailable)
-                                    ? 'bg-zinc-200 text-zinc-400'
-                                    : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/10'"
+                                    ? 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
+                                    : 'bg-[var(--primary-color)] text-black hover:brightness-110 shadow-[var(--primary-color)]/20 border border-[var(--primary-color)]'"
                             >
-                                <span x-show="!checkoutLoading" class="flex items-center gap-2">
+                                <div x-show="cart.length > 0 && !cart.some(i => i.unavailable)" class="absolute inset-0 bg-white/20 animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <span x-show="!checkoutLoading" class="flex items-center gap-2 relative z-10">
                                     <span class="flex items-center gap-2">
                                         <!-- Cash Icon -->
                                         <span x-show="selectedPaymentMethod === 'cash'" class="flex items-center">
@@ -571,7 +581,7 @@
                                 </span>
 
                                 <span x-show="checkoutLoading" class="flex items-center gap-2" style="display: none;">
-                                    <svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                                    <svg class="animate-spin w-5 h-5 text-[var(--background)]" xmlns="http://www.w3.org/2000/svg"
                                          fill="none"
                                          viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10"
                                                                      stroke="currentColor" stroke-width="4"></circle><path
@@ -586,19 +596,19 @@
                     <!-- B. PAYMENT SELECTOR VIEW (Sub-page list) -->
                     <div
                         x-show="showPaymentSelector"
-                        class="flex-1 flex flex-col min-h-0 overflow-hidden bg-white animate-fade-in"
+                        class="flex-1 flex flex-col min-h-0 overflow-hidden bg-[var(--surface)] animate-fade-in"
                         style="display: none;"
                     >
                         <!-- Selector List (Scrollable) -->
                         <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 space-y-4">
                             <!-- 1. Cash / Manual Payment -->
                             <div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Manual /
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Manual /
                                     Kasir</p>
                                 <div
                                     @click="selectedPaymentMethod = 'cash'"
                                     class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
-                                    :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
+                                    :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-[var(--background)] border-transparent hover:border-[var(--border)]'"
                                 >
                                     <div class="flex items-center gap-3">
                                         <div
@@ -612,16 +622,16 @@
                                             </svg>
                                         </div>
                                         <div class="text-left">
-                                            <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">
+                                            <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">
                                                 Bayar Manual di Kasir</h4>
-                                            <p class="text-[9px] text-zinc-400 font-semibold">Pesan online, bayar
+                                            <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Pesan online, bayar
                                                 tunai/manual di kasir outlet</p>
                                         </div>
                                     </div>
                                     <!-- Radio Circle -->
                                     <div
                                         class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
-                                        :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
+                                        :class="selectedPaymentMethod === 'cash' ? 'border-[var(--primary-color)] bg-[var(--surface)]' : 'border-[var(--border)] bg-[var(--surface)]'">
                                         <div
                                             class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
                                             :class="selectedPaymentMethod === 'cash' ? 'scale-100' : 'scale-0'"></div>
@@ -631,7 +641,7 @@
 
                             <!-- 2. Midtrans payment method -->
                             <div x-show="midtransEnabled" style="display: none;">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">
                                     Pembayaran Instan (Midtrans)</p>
 
                                 @if(!config('midtrans.is_production'))
@@ -660,7 +670,7 @@
                                 <div
                                     @click="selectedPaymentMethod = 'digital'"
                                     class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
-                                    :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-zinc-50 border-transparent hover:border-zinc-200/80'"
+                                    :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-[var(--background)] border-transparent hover:border-[var(--border)]'"
                                 >
                                     <div class="flex items-center gap-3">
                                         <div
@@ -673,16 +683,16 @@
                                             </svg>
                                         </div>
                                         <div class="text-left">
-                                            <h4 class="text-xs font-black text-zinc-900 uppercase tracking-wide leading-none mb-1">
+                                            <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">
                                                 QRIS, Transfer Bank, E-Wallet</h4>
-                                            <p class="text-[9px] text-zinc-400 font-semibold">Bayar online dengan metode
+                                            <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Bayar online dengan metode
                                                 pilihanmu secara aman</p>
                                         </div>
                                     </div>
                                     <!-- Radio Circle -->
                                     <div
                                         class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
-                                        :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-white' : 'border-zinc-300 bg-white'">
+                                        :class="selectedPaymentMethod === 'digital' ? 'border-[var(--primary-color)] bg-[var(--surface)]' : 'border-[var(--border)] bg-[var(--surface)]'">
                                         <div
                                             class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
                                             :class="selectedPaymentMethod === 'digital' ? 'scale-100' : 'scale-0'"></div>
@@ -694,7 +704,7 @@
                             @if(config('duitku.enabled'))
                                 <div x-show="duitkuPaymentMethods.length > 0" style="display: none;">
                                     <div class="flex items-center justify-between mb-2">
-                                        <p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">
                                             Transfer & E-Wallet Otomatis (Duitku)</p>
                                     </div>
 
@@ -728,8 +738,8 @@
                                                       :key="method.paymentMethod">
                                                 <div
                                                     @click="selectedPaymentMethod = method.paymentMethod"
-                                                    class="relative flex flex-col items-center justify-center p-3.5 bg-zinc-50 hover:bg-zinc-100/80 border-2 rounded-2xl transition-all duration-200 cursor-pointer select-none text-center active:scale-[0.97]"
-                                                    :class="selectedPaymentMethod === method.paymentMethod ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] ring-1 ring-[var(--primary-color)]/25' : 'border-transparent hover:border-zinc-200/80'"
+                                                    class="relative flex flex-col items-center justify-center p-3.5 bg-[var(--background)] hover:bg-[var(--bg-soft)]/80 border-2 rounded-2xl transition-all duration-200 cursor-pointer select-none text-center active:scale-[0.97]"
+                                                    :class="selectedPaymentMethod === method.paymentMethod ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] ring-1 ring-[var(--primary-color)]/25' : 'border-transparent hover:border-[var(--border)]'"
                                                 >
                                                     <!-- Checkmark corner badge -->
                                                     <div
@@ -745,7 +755,7 @@
 
                                                     <!-- White frame for Logo -->
                                                     <div
-                                                        class="w-12 h-6 bg-white p-0.5 rounded-lg border border-zinc-100 flex items-center justify-center mb-1.5 shadow-sm shrink-0">
+                                                        class="w-12 h-6 bg-[var(--surface)] p-0.5 rounded-lg border border-[var(--border)] flex items-center justify-center mb-1.5 shadow-sm shrink-0">
                                                         <img :src="method.paymentImage"
                                                              class="max-w-full max-h-full object-contain"
                                                              :alt="method.paymentName"
@@ -754,7 +764,7 @@
 
                                                     <!-- Method Name -->
                                                     <span
-                                                        class="text-[9px] font-black text-zinc-700 tracking-tight block truncate w-full max-w-[95%]"
+                                                        class="text-[9px] font-black text-[var(--foreground)] tracking-tight block truncate w-full max-w-[95%]"
                                                         x-text="method.paymentName"></span>
                                                 </div>
                                             </template>
@@ -766,10 +776,10 @@
 
                         <!-- Sticky Footer with Confirm Button -->
                         <div
-                            class="shrink-0 p-5 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+                            class="shrink-0 p-5 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                             <button
                                 @click="showPaymentSelector = false"
-                                class="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-zinc-900/10"
+                                class="w-full py-4 bg-[var(--foreground)] hover:bg-zinc-700 text-[var(--background)] rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-zinc-900/10"
                             >
                                 <span>Konfirmasi Metode</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"

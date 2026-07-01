@@ -12,6 +12,10 @@ Didevelop oleh **ngopikode**.
 - **Multi-Tenancy:** Stancl/Tenancy (Arsitektur Multi-Database)
 - **Asset Bundler:** Vite
 
+## 📚 Dokumentasi
+
+Semua dokumentasi proyek (PRD, ERD, flowchart, arsitektur, referensi) terpusat di direktori [`.docs/`](.docs/README.md).
+
 ## ✨ Fitur Utama
 
 - **Isolasi Data Penuh:** Setiap *tenant* (toko) memiliki *database* fisiknya sendiri (Multi-Database).
@@ -27,7 +31,7 @@ Didevelop oleh **ngopikode**.
 Ikuti langkah-langkah di bawah ini untuk menjalankan *project* ini di *local machine*.
 
 ### 1. Kebutuhan Sistem
-- PHP >= 8.4
+- PHP >= 8.3
 - Composer >= 2.0
 - Node.js & NPM
 - MySQL (User *database* harus memiliki hak akses `CREATE DATABASE`)

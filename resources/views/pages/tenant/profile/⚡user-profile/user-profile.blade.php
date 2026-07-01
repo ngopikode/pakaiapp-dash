@@ -60,7 +60,7 @@
                         <!-- Tombol Simpan -->
                         <div class="d-flex justify-content-end mt-4 pt-2">
                             <button type="submit" class="btn border-0 shadow-sm rounded-pill px-4 py-2 fw-bold text-white"
-                                    style="background: linear-gradient(135deg, #ca8a04, #b45309);"
+                                    style="background: #F97316;"
                                     wire:loading.attr="disabled" wire:target="updateProfileInformation">
                                 <span wire:loading.remove wire:target="updateProfileInformation">
                                     Simpan Profil
@@ -137,4 +137,7 @@
             </div>
         </div>
     </div>
+    
+    <!-- Extra spacing for mobile bottom navbar -->
+    <div style="height: 100px;" class="d-block d-md-none"></div>
 </div>

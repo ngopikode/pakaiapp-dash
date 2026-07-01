@@ -2,17 +2,19 @@
 
 namespace App\Livewire;
 
-use App\Models\Order;
-use App\Models\Product;
-use App\Models\StoreSetting;
-use App\Services\TenantWalletService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\TenantWalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-new class extends Component {
+new #[Title('Dashboard Overview')]
+class extends Component {
     public int $lastCheckedOrderId = 0;
 
     // Tarif per transaksi, disamakan dengan kasir
@@ -37,7 +39,7 @@ new class extends Component {
         }
 
         $orders = Order::whereMonth('created_at', date('m'))
-            ->where('status', 'paid')
+            ->whereIn('status', ['paid', 'completed'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -63,6 +65,8 @@ new class extends Component {
             'orders_today' => 0,
             'revenue_today' => 0,
             'revenue_month' => 0,
+            'profit_today' => 0,
+            'profit_month' => 0,
             'pending_orders' => 0,
             'active_products' => 0,
             'wallet_balance' => 0, // Tambahkan ini
@@ -79,13 +83,29 @@ new class extends Component {
         if ($store) {
             // Stats Hari Ini & Bulanan
             $stats['orders_today'] = Order::whereDate('created_at', today())->count();
-            $stats['revenue_today'] = Order::whereDate('created_at', today())->where('status', 'paid')->sum('total_price');
-            $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->where('status', 'paid')->sum('total_price');
+            $stats['revenue_today'] = Order::whereDate('created_at', today())->whereIn('status', ['paid', 'completed'])->sum('total_price');
+            $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->whereIn('status', ['paid', 'completed'])->sum('total_price');
+
+            $todayHpp = DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->whereDate('orders.created_at', today())
+                ->whereIn('orders.status', ['paid', 'completed'])
+                ->sum(DB::raw('order_items.quantity * order_items.cost'));
+            $stats['profit_today'] = $stats['revenue_today'] - $todayHpp;
+
+            $monthHpp = DB::table('orders')
+                ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                ->whereMonth('orders.created_at', date('m'))
+                ->whereYear('orders.created_at', date('Y'))
+                ->whereIn('orders.status', ['paid', 'completed'])
+                ->sum(DB::raw('order_items.quantity * order_items.cost'));
+            $stats['profit_month'] = $stats['revenue_month'] - $monthHpp;
+
             $stats['pending_orders'] = Order::where('status', 'pending')->count();
             $stats['active_products'] = Product::where('is_active', true)->count();
 
             // Calculate Trends
-            $yesterdayRevenue = Order::whereDate('created_at', today()->subDay())->where('status', 'paid')->sum('total_price');
+            $yesterdayRevenue = Order::whereDate('created_at', today()->subDay())->whereIn('status', ['paid', 'completed'])->sum('total_price');
             if ($yesterdayRevenue > 0) {
                 $stats['revenue_trend_today'] = round((($stats['revenue_today'] - $yesterdayRevenue) / $yesterdayRevenue) * 100);
             } else {
@@ -94,9 +114,9 @@ new class extends Component {
 
             $lastMonthRevenue = Order::whereMonth('created_at', today()->subMonth()->format('m'))
                 ->whereYear('created_at', today()->subMonth()->format('Y'))
-                ->where('status', 'paid')
+                ->whereIn('status', ['paid', 'completed'])
                 ->sum('total_price');
-                
+
             if ($lastMonthRevenue > 0) {
                 $stats['revenue_trend_month'] = round((($stats['revenue_month'] - $lastMonthRevenue) / $lastMonthRevenue) * 100);
             } else {
@@ -104,11 +124,20 @@ new class extends Component {
             }
 
             // 7 Days Chart Data
-            $chartData = collect(range(6, 0))->map(function($daysAgo) {
+            $sevenDaysAgo = today()->subDays(6)->startOfDay();
+
+            // Standardizing date extraction to support different DB drivers
+            $dailyRevenues = Order::where('created_at', '>=', $sevenDaysAgo)
+                ->whereIn('status', ['paid', 'completed'])
+                ->select(DB::raw('DATE(created_at) as date_string'), DB::raw('SUM(total_price) as total_revenue'))
+                ->groupBy('date_string')
+                ->pluck('total_revenue', 'date_string');
+
+            $chartData = collect(range(6, 0))->map(function ($daysAgo) use ($dailyRevenues) {
                 $date = today()->subDays($daysAgo);
                 return [
                     'date' => $date->format('d M'),
-                    'revenue' => Order::whereDate('created_at', $date)->where('status', 'paid')->sum('total_price')
+                    'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
                 ];
             });
 
@@ -118,19 +147,72 @@ new class extends Component {
             // 5 Pesanan Terbaru
             $recentOrders = Order::latest()->take(5)->get();
 
-            // Produk Terlaris
+            // Produk Terlaris, Metode Pembayaran, & Tipe Pesanan
+            $paymentMethods = collect([]);
+            $orderTypes = collect([]);
             try {
                 $topProducts = DB::table('order_items')
                     ->join('orders', 'order_items.order_id', '=', 'orders.id')
                     ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
                     ->whereMonth('orders.created_at', date('m'))
-                    ->where('orders.status', 'paid')
+                    ->whereIn('orders.status', ['paid', 'completed'])
                     ->groupBy('order_items.product_name')
                     ->orderByDesc('total_sold')
                     ->limit(5)
                     ->get();
+
+                $paymentMethods = DB::table('orders')
+                    ->select('payment_method', DB::raw('COUNT(id) as total'), DB::raw('SUM(total_price) as total_amount'))
+                    ->whereMonth('created_at', date('m'))
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->groupBy('payment_method')
+                    ->get();
+
+                $orderTypes = DB::table('orders')
+                    ->select('order_type', DB::raw('COUNT(id) as total'))
+                    ->whereMonth('created_at', date('m'))
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->groupBy('order_type')
+                    ->get();
             } catch (\Exception $e) {
                 $topProducts = collect([]);
+            }
+
+            $peakSalesTimes = collect([]);
+            $slowMovingProducts = collect([]);
+
+            try {
+                // Peak Sales Time (Top 3 Hours in the last 30 days)
+                $peakSalesTimes = DB::table('orders')
+                    ->select(DB::raw("STRFTIME('%H', created_at) as hour"), DB::raw("COUNT(id) as total_orders"))
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->where('created_at', '>=', today()->subDays(30))
+                    ->groupBy('hour')
+                    ->orderByDesc('total_orders')
+                    ->limit(3)
+                    ->get()
+                    ->map(function ($item) {
+                        return (object)[
+                            'time_range' => $item->hour . ':00 - ' . str_pad((int)$item->hour + 1, 2, '0', STR_PAD_LEFT) . ':00',
+                            'orders' => $item->total_orders
+                        ];
+                    });
+
+                // Slow-moving Items (Bottom 5 Active Products by quantity sold in the last 30 days)
+                $slowMovingProducts = DB::table('products')
+                    ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+                    ->leftJoin('orders', function ($join) {
+                        $join->on('order_items.order_id', '=', 'orders.id')
+                            ->whereIn('orders.status', ['paid', 'completed'])
+                            ->where('orders.created_at', '>=', today()->subDays(30));
+                    })
+                    ->select('products.name', DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'))
+                    ->where('products.is_active', true)
+                    ->groupBy('products.id', 'products.name')
+                    ->orderBy('total_sold', 'asc')
+                    ->limit(5)
+                    ->get();
+            } catch (\Exception $e) {
             }
 
             $newOrderCount = Order::where('id', '>', $this->lastCheckedOrderId)->count();
@@ -142,6 +224,10 @@ new class extends Component {
             'stats' => $stats,
             'recentOrders' => $recentOrders,
             'topProducts' => $topProducts,
+            'paymentMethods' => $paymentMethods ?? collect([]),
+            'orderTypes' => $orderTypes ?? collect([]),
+            'peakSalesTimes' => $peakSalesTimes,
+            'slowMovingProducts' => $slowMovingProducts,
             'newOrderCount' => $newOrderCount,
             'chartData' => collect($chartData)->toJson(),
         ];

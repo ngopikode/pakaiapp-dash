@@ -1,22 +1,31 @@
-<!DOCTYPE html>
+@php use App\Tenant\Models\Core\StoreSetting; @endphp
+    <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? config('app.name') }}</title>
+    <title>{{ isset($title) ? $title . ' - ' : '' }}{{ \App\Tenant\Models\Core\StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
 
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', theme);
+    </script>
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-
+    
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    @stack('styles')
 
     @livewireStyles
 
@@ -25,6 +34,15 @@
             src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
             data-client-key="{{ config('midtrans.client_key') }}"></script>
     @endif
+
+    <script>
+        // iPadOS 13+ requests desktop site by default and spoofs User-Agent as Macintosh.
+        // We detect touch support on MacIntel to identify iPads, set a cookie, and reload once.
+        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 && document.cookie.indexOf('is_ipad=1') === -1) {
+            document.cookie = 'is_ipad=1; path=/; max-age=31536000'; // 1 year
+            window.location.reload();
+        }
+    </script>
 </head>
 <body>
 
@@ -39,31 +57,62 @@
     </div>
 </div>
 
+<?php
+$userMenuRole = auth()->user()?->role ?? 'cashier';
+$storeType = StoreSetting::first()?->store_type ?? 'retail';
+
+$allRoles = [
+    ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
+    ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
+];
+if ($storeType === 'resto') {
+    $allRoles[] = ['manager', 'kitchen'];
+}
+
+$accessibleMenus = collect($allRoles)->filter(fn($roles) => in_array($userMenuRole, $roles))->count();
+$showSidebar = $accessibleMenus > 1;
+?>
+
 <div id="wrapper">
-    <div class="d-none d-md-flex">
-        <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
-    </div>
-
-    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar"
-         aria-labelledby="mobileSidebarLabel" style="width: 280px;">
-        <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title font-serif fw-bold" id="mobileSidebarLabel">{{ config('app.name') }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    @if($showSidebar)
+        {{-- HANYA DI-RENDER DI DESKTOP --}}
+        <div class="desktop-sidebar-container h-100 d-none d-lg-block">
+            <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
         </div>
-        <div class="offcanvas-body p-0">
-            <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
+
+        {{-- HANYA DI-RENDER DI MOBILE (OFFCANVAS) --}}
+        <div class="offcanvas offcanvas-start border-0 shadow d-lg-none" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel" style="width: 280px; transition: transform 0.3s ease-in-out;">
+            <div class="offcanvas-header border-bottom px-4 py-3" style="border-color: var(--bs-border-color) !important;">
+                <h5 class="offcanvas-title font-serif fw-bolder fs-5" id="mobileSidebarLabel" style="letter-spacing: -0.02em; color: var(--brand-caramel, #B67332);">
+                    Navigasi Toko
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <livewire:layouts.sidebar elementId="mobile-sidebar-wrapper"/>
+            </div>
         </div>
-    </div>
+    @endif
 
-    <div id="page-content-wrapper">
-        <livewire:layouts.navbar :header="$header ?? null"/>
+    <div id="page-content-wrapper"
+         @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
+        @if($showSidebar)
+            <livewire:layouts.navbar :header="$title ?? null"/>
+        @endif
 
-        <main class="container-fluid p-3">
+        <main class="container-fluid @if($showSidebar) p-3 @else @endif">
             {{ $slot }}
         </main>
     </div>
+
+
 </div>
 
 @livewireScripts
+
+@stack('scripts')
+
+@include('components.pwa-toast')
+
 </body>
 </html>

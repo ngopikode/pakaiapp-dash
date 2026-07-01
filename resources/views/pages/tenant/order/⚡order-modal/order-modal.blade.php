@@ -211,37 +211,42 @@
                                     Tutup
                                 </button>
 
-                                {{-- Batalkan — inline confirm, tidak pakai browser dialog --}}
-                                <template x-if="!confirmCancel">
-                                    <button @click="confirmCancel = true"
-                                            class="btn btn-outline-danger fw-bold rounded-3 px-4">
-                                        <i class="bi bi-x-lg me-1"></i>Batalkan
-                                    </button>
-                                </template>
-
-                                {{-- Konfirmasi Batal --}}
-                                <template x-if="confirmCancel">
-                                    <div class="d-flex align-items-center gap-2 flex-grow-1 p-2 rounded-3 border border-danger-subtle bg-danger-subtle bg-opacity-10">
-                                        <i class="bi bi-exclamation-triangle-fill text-danger flex-shrink-0"></i>
-                                        <span class="small fw-medium text-danger-emphasis flex-grow-1">Yakin batalkan pesanan ini?</span>
-                                        <button @click="confirmCancel = false" class="btn btn-sm btn-outline-secondary rounded-3 fw-bold">Tidak</button>
-                                        <button wire:click="updateStatus('cancelled')" wire:loading.attr="disabled"
-                                                class="btn btn-sm btn-danger rounded-3 fw-bold">
-                                            <span wire:loading.remove wire:target="updateStatus('cancelled')">Ya, Batalkan</span>
-                                            <span wire:loading wire:target="updateStatus('cancelled')" class="spinner-border spinner-border-sm"></span>
+                                {{-- Aksi hanya untuk non-resto --}}
+                                @if(tenant('store_type') !== 'resto')
+                                    {{-- Batalkan — inline confirm, tidak pakai browser dialog --}}
+                                    <template x-if="!confirmCancel">
+                                        <button @click="confirmCancel = true"
+                                                class="btn btn-outline-danger fw-bold rounded-3 px-4">
+                                            <i class="bi bi-x-lg me-1"></i>Batalkan
                                         </button>
-                                    </div>
-                                </template>
+                                    </template>
 
-                                {{-- Bayar — selalu di kanan --}}
-                                <button wire:click="triggerPayment" wire:loading.attr="disabled"
-                                        class="btn fw-bold rounded-3 px-4 ms-auto text-white flex-shrink-0"
-                                        style="background: linear-gradient(135deg, #ca8a04, #b45309); border: none; min-width: 130px;">
-                                    <span wire:loading.remove wire:target="triggerPayment">
-                                        <i class="bi bi-cash-coin me-1"></i>Bayar
-                                    </span>
-                                    <span wire:loading wire:target="triggerPayment" class="spinner-border spinner-border-sm"></span>
-                                </button>
+                                    {{-- Konfirmasi Batal --}}
+                                    <template x-if="confirmCancel">
+                                        <div class="d-flex align-items-center gap-2 flex-grow-1 p-2 rounded-3 border border-danger-subtle bg-danger-subtle bg-opacity-10">
+                                            <i class="bi bi-exclamation-triangle-fill text-danger flex-shrink-0"></i>
+                                            <span class="small fw-medium text-danger-emphasis flex-grow-1">Yakin batalkan pesanan ini?</span>
+                                            <button @click="confirmCancel = false" class="btn btn-sm btn-outline-secondary rounded-3 fw-bold">Tidak</button>
+                                            <button wire:click="updateStatus('cancelled')" wire:loading.attr="disabled"
+                                                    class="btn btn-sm btn-danger rounded-3 fw-bold">
+                                                <span wire:loading.remove wire:target="updateStatus('cancelled')">Ya, Batalkan</span>
+                                                <span wire:loading wire:target="updateStatus('cancelled')" class="spinner-border spinner-border-sm"></span>
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    {{-- Bayar — selalu di kanan --}}
+                                    <button wire:click="triggerPayment" wire:loading.attr="disabled"
+                                            class="btn fw-bold rounded-3 px-4 ms-auto text-white flex-shrink-0"
+                                            style="background: #F97316; border: none; min-width: 130px;">
+                                        <span wire:loading.remove wire:target="triggerPayment">
+                                            <i class="bi bi-cash-coin me-1"></i>Bayar
+                                        </span>
+                                        <span wire:loading wire:target="triggerPayment" class="spinner-border spinner-border-sm"></span>
+                                    </button>
+                                @else
+                                    <div class="ms-auto"></div>
+                                @endif
                             </div>
                         @else
                             <div class="d-flex gap-2 w-100 justify-content-between align-items-center">
@@ -255,22 +260,24 @@
                                         Tutup
                                     </button>
 
-                                    @if($order->status == 'paid')
-                                        <button wire:click="updateStatus('progress')" wire:loading.attr="disabled"
-                                                class="btn btn-info text-white fw-bold rounded-3 px-4">
-                                            <span wire:loading.remove wire:target="updateStatus('progress')">
-                                                <i class="bi bi-play-fill me-1"></i>Proses Pesanan
-                                            </span>
-                                            <span wire:loading wire:target="updateStatus('progress')" class="spinner-border spinner-border-sm me-1"></span>
-                                        </button>
-                                    @elseif($order->status == 'progress')
-                                        <button wire:click="updateStatus('completed')" wire:loading.attr="disabled"
-                                                class="btn btn-success fw-bold rounded-3 px-4">
-                                            <span wire:loading.remove wire:target="updateStatus('completed')">
-                                                <i class="bi bi-check-lg me-1"></i>Selesaikan
-                                            </span>
-                                            <span wire:loading wire:target="updateStatus('completed')" class="spinner-border spinner-border-sm me-1"></span>
-                                        </button>
+                                    @if(tenant('store_type') !== 'resto')
+                                        @if($order->status == 'paid')
+                                            <button wire:click="updateStatus('progress')" wire:loading.attr="disabled"
+                                                    class="btn btn-info text-white fw-bold rounded-3 px-4">
+                                                <span wire:loading.remove wire:target="updateStatus('progress')">
+                                                    <i class="bi bi-play-fill me-1"></i>Proses Pesanan
+                                                </span>
+                                                <span wire:loading wire:target="updateStatus('progress')" class="spinner-border spinner-border-sm me-1"></span>
+                                            </button>
+                                        @elseif($order->status == 'progress')
+                                            <button wire:click="updateStatus('completed')" wire:loading.attr="disabled"
+                                                    class="btn btn-success fw-bold rounded-3 px-4">
+                                                <span wire:loading.remove wire:target="updateStatus('completed')">
+                                                    <i class="bi bi-check-lg me-1"></i>Selesaikan
+                                                </span>
+                                                <span wire:loading wire:target="updateStatus('completed')" class="spinner-border spinner-border-sm me-1"></span>
+                                            </button>
+                                        @endif
                                     @endif
                                 </div>
                             </div>

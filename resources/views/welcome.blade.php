@@ -1,479 +1,607 @@
+@php use App\Central\Models\GlobalSetting; @endphp
 <!DOCTYPE html>
-<html lang="id" data-bs-theme="light" id="html-root">
+<html lang="id" class="scroll-smooth" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- ==============================================
-           SEO ON-PAGE, META TAGS & SCHEMA JSON-LD
-      =============================================== -->
-    <title>Pakaiapp - Aplikasi Kasir Pintar UMKM Tanpa Biaya Bulanan</title>
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="apple-touch-icon" href="/logo.png">
-    <meta name="title" content="Pakaiapp - Aplikasi Kasir Web UMKM Tanpa Biaya Bulanan">
-    <meta name="description"
-          content="Tinggalkan biaya langganan! Pakaiapp adalah Super App SaaS (POS) berbasis web cloud untuk UMKM. Cuma bayar Rp 300 per transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp 150rb/bulan!">
-    <meta name="keywords"
-          content="aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail, pakaiapp, ngopikode, aplikasi kasir medan">
+    @php
+        $trxFee = GlobalSetting::where("key", "default_trx_fee")->first()?->value ?? 300;
+        $cappingLimit = GlobalSetting::where("key", "default_capping_limit")->first()?->value ?? 150000;
+        $cappingLimitFormatted = number_format($cappingLimit, 0, ",", ".");
+        $cappingLimitShort = ($cappingLimit / 1000) . "rb";
+    @endphp
+
+    <title>Pakaiapp - Kasir Pintar & Menu Digital Premium untuk F&B</title>
+<meta name="description" content="Tinggalkan langganan bulanan! Pakaiapp: Kasir Pintar (POS) & Menu Digital Mewah dengan QR Self-Order. UMKM F&B naik kelas, cuma bayar Rp {{ $trxFee }}/transaksi sukses, dan otomatis GRATIS setelah tagihan menyentuh Rp {{ $cappingLimitShort }}/bulan!">
+    <meta name="keywords" content="pakai app, pakaiapp, menu digital, qr order, aplikasi kasir web, kasir pintar, POS F&B, kasir UMKM, aplikasi kasir tanpa langganan, kasir cafe, sistem kasir retail">
     <meta name="author" content="PT Sinergi Kode Kreatif">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Indonesian">
+    <link rel="canonical" href="https://www.pakaiapp.online/">
 
-    <link rel="canonical" href="https://pakaiapp.online/">
-
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://pakaiapp.online/">
-    <meta property="og:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
-    <meta property="og:description"
-          content="Kasir sepi = Gratis. Kasir ramai = Otomatis Premium (Gratis Tanpa Batas) setelah Rp150.000/bulan tercapai!">
-    <meta property="og:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
+    <meta property="og:url" content="https://www.pakaiapp.online/">
+    <meta property="og:title" content="Pakaiapp - Kasir Pintar & Menu Digital F&B">
+    <meta property="og:description" content="Kasir sepi = Gratis. Menu Digital Mewah = Siap Pakai. Otomatis Premium (Gratis Tanpa Batas) setelah Rp{{ $cappingLimitFormatted }}/bulan tercapai!">
+    <meta property="og:image" content="{{ asset('images/og-banner.png') }}">
 
+    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://pakaiapp.online/">
+    <meta property="twitter:url" content="https://www.pakaiapp.online/">
     <meta property="twitter:title" content="Pakaiapp - Kasir Web Bayar Suka-Suka">
-    <meta property="twitter:description"
-          content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">
-    <meta property="twitter:image" content="{{ asset('images/pakaiapp-og-banner.jpg') }}">
+    <meta property="twitter:description" content="Tinggalkan biaya langganan bulanan. Pindah ke Pakaiapp sekarang dan nikmati fitur kasir enterprise dengan harga UMKM.">
+    <meta property="twitter:image" content="{{ asset('images/og-banner.png') }}">
 
     <script type="application/ld+json">
         {
-       "@@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Pakaiapp.online",
-      "operatingSystem": "Web, Android, iOS (PWA)",
-      "applicationCategory": "BusinessApplication",
-      "description": "Sistem kasir pintar (POS) berbasis web cloud untuk UMKM F&B dan Retail tanpa biaya langganan bulanan. Menggunakan skema potong saldo Rp 300 per transaksi dengan fitur Automatic Premium Upgrade (Maks Rp 150.000/bulan).",
-      "url": "https://www.pakaiapp.online",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "IDR",
-        "description": "Pendaftaran gratis, biaya penggunaan hanya Rp 300 per transaksi sukses."
-      },
-      "creator": {
-        "@type": "Organization",
-        "name": "PT Sinergi Kode Kreatif (ngopikode)",
-        "url": "https://www.ngopikode.com"
-      }
-    }
+            "@@context": "https://schema.org",
+            "@@type": "SoftwareApplication",
+            "name": "Pakaiapp.online",
+            "operatingSystem": "Web, Android, iOS (PWA)",
+            "applicationCategory": "BusinessApplication",
+            "description": "Sistem kasir pintar (POS) berbasis web cloud untuk UMKM F&B dan Retail tanpa biaya langganan bulanan.",
+            "url": "https://www.pakaiapp.online",
+            "offers": {
+                "@@type": "Offer",
+                "price": "0",
+                "priceCurrency": "IDR",
+                "description": "Pendaftaran gratis, biaya penggunaan hanya Rp {{ $trxFee }} per transaksi sukses."
+            },
+            "creator": {
+                "@type": "Organization",
+                "name": "PT Sinergi Kode Kreatif (ngopikode)",
+                "url": "https://www.ngopikode.com"
+            }
+        }
     </script>
 
-    <!-- External Libraries -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- Vite Assets -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    @vite(["resources/css/welcome.css"])
+    @livewireStyles
 
     <style>
-        /* CSS Tambahan Khusus Landing Page */
-        body {
-            font-family: var(--font-sans);
-            overflow-x: hidden;
+        html.dark {
+            --color-bg: #1B2421;
+            --color-bg-alt: #222E2A;
+            --color-bg-card: #161D1A;
+            --color-bg-dark: #121815;
+            --color-text: #E2E8F0;
+            --color-text-muted: #94A3B8;
+            --color-text-subtle: #475569;
+            --color-border: #2C3E38;
+        }
+        html.dark body.sustainability-platform .navbar-eco {
+            background: rgba(27, 36, 33, 0.9);
         }
 
-        .font-serif {
-            font-family: var(--font-serif);
+        :root {
+            --color-primary: #228B22;
+            --color-secondary: #2E7D32;
+            --color-accent: #8B4513;
+            --color-sky: #87CEEB;
+            --color-earth: #A0522D;
+            --color-leaf: #4CAF50;
+            --color-sun: #FFB300;
+            --color-bg: #FAFAF5;
+            --color-bg-alt: #F5F5E8;
+            --color-bg-card: #FFFFFF;
+            --color-bg-dark: #1B4332;
+            --color-text: #1B4332;
+            --color-text-muted: #52796F;
+            --color-text-subtle: #84A98C;
+            --color-border: #D8E2DC;
+            --gradient-nature: linear-gradient(135deg, #228B22 0%, #4CAF50 100%);
+            --font-heading: "Outfit", sans-serif;
+            --font-body: "Plus Jakarta Sans", sans-serif;
         }
 
-        /* RESPONSIVE SPACING */
-        .py-huge {
-            padding-top: 4rem;
-            padding-bottom: 4rem;
+        body.sustainability-platform {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
         }
 
-        @media (min-width: 768px) {
-            .py-huge {
-                padding-top: 7rem;
-                padding-bottom: 7rem;
-            }
-        }
-
-        /* Glass/Bento Card styling */
-        .bento-card {
-            background: var(--bs-card-bg);
-            border: 1px solid var(--bs-border-color);
-            border-radius: 24px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-        }
-
-        .bento-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            border-color: var(--brand-caramel);
-        }
-
-        [data-bs-theme="dark"] .bento-card:hover {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Hero Text Clamp */
-        .hero-title {
-            font-size: clamp(2.2rem, 5vw, 4.5rem);
-            line-height: 1.15;
-            letter-spacing: -0.03em;
-        }
-
-        /* Custom Slider (Anti-Buntung) - Mobile Touch Optimized */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 28px;
-            width: 28px;
-            border-radius: 50%;
-            background: var(--brand-caramel);
-            cursor: pointer;
-            margin-top: -11px;
-            box-shadow: 0 0 10px rgba(182, 115, 50, 0.5);
-            transition: transform 0.1s;
-        }
-
-        input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
-        }
-
-        @media (min-width: 768px) {
-            input[type=range]::-webkit-slider-thumb {
-                height: 24px;
-                width: 24px;
-                margin-top: -10px;
-            }
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: var(--bs-border-color);
-            border-radius: 10px;
-        }
-
-        /* Animasi Guide (Pulse/Bounce) */
-        @keyframes pulse-guide {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(var(--bs-warning-rgb), 0.7);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(var(--bs-warning-rgb), 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(var(--bs-warning-rgb), 0);
-            }
-        }
-
-        .animate-guide {
-            animation: pulse-guide 2s infinite ease-in-out;
-            cursor: default;
-        }
-
-        /* Chat UI Refined */
-        .chat-container-wrap {
-            height: 340px;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            padding-bottom: 20px;
-        }
-
-        @media (min-width: 768px) {
-            .chat-container-wrap {
-                height: 420px;
-            }
-        }
-
-        .chat-bubble-bot {
-            background-color: var(--bs-tertiary-bg);
-            color: var(--bs-body-color);
-            border-radius: 16px 16px 16px 4px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            max-width: 90%;
-            margin-bottom: 0.5rem;
-        }
-
-        .chat-bubble-user {
-            background-color: var(--brand-caramel);
-            color: #fff;
-            border-radius: 16px 16px 4px 16px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            max-width: 90%;
-            margin-bottom: 0.5rem;
-        }
-
-        .chat-btn-reply {
-            background-color: var(--bs-body-bg);
-            border: 1px solid var(--brand-caramel);
-            color: var(--brand-caramel);
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 0.85rem;
+        .sustainability-platform h1, .sustainability-platform h2, .sustainability-platform h3, .sustainability-platform h4 {
+            font-family: var(--font-heading);
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .chat-btn-reply:hover {
-            background-color: var(--brand-caramel);
-            color: #fff;
+        .sustainability-platform .gradient-text {
+            background: var(--gradient-nature);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        @media (min-width: 768px) {
-            .chat-bubble-bot, .chat-bubble-user {
-                padding: 12px 16px;
-                font-size: 0.95rem;
-                max-width: 85%;
-            }
-        }
-
-        /* MARQUEE LOGO (SOCIAL PROOF) */
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-            background: var(--bs-body-bg);
-            padding: 1.5rem 0;
-            border-top: 1px solid var(--bs-border-color);
-            border-bottom: 1px solid var(--bs-border-color);
-        }
-
-        @media (min-width: 768px) {
-            .marquee-container {
-                padding: 2rem 0;
-            }
-        }
-
-        .marquee-content {
-            display: inline-block;
-            animation: marqueeScroll 25s linear infinite;
-        }
-
-        .marquee-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 0 1rem;
-            font-family: var(--font-serif);
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--bs-tertiary-color);
-            opacity: 0.5;
+        .sustainability-platform .organic-card {
+            background: var(--color-bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--color-border);
             transition: all 0.3s ease;
-            letter-spacing: -0.01em;
         }
 
-        @media (min-width: 768px) {
-            .marquee-item {
-                gap: 0.75rem;
-                margin: 0 2rem;
-                font-size: 1.4rem;
-                font-weight: 800;
-            }
+        .sustainability-platform .organic-card:hover {
+            box-shadow: 0 20px 40px rgba(34,139,34,0.1);
+            border-color: var(--color-primary);
         }
 
-        .marquee-item:hover {
-            opacity: 1;
-            color: var(--brand-caramel);
-            transform: scale(1.05);
-        }
-
-        @keyframes marqueeScroll {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        .marquee-container::before, .marquee-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            width: 80px;
-            height: 100%;
-            z-index: 2;
-        }
-
-        @media (min-width: 768px) {
-            .marquee-container::before, .marquee-container::after {
-                width: 150px;
-            }
-        }
-
-        .marquee-container::before {
-            left: 0;
-            background: linear-gradient(to right, var(--bs-body-bg) 0%, transparent 100%);
-        }
-
-        .marquee-container::after {
-            right: 0;
-            background: linear-gradient(to left, var(--bs-body-bg) 0%, transparent 100%);
-        }
-
-        /* List Keunggulan di Fitur */
-        .feature-list li {
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.75rem;
-            color: var(--bs-secondary-color);
-            font-size: 0.95rem;
-        }
-
-        @media (min-width: 768px) {
-            .feature-list li {
-                padding-left: 1.75rem;
-                font-size: 1rem;
-            }
-        }
-
-        .feature-list li::before {
-            content: '\F26A'; /* Bootstrap icon bi-check-circle-fill */
-            font-family: 'bootstrap-icons';
-            position: absolute;
-            left: 0;
-            top: 2px;
-            color: var(--brand-caramel);
-            font-size: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .feature-list li::before {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Avatar untuk Testimonial */
-        .avatar-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--brand-caramel);
-        }
-
-        @media (min-width: 768px) {
-            .avatar-img {
-                width: 64px;
-                height: 64px;
-            }
-        }
-
-        .floating-wa {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 50px;
-            height: 50px;
-            background-color: #25D366;
+        .sustainability-platform .btn-primary {
+            background: var(--gradient-nature);
             color: #fff;
-            border-radius: 50%;
+            font-weight: 600;
+            padding: 14px 32px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .sustainability-platform .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(34,139,34,0.3);
+        }
+
+        .sustainability-platform .btn-secondary {
+            background: transparent;
+            color: var(--color-primary);
+            font-weight: 600;
+            padding: 14px 32px;
+            border-radius: 50px;
+            border: 2px solid var(--color-primary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sustainability-platform .btn-secondary:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .sustainability-platform .navbar-eco {
+            background: rgba(250, 250, 245, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .sustainability-platform .impact-number {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1;
+        }
+
+        .sustainability-platform .impact-label {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+
+        .sustainability-platform .feature-card {
+            background: var(--color-bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sustainability-platform .feature-card:hover {
+            border-color: var(--color-leaf);
+            box-shadow: 0 15px 40px rgba(34,139,34,0.1);
+        }
+
+        .sustainability-platform .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
-            box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
-            z-index: 999;
-            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
-        @media (min-width: 768px) {
-            .floating-wa {
-                bottom: 32px;
-                right: 32px;
-                width: 60px;
-                height: 60px;
-                font-size: 30px;
-                box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
-            }
+        .sustainability-platform .badge-eco {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(34,139,34,0.1);
+            color: var(--color-primary);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
 
-        .floating-wa:hover {
-            transform: scale(1.1);
-            color: #fff;
+        .sustainability-platform .calculator-preview {
+            background: var(--color-bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+        }
+
+        .sustainability-platform .leaf-decoration {
+            position: absolute;
+            opacity: 0.1;
         }
     </style>
 </head>
-<body class="bg-body position-relative">
+<body class="sustainability-platform overflow-x-hidden">
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg py-3 py-md-4 position-absolute w-100 z-3" data-aos="fade-down">
-    <div class="container d-flex justify-content-between align-items-center">
-        <a class="navbar-brand font-serif fw-bold fs-5 fs-md-4 text-body d-flex align-items-center gap-2" href="#">
-            <i class="bi bi-cup-hot-fill" style="color: var(--brand-caramel);"></i>
-            pakaiapp<span style="color: var(--bs-tertiary-color);">.online</span>
-        </a>
-        <button id="themeToggle"
-                class="btn btn-outline-secondary rounded-circle border-0 bg-tertiary-bg d-flex justify-content-center align-items-center"
-                style="width: 40px; height: 40px;" aria-label="Toggle Dark Mode">
-            <i class="bi bi-moon-stars-fill"></i>
-        </button>
+<nav class="navbar-eco fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <a href="/" class="flex items-center gap-2">
+                <img src="/android-chrome-192x192.png" alt="Pakaiapp Logo" class="w-10 h-10 rounded-full shadow-sm">
+                <span class="text-xl font-bold" style="color: var(--color-text);">pakaiapp</span>
+            </a>
+            <div class="hidden md:flex items-center gap-6 sm:gap-8">
+                <a href="#cara-daftar" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">Cara Kerja</a>
+                <a href="#features" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">Fitur</a>
+                <a href="#calculator" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">Kalkulator</a>
+                <a href="#impact" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">Testimoni</a>
+                <a href="#faq" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer font-medium">FAQ</a>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Theme Toggle (Shared) -->
+                <button id="theme-toggle" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-[var(--color-primary)] transition-colors" aria-label="Toggle Theme">
+                    <i class="ph-bold ph-sun text-lg sm:text-xl" id="theme-icon"></i>
+                </button>
+                
+                <!-- Login (Icon on mobile, Text on desktop) -->
+                <a href="/login" class="md:hidden p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors" aria-label="Masuk">
+                    <i class="ph-bold ph-sign-in text-xl"></i>
+                </a>
+                <a href="/login" class="hidden md:block text-[var(--color-text-muted)] hover:text-[var(--color-primary)] font-medium transition-colors cursor-pointer">Masuk</a>
+                
+                <!-- Register (Small button on mobile, Normal button on desktop) -->
+                <a href="/register" class="btn-primary text-xs py-1.5 px-3 sm:text-sm sm:py-2.5 sm:px-5">Daftar</a>
+                
+
+            </div>
+        </div>
     </div>
+
 </nav>
 
-<!-- HERO SECTION (SaaS Web App Focus) -->
-<section class="py-huge overflow-hidden position-relative">
-    <div class="container position-relative z-1 mt-5 mt-md-4">
-        <div class="row align-items-center g-4 g-lg-5">
-            <!-- Text Kiri -->
-            <div class="col-lg-6 text-center text-lg-start" data-aos="fade-right">
-                <div class="d-inline-block px-3 py-2 rounded-pill mb-3 mb-md-4"
-                     style="background: rgba(var(--bs-warning-rgb), 0.1); border: 1px solid rgba(var(--bs-warning-rgb), 0.2);">
-                    <span class="fw-bold small" style="color: var(--brand-caramel);"><i class="bi bi-stars me-1"></i> Web SaaS Super App F&B & Retail</span>
-                </div>
-                <h1 class="hero-title font-serif fw-bolder text-body mb-3 mb-md-4">
-                    Kasir Cepat, <br>
-                    <span id="typed-text" style="color: var(--brand-caramel);"></span>
+<section class="relative min-h-screen flex items-center pt-16 overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-20 right-10 w-[400px] h-[400px] rounded-full bg-[var(--color-leaf)]/10 blur-3xl"></div>
+        <div class="absolute bottom-20 left-10 w-[300px] h-[300px] rounded-full bg-[var(--color-sky)]/10 blur-3xl"></div>
+        <svg class="leaf-decoration absolute top-32 right-20 w-24 h-24 text-[var(--color-primary)]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"></path>
+        </svg>
+    </div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+        <div class="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
+            <div>
+
+                
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-text)] mb-6 leading-tight">
+                    Tinggalkan Langganan,<br>
+                    <span class="gradient-text">Bayar Suka-Suka</span>
                 </h1>
-                <p class="fs-6 fs-md-5 text-secondary mb-4 mb-md-5 mx-auto mx-lg-0"
-                   style="line-height: 1.7; max-width: 500px;">
-                    Ubah cara operasional toko Anda. <strong>Pakaiapp</strong> membebaskan UMKM dari biaya langganan
-                    bulanan yang mencekik. Bayar cuma kalau ada pesanan sukses, dan nikmati fitur <strong>Unlimited Gratis</strong> setelah tagihan menyentuh <strong>Rp 150.000/bulan!</strong>
+                
+                <p class="text-base sm:text-lg md:text-xl text-[var(--color-text-muted)] mb-8 max-w-xl">
+                    Sistem <strong>Kasir Pintar (POS)</strong> & <strong>Menu Digital Premium</strong> untuk F&B. Kelola penjualan, sediakan QR Self-Order canggih, dan terima QRIS dari perangkat apa saja. Toko sepi? Gratis.
                 </p>
-                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
-                    <a href="#simulasi" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow-sm">
-                        <i class="bi bi-calculator me-2"></i>Hitung Untungmu
+                
+                <div class="flex flex-col sm:flex-row gap-4 mb-8 sm:mb-12">
+                    <a href="/register" class="btn-primary text-base flex items-center justify-center gap-2 text-center">
+                        Buat Toko Sekarang
                     </a>
-                    <a href="#pricing"
-                       class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3 fw-bold bg-secondary-bg">
-                        Lihat Paket
+                    <a href="#calculator" class="btn-secondary text-base text-center">
+                        Simulasi Biaya
                     </a>
+                </div>
+                
+                <div class="flex flex-wrap gap-6">
+                    <div class="flex items-center gap-2 text-[var(--color-text-muted)]">
+                        <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-lg"></i>
+                        <span>Menu Digital Mewah</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[var(--color-text-muted)]">
+                        <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-lg"></i>
+                        <span>Pendaftaran 100% Gratis</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[var(--color-text-muted)]">
+                        <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-lg"></i>
+                        <span>Auto Capping Limit</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative">
+<div class="calculator-preview p-6 sm:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-semibold text-[var(--color-text)]">Live Biaya Dashboard</h3>
+                        <span class="badge-eco text-xs">Simulasi</span>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <div class="relative inline-block">
+                            <svg class="w-48 h-48" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="var(--color-border)" stroke-width="8"></circle>
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="url(#gradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="100" transform="rotate(-90 60 60)"></circle>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="var(--color-primary)"></stop>
+                                        <stop offset="100%" stop-color="var(--color-leaf)"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Cuma Bayar</span>
+                                <span class="text-4xl font-bold text-[var(--color-text)]">Rp {{ $trxFee }}</span>
+                                <span class="text-xs text-[var(--color-text-muted)] mt-1">/ transaksi sukses</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-[var(--color-text-muted)] mt-6 px-4">
+                            Maksimal bayar Rp {{ $cappingLimitFormatted }} sebulan. <br>Lebih dari itu? <strong style="color: var(--color-primary)">GRATIS!</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-[var(--color-text-muted)]">50 Transaksi/Bulan</span>
+                                <span class="font-medium text-[var(--color-text)]">Rp {{ number_format(50 * $trxFee, 0, ",", ".") }}</span>
+                            </div>
+                            <div class="h-2 bg-[var(--color-bg-alt)] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: 15%; background-color: var(--color-primary);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-[var(--color-text-muted)]">250 Transaksi/Bulan</span>
+                                <span class="font-medium text-[var(--color-text)]">Rp {{ number_format(250 * $trxFee, 0, ",", ".") }}</span>
+                            </div>
+                            <div class="h-2 bg-[var(--color-bg-alt)] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: 50%; background-color: var(--color-leaf);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-[var(--color-text-muted)]">>500 Transaksi/Bulan</span>
+                                <span class="font-medium text-[var(--color-text)]">Rp {{ $cappingLimitFormatted }} (Mentok)</span>
+                            </div>
+                            <div class="h-2 bg-[var(--color-bg-alt)] rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: 100%; background-color: var(--color-sky);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Showcase Menu Digital -->
+<section id="menu-digital" class="py-24 relative overflow-hidden bg-[var(--color-bg)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            
+            <!-- Text Content -->
+            <div class="order-2 lg:order-1">
+                <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold uppercase tracking-wider mb-4">
+                    <i class="ph-fill ph-star"></i> Premium Luxury Experience
+                </div>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-6 leading-tight">
+                    Lebih Dari Sekadar Kasir.<br>
+                    <span class="gradient-text">Menu Digital Bintang Lima.</span>
+                </h2>
+                <p class="text-lg text-[var(--color-text-muted)] mb-8">
+                    Manjakan pelanggan Anda dengan pengalaman pemesanan mandiri yang elegan. Tanpa perlu mengunduh aplikasi tambahan, pelanggan cukup memindai QR di meja.
+                </p>
+                
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+                            <i class="ph-bold ph-magic-wand text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-[var(--color-text)] mb-1">Desain Premium & Mewah</h4>
+                            <p class="text-[var(--color-text-muted)] text-sm">Tinggalkan buku menu kusam. Hadirkan antarmuka digital yang memukau (mendukung Tema Gelap/Terang) layaknya restoran kelas atas.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 shrink-0">
+                            <i class="ph-bold ph-robot text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-[var(--color-text)] mb-1">Dilengkapi Asisten AI Pintar</h4>
+                            <p class="text-[var(--color-text-muted)] text-sm">Pelanggan bingung mau makan apa? Asisten AI bawaan kami siap memberikan rekomendasi layaknya pelayan pribadi.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)] shrink-0">
+                            <i class="ph-bold ph-lightning text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-[var(--color-text)] mb-1">Pesan & Bayar Tanpa Antre</h4>
+                            <p class="text-[var(--color-text-muted)] text-sm">Pesanan langsung masuk ke dapur/kasir dan pelanggan bisa membayar seketika via QRIS atau E-Wallet dari meja.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UI Mockup -->
+            <div class="order-1 lg:order-2 relative flex justify-center lg:justify-end">
+                <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-indigo-500/10 blur-3xl rounded-full w-[80%] h-[80%] m-auto"></div>
+                
+                <!-- Mockup Container -->
+                <div class="relative w-[280px] sm:w-[320px] h-[580px] sm:h-[650px] bg-zinc-950 rounded-[3rem] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-4 border-zinc-800 -rotate-2 hover:rotate-0 transition-transform duration-500">
+                    <!-- Screen -->
+                    <div class="w-full h-full bg-zinc-900 rounded-[2.5rem] overflow-hidden relative flex flex-col border border-zinc-800 shadow-inner">
+                        <!-- Top Bar -->
+                        <div class="h-16 flex items-center justify-between px-6 shrink-0 relative z-10 border-b border-zinc-800/50 bg-zinc-900/80 backdrop-blur-md">
+                            <div class="text-amber-500 font-bold tracking-widest text-xs sm:text-sm uppercase">Kopi Senja</div>
+                            <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                                <i class="ph-bold ph-list text-zinc-300"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1 p-4 space-y-4 overflow-hidden relative">
+                            <!-- Banner -->
+                            <div class="w-full h-28 sm:h-32 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center p-4">
+                                <div class="text-center">
+                                    <div class="text-[10px] sm:text-xs text-amber-500 font-bold mb-1 tracking-wider">SPECIAL OFFER</div>
+                                    <div class="text-zinc-100 font-semibold text-sm sm:text-base">Caramel Macchiato</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Categories -->
+                            <div class="flex gap-2">
+                                <div class="px-3 sm:px-4 py-1.5 rounded-full bg-amber-500 text-zinc-950 text-[10px] sm:text-xs font-bold">Coffee</div>
+                                <div class="px-3 sm:px-4 py-1.5 rounded-full bg-zinc-800 text-zinc-400 text-[10px] sm:text-xs font-semibold">Non-Coffee</div>
+                            </div>
+                            
+                            <!-- Products -->
+                            <div class="space-y-3">
+                                <div class="flex gap-3 bg-zinc-800/50 p-3 rounded-2xl border border-zinc-700/30">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-700 shrink-0"></div>
+                                    <div class="flex-1">
+                                        <div class="text-zinc-100 font-semibold text-xs sm:text-sm">Espresso</div>
+                                        <div class="text-zinc-400 text-[9px] sm:text-[10px] mt-1 line-clamp-1">Single origin arabica beans</div>
+                                        <div class="text-amber-500 font-bold text-[10px] sm:text-xs mt-2">Rp 18.000</div>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-amber-500 text-zinc-950 flex items-center justify-center self-end">
+                                        <i class="ph-bold ph-plus text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 bg-zinc-800/50 p-3 rounded-2xl border border-zinc-700/30">
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-700 shrink-0"></div>
+                                    <div class="flex-1">
+                                        <div class="text-zinc-100 font-semibold text-xs sm:text-sm">Caffe Latte</div>
+                                        <div class="text-zinc-400 text-[9px] sm:text-[10px] mt-1 line-clamp-1">Espresso with steamed milk</div>
+                                        <div class="text-amber-500 font-bold text-[10px] sm:text-xs mt-2">Rp 24.000</div>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-amber-500 text-zinc-950 flex items-center justify-center self-end">
+                                        <i class="ph-bold ph-plus text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Floating AI Button -->
+                        <div class="absolute bottom-20 right-4 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-100 text-zinc-900 flex items-center justify-center shadow-[0_0_20px_rgba(244,244,245,0.3)]">
+                            <i class="ph-fill ph-sparkle text-lg sm:text-xl"></i>
+                        </div>
+                        
+                        <!-- Bottom Bar -->
+                        <div class="h-14 sm:h-16 bg-amber-500 m-2 mt-0 rounded-2xl flex items-center justify-between px-4 sm:px-5 shrink-0">
+                            <div class="text-zinc-950 font-bold text-sm">2 Item</div>
+                            <div class="text-zinc-950 font-black text-sm flex items-center gap-1">Checkout <i class="ph-bold ph-arrow-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+<section id="calculator" class="py-24 relative overflow-hidden transition-colors bg-[var(--color-bg-alt)] border-t border-[var(--color-border)]">
+    <div class="max-w-5xl mx-auto px-4">
+        <!-- Section Header -->
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary)] text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="ph-fill ph-tag"></i> Skema Adil
+            </div>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-[var(--color-text)]">Bayar Hanya <span class="text-[var(--color-primary)]">Saat Ada Penjualan</span></h2>
+            <p class="text-[var(--color-text-muted)] mt-4 leading-relaxed font-light">Kami meniadakan biaya langganan bulanan. Anda hanya ditarik biaya kecil per transaksi sukses. Sepi = Rp 0.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+            
+            <!-- Calculator Card -->
+            <div class="max-w-lg mx-auto w-full bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[2.5rem] p-8 sm:p-10 shadow-lg relative transition-colors">
+                <div class="absolute top-8 right-8">
+                    <i class="ph-duotone ph-calculator text-4xl text-[var(--color-primary)] opacity-20"></i>
+                </div>
+                <h3 class="font-heading text-2xl font-bold text-[var(--color-text)] mb-6">Simulasi Biaya Bulanan</h3>
+                
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-sm font-semibold text-[var(--color-text-muted)]">Volume Transaksi / Bulan</span>
+                        <span class="font-heading font-extrabold text-2xl text-[var(--color-text)]">
+                            <span id="trxDisplay">0</span> <span class="text-xs font-normal text-[var(--color-text-subtle)] uppercase ml-1">Transaksi</span>
+                        </span>
+                    </div>
+                    <!-- Range Slider -->
+                    <input type="range" id="trxSlider" min="0" max="2000" step="50" value="0" 
+                        class="w-full h-2 bg-[var(--color-bg-alt)] rounded-lg appearance-none cursor-pointer outline-none transition-all [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-[var(--color-primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md">
+                </div>
+
+                <div class="p-6 rounded-2xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] text-center">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-subtle)] mb-2">Total Biaya Pakaiapp Bulan Ini</div>
+                    <!-- Displays "GRATIS!" or formatted cost -->
+                    <div class="font-heading text-4xl sm:text-5xl font-extrabold text-[var(--color-primary)] tracking-tight mb-2" id="costPakaiapp">GRATIS!</div>
+                    <!-- Display breakdown -->
+                    <div class="text-xs font-mono text-[var(--color-text-muted)]" id="costNote">Rp {{ $trxFee }} × 0 transaksi = Rp 0</div>
+                    
+                    <!-- Unlimited Capping Badge -->
+                    <div id="unlimitedBadge" class="hidden mt-4 bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-bold px-3 py-2 rounded-xl border border-[var(--color-primary)]/20 w-full animate-pulse justify-center items-center gap-1.5">
+                        <i class="ph-fill ph-sparkles"></i> Unlimited — Sisa Bulan Gratis Sepenuhnya!
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-2xl text-xs text-[var(--color-text-muted)] leading-relaxed font-light">
+                    <strong class="text-[var(--color-text)] font-bold block mb-1">🎉 Cara Hitung:</strong>
+                    Anda hanya membayar Rp {{ $trxFee }} per transaksi sukses. Apabila total tagihan Anda dalam sebulan sudah mencapai <strong class="text-[var(--color-primary)] font-semibold">Rp {{ $cappingLimitFormatted }}</strong>, semua transaksi selanjutnya di bulan tersebut GRATIS!
                 </div>
             </div>
 
-            <!-- Chatbot Kanan (Guide Interaktif) -->
-            <div class="col-lg-6 mt-5 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
-                <div class="bento-card bg-secondary-bg shadow-lg mx-auto" style="max-width: 500px;">
-                    <div
-                        class="p-3 border-bottom border-color d-flex align-items-center justify-content-between bg-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 40px; height: 40px; background: rgba(var(--bs-primary-rgb), 0.1);">
-                                <i class="bi bi-robot fs-6 text-primary"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 font-serif fw-bold text-body" style="font-size: 0.95rem;">Pakaiapp
-                                    Guide</h6>
-                                <small style="color: var(--bs-tertiary-color); font-size: 11px;">Tur Interaktif</small>
-                            </div>
+            <!-- Comparison Sidebar (Hidden on mobile) -->
+            <div class="hidden md:block space-y-6">
+                <h3 class="font-heading text-2xl font-bold text-[var(--color-text)]">Kenapa Pindah ke Pakaiapp?</h3>
+                <p class="text-[var(--color-text-muted)]">Perbandingan mencolok skema biaya tradisional vs skema adil Pakaiapp.</p>
+                <div class="space-y-4 mt-6">
+                    <!-- Pakaiapp -->
+                    <div class="p-6 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 p-4 opacity-10">
+                            <i class="ph-fill ph-check-circle text-8xl text-[var(--color-primary)]"></i>
                         </div>
-                        <span class="badge rounded-pill"
-                              style="background: rgba(37, 211, 102, 0.1); color: #25D366; font-size: 11px;">Online</span>
+                        <div class="flex items-center gap-3 mb-3 relative z-10">
+                            <i class="ph-fill ph-check-circle text-[var(--color-primary)] text-xl"></i>
+                            <span class="font-semibold text-[var(--color-text)]">Pakaiapp</span>
+                        </div>
+                        <ul class="text-sm text-[var(--color-text-muted)] space-y-2 ml-8 relative z-10 list-disc pl-1">
+                            <li><strong class="text-[var(--color-text)]">Gratis 100%</strong> biaya langganan bulanan</li>
+                            <li>Toko sepi = <strong class="text-[var(--color-primary)]">Bayar Rp 0</strong></li>
+                            <li>Semua fitur enterprise langsung terbuka</li>
+                            <li>Ada <strong class="text-[var(--color-text)]">Capping Limit</strong> (Batas maksimal bayar)</li>
+                        </ul>
                     </div>
-                    <div class="p-3 p-md-4 chat-container-wrap" id="chat-container">
-                        <!-- Chat JS goes here -->
+                    <!-- Competitor -->
+                    <div class="p-6 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="ph-fill ph-x-circle text-red-500 text-xl"></i>
+                            <span class="font-semibold text-red-700 dark:text-red-400">Aplikasi Kasir Biasa</span>
+                        </div>
+                        <ul class="text-sm text-red-600/80 dark:text-red-400/80 space-y-2 ml-8 list-disc pl-1">
+                            <li>Biaya langganan Rp 150rb - 300rb per bulan</li>
+                            <li>Toko lagi sepi tetap ditagih penuh</li>
+                            <li>Fitur canggih dikunci di paket mahal</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -481,742 +609,516 @@
     </div>
 </section>
 
-<!-- MARQUEE LOGO (SOCIAL PROOF) -->
-<section class="marquee-container" data-aos="fade-in">
-    <div class="marquee-content">
-        <!-- Set 1 -->
-        <span class="marquee-item"><i class="bi bi-shop"></i> Kopi Senja</span>
-        <span class="marquee-item"><i class="bi bi-basket2"></i> Minimarket Kita</span>
-        <span class="marquee-item"><i class="bi bi-cup-straw"></i> Boba Time</span>
-        <span class="marquee-item"><i class="bi bi-egg-fried"></i> Warteg Modern</span>
-        <span class="marquee-item"><i class="bi bi-bag-heart"></i> Butik Hijab</span>
-        <span class="marquee-item"><i class="bi bi-shop-window"></i> Angkringan Joss</span>
-        <!-- Set 2 -->
-        <span class="marquee-item"><i class="bi bi-shop"></i> Kopi Senja</span>
-        <span class="marquee-item"><i class="bi bi-basket2"></i> Minimarket Kita</span>
-        <span class="marquee-item"><i class="bi bi-cup-straw"></i> Boba Time</span>
-        <span class="marquee-item"><i class="bi bi-egg-fried"></i> Warteg Modern</span>
-        <span class="marquee-item"><i class="bi bi-bag-heart"></i> Butik Hijab</span>
-        <span class="marquee-item"><i class="bi bi-shop-window"></i> Angkringan Joss</span>
+<section id="cara-daftar" class="py-24 relative">
+
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200/50 dark:border-indigo-800/30 text-indigo-700 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="ph-fill ph-lightning"></i> Cara Kerja
+            </div>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-[var(--color-text)]">Aplikasi Kasir Tanpa Pasang: <span class="text-emerald-600 dark:text-emerald-400">3 Langkah</span></h2>
+            <p class="text-[var(--color-text-muted)] mt-4 leading-relaxed font-light">Aplikasi kasir berbasis web cloud sepenuhnya. Tidak perlu unduh aplikasi dari App Store, tidak perlu ahli IT. Buka browser, daftar, langsung bisa terima pesanan.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Step 1 -->
+            <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
+                
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
+                    <i class="ph-bold ph-storefront text-2xl"></i>
+                </div>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Daftar & Buat Toko</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Klik "Daftar Gratis", isi nama tokomu, email, dan nomor WhatsApp. Verifikasi OTP dari email secara instan. Workspace kasirmu langsung siap.</p>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)] bg-[var(--color-bg-alt)] dark:text-[var(--color-text-subtle)] px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~2 Menit</span>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300">
+                
+                <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6">
+                    <i class="ph-bold ph-list-plus text-2xl"></i>
+                </div>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Input Menu & Cetak QR</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Masukkan produk atau menu Anda lengkap dengan harga, kategori, dan foto. Sistem otomatis membuatkan Menu Digital elegan beserta kode QR untuk tiap meja.</p>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-text-subtle)] bg-[var(--color-bg-alt)] dark:text-[var(--color-text-subtle)] px-3 py-1 rounded-full"><i class="ph ph-clock"></i> ~10 Menit</span>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-emerald-500/50 dark:hover:border-emerald-400/50 transition-all duration-300">
+                
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
+                    <i class="ph-bold ph-paper-plane text-2xl"></i>
+                </div>
+                <h3 class="font-heading text-xl font-bold text-[var(--color-text)] mb-3">Kasir & Pelanggan Terhubung</h3>
+                <p class="text-[var(--color-text-muted)] text-sm leading-relaxed mb-6 font-light">Pelanggan memesan mandiri lewat Menu Digital di meja, dan pesanan langsung tampil di layar Kasir/Dapur. Staf kasir juga tetap bisa melayani manual.</p>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded-full"><i class="ph ph-check-circle"></i> Siap Jualan</span>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- SIMULASI SECTION -->
-<section id="simulasi" class="py-huge bg-tertiary-bg border-bottom border-color">
-    <div class="container text-center">
-        <h2 class="font-serif fw-bolder text-body mb-2 mb-md-3" data-aos="zoom-in">Simulasi Anti-Buntung</h2>
-        <p class="text-secondary mb-4 mb-md-5 fs-6 fs-md-5 mx-auto" style="max-width: 600px;" data-aos="zoom-in"
-           data-aos-delay="100">
-            Buktikan sendiri seberapa hemat pakai sistem bayar per transaksi sukses.
+<section id="features" class="py-16 sm:py-24 bg-[var(--color-bg-alt)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 sm:mb-16">
+            <div class="badge-eco mx-auto mb-4">
+                <span>Fitur Super Lengkap</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-text)] mb-4">
+                Segala yang Dibutuhkan <br><span class="gradient-text">UMKM Naik Kelas</span>
+            </h2>
+            <p class="text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto">
+                Satu aplikasi kasir web cerdas untuk kelola pesanan, stok, hingga analitik bisnis Anda.
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="feature-card border-2 border-[var(--color-primary)]/20 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-[var(--color-primary)] text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Unggulan</div>
+                <div class="feature-icon" style="background-color: var(--color-leaf)15; color: var(--color-leaf);">
+                    <i class="ph-bold ph-star text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Menu Digital Premium & QR</h3>
+                <p class="text-[var(--color-text-muted)]">
+                    Desain UI super mewah, Asisten AI bawaan, dan fitur self-order dari meja. Pelanggan memesan dan membayar mandiri tanpa antre di kasir.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background-color: var(--color-primary)15; color: var(--color-primary);">
+                    <i class="ph-bold ph-storefront text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Kasir Pintar (POS)</h3>
+                <p class="text-[var(--color-text-muted)]">
+                    Proses pesanan dan cetak struk langsung dari browser HP, tablet, atau PC kasir Anda. Tanpa perlu download aplikasi.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background-color: var(--color-sky)15; color: var(--color-sky);">
+                    <i class="ph-bold ph-wallet text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Terima QRIS & E-Wallet</h3>
+                <p class="text-[var(--color-text-muted)]">
+                    Terima pembayaran dari GoPay, OVO, Dana, LinkAja, BCA, dll secara instan tanpa perlu mesin EDC tambahan.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background-color: var(--color-earth)15; color: var(--color-earth);">
+                    <i class="ph-bold ph-chart-bar text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Laporan & Analitik</h3>
+                <p class="text-[var(--color-text-muted)]">
+                    Pantau grafik omset harian, produk paling laris, dan performa staf langsung di satu dasbor yang rapi.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background-color: var(--color-sun)15; color: var(--color-sun);">
+                    <i class="ph-bold ph-package text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Manajemen Stok</h3>
+                <p class="text-[var(--color-text-muted)]">
+                    Lacak stok bahan baku produk dan dapatkan notifikasi peringatan otomatis saat stok menipis.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon" style="background-color: var(--color-primary)15; color: var(--color-primary);">
+                    <i class="ph-bold ph-users text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--color-text)] mb-2">Multi-Staf & Hak Akses</h3>
+                <p class="text-[var(--color-text-muted)]">
+                    Beri batas akses yang berbeda untuk Owner, Manajer, Kasir, dan Dapur agar data keuangan tetap aman.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="impact" class="py-16 sm:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 sm:mb-16">
+            <div class="badge-eco mx-auto mb-4">
+                <span>Ekosistem Pakaiapp</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--color-text)] mb-4">
+                Memberi Kemudahan <br><span class="gradient-text">Bagi Belasan Ribu UMKM</span>
+            </h2>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
+            <div class="organic-card p-6 text-center">
+                <div class="impact-number">15K+</div>
+                <div class="impact-label">Toko UMKM Aktif</div>
+            </div>
+            <div class="organic-card p-6 text-center">
+                <div class="impact-number">1.2M+</div>
+                <div class="impact-label">Transaksi Sukses</div>
+            </div>
+            <div class="organic-card p-6 text-center">
+                <div class="impact-number">Rp 0</div>
+                <div class="impact-label">Biaya Pendaftaran</div>
+            </div>
+            <div class="organic-card p-6 text-center">
+                <div class="impact-number">2 Min</div>
+                <div class="impact-label">Setup Langsung Jualan</div>
+            </div>
+        </div>
+
+        <div class="text-center bg-[var(--color-bg-card)] rounded-[2rem] border border-[var(--color-border)] p-10 sm:p-16 max-w-3xl mx-auto organic-card">
+            <i class="ph-fill ph-quotes text-5xl text-[var(--color-leaf)] opacity-20 mb-6"></i>
+            <h3 class="text-2xl font-bold text-[var(--color-text)] mb-6 font-heading leading-relaxed">
+                "Sejak pakai sistem Pakaiapp di kafe kami, operasional jauh lebih mudah. Dari kasir pintar, manajemen stok, hingga QR order ada di satu web. Pelayanan makin cepat!"
+            </h3>
+            <div class="flex items-center justify-center gap-4 mt-8">
+                <div class="w-12 h-12 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-lg">M</div>
+                <div class="text-left">
+                    <p class="font-bold text-[var(--color-text)] text-sm">Mirayeni</p>
+                    <p class="text-[var(--color-text-muted)] text-xs uppercase tracking-wider font-semibold">Owner Sama Roti Kukus</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 sm:py-24 bg-[var(--color-bg-dark)] relative overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-0 left-1/4 w-[300px] h-[300px] rounded-full bg-[var(--color-primary)]/20 blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-[250px] h-[250px] rounded-full bg-[var(--color-leaf)]/20 blur-3xl"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm mb-6">
+            <i class="ph-bold ph-rocket text-[var(--color-leaf)]"></i>
+            <span>Mulai Transformasi Bisnismu</span>
+        </div>
+        
+        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 font-heading">
+            Siap Jualan Lebih Efisien <br><span class="text-[var(--color-leaf)]">Hari Ini Juga?</span>
+        </h2>
+        
+        <p class="text-lg text-white/70 mb-8 max-w-2xl mx-auto font-body">
+            Bergabung bersama belasan ribu toko yang sudah memakai Pakaiapp. Daftar gratis, langsung siap jualan.
         </p>
-
-        <div class="bento-card p-4 p-md-5 mx-auto bg-body" style="max-width: 800px;" data-aos="fade-up">
-            <h5 class="fw-bold mb-4 text-body font-serif fs-6 fs-md-5">Bulan ini toko kamu dapat berapa pesanan?</h5>
-
-            <div class="mb-3">
-                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill animate-guide shadow-sm">
-                    <i class="bi bi-arrows-left-right me-2"></i>Coba geser bulatan di bawah ini
-                </span>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8 sm:mb-12">
+            <a href="/register" class="btn-primary text-base">Buat Akun Toko Gratis</a>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-6 sm:gap-8 text-white/60 font-medium">
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-check-circle text-[var(--color-leaf)]"></i>
+                <span>Tanpa Biaya Bulanan</span>
             </div>
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-check-circle text-[var(--color-leaf)]"></i>
+                <span>Tanpa Kartu Kredit</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-check-circle text-[var(--color-leaf)]"></i>
+                <span>Langsung Aktif</span>
+            </div>
+        </div>
+    </div>
+</section>
 
-            <div class="px-2 px-md-3 mb-4 mt-2">
-                <input type="range" id="trxSlider" min="0" max="2000" value="150" step="10">
-                <div class="d-flex justify-content-between text-tertiary-color small fw-bold mt-3">
-                    <span>0 (Sepi)</span>
-                    <span>2000+ (Sangat Rame)</span>
+<section id="faq" class="py-24 bg-[var(--color-bg-card)] border-t border-[var(--color-border)] transition-colors">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/50 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="ph-fill ph-question"></i> FAQ
+            </div>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-[var(--color-text)]">Pertanyaan Umum <span class="text-emerald-600 dark:text-emerald-400">Terbanyak</span></h2>
+        </div>
+
+        <div class="space-y-4 max-w-3xl mx-auto">
+            <!-- FAQ 1 -->
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
+                <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah benar-benar gratis untuk daftar?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Ya, pendaftaran 100% gratis dan tidak perlu kartu kredit. Anda hanya akan dikenakan biaya Rp {{ $trxFee }} per transaksi sukses yang terjadi. Jika toko sepi atau tidak ada transaksi, tidak ada biaya sama sekali.</p>
                 </div>
             </div>
 
-            <div class="text-center my-4 my-md-5">
-                <h1 class="display-3 display-md-1 fw-bolder font-serif" id="trxDisplay"
-                    style="color: var(--brand-caramel);">15</h1>
-                <p class="text-secondary fw-bold text-uppercase tracking-wider small">Transaksi Sukses</p>
+            <!-- FAQ 2 -->
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
+                <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
+                    <span class="font-bold text-[var(--color-text)] text-base">Apa itu "Otomatis Gratis Unlimited"?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Jika total tagihan Pakaiapp Anda dalam satu bulan sudah mencapai Rp {{ $cappingLimitFormatted }} (setara {{ floor($cappingLimit / $trxFee) }} transaksi), maka semua transaksi berikutnya di bulan tersebut gratis sepenuhnya tanpa batas. Jadi biaya maksimal Pakaiapp dalam sebulan adalah Rp {{ $cappingLimitFormatted }}, berapapun jumlah transaksinya.</p>
+                </div>
             </div>
 
-            <hr class="border-color my-4">
-
-            <div class="row g-4 text-center">
-                <div class="col-6 border-end border-color px-2 px-md-3">
-                    <p class="mb-1 mb-md-2 text-secondary small">Biaya Pakaiapp</p>
-                    <h3 class="fw-bolder text-body font-serif mb-2 fs-5 fs-md-2" id="costPakaiapp">Rp 4.500</h3>
-                    <span
-                        class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 px-md-3 py-md-2 d-inline-block text-wrap lh-sm"
-                        style="font-size: 0.75rem;"><i class="bi bi-check-circle-fill me-1"></i> Sesuai omzet</span>
+            <!-- FAQ 3 -->
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
+                <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah perlu install aplikasi di HP?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Tidak perlu! Pakaiapp berbasis web dan berjalan langsung di browser HP, tablet, atau PC. Anda bisa menambahkan shortcut ke homescreen HP layaknya aplikasi (PWA) untuk kemudahan akses.</p>
                 </div>
-                <div class="col-6 px-2 px-md-3">
-                    <p class="mb-1 mb-md-2 text-secondary small">Biaya App Langganan</p>
-                    <h3 class="fw-bolder text-body font-serif mb-2 fs-5 fs-md-2">Rp 198.000 <span
-                            class="fs-6 text-tertiary-color d-none d-sm-inline">/bulan</span></h3>
-                    <span
-                        class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1 px-md-3 py-md-2 d-inline-block text-wrap lh-sm"
-                        style="font-size: 0.75rem;"><i
-                            class="bi bi-x-circle-fill me-1"></i> Toko sepi tetap bayar</span>
+            </div>
+
+            <!-- FAQ 4 -->
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
+                <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah data toko saya aman?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Data Anda disimpan di server cloud terenkripsi dan dibackup secara rutin. Setiap akun toko memiliki subdomain dan database terisolasi, sehingga data Anda tidak bercampur dengan toko lain.</p>
+                </div>
+            </div>
+
+            <!-- FAQ 5 -->
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
+                <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
+                    <span class="font-bold text-[var(--color-text)] text-base">Bagaimana cara top-up dan cairkan dana penjualan?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Dana hasil penjualan dari pelanggan yang bayar via QRIS/E-Wallet langsung masuk ke wallet toko Anda di Pakaiapp. Proses penarikan ke rekening bank dilakukan secara manual oleh tim kami — hubungi support via WhatsApp untuk proses pencairan.</p>
+                </div>
+            </div>
+
+            <!-- FAQ 6 -->
+            <div class="border border-[var(--color-border)] bg-[var(--color-bg-alt)] rounded-2xl overflow-hidden transition-colors duration-300">
+                <button class="w-full text-left px-6 py-5 flex justify-between items-center focus:outline-none hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-colors" onclick="toggleAccordion(this)">
+                    <span class="font-bold text-[var(--color-text)] text-base">Apakah ada biaya tambahan untuk fitur QRIS atau QR Self-Order?</span>
+                    <i class="ph ph-caret-down text-[var(--color-text-subtle)] transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content max-h-0 overflow-hidden transition-all duration-300">
+                    <p class="px-6 pb-6 text-[var(--color-text-muted)] text-sm leading-relaxed font-light">Tidak ada! Semua fitur termasuk QRIS, QR Self-Order, multi-staf, laporan, dan manajemen stok sudah termasuk dalam satu biaya flat Rp {{ $trxFee }}/transaksi. Tidak ada paket berbeda atau fitur yang dikunci di balik paywall.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FEATURES SECTION 2.0 (Web App Focus) -->
-<section class="py-huge bg-body">
-    <div class="container">
-        <div class="text-center mb-4 mb-md-5 pb-0 pb-md-3" data-aos="fade-up">
-            <span class="badge rounded-pill px-3 py-2 mb-3 fw-bold border"
-                  style="background: rgba(var(--bs-primary-rgb), 0.1); color: var(--bs-primary); border-color: rgba(var(--bs-primary-rgb), 0.2) !important;">
-                <i class="bi bi-rocket-takeoff-fill me-1"></i> Super App Berbasis Web
-            </span>
-            <h2 class="font-serif fw-bolder text-body mb-2 mb-md-3">Bukan Sekadar Mesin Kasir</h2>
-            <p class="text-secondary fs-6 fs-md-5 mx-auto" style="max-width: 700px;">Dari meja kasir hingga pantauan <i>back-office</i>.
-                Semua alat yang Anda butuhkan untuk membesarkan bisnis, berada di dalam satu <i>super-app</i> yang bisa
-                diakses tanpa instalasi.</p>
-        </div>
-
-        <div class="row g-4">
-            <!-- Blok 1: Web POS -->
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="bento-card p-4 p-md-5 h-100 bg-secondary-bg">
-                    <div class="mb-3 mb-md-4 d-inline-flex p-3 rounded-4"
-                         style="background: rgba(var(--bs-primary-rgb), 0.1);">
-                        <i class="bi bi-basket2-fill fs-3 fs-md-2 text-primary"></i>
-                    </div>
-                    <h4 class="font-serif fw-bold text-body mb-2 mb-md-3">Sistem Kasir Web Super Cepat</h4>
-                    <p class="text-secondary mb-3 mb-md-4 small fs-md-6">Urai antrean dalam hitungan detik. Dirancang
-                        sangat responsif untuk HP, Tablet, maupun PC.</p>
-                    <ul class="list-unstyled feature-list mb-0">
-                        <li><strong>Tanpa Install (PWA):</strong> Buka langsung dari *browser* perangkat apa saja. Tidak
-                            menghabiskan memori penyimpanan.
-                        </li>
-                        <li><strong>Akses Kasir Terpisah:</strong> Karyawan fokus melayani tanpa bisa mengutak-atik
-                            laporan keuntungan (Role-based).
-                        </li>
-                        <li><strong>E-Receipt WhatsApp:</strong> Hemat kertas struk, kirim invoice digital detail
-                            langsung ke WA pembeli.
-                        </li>
-                    </ul>
+<footer class="bg-[var(--color-bg)] border-t border-[var(--color-border)] py-10 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mb-8 sm:mb-12">
+            <div class="col-span-2 md:col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <img src="/android-chrome-192x192.png" alt="Pakaiapp Logo" class="w-10 h-10 rounded-full shadow-sm">
+                    <span class="text-xl font-bold font-heading text-[var(--color-text)]">pakaiapp<span style="color: var(--color-primary)">.online</span></span>
+                </div>
+                <p class="text-[var(--color-text-muted)] text-sm mb-6 max-w-sm">
+                    Sistem kasir cerdas berbasis web untuk UMKM F&B dan Retail — tanpa beban biaya langganan bulanan.
+                </p>
+                <div class="flex gap-4">
+                    <a href="https://wa.me/6285172441544" class="w-10 h-10 rounded-full bg-[var(--color-bg-alt)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-primary)] hover:text-white transition-colors cursor-pointer">
+                        <i class="ph-bold ph-whatsapp-logo text-xl"></i>
+                    </a>
+                    <a href="mailto:support@pakaiapp.online" class="w-10 h-10 rounded-full bg-[var(--color-bg-alt)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-primary)] hover:text-white transition-colors cursor-pointer">
+                        <i class="ph-bold ph-envelope text-xl"></i>
+                    </a>
                 </div>
             </div>
-
-            <!-- Blok 2: Varian -->
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="bento-card p-4 p-md-5 h-100 bg-secondary-bg">
-                    <div class="mb-3 mb-md-4 d-inline-flex p-3 rounded-4"
-                         style="background: rgba(var(--bs-warning-rgb), 0.1);">
-                        <i class="bi bi-boxes fs-3 fs-md-2" style="color: var(--brand-caramel);"></i>
-                    </div>
-                    <h4 class="font-serif fw-bold text-body mb-2 mb-md-3">Fleksibel untuk Retail & F&B</h4>
-                    <p class="text-secondary mb-3 mb-md-4 small fs-md-6">Jual apa saja, atur variasi sesuka hati tanpa
-                        batas tabel <i>database</i> yang bikin pusing.</p>
-                    <ul class="list-unstyled feature-list mb-0">
-                        <li><strong>Varian Retail (SKU):</strong> Atur harga dan stok berbeda untuk varian Ukuran (S, M,
-                            L) dan Warna (Merah, Hitam).
-                        </li>
-                        <li><strong>Add-ons F&B:</strong> Tambahkan aturan <i>Topping</i> ekstra atau Pilihan Level
-                            Pedas (Single/Multi-choice).
-                        </li>
-                        <li><strong>Kategori Rapi:</strong> Pengelompokan produk otomatis agar mudah dicari di kasir dan
-                            etalase digital.
-                        </li>
-                    </ul>
-                </div>
+            
+            <div>
+                <h4 class="font-semibold text-[var(--color-text)] mb-4">Produk</h4>
+                <ul class="space-y-3">
+                    <li><a href="#cara-daftar" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Cara Kerja</a></li>
+                    <li><a href="#features" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Fitur Lengkap</a></li>
+                    <li><a href="#calculator" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Simulasi Harga</a></li>
+                    <li><a href="/login" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Login Kasir</a></li>
+                </ul>
             </div>
-
-            <!-- Blok 3: Pembayaran -->
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="bento-card p-4 p-md-5 h-100 bg-secondary-bg">
-                    <div class="mb-3 mb-md-4 d-inline-flex p-3 rounded-4" style="background: rgba(37, 211, 102, 0.1);">
-                        <i class="bi bi-globe-americas fs-3 fs-md-2 text-success"></i>
-                    </div>
-                    <h4 class="font-serif fw-bold text-body mb-2 mb-md-3">Toko Digital & Multi-Payment</h4>
-                    <p class="text-secondary mb-3 mb-md-4 small fs-md-6">Toko Anda otomatis siap *Go-Online* dengan
-                        etalase digital dan sistem pembayaran terpusat.</p>
-                    <ul class="list-unstyled feature-list mb-0">
-                        <li><strong>Katalog Publik & QR Order:</strong> Pelanggan bisa scan QR di meja, pesan dari HP,
-                            pesanan masuk ke layar Anda.
-                        </li>
-                        <li><strong>Terima Segala Pembayaran:</strong> Otomatis terintegrasi *Payment Gateway* (QRIS,
-                            OVO, Dana, ShopeePay, Transfer Bank).
-                        </li>
-                        <li><strong>Sistem Dompet (Wallet):</strong> Dana transaksi *online* mengendap aman di dompet
-                            toko dan siap ditarik ke rekening pribadi.
-                        </li>
-                    </ul>
-                </div>
+            
+            <div>
+                <h4 class="font-semibold text-[var(--color-text)] mb-4">Dukungan</h4>
+                <ul class="space-y-3">
+                    <li><a href="https://wa.me/6285172441544" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">WhatsApp Support</a></li>
+                    <li><a href="mailto:support@pakaiapp.online" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Email Support</a></li>
+                </ul>
             </div>
-
-            <!-- Blok 4: Backoffice -->
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
-                <div class="bento-card p-4 p-md-5 h-100 bg-secondary-bg">
-                    <div class="mb-3 mb-md-4 d-inline-flex p-3 rounded-4"
-                         style="background: rgba(var(--bs-primary-rgb), 0.1);">
-                        <i class="bi bi-graph-up-arrow fs-3 fs-md-2 text-primary"></i>
-                    </div>
-                    <h4 class="font-serif fw-bold text-body mb-2 mb-md-3">Kontrol Penuh <i>Back-Office</i></h4>
-                    <p class="text-secondary mb-3 mb-md-4 small fs-md-6">Pantau kesehatan bisnis dari mana saja. <i>Dashboard</i>
-                        super admin eksklusif hanya untuk Anda.</p>
-                    <ul class="list-unstyled feature-list mb-0">
-                        <li><strong>Grafik Real-time (Livewire):</strong> Pantau total pesanan dan omzet hari ini tanpa
-                            perlu muat ulang halaman.
-                        </li>
-                        <li><strong>Atur Pajak & Service:</strong> Pemilik bisa menyesuaikan persentase Pajak (PB1) dan
-                            Layanan secara mandiri.
-                        </li>
-                        <li><strong>Manajemen Pegawai & Kuota:</strong> Tambahkan akun kasir, atur <i>shift</i>, atau
-                            <i>upgrade</i> slot produk kapan pun butuh ekspansi.
-                        </li>
-                    </ul>
-                </div>
+            
+            <div>
+                <h4 class="font-semibold text-[var(--color-text)] mb-4">Legal</h4>
+                <ul class="space-y-3">
+                    <li><a href="#" onclick="openModal('tncModal')" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Syarat & Ketentuan</a></li>
+                    <li><a href="#" onclick="openModal('refundModal')" class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors text-sm">Kebijakan Pengembalian Dana</a></li>
+                </ul>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- TESTIMONIAL -->
-<section class="py-huge bg-secondary-bg border-top border-color">
-    <div class="container">
-        <div class="text-center mb-4 mb-md-5 pb-0 pb-md-3" data-aos="fade-up">
-            <span class="badge rounded-pill px-3 py-2 mb-3 fw-bold border"
-                  style="background: rgba(var(--bs-warning-rgb), 0.1); color: var(--brand-caramel); border-color: rgba(var(--bs-warning-rgb), 0.3) !important;">
-                <i class="bi bi-chat-quote-fill me-1"></i> #PakaiappAndalan
-            </span>
-            <h2 class="font-serif fw-bolder text-body mb-2 mb-md-3">Bagaimana Pendapat Mereka?</h2>
-            <p class="text-secondary fs-6 fs-md-5 mx-auto" style="max-width: 600px;">Pemilik bisnis mulai beralih ke
-                Pakaiapp karena kebebasan yang diberikan. Ini kata mereka.</p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="bento-card p-4 h-100 bg-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3 mb-md-4">
-                        <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=321E14&color=fff"
-                             alt="Budi Santoso" loading="lazy" class="avatar-img me-3 shadow-sm">
-                        <div>
-                            <h6 class="font-serif fw-bold text-body mb-0">Budi Santoso</h6>
-                            <small class="text-secondary">Owner Kedai Kopi</small>
-                        </div>
-                    </div>
-                    <p class="text-secondary fst-italic mb-0 mt-auto small fs-md-6">"Dulu pusing tiap akhir bulan harus
-                        bayar langganan POS padahal omzet lagi turun. Sejak pakai Pakaiapp, pengeluaran jadi adil
-                        banget. Sistem QR Order-nya juga sangat ngebantu saat jam rame!"</p>
-                </div>
+        
+        <div class="pt-8 border-t border-[var(--color-border)] flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-[var(--color-text-muted)] text-sm">
+                &copy; {{ date("Y") }} pakaiapp.online. Produk dari ngopikode (PT Sinergi Kode Kreatif)
+            </p>
+            <div class="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
+                <i class="ph-bold ph-shield-check text-[var(--color-leaf)]"></i>
+                <span>Platform Aman & Terenkripsi</span>
             </div>
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="bento-card p-4 h-100 bg-body d-flex flex-column"
-                     style="border: 1px solid rgba(var(--bs-warning-rgb), 0.3);">
-                    <div class="d-flex align-items-center mb-3 mb-md-4">
-                        <img src="https://ui-avatars.com/api/?name=Siti+Aisyah&background=B67332&color=fff"
-                             alt="Siti Aisyah" loading="lazy" class="avatar-img me-3 shadow-sm">
-                        <div>
-                            <h6 class="font-serif fw-bold text-body mb-0">Siti Aisyah</h6>
-                            <small class="text-secondary">Toko Retail Pakaian</small>
-                        </div>
-                    </div>
-                    <p class="text-secondary fst-italic mb-0 mt-auto small fs-md-6">"Sistem pencatatan ukuran dan warna
-                        baju sangat rapi. Nggak ada lagi menu yang dobel-dobel. Paling seneng sama fitur top-up saldo
-                        yang uangnya nggak bakal hangus."</p>
-                </div>
-            </div>
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="bento-card p-4 h-100 bg-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3 mb-md-4">
-                        <img src="https://ui-avatars.com/api/?name=Reza+Fahlevi&background=846A58&color=fff"
-                             alt="Reza Fahlevi" loading="lazy" class="avatar-img me-3 shadow-sm">
-                        <div>
-                            <h6 class="font-serif fw-bold text-body mb-0">Reza Fahlevi</h6>
-                            <small class="text-secondary">Pemilik Warung Makan</small>
-                        </div>
-                    </div>
-                    <p class="text-secondary fst-italic mb-0 mt-auto small fs-md-6">"Tinggal buka dari browser HP kasir,
-                        aplikasinya ringan banget nggak perlu install dari Playstore yang menuhin memori. Sangat
-                        terjangkau buat kelas warung menengah."</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- PRICING SECTION -->
-<section id="pricing" class="py-huge bg-tertiary-bg border-top border-color">
-    <div class="container">
-        <div class="text-center mb-4 mb-md-5 pb-0 pb-md-3" data-aos="fade-up">
-            <h2 class="font-serif fw-bolder text-body mb-2 mb-md-3">Pilihan Saldo Digital</h2>
-            <p class="text-secondary fs-6 fs-md-5 mx-auto" style="max-width: 600px;">Mulai dengan investasi super minim.
-                <br>Lebih murah dari harga dua cangkir kopi susu.</p>
-        </div>
-
-        <div class="row g-4 justify-content-center">
-            <!-- Paket Gratis -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="bento-card p-4 p-md-5 h-100 bg-body d-flex flex-column text-center">
-                    <h4 class="font-serif fw-bold text-body mb-2">Uji Coba</h4>
-                    <h1 class="font-serif fw-bolder mb-3 mb-md-4 display-5 display-md-4"
-                        style="color: var(--brand-caramel);">Gratis</h1>
-                    <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 220px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo
-                            <strong>50 Trx</strong></li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
-                            / trx
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <strong>12</strong> Slot Produk
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
-                            <strong>Rp 10rb/50Slot</strong></li>
-                    </ul>
-                    <button
-                        class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
-                        data-paket="Uji Coba Gratis" data-harga="0">Mulai Gratis
-                    </button>
-                </div>
-            </div>
-
-            <!-- Paket Santai -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="bento-card p-4 p-md-5 h-100 bg-body d-flex flex-column text-center">
-                    <h4 class="font-serif fw-bold text-body mb-2">Santai</h4>
-                    <h1 class="font-serif fw-bolder text-body mb-3 mb-md-4 display-5 display-md-4">Rp 50k</h1>
-                    <ul class="list-unstyled text-secondary text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 220px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Saldo
-                            <strong>216</strong> Trx <small>(+50 Bonus)</small></li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Tarif Rp 300
-                            / trx
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <strong>12</strong> Slot Produk
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-success me-2"></i> Beli Slot:
-                            <strong>Rp 10rb/50Slot</strong></li>
-                    </ul>
-                    <button class="btn btn-outline-primary w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
-                            data-paket="Santai" data-harga="50000">Pilih Paket
-                    </button>
-                </div>
-            </div>
-
-            <!-- Paket Auto Premium -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="bento-card p-4 p-md-5 h-100 d-flex flex-column text-center position-relative"
-                     style="background: var(--bs-primary); border-color: var(--bs-primary);">
-                    <span class="position-absolute top-0 start-50 translate-middle-x py-1 px-3 rounded-bottom-3 fw-bold text-white"
-                        style="background: var(--brand-caramel); font-size: 0.75rem;">BEST DEAL</span>
-                    <h4 class="font-serif fw-bold text-white mt-3 mb-2">Auto Premium</h4>
-                    <h1 class="font-serif fw-bolder text-white mb-3 mb-md-4 display-5 display-md-4">Rp 150k</h1>
-                    <ul class="list-unstyled text-white text-opacity-75 text-start mb-4 mx-auto small fs-md-6"
-                        style="max-width: 220px;">
-                        <li class="mb-2 mb-md-3"><i class="bi bi-star-fill text-warning me-2"></i> <strong>UNLIMITED</strong> Trx (1 Bulan)</li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Cap Maksimal Tercapai
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i>
-                            <strong>12</strong> Slot Produk
-                        </li>
-                        <li class="mb-2 mb-md-3"><i class="bi bi-check-circle-fill text-warning me-2"></i> Bebas Biaya Void</li>
-                    </ul>
-                    <button class="btn w-100 rounded-pill py-2 py-md-3 fw-bold mt-auto btn-pilih-paket"
-                            style="background: var(--brand-caramel); color: #fff; border: none;" data-paket="Auto Premium"
-                            data-harga="150000">Pilih Paket
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="py-4 py-md-5 bg-body border-top border-color">
-    <div class="container text-center">
-        <a class="font-serif fw-bolder fs-4 text-body text-decoration-none mb-4 d-inline-block" href="#">
-            <i class="bi bi-cup-hot-fill" style="color: var(--brand-caramel);"></i> pakaiapp<span
-                style="color: var(--bs-tertiary-color);">.online</span>
-        </a>
-
-        <div class="mb-4">
-            <h6 class="font-serif fw-bold text-body mb-3">Hubungi Kami (Pakaiapp)</h6>
-            <div class="d-flex flex-column flex-md-row flex-wrap justify-content-center gap-3 gap-md-4 text-secondary small">
-                <span class="d-flex align-items-center justify-content-center gap-2"><i class="bi bi-whatsapp"></i> Telepon/WA: 0851-7244-1544</span>
-                <span class="d-flex align-items-center justify-content-center gap-2">
-                    <i class="bi bi-envelope-fill"></i> Email Support: 
-                    <a href="mailto:support@pakaiapp.online" class="text-decoration-none" style="color: var(--brand-caramel);">support@pakaiapp.online</a>
-                </span>
-            </div>
-            <div class="mt-4 pt-3 border-top border-color mx-auto" style="max-width: 400px;">
-                <p class="text-secondary small mb-0">&copy; {{ date('Y') }} pakaiapp.online. Solusi Digital dari <a href="https://www.ngopikode.com" target="_blank" class="fw-bold" style="color: var(--brand-caramel); text-decoration: none;">ngopikode.</a></p>
-            </div>
-        </div>
-
-        <div
-            class="d-flex flex-column flex-md-row flex-wrap justify-content-center gap-3 gap-md-4 mb-4 small fw-semibold">
-            <a href="#" class="text-decoration-none" style="color: var(--brand-caramel);" data-bs-toggle="modal"
-               data-bs-target="#tncModal">Syarat & Ketentuan</a>
-            <a href="#" class="text-decoration-none" style="color: var(--brand-caramel);" data-bs-toggle="modal"
-               data-bs-target="#refundModal">Kebijakan Pengembalian Dana</a>
         </div>
     </div>
 </footer>
 
-<!-- Floating WhatsApp -->
-<a href="https://wa.me/6285172441544" target="_blank" class="floating-wa">
-    <i class="bi bi-whatsapp"></i>
-</a>
 
-<!-- ==============================================
-     MODAL CHECKOUT (API)
-=============================================== -->
-<div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content bento-card border-0">
-            <div class="modal-header border-bottom border-color bg-tertiary-bg py-3 py-md-4 px-3 px-md-4">
-                <h6 class="modal-title font-serif fw-bold text-body fs-6 fs-md-5">
-                    <i class="bi bi-cart-check-fill me-2" style="color: var(--brand-caramel);"></i>Selesaikan
-                    Pendaftaran
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-3 p-md-4 bg-body">
-                <div class="p-3 rounded-3 mb-4"
-                     style="background: rgba(var(--brand-caramel-rgb, 182, 115, 50), 0.1); border: 1px dashed var(--brand-caramel);">
-                    <p class="mb-1 text-secondary small">Paket Terpilih:</p>
-                    <h6 class="font-serif fw-bold text-body mb-0 fs-6 fs-md-5" id="checkoutPaketName">-</h6>
-                </div>
-                <form id="formCheckout">
-                    <input type="hidden" id="inputPaketName">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Nama Toko / Usaha</label>
-                        <input type="text" class="form-control" id="inputCheckoutToko" required
-                               placeholder="Contoh: Warung Kopi Senja">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Nama Pemilik</label>
-                        <input type="text" class="form-control" id="inputCheckoutNama" required
-                               placeholder="Nama lengkap Anda">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-secondary">No. WhatsApp</label>
-                        <input type="number" class="form-control" id="inputCheckoutWa" required
-                               placeholder="08xxxxxxxx">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 py-md-3 fw-bold"
-                            id="btnSubmitCheckout">
-                        Buat Akun & Lanjut Pembayaran <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
-                </form>
-            </div>
+
+<!-- ============================================
+     MODALS (T&C & REFUND WITH 100% COMPLETE ORIGINAL TEXTS)
+============================================ -->
+
+<!-- Modal TNC -->
+<div id="tncModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('tncModal')"></div>
+    <!-- Box content -->
+    <div class="custom-modal-content relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl transition-colors">
+        <!-- Header -->
+        <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+            <h3 class="font-heading font-extrabold text-slate-900 dark:text-white text-lg flex items-center gap-2">
+                <i class="ph-fill ph-shield-check text-emerald-600 dark:text-emerald-400"></i> Syarat & Ketentuan Layanan
+            </h3>
+            <button onclick="closeModal('tncModal')" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full transition-colors"><i class="ph-bold ph-x text-lg"></i></button>
+        </div>
+        <!-- Scrollable Body -->
+        <div class="p-8 overflow-y-auto text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-5 font-light">
+            <p>Selamat datang di <strong class="text-slate-900 dark:text-white font-bold">Pakaiapp</strong>. Harap membaca Syarat & Ketentuan ini dengan saksama sebelum mendaftar dan menggunakan platform kami.</p>
+            
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">1. KETENTUAN UMUM & DEFINISI</h4>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li><strong class="text-slate-800 dark:text-white">Pakaiapp</strong> adalah platform Software-as-a-Service (SaaS) aplikasi kasir pintar (Point of Sales) berbasis web cloud yang dikembangkan oleh PT Sinergi Kode Kreatif.</li>
+                <li><strong class="text-slate-800 dark:text-white">Pengguna</strong> adalah pemilik usaha (merchant), beserta staf/admin yang ditunjuk, yang mendaftarkan diri.</li>
+                <li><strong class="text-slate-800 dark:text-white">Layanan</strong> mencakup penyediaan sistem kasir, manajemen varian menu, etalase online (QR self-order), dan pelaporan.</li>
+            </ul>
+
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">2. PENDAFTARAN AKUN DAN KEAMANAN</h4>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li>Pengguna wajib memberikan data informasi bisnis yang akurat, benar, dan terbaru pada saat proses pendaftaran.</li>
+                <li>Pengguna bertanggung jawab penuh atas keamanan kredensial akun dan hak akses karyawan masing-masing.</li>
+            </ul>
+
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">3. FUNGSI DOMPET DIGITAL (WALLET) & BIAYA TRANSAKSI</h4>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li>Platform menggunakan sistem Dompet Digital terpusat untuk: (1) menampung saldo Top-Up prabayar untuk pemotongan biaya sistem, dan (2) menampung dana hasil penjualan dari Payment Gateway.</li>
+                <li>Pendaftaran akun dan penggunaan dasar aplikasi tidak dikenakan biaya langganan bulanan.</li>
+                <li>Setiap transaksi penjualan yang berstatus sukses/selesai akan dikenakan biaya sistem sebesar <strong class="text-slate-800 dark:text-white">Rp {{ $trxFee }}</strong> yang dipotong otomatis dari Saldo Wallet Pengguna.</li>
+            </ul>
+
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">4. PENARIKAN DANA (WITHDRAWAL) & PENGEMBALIAN DANA</h4>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li>Saldo yang bersumber dari hasil penjualan (Payment Gateway) dapat ditarik oleh Pengguna ke rekening bank yang didaftarkan.</li>
+                <li>Proses penarikan saat ini dilakukan secara manual oleh tim admin.</li>
+                <li>Saldo yang bersumber dari Top-Up prabayar bersifat non-refundable (tidak dapat ditarik atau diuangkan kembali).</li>
+            </ul>
+
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">5. HUKUM YANG BERLAKU</h4>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li>Syarat & Ketentuan ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum negara Republik Indonesia.</li>
+            </ul>
+        </div>
+        <!-- Footer actions -->
+        <div class="px-8 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end shrink-0">
+            <button onclick="closeModal('tncModal')" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:text-slate-950 font-bold py-2.5 px-6 rounded-xl transition-all shadow-sm text-sm">Saya Setuju</button>
         </div>
     </div>
 </div>
 
-<!-- ==============================================
-     MODAL TNC
-=============================================== -->
-<div class="modal fade" id="tncModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content bento-card border-0">
-            <div class="modal-header border-bottom border-color bg-tertiary-bg py-3 py-md-4 px-3 px-md-4">
-                <h6 class="modal-title font-serif fw-bold text-body fs-6 fs-md-5">
-                    <i class="bi bi-shield-check me-2" style="color: var(--brand-caramel);"></i>Syarat & Ketentuan
-                    Layanan
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-3 p-md-5 bg-body text-secondary small" style="line-height: 1.7;">
-                <p class="mb-4">Selamat datang di <strong>pakaiapp.online</strong>. Harap membaca Syarat & Ketentuan ini
-                    dengan saksama sebelum mendaftar dan menggunakan platform kami.</p>
-                <h6 class="fw-bold text-body font-serif mt-4 mb-2">1. KETENTUAN UMUM & DEFINISI</h6>
-                <ul class="mb-4 text-secondary">
-                    <li><strong>pakaiapp.online</strong> adalah platform Software-as-a-Service (SaaS) aplikasi kasir
-                        pintar (Point of Sales) berbasis web cloud yang dikembangkan oleh PT Sinergi Kode Kreatif.
-                    </li>
-                    <li><strong>Pengguna</strong> adalah pemilik usaha (merchant), beserta staf/admin yang ditunjuk,
-                        yang mendaftarkan diri.
-                    </li>
-                    <li><strong>Layanan</strong> mencakup penyediaan sistem kasir, manajemen varian menu, etalase online
-                        (QR self-order), dan pelaporan.
-                    </li>
-                </ul>
-                <h6 class="fw-bold text-body font-serif mb-2">2. PENDAFTARAN AKUN DAN KEAMANAN</h6>
-                <ul class="mb-4 text-secondary">
-                    <li>Pengguna wajib memberikan data informasi bisnis yang akurat, benar, dan terbaru pada saat proses
-                        pendaftaran.
-                    </li>
-                    <li>Pengguna bertanggung jawab penuh atas keamanan kredensial akun dan hak akses karyawan
-                        masing-masing.
-                    </li>
-                </ul>
-                <h6 class="fw-bold text-body font-serif mb-2">3. FUNGSI DOMPET DIGITAL (WALLET) & BIAYA TRANSAKSI</h6>
-                <ul class="mb-4 text-secondary">
-                    <li>Platform pakaiapp.online menggunakan sistem Dompet Digital terpusat yang berfungsi untuk dua
-                        hal: (1) Menampung saldo <i>Top-Up</i> prabayar untuk pemotongan biaya sistem, dan (2) Menampung
-                        dana hasil penjualan dari transaksi *online* (Payment Gateway) yang berhasil.
-                    </li>
-                    <li>Pendaftaran akun dan penggunaan dasar aplikasi tidak dikenakan biaya langganan bulanan.</li>
-                    <li>Setiap transaksi penjualan yang berstatus sukses/selesai akan dikenakan biaya sistem (SaaS fee)
-                        sebesar Rp 300 (Tiga Ratus Rupiah) yang dipotong otomatis dari Saldo Wallet Pengguna. Jika
-                        transaksi dibatalkan (void), tidak akan ada pemotongan saldo.
-                    </li>
-                </ul>
-                <h6 class="fw-bold text-body font-serif mb-2">4. PENARIKAN DANA (WITHDRAWAL) & PENGEMBALIAN DANA</h6>
-                <ul class="mb-4 text-secondary">
-                    <li>Saldo yang bersumber dari hasil penjualan (Payment Gateway) dapat ditarik (*withdraw*) oleh
-                        Pengguna ke rekening bank yang didaftarkan.
-                    </li>
-                    <li>Proses penarikan dana (withdrawal) saat ini dilakukan secara <strong>manual</strong> oleh tim
-                        admin pakaiapp.online setelah Pengguna mengajukan permintaan penarikan.
-                    </li>
-                    <li>Saldo yang bersumber dari <i>Top-Up</i> prabayar bersifat <i>non-refundable</i> (tidak dapat
-                        ditarik atau diuangkan kembali).
-                    </li>
-                </ul>
-                <h6 class="fw-bold text-body font-serif mb-2">5. HUKUM YANG BERLAKU</h6>
-                <ul class="mb-0 text-secondary">
-                    <li>Syarat & Ketentuan ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum negara Republik
-                        Indonesia.
-                    </li>
-                </ul>
-            </div>
-            <div class="modal-footer border-top border-color bg-tertiary-bg py-2 py-md-3 px-3 px-md-4">
-                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold w-100 w-sm-auto"
-                        data-bs-dismiss="modal">Saya Setuju
-                </button>
-            </div>
+<!-- Modal Refund -->
+<div id="refundModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('refundModal')"></div>
+    <!-- Box content -->
+    <div class="custom-modal-content relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl transition-colors">
+        <!-- Header -->
+        <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+            <h3 class="font-heading font-extrabold text-slate-900 dark:text-white text-lg flex items-center gap-2">
+                <i class="ph-fill ph-wallet text-emerald-600 dark:text-emerald-400"></i> Kebijakan Pengembalian Dana
+            </h3>
+            <button onclick="closeModal('refundModal')" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full transition-colors"><i class="ph-bold ph-x text-lg"></i></button>
+        </div>
+        <!-- Scrollable Body -->
+        <div class="p-8 overflow-y-auto text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-5 font-light">
+            <p>Sebagai bagian dari kepatuhan operasional kami di <strong class="text-slate-900 dark:text-white font-bold">Pakaiapp</strong>, berikut adalah kebijakan resmi terkait pengembalian dana (refund):</p>
+            
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">1. FINALITAS TRANSAKSI TOP-UP</h4>
+            <p>Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh sistem bersifat final dan mengikat.</p>
+            
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">2. PEMISAHAN JENIS SALDO & PENARIKAN</h4>
+            <p><strong class="text-slate-800 dark:text-white font-semibold">Saldo Top-Up prabayar bersifat mutlak non-refundable</strong>. Namun, <strong class="text-slate-800 dark:text-white font-semibold">Saldo Pendapatan</strong> dari hasil transaksi penjualan online dapat ditarik secara manual ke rekening bank pemilik usaha yang telah diverifikasi.</p>
+            
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">3. SALDO ABADI</h4>
+            <p>Saldo top-up pada wallet Pakaiapp bersifat abadi dan tidak memiliki masa kedaluwarsa.</p>
+            
+            <h4 class="font-heading font-bold text-slate-900 dark:text-white text-base">4. HUBUNGI KAMI</h4>
+            <p>Hubungi kami melalui WhatsApp di <strong class="text-emerald-600 dark:text-emerald-400 font-semibold">085172441544</strong> atau email ke <strong class="text-slate-800 dark:text-white font-semibold">support@pakaiapp.online</strong>.</p>
+        </div>
+        <!-- Footer actions -->
+        <div class="px-8 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end shrink-0">
+            <button onclick="closeModal('refundModal')" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:text-slate-950 font-bold py-2.5 px-6 rounded-xl transition-all shadow-sm text-sm">Saya Mengerti</button>
         </div>
     </div>
 </div>
 
-<!-- ==============================================
-     MODAL REFUND POLICY
-=============================================== -->
-<div class="modal fade" id="refundModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content bento-card border-0">
-            <div class="modal-header border-bottom border-color bg-tertiary-bg py-3 py-md-4 px-3 px-md-4">
-                <h6 class="modal-title font-serif fw-bold text-body fs-6 fs-md-5">
-                    <i class="bi bi-wallet2 me-2" style="color: var(--brand-caramel);"></i>Kebijakan Pengembalian Dana
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-3 p-md-5 bg-body text-secondary small" style="line-height: 1.7;">
-                <p class="mb-4">Sebagai bagian dari kepatuhan operasional kami di <strong>pakaiapp.online</strong>,
-                    berikut adalah kebijakan resmi terkait pengembalian dana (refund) untuk layanan top-up dan saldo
-                    wallet Anda:</p>
-                <h6 class="fw-bold text-body font-serif mt-4 mb-2">1. FINALITAS TRANSAKSI TOP-UP</h6>
-                <p class="mb-4">Seluruh transaksi pengisian ulang saldo (Top-Up) yang telah berhasil diverifikasi oleh
-                    sistem bersifat final dan mengikat. Pengguna diharapkan melakukan konfirmasi nominal sebelum
-                    menyelesaikan transaksi pembayaran.</p>
-                <h6 class="fw-bold text-body font-serif mb-2">2. PEMISAHAN JENIS SALDO & PENARIKAN (WITHDRAWAL)</h6>
-                <p class="mb-4">Sistem wallet kami memisahkan asal usul dana. <strong>Saldo Top-Up prabayar bersifat
-                        mutlak <i>non-refundable</i></strong> (tidak dapat dikembalikan, diuangkan, atau ditransfer ke
-                    rekening bank). Namun, <strong>Saldo Pendapatan</strong> yang berasal dari hasil transaksi penjualan
-                    *online* (Payment Gateway) pelanggan Anda, dapat ditarik (*withdraw*) secara manual ke rekening bank
-                    pemilik usaha yang telah diverifikasi.</p>
-                <h6 class="fw-bold text-body font-serif mb-2">3. SALDO ABADI (TANPA MASA KADALUWARSA)</h6>
-                <p class="mb-4">Saldo *top-up* pada wallet pakaiapp.online bersifat abadi dan tidak memiliki masa
-                    kedaluwarsa (tidak ada masa hangus). Saldo akan tetap utuh dan dapat digunakan kapan saja untuk
-                    memotong biaya Rp 300 per transaksi sukses.</p>
-                <h6 class="fw-bold text-body font-serif mb-2">4. HUBUNGI KAMI</h6>
-                <p class="mb-0">Jika Anda mengalami kendala teknis (seperti saldo top-up tidak bertambah setelah
-                    transfer berhasil) atau memiliki pertanyaan terkait proses pencairan manual dana Payment Gateway,
-                    silakan hubungi tim dukungan kami melalui WhatsApp di <strong style="color: var(--brand-caramel);">085172441544</strong>
-                    atau email ke <strong>support@ngopikode.com</strong>.</p>
-            </div>
-            <div class="modal-footer border-top border-color bg-tertiary-bg py-2 py-md-3 px-3 px-md-4">
-                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold w-100 w-sm-auto"
-                        data-bs-dismiss="modal">Saya Mengerti
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Scripts -->
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Modal controller vanilla JS -->
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+    function toggleAccordion(btn) {
+        const content = btn.nextElementSibling;
+        const icon = btn.querySelector('i');
+        
+        if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+            content.style.maxHeight = '0px';
+            icon.classList.remove('rotate-180');
+        } else {
+            // close other accordions first
+            document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = '0px');
+            document.querySelectorAll('button i').forEach(i => i.classList.remove('rotate-180'));
+            
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.classList.add('rotate-180');
+        }
+    }
+</script>
+
+@if(config('midtrans.enabled'))
+    @if(config('midtrans.is_production'))
+        <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @else
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    @endif
+@endif
+
+<!-- Configuration needed by welcome.js -->
+
+
+
+
+<livewire:central-ai-floating-chat />
 
 <script>
-    // 1. Initializations
-    AOS.init({once: true, offset: 50, duration: 800});
-
-    new Typed('#typed-text', {
-        strings: ['Bisnis Melesat.', 'Bayar Pas Ada Transaksi.', 'Otomatis Gratis Setelah Rp 150rb.', 'Bebas Biaya Langganan.'],
-        typeSpeed: 50, backSpeed: 30, loop: true, backDelay: 2000
-    });
-
-    // 2. Dark Mode Toggle
-    const themeBtn = document.getElementById('themeToggle');
-    const htmlRoot = document.getElementById('html-root');
-    const icon = themeBtn.querySelector('i');
-
-    themeBtn.addEventListener('click', () => {
-        if (htmlRoot.getAttribute('data-bs-theme') === 'light') {
-            htmlRoot.setAttribute('data-bs-theme', 'dark');
-            icon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
-            icon.style.color = 'var(--brand-caramel)';
-        } else {
-            htmlRoot.setAttribute('data-bs-theme', 'light');
-            icon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
-            icon.style.color = '';
-        }
-    });
-
-    // 3. Kalkulator Simulasi
-    const slider = document.getElementById('trxSlider');
-    const trxDisplay = document.getElementById('trxDisplay');
-    const costPakaiapp = document.getElementById('costPakaiapp');
-
-    slider.addEventListener('input', function () {
-        const trx = parseInt(this.value);
-        trxDisplay.innerText = trx;
-        let cost = trx * 300;
-        let isUnlimited = false;
-
-        // Capping logic
-        if (cost >= 150000) {
-            cost = 150000;
-            isUnlimited = true;
-        }
-
-        if (trx === 0) {
-            costPakaiapp.innerText = 'GRATIS!';
-            costPakaiapp.style.color = 'var(--brand-caramel)';
-        } else if (isUnlimited) {
-            costPakaiapp.innerHTML = 'Rp 150.000 <br><span class="badge bg-success bg-opacity-25 text-success rounded-pill mt-2 py-2 px-3 fw-bold fs-6" style="border: 1px solid rgba(25, 135, 84, 0.5);">🔥 UNLIMITED TRANSAKSI</span>';
-            costPakaiapp.style.color = '';
-        } else {
-            costPakaiapp.innerText = 'Rp ' + cost.toLocaleString('id-ID');
-            costPakaiapp.style.color = '';
-        }
-    });
-
-    // 4. Premium Chat Bot Logic (Interactive Guide)
-    const chatContainer = document.getElementById('chat-container');
-
-    function appendBotBubble(text, delay = 600) {
-        setTimeout(() => {
-            const html = `<div class="d-flex justify-content-start mb-2"><div class="chat-bubble-bot shadow-sm">${text}</div></div>`;
-            chatContainer.insertAdjacentHTML('beforeend', html);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, delay);
-    }
-
-    function appendUserBubble(text) {
-        const html = `<div class="d-flex justify-content-end mb-2"><div class="chat-bubble-user shadow-sm">${text}</div></div>`;
-        chatContainer.insertAdjacentHTML('beforeend', html);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    // Alur percakapan interaktif
-    setTimeout(() => {
-        appendBotBubble('Halo! 👋 Selamat datang di Pakaiapp.');
-        appendBotBubble('Tahu nggak? Aplikasi Pakaiapp ini 100% berbasis Web (SaaS lho!).', 1500);
-        appendBotBubble('Artinya, kamu nggak perlu repot install atau download aplikasi yang bikin memori HP kepenuhan. Tinggal buka *browser*, langsung bisa jualan!', 2800);
-
-        // Memunculkan tombol interaktif
-        setTimeout(() => {
-            const btnHtml = `
-            <div class="d-flex flex-wrap gap-2 mt-3 mb-2" id="chat-options-1">
-                <button class="chat-btn-reply" onclick="handleChatOption(1)">Wah, masa sih?</button>
-                <button class="chat-btn-reply" onclick="handleChatOption(2)">Terus biayanya gimana?</button>
-            </div>`;
-            chatContainer.insertAdjacentHTML('beforeend', btnHtml);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, 4000);
-    }, 800);
-
-    // Menangani klik user pada opsi chat
-    function handleChatOption(option) {
-        document.getElementById('chat-options-1').remove(); // Hapus tombol setelah diklik
-
-        if (option === 1) {
-            appendUserBubble('Wah, masa sih? Nggak perlu install?');
-            appendBotBubble('Beneran! Bisa dibuka di HP kasir, Tablet, sampai Laptop *back-office* barengan tanpa lag. Semua data sinkron real-time.', 1000);
-            appendBotBubble('Coba aja *scroll* ke bawah dan geser-geser bagian **Simulasi Anti-Buntung** buat lihat seberapa hemat biayanya! 👇🚀', 2500);
-        } else {
-            appendUserBubble('Terus biayanya gimana?');
-            appendBotBubble('Nah ini yang paling adil. Kamu cuma bayar Rp 300 HANYA saat ada pesanan sukses. Kalau toko lagi sepi, ya GRATIS! 🤩', 1000);
-            appendBotBubble('Tapi kalau resto kamu RAME BANGET sampai tagihan menyentuh **Rp 150.000** dalam sebulan...', 2800);
-            appendBotBubble('Sisa transaksi di bulan itu jadi **GRATIS TANPA BATAS**! Sistem otomatis ubah jadi Premium! 🎉', 4500);
-            appendBotBubble('Coba geser bulatan di bagian **Simulasi Anti-Buntung** sampai ujung buat buktikan! 👇', 6000);
-        }
-    }
-
-    // 5. Logic Modal API Checkout
-    const btnPakets = document.querySelectorAll('.btn-pilih-paket');
-    let modalCheckout;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        modalCheckout = new bootstrap.Modal(document.getElementById('checkoutModal'));
-
-        btnPakets.forEach(btn => {
-            btn.addEventListener('click', function () {
-                const namaPaket = this.getAttribute('data-paket');
-                const hargaPaket = this.getAttribute('data-harga');
-
-                document.getElementById('checkoutPaketName').innerText = `${namaPaket} (Rp ${parseInt(hargaPaket).toLocaleString('id-ID')})`;
-                document.getElementById('inputPaketName').value = namaPaket;
-
-                modalCheckout.show();
-            });
-        });
-    });
-
-    document.getElementById('formCheckout').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const btnSubmit = document.getElementById('btnSubmitCheckout');
-        const originalText = btnSubmit.innerHTML;
-
-        const payload = {
-            namaToko: document.getElementById('inputCheckoutToko').value,
-            namaOwner: document.getElementById('inputCheckoutNama').value,
-            noWa: document.getElementById('inputCheckoutWa').value,
-            paket: document.getElementById('inputPaketName').value,
-            jenisBisnis: 'Umum',
-            jumlahCabang: '1'
-        };
-
-        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
-        btnSubmit.disabled = true;
-
-        fetch('/api/send-lead', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(response => response.json())
-            .then(data => {
-                modalCheckout.hide();
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pendaftaran Berhasil! 🚀',
-                    text: `Sistem kami sedang menyiapkan paket ${payload.paket} untuk ${payload.namaToko}. Tim Pakaiapp akan segera menghubungi via WhatsApp.`,
-                    confirmButtonColor: 'var(--brand-caramel)',
-                    background: 'var(--bs-card-bg)',
-                    color: 'var(--bs-body-color)',
-                    customClass: {popup: 'bento-card'}
-                });
-
-                this.reset();
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Koneksi Terputus',
-                    text: 'Gagal menghubungi server. Silakan klik tombol WhatsApp di pojok kanan bawah untuk bantuan manual.',
-                    confirmButtonColor: 'var(--bs-danger)',
-                    background: 'var(--bs-card-bg)',
-                    color: 'var(--bs-body-color)'
-                });
-            })
-            .finally(() => {
-                btnSubmit.innerHTML = originalText;
-                btnSubmit.disabled = false;
-            });
-    });
+    window.PAKAIAAPP_CONFIG = {
+        trxFee: {{ $trxFee }},
+        cappingLimit: {{ $cappingLimit }},
+        cappingLimitFormatted: "{{ $cappingLimitFormatted }}",
+        cappingLimitShort: "{{ $cappingLimitShort }}"
+    };
 </script>
+@vite(["resources/js/welcome.js"])
 </body>
 </html>

@@ -23,3 +23,6 @@ yarn-error.log
 /.zed
 /storage/tenant*/
 /public/tenant_*
+/pakaiapp_central
+**/__pycache__/
+*.pyc
