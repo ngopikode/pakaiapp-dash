@@ -45,10 +45,51 @@
     </main>
     @endplaceholder
 
-    {{-- ===== PRODUCT LIST ===== --}}
-    <div wire:loading.remove wire:target="updateFilters">
+    {{-- Loading Skeleton Partial (saat ganti filter) --}}
+    <div wire:loading.delay.longer.class.remove="hidden" wire:target.except="loadMore" class="hidden">
         <main
             class="max-w-xl mx-auto px-5 mt-4"
+            :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
+        >
+            @for($s = 0; $s < 6; $s++)
+                <div
+                    class="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-sm flex overflow-hidden"
+                    :class="viewMode === 'grid' ? 'flex-col h-full' : 'flex-row items-center gap-4 p-3'"
+                >
+                    {{-- Image Skeleton --}}
+                    <div
+                        class="bg-skeleton shrink-0"
+                        :class="viewMode === 'grid' ? 'w-full aspect-[4/3]' : 'w-20 h-20 rounded-xl'"
+                    ></div>
+
+                    {{-- Content Skeleton --}}
+                    <div
+                        class="flex-1 flex flex-col justify-between min-h-0"
+                        :class="viewMode === 'grid' ? 'p-3.5 pt-2.5' : ''"
+                    >
+                        <div>
+                            <div class="h-4 bg-skeleton rounded-md w-3/4 mb-2"></div>
+
+                            <div x-show="viewMode === 'list'" class="h-3.5 bg-skeleton rounded-md w-1/3 mb-2"></div>
+
+                            <div class="h-2.5 bg-skeleton rounded-md w-full mb-1.5"></div>
+                            <div class="h-2.5 bg-skeleton rounded-md w-2/3"></div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="w-full h-8 bg-skeleton rounded-xl"></div>
+                        </div>
+                    </div>
+                </div>
+            @endfor
+        </main>
+    </div>
+
+    {{-- ===== PRODUCT LIST ===== --}}
+    <div wire:loading.delay.longer.class="hidden" wire:target.except="loadMore">
+        <main
+            wire:loading.class="opacity-50 pointer-events-none"
+            wire:target.except="loadMore"
+            class="max-w-xl mx-auto px-5 mt-4 transition-all duration-300"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
         >
             @forelse($this->products as $index => $item)
