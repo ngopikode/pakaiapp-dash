@@ -4,6 +4,7 @@ use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Session;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -14,7 +15,7 @@ new class extends Component {
 
     public int $page = 1;
 
-    public array $categories = [];
+
 
     #[Url(as: 'sort', except: 'popular')]
     public string $sort = 'popular';
@@ -33,37 +34,17 @@ new class extends Component {
 
     public function mount(): void
     {
-        $this->categories = Category::orderBy('order_column')
-            ->pluck('name')
-            ->toArray();
     }
 
-    public function setCategory(string $category): void
+    #[On('update-filters')]
+    public function updateFilters($category = 'all', $search = '', $sort = 'popular', $minPrice = null, $maxPrice = null): void
     {
-        $this->category = $category;
+        $this->category = $category ?? 'all';
+        $this->search = $search ?? '';
+        $this->sort = $sort ?? 'popular';
+        $this->minPrice = $minPrice === '' ? null : $minPrice;
+        $this->maxPrice = $maxPrice === '' ? null : $maxPrice;
         $this->page = 1;
-    }
-
-    public function setSort(string $sort): void
-    {
-        $this->sort = $sort;
-        $this->page = 1;
-    }
-
-    public function resetFilters(): void
-    {
-        $this->sort = 'popular';
-        $this->category = 'all';
-        $this->minPrice = null;
-        $this->maxPrice = null;
-        $this->search = '';
-        $this->page = 1;
-    }
-
-    public function applyFilters(): void
-    {
-        $this->page = 1;
-        // Optional logic you might want when 'Apply Filters' is clicked
     }
 
     public function loadMore(): void
@@ -97,11 +78,7 @@ new class extends Component {
         return $query;
     }
 
-    #[Computed]
-    public function hasPromoItems(): bool
-    {
-        return Product::whereHas('variants', fn($q) => $q->whereNotNull('active_discount_price'))->exists();
-    }
+
 
     #[Computed]
     public function hasMore(): bool
