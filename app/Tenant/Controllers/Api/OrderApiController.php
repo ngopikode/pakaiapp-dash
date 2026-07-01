@@ -231,21 +231,21 @@ class OrderApiController extends Controller
      */
     private function processDuitku(Order $order, array $customerDetail, string $method): JsonResponse
     {
-        $service = new DuitkuService();
+        $service = app(DuitkuService::class);
         $result = $service->createInvoice($order, $customerDetail, $method, tenant()->getTenantKey());
 
         $order->update([
-            'duitku_reference' => $result['reference'],
-            'duitku_payment_url' => $result['payment_url'],
-            'duitku_va_number' => $result['va_number'],
+            'duitku_reference' => $result->reference,
+            'duitku_payment_url' => $result->paymentUrl,
+            'duitku_va_number' => $result->vaNumber,
         ]);
 
         return $this->successResponse([
             'order_id' => $order->id,
             'invoice_code' => $order->invoice_code,
-            'payment_url' => $result['payment_url'],
-            'va_number' => $result['va_number'],
-            'reference' => $result['reference'],
+            'payment_url' => $result->paymentUrl,
+            'va_number' => $result->vaNumber,
+            'reference' => $result->reference,
         ], 'Order berhasil dibuat.', 201);
     }
 }

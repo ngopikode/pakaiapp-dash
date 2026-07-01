@@ -2,12 +2,22 @@
 
 namespace App\Central\Services;
 
-use App\Tenant\Models\Core\Order;
+use App\Central\Models\Tenant;
 use App\Central\Models\TenantRegistration;
+use App\Central\Services\BillingService;
+use App\Central\Services\TenantRegistrationService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Services\TenantWalletService;
+use App\Central\Data\DuitkuInvoiceResultData;
+use App\Central\Data\DuitkuPaymentMethodData;
+use App\Central\Data\DuitkuTransactionStatusData;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Spatie\LaravelData\DataCollection;
+use Throwable;
 
 /**
  * DuitkuService — Wrapper untuk API Duitku Payment Gateway (API v2.0)
@@ -26,7 +36,11 @@ class DuitkuService
     private string $merchantCode;
     private bool $sandbox;
 
-    public function __construct()
+    public function __construct(
+        protected readonly TenantRegistrationService $tenantRegService,
+        protected readonly TenantWalletService       $walletService,
+        protected readonly BillingService            $billingService
+    )
     {
         $this->merchantKey = config('duitku.merchant_key') ?? '';
         $this->merchantCode = config('duitku.merchant_code') ?? '';
@@ -55,11 +69,11 @@ class DuitkuService
      * @param array $customerDetail Data customer: firstName, lastName, email, phoneNumber
      * @param string $paymentMethod Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
      * @param string $tenantId ID tenant — digunakan untuk embed di merchantOrderId
-     * @return array { payment_url, reference, va_number }
+     * @return DuitkuInvoiceResultData
      *
      * @throws RuntimeException|ConnectionException jika Duitku API error
      */
-    public function createInvoice(Order $order, array $customerDetail, string $paymentMethod, string $tenantId): array
+    public function createInvoice(Order $order, array $customerDetail, string $paymentMethod, string $tenantId): DuitkuInvoiceResultData
     {
         // Validasi tenantId — only alphanumeric + dash + underscore (UUID format)
         if (!preg_match('/^[A-Za-z0-9\-_]+$/', $tenantId)) {
@@ -182,11 +196,11 @@ class DuitkuService
             'reference' => $data['reference'] ?? null,
         ]);
 
-        return [
-            'payment_url' => $data['paymentUrl'],
-            'reference' => $data['reference'] ?? null,
-            'va_number' => $data['vaNumber'] ?? null,
-        ];
+        return new DuitkuInvoiceResultData(
+            paymentUrl: $data['paymentUrl'],
+            reference: $data['reference'] ?? '',
+            vaNumber: $data['vaNumber'] ?? null,
+        );
     }
 
     /**
@@ -198,7 +212,7 @@ class DuitkuService
      *
      * @throws RuntimeException|ConnectionException jika Duitku API error
      */
-    public function createRegistrationInvoice(TenantRegistration $registration, string $paymentMethod): array
+    public function createRegistrationInvoice(TenantRegistration $registration, string $paymentMethod): DuitkuInvoiceResultData
     {
         $expiryPeriod = (int)config('duitku.expiry_period', 60);
         $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');
@@ -304,11 +318,11 @@ class DuitkuService
             'reference' => $data['reference'] ?? null,
         ]);
 
-        return [
-            'payment_url' => $data['paymentUrl'],
-            'reference' => $data['reference'] ?? null,
-            'va_number' => $data['vaNumber'] ?? null,
-        ];
+        return new DuitkuInvoiceResultData(
+            paymentUrl: $data['paymentUrl'],
+            reference: $data['reference'] ?? '',
+            vaNumber: $data['vaNumber'] ?? null,
+        );
     }
 
     /**
@@ -317,7 +331,7 @@ class DuitkuService
      * @param string $merchantOrderId Format: "{tenantId}~{invoiceCode}"
      * @throws RuntimeException|ConnectionException
      */
-    public function checkTransactionStatus(string $merchantOrderId): array
+    public function checkTransactionStatus(string $merchantOrderId): DuitkuTransactionStatusData
     {
         // Validasi format — hanya izinkan alfanumerik, dash, tilde, underscore
         if (!preg_match('/^[A-Za-z0-9\-~_]+$/', $merchantOrderId)) {
@@ -353,7 +367,10 @@ class DuitkuService
             throw new RuntimeException('Response Duitku tidak valid.');
         }
 
-        return $data;
+        return new DuitkuTransactionStatusData(
+            statusCode: $data['statusCode'] ?? null,
+            statusMessage: $data['statusMessage'] ?? null,
+        );
     }
 
     /**
@@ -395,7 +412,10 @@ class DuitkuService
      * @param int $amount Jumlah yang akan dibayar (dalam Rupiah)
      * @throws ConnectionException
      */
-    public function getPaymentMethods(int $amount): array
+    /**
+     * @return DataCollection<DuitkuPaymentMethodData>
+     */
+    public function getPaymentMethods(int $amount): DataCollection
     {
         $datetime = date('Y-m-d H:i:s');
         $stringToSign = $this->merchantCode . $amount . $datetime;
@@ -428,6 +448,193 @@ class DuitkuService
             return [];
         }
 
-        return $data['paymentFee'] ?? [];
+        $paymentMethods = [];
+        $methodsArray = $data['paymentFee'] ?? [];
+        
+        foreach ($methodsArray as $method) {
+            $paymentMethods[] = new DuitkuPaymentMethodData(
+                paymentMethod: $method['paymentMethod'],
+                paymentName: $method['paymentName'],
+                paymentImage: $method['paymentImage'],
+                totalFee: (int) $method['totalFee']
+            );
+        }
+
+        return DuitkuPaymentMethodData::collection($paymentMethods);
+    }
+
+    /**
+     * Parse merchantOrderId format "{tenantId}~{invoiceCode}" atau "{tenantId}__{invoiceCode}".
+     *
+     * @return array{0: string|null, 1: string|null}  [tenantId, invoiceCode]
+     */
+    public function parseMerchantOrderId(string $merchantOrderId): array
+    {
+        $separator = str_contains($merchantOrderId, '__') ? '__' : '~';
+        if (!str_contains($merchantOrderId, $separator)) {
+            return [null, null];
+        }
+
+        $parts = explode($separator, $merchantOrderId, 2);
+
+        $tenantId = $parts[0] ?? null;
+        $invoiceCode = $parts[1] ?? null;
+
+        // Validasi: tenantId hanya boleh alfanumerik + dash + underscore (UUID format)
+        if ($tenantId && !preg_match('/^[A-Za-z0-9\-_]+$/', $tenantId)) {
+            return [null, null];
+        }
+
+        // Validasi: invoiceCode hanya boleh alfanumerik + dash
+        if ($invoiceCode && !preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
+            return [null, null];
+        }
+
+        return [$tenantId, $invoiceCode];
+    }
+
+    /**
+     * Map kode payment method Duitku ke nilai enum orders.payment_method.
+     */
+    public function mapPaymentMethodCode(string $paymentCode): string
+    {
+        if (in_array(strtoupper($paymentCode), ['QRIS', 'QRISC', 'SP', 'NQ', 'LQ', 'GQ'], true)) {
+            return 'qris';
+        }
+
+        return 'transfer';
+    }
+
+    /**
+     * @param string $rawMerchantOrderId
+     * @return void
+     * @throws Throwable
+     */
+    public function handleWebhook(string $rawMerchantOrderId): void
+    {
+        [$tenantId, $invoiceCode] = $this->parseMerchantOrderId($rawMerchantOrderId);
+
+        $isRegCallback = (str_starts_with($rawMerchantOrderId, 'INV-REG-') || ($tenantId === 'REG' && $invoiceCode));
+
+        if ($isRegCallback) {
+            $registration = str_starts_with($rawMerchantOrderId, 'INV-REG-')
+                ? TenantRegistration::where('invoice_code', $rawMerchantOrderId)->first()
+                : TenantRegistration::find($invoiceCode);
+
+            if (!$registration) {
+                Log::warning('[Duitku Central] Registration not found', ['reg_id' => $rawMerchantOrderId]);
+                throw new RuntimeException('REG_NOT_FOUND', 404);
+            }
+
+            if (in_array($registration->status, ['paid', 'created', 'failed'])) {
+                return; // Already processed
+            }
+
+            // Verify signature using existing method
+            $notif = $this->handleCallback();
+            $resultCode = $notif['resultCode'] ?? null;
+
+            if ($resultCode === '00') {
+                $registration->update(['status' => 'paid']);
+                $this->tenantRegService->completeRegistration($registration);
+            } elseif ($resultCode === '01') {
+                $registration->update(['status' => 'failed']);
+            }
+
+            return;
+        }
+
+        if (!$tenantId || !$invoiceCode) {
+            Log::warning('[Duitku Central] Format merchantOrderId tidak valid', [
+                'raw' => substr($rawMerchantOrderId, 0, 100),
+            ]);
+            throw new RuntimeException('INVALID', 400);
+        }
+
+        $tenant = Tenant::find($tenantId);
+        if (!$tenant) {
+            Log::warning('[Duitku Central] Tenant tidak ditemukan', ['tenantId' => $tenantId]);
+            return; // Controller will return 200 to prevent retry
+        }
+
+        $tenant->run(function () use ($invoiceCode) {
+            $this->processOrderCallback($invoiceCode);
+        });
+    }
+
+    /**
+     * @param string $invoiceCode
+     * @return void
+     * @throws Throwable
+     */
+    private function processOrderCallback(string $invoiceCode): void
+    {
+        if (!preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
+            Log::warning('[Duitku Central] invoiceCode tidak valid di processCallback', [
+                'invoiceCode' => substr($invoiceCode, 0, 50),
+            ]);
+            return;
+        }
+
+        $notif = $this->handleCallback();
+        $resultCode = $notif['resultCode'] ?? null;
+
+        DB::transaction(function () use ($invoiceCode, $notif, $resultCode) {
+            $order = Order::where('invoice_code', $invoiceCode)->lockForUpdate()->first();
+
+            if (!$order) {
+                Log::warning('[Duitku Central] Order tidak ditemukan di tenant DB', ['invoiceCode' => $invoiceCode]);
+                return;
+            }
+
+            if ($order->status !== 'pending') {
+                Log::info('[Duitku Central] Callback diabaikan — order sudah diproses', [
+                    'invoiceCode' => $invoiceCode,
+                    'currentStatus' => $order->status,
+                ]);
+                return;
+            }
+
+            if ($resultCode === '00') {
+                $amountPaid = (int)($notif['amount'] ?? $order->total_price);
+
+                if ($amountPaid < $order->total_price) {
+                    Log::warning('[Duitku Central] Fraud detected: Underpaid', [
+                        'invoiceCode' => $invoiceCode,
+                        'amountPaid' => $amountPaid,
+                        'expected' => $order->total_price,
+                    ]);
+                    $order->update([
+                        'status' => 'cancelled',
+                        'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
+                    ]);
+                    $order->restoreStock();
+                    return;
+                }
+
+                $order->update([
+                    'status' => 'paid',
+                    'payment_method' => $this->mapPaymentMethodCode($notif['paymentCode'] ?? ''),
+                    'duitku_reference' => $notif['reference'] ?? $order->duitku_reference,
+                    'amount_paid' => $amountPaid,
+                ]);
+
+                $this->walletService->addBalance($amountPaid, $order, "Pendapatan Duitku masuk untuk pesanan $order->invoice_code");
+                $this->billingService->chargeTransactionFee($order);
+
+                Log::info('[Duitku Central] Pembayaran berhasil, wallet dikreditkan', [
+                    'invoiceCode' => $invoiceCode,
+                    'amountPaid' => $amountPaid,
+                ]);
+
+            } elseif ($resultCode === '01') {
+                $order->update([
+                    'status' => 'cancelled',
+                    'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
+                ]);
+                $order->restoreStock();
+                Log::info('[Duitku Central] Pembayaran gagal/dibatalkan, stok dikembalikan', ['invoiceCode' => $invoiceCode]);
+            }
+        });
     }
 }
