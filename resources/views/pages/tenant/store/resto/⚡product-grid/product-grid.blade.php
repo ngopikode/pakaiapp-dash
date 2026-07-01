@@ -46,7 +46,7 @@
     @endplaceholder
 
     {{-- Loading Skeleton Partial (saat ganti filter) --}}
-    <div wire:loading.delay.longer.class.remove="hidden" wire:target.except="loadMore" class="hidden">
+    <div wire:loading.delay.class.remove="hidden" wire:target.except="loadMore" class="hidden">
         <main
             class="max-w-xl mx-auto px-5 mt-4"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
@@ -85,14 +85,15 @@
     </div>
 
     {{-- ===== PRODUCT LIST ===== --}}
-    <div wire:loading.delay.longer.class="hidden" wire:target.except="loadMore">
+    <div wire:loading.delay.class="hidden" wire:target.except="loadMore">
         <main
             wire:loading.class="opacity-50 pointer-events-none"
             wire:target.except="loadMore"
             class="max-w-xl mx-auto px-5 mt-4 transition-all duration-300"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
         >
-            @forelse($this->products as $index => $item)
+            @island(name: 'products', skip: false)
+                @forelse($this->products as $index => $item)
                 @php $delay = $index < 20 ? $index * 50 : 0; @endphp
 
                 <div
@@ -118,7 +119,7 @@
 
                     {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
                     @if($item['is_active'])
-                        <a href="{{ route('product.show', new Product($item)) }}"
+                        <a href="{{ route('product.show', new \App\Tenant\Models\Core\Product($item)) }}"
                            wire:navigate.hover
                            class="absolute inset-0 z-10"></a>
                     @endif
@@ -169,7 +170,7 @@
                                 </svg>
                             </button>
                             <button
-                                @click="window.open('{{ route('product.story', new Product($item)) }}', '_blank')"
+                                @click="window.open('{{ route('product.story', new \App\Tenant\Models\Core\Product($item)) }}', '_blank')"
                                 class="bg-[var(--surface)]/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[#25D366] hover:text-[var(--background)] hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90 group/story"
                                 aria-label="Share ke Status WA">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -279,18 +280,21 @@
                     <p class="text-xs text-[var(--text-secondary)] opacity-60">untuk kategori ini</p>
                 </div>
             @endforelse
+            @endisland
         </main>
 
         {{-- ===== INFINITE SCROLL SENTINEL & LOAD MORE SKELETON ===== --}}
         @if($this->hasMore)
             <div
-                wire:key="scroll-sentinel-{{ $category }}-{{ $page }}"
-                x-intersect.once="$wire.$island('products', { mode: 'append' }).loadMore()"
-                {{-- FIX: Tambahin pembatas lebar dan margin biar presisi sama list di atasnya --}}
+                wire:key="scroll-sentinel-{{ $category }}"
+                x-data="{ loading: false, noMore: false }"
+                @no-more-products.window="noMore = true"
+                x-show="!noMore"
+                x-intersect="if(!loading) { loading = true; $wire.$island('products', { mode: 'append' }).loadMore().then(() => loading = false) }"
                 class="max-w-xl mx-auto px-5 pt-4 pb-8"
             >
                 {{-- SKELETON KHUSUS LOAD MORE --}}
-                <div wire:loading.class.remove="hidden" wire:target="loadMore" class="hidden">
+                <div x-show="loading" class="hidden" :class="{ 'hidden': !loading, 'block': loading }">
                     <div :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'">
                         @for($s = 0; $s < 2; $s++)
                             <div

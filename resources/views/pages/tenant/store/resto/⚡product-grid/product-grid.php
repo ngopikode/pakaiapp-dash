@@ -50,6 +50,9 @@ new class extends Component {
     public function loadMore(): void
     {
         $this->page++;
+        if (!$this->hasMore()) {
+            $this->dispatch('no-more-products');
+        }
     }
 
     private function getBaseProductQuery()
@@ -98,7 +101,11 @@ new class extends Component {
         } elseif ($this->sort === 'highest_price') {
             $query->withMin('variants', 'price')->orderBy('variants_min_price', 'desc');
         } else {
-            $query->orderByRaw('is_active DESC');
+            $query->leftJoin('categories as cat_sort', 'products.category_id', '=', 'cat_sort.id')
+                ->orderBy('cat_sort.order_column', 'asc')
+                ->orderByRaw('products.is_active DESC')
+                ->orderBy('products.id', 'asc')
+                ->select('products.*');
         }
 
         return $query->forPage($this->page, 10)

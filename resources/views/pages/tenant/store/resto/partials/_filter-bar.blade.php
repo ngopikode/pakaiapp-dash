@@ -1,33 +1,6 @@
 @props(['categories', 'hasPromoItems'])
 
-<div x-data="{
-        category: new URLSearchParams(location.search).get('kategori') || 'all',
-        search: new URLSearchParams(location.search).get('q') || '',
-        sort: new URLSearchParams(location.search).get('sort') || 'popular',
-        minPrice: new URLSearchParams(location.search).get('min') || null,
-        maxPrice: new URLSearchParams(location.search).get('max') || null,
-        viewMode: 'grid',
-        showFilter: false,
-        apply() {
-            $dispatch('update-filters', {
-                category: this.category,
-                search: this.search,
-                sort: this.sort,
-                minPrice: this.minPrice,
-                maxPrice: this.maxPrice
-            });
-        },
-        reset() {
-            this.sort = 'popular';
-            this.minPrice = null;
-            this.maxPrice = null;
-            this.apply();
-            this.showFilter = false;
-        }
-    }"
-    @refresh-menu-data.window="apply()"
-    x-init="$watch('viewMode', val => $dispatch('view-mode-changed', val))"
->
+
     {{-- ===== STICKY SEARCH & CATEGORY BAR ===== --}}
     <div id="menu-start" class="scroll-mt-0 sticky top-0 z-40 bg-[var(--surface)]/90 backdrop-blur-xl border-b border-[var(--border)] shadow-sm shadow-[var(--border)]">
         <div class="max-w-xl mx-auto px-4 py-3 flex gap-2">
@@ -200,4 +173,3 @@
             </div>
         </div>
     </div>
-</div>
