@@ -8,6 +8,7 @@ use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use function Illuminate\Support\once;
 
 class MenuController extends Controller
 {
@@ -15,7 +16,7 @@ class MenuController extends Controller
     {
         $product->load(['variants', 'extras']);
 
-        $setting = \Illuminate\Support\Facades\Cache::rememberForever('store_setting', fn() => StoreSetting::first());
+        $setting = once(fn() => StoreSetting::first());
 
         $waNumber   = '';
         $orderTypes = [['id' => 'takeaway', 'label' => 'Takeaway']];
@@ -68,7 +69,7 @@ class MenuController extends Controller
 
     public function shareAsStory(Product $product)
     {
-        $restaurant = \Illuminate\Support\Facades\Cache::rememberForever('store_setting', fn() => StoreSetting::first()) ?? new StoreSetting(['name' => 'Resto']);
+        $restaurant = once(fn() => StoreSetting::first()) ?? new StoreSetting(['name' => 'Resto']);
         $productUrl = route('product.show', $product);
 
         return view('pages.tenant.store.story-preview', [
