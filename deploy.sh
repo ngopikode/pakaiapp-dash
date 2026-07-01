@@ -8,13 +8,28 @@
 set -e  # Exit immediately on error
 
 START_TIME=$(date +%s)
-LOG_FILE="/var/log/deploy-pakaiapp.log"
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
-# Helper: log ke console DAN file sekaligus
+# Log utama — coba /var/log/ dulu, fallback ke storage/logs/, fallback ke /tmp/
+# Ini memastikan log tetap bisa ditulis apapun user yang menjalankan script
+LOG_FILE="/var/log/deploy-pakaiapp.log"
+if ! touch "$LOG_FILE" 2>/dev/null; then
+    LOG_FILE="$(pwd)/storage/logs/deploy.log"
+    if ! touch "$LOG_FILE" 2>/dev/null; then
+        LOG_FILE="/tmp/deploy-pakaiapp.log"
+    fi
+fi
+
+# Helper: log ke console DAN file sekaligus (tidak pernah abort jika gagal)
 log() {
     echo "$1"
-    echo "[$TIMESTAMP] $1" >> "$LOG_FILE"
+    echo "[$TIMESTAMP] $1" >> "$LOG_FILE" 2>/dev/null || true
+}
+
+# Helper: jalankan artisan sebagai www-data agar bisa tulis storage/logs/laravel.log
+# meskipun storage/logs/ di-restrict hanya untuk www-data
+artisan() {
+    sudo -u www-data php artisan "$@"
 }
 
 # ==============================================================================
@@ -31,7 +46,7 @@ fi
 # TRAP: Jika script gagal di tengah jalan, otomatis jalankan php artisan up
 # agar aplikasi tidak stuck di maintenance mode selamanya
 # ==============================================================================
-trap 'log "❌ Deploy GAGAL! Mengaktifkan kembali aplikasi..."; php artisan up; log "--- DEPLOY FAILED [$TIMESTAMP] ---"' ERR
+trap 'log "❌ Deploy GAGAL! Mengaktifkan kembali aplikasi..."; artisan up; log "--- DEPLOY FAILED [$TIMESTAMP] ---"' ERR
 
 log "--- DEPLOY STARTED [$TIMESTAMP] ---"
 log "🚀 Memulai proses deployment Pakaiapp..."
@@ -53,7 +68,7 @@ fi
 # 2. AKTIFKAN MAINTENANCE MODE
 # ==============================================================================
 log "🚧 Mengaktifkan maintenance mode..."
-php artisan down || true
+artisan down || true
 
 # ==============================================================================
 # 3. TARIK KODE TERBARU
@@ -71,39 +86,39 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 # 5. CLEAR CONFIG DULU sebelum cache — penting agar migrate pakai config terbaru
 # ==============================================================================
 log "🧹 Membersihkan semua cache lama..."
-php artisan optimize:clear
+artisan optimize:clear
 
 # ==============================================================================
 # 6. BUILD CACHE BARU
 # ==============================================================================
 log "⚙️  Membangun ulang cache (config, route, view, event)..."
-php artisan optimize
-php artisan view:cache
-php artisan event:cache
+artisan optimize
+artisan view:cache
+artisan event:cache
 
 # ==============================================================================
 # 7. MIGRASI DATABASE CENTRAL
 # ==============================================================================
 log "🗄️  Menjalankan migrasi database central..."
-php artisan migrate --force
+artisan migrate --force
 
 # ==============================================================================
 # 8. MIGRASI DATABASE SEMUA TENANT (retail + resto)
 # ==============================================================================
 log "🏪 Menjalankan migrasi semua tenant database (type=all)..."
-php artisan tenants:migrate-type all --force
+artisan tenants:migrate-type all --force
 
 # ==============================================================================
 # 9. RESTART QUEUE WORKER (agar pickup kode baru)
 # ==============================================================================
 log "🔄 Merestart queue worker..."
-php artisan queue:restart
+artisan queue:restart
 
 # ==============================================================================
 # 10. MATIKAN MAINTENANCE MODE
 # ==============================================================================
 log "✅ Mematikan maintenance mode..."
-php artisan up
+artisan up
 
 # ==============================================================================
 # SELESAI — Hitung durasi & log
