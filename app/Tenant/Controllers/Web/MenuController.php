@@ -8,7 +8,6 @@ use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use function Illuminate\Support\once;
 
 class MenuController extends Controller
 {
