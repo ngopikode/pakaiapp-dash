@@ -7,12 +7,7 @@
     <meta name="description" content="Baca artikel terbaru seputar tips bisnis UMKM, F&B, Ritel, dan penggunaan sistem kasir cerdas dari Pakaiapp.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-        .blog-header { background: #fff; padding: 2rem 0; border-bottom: 1px solid #eaeaea; text-align: center; }
-        .card-blog { border: none; border-radius: 12px; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card-blog:hover { transform: translateY(-5px); }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
 </head>
 <body>
 

@@ -1,0 +1,11 @@
+.border-translucent {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+.scale-active {
+    transform: scale(0.98);
+    border-width: 2px !important;
+    box-shadow: 0 4px 12px rgba(202, 138, 4, 0.15) !important;
+}
+.transition-all {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

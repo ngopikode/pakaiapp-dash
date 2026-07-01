@@ -25,34 +25,7 @@
     </div>
 </div>
 
-<style>
-.pwa-toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translate(-50%, 150%);
-    width: calc(100% - 48px);
-    max-width: 400px;
-    border-radius: 16px;
-    padding: 16px;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    font-family: inherit;
-    border-color: var(--bs-border-color-translucent) !important;
-}
-.pwa-toast.show {
-    transform: translate(-50%, 0);
-}
 
-@media (max-width: 768px) {
-    .pwa-toast {
-        bottom: calc(var(--bottom-nav-height, 65px) + 20px) !important;
-    }
-}
-</style>
 
 <script>
     if ('serviceWorker' in navigator) {

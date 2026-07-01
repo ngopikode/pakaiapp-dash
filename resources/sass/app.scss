@@ -597,3 +597,149 @@ div:where(.swal2-container) div:where(.swal2-popup) {
     border-color: rgba(16, 185, 129, 0.2) !important;
     border-left-color: #34D399 !important;
 }
+
+/* Navbar Custom Styles */
+.hover-lift:hover #notifBellIcon,
+.nav-link:hover #notifBellIcon {
+    animation: bellRing 0.65s ease-in-out;
+    color: var(--brand-caramel, #B67332) !important;
+}
+
+@keyframes bellRing {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(10deg); }
+    30% { transform: rotate(-10deg); }
+    45% { transform: rotate(5deg); }
+    60% { transform: rotate(-5deg); }
+    75% { transform: rotate(2deg); }
+    90% { transform: rotate(-2deg); }
+}
+
+.badge-pulse {
+    animation: badgePulse 2s infinite cubic-bezier(0.25, 0, 0, 1);
+}
+
+@keyframes badgePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.12);
+    }
+    100% {
+        box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@media (max-width: 576px) {
+    .dropdown-menu-responsive-notif {
+        position: fixed !important;
+        top: 75px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: calc(100% - 24px) !important;
+        max-width: none !important;
+        transform: none !important;
+        border-radius: 1.25rem !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid var(--bs-border-color) !important;
+        background: rgba(var(--bs-card-bg-rgb, 255, 255, 255), 0.96) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+    }
+    .dropdown-menu-responsive-notif::before {
+        display: none !important;
+    }
+}
+
+.dropdown-menu-responsive-notif {
+    background: rgba(var(--bs-card-bg-rgb, 255, 255, 255), 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid var(--bs-border-color) !important;
+}
+
+.dropdown-menu-responsive-notif .dropdown-item {
+    transition: background-color 0.2s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.dropdown-menu-responsive-notif .dropdown-item:hover {
+    transform: translateX(6px);
+    background-color: var(--bs-tertiary-bg) !important;
+}
+
+#notifBellIcon {
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Sidebar Custom Styles */
+@media (display-mode: standalone) {
+    .sidebar-pwa-install-btn { display: none !important; }
+}
+
+
+
+
+/* Cart Resto Specific Styles */
+@media (max-width: 767.98px) {
+    .pb-mobile-nav {
+        padding-bottom: 4.5rem !important;
+    }
+}
+
+/* Tour Guide Toast Mobile Style */
+@media (max-width: 768px) {
+    .tour-guide-toast {
+        bottom: calc(var(--bottom-nav-height, 65px) + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+/* PWA Install Button Visibility */
+@media (display-mode: standalone) {
+    .pwa-install-item {
+        display: none !important;
+    }
+}
+
+/* Print Layout Styles */
+.print-body {
+    background-color: #f3f4f6;
+    font-family: 'Inter', sans-serif;
+}
+
+@media print {
+    @page {
+        margin: 0; /* Wajib: Menghilangkan margin/header/footer bawaan browser */
+    }
+
+    html, body {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important; /* Jangan paksa setinggi layar */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Reset semua class margin/padding/flex dari body saat diprint */
+    body.antialiased {
+        display: block !important;
+        min-height: 0 !important;
+    }
+
+    .print-container {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 80mm !important; /* Sesuaikan dengan ukuran thermal kamu (80mm/58mm) */
+        max-width: 80mm !important;
+    }
+
+    /* Sembunyikan elemen yang tidak perlu diprint */
+    .no-print {
+        display: none !important;
+    }
+}

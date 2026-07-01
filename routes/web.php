@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
-        Route::view('/', 'welcome')->name('home');
-        Route::view('/kasir-cafe', 'pages.landing-cafe')->name('landing.cafe');
-        Route::view('/kasir-toko-kelontong', 'pages.landing-retail')->name('landing.retail');
+        Route::view('/', 'pages.public.welcome')->name('home');
+        Route::view('/kasir-cafe', 'pages.public.landing-cafe')->name('landing.cafe');
+        Route::view('/kasir-toko-kelontong', 'pages.public.landing-retail')->name('landing.retail');
 
         Route::get('/blog', [ArticleController::class, 'index'])->name('blog.index');
         Route::get('/blog/{slug}', [ArticleController::class, 'show'])->name('blog.show');

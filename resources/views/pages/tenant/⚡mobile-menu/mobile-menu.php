@@ -1,0 +1,56 @@
+<?php
+
+use App\Tenant\Models\Core\StoreSetting;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+
+new #[Title("Pengaturan")]
+class extends Component {
+    public function logout(): void
+    {
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        $this->redirectRoute('login');
+    }
+
+    public function getMenuSectionsProperty(): array
+    {
+        $user = Auth::user();
+        $storeType = StoreSetting::first()?->store_type ?? 'retail';
+
+        $sections = [
+            [
+                'title' => 'Katalog & Inventaris',
+                'items' => [
+                    ['route' => 'product', 'icon' => 'ph-fill ph-book-open-text', 'label' => 'Katalog Produk', 'roles' => ['manager']],
+                    ['route' => 'product-slot.buy', 'icon' => 'ph-fill ph-shopping-cart', 'label' => 'Beli Slot Produk', 'roles' => ['manager'], 'badge' => 'Baru'],
+                ]
+            ],
+            [
+                'title' => 'Sistem & Pengaturan',
+                'items' => [
+                    ['route' => 'wallet', 'icon' => 'ph-fill ph-wallet', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
+                    ['route' => 'store-setting', 'icon' => 'ph-fill ph-storefront', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
+                    ['route' => 'user', 'icon' => 'ph-fill ph-users', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
+                    ['route' => 'profile', 'icon' => 'ph-fill ph-user-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
+                ]
+            ]
+        ];
+
+        if ($storeType === 'resto') {
+            $sections[0]['items'][] = ['route' => 'raw-material', 'icon' => 'ph-fill ph-package', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
+        }
+
+        return collect($sections)->map(function ($section) use ($user) {
+            $section['items'] = collect($section['items'])->filter(function ($item) use ($user) {
+                return in_array($user->role, $item['roles']);
+            })->toArray();
+
+            return $section;
+        })->filter(fn($section) => count($section['items']) > 0)->toArray();
+    }
+};

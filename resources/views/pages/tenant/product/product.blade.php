@@ -1,33 +1,6 @@
 <x-layouts::app title="Menu & Produk">
 
     @push('styles')
-        <style>
-            .help-fab-container {
-                bottom: 2rem;
-                right: 2rem;
-            }
-
-            .help-fab-btn {
-                width: 56px;
-                height: 56px;
-            }
-
-            @media (max-width: 768px) {
-                .help-fab-container {
-                    bottom: 85px; /* Clear bottom navbar */
-                    right: 1rem;
-                }
-
-                .help-fab-btn {
-                    width: 48px;
-                    height: 48px;
-                }
-
-                .help-fab-btn i {
-                    font-size: 1.25rem !important; /* Smaller icon on mobile */
-                }
-            }
-        </style>
     @endpush
 
     <livewire:pages::tenant.product.index/>

@@ -1,0 +1,5 @@
+.pwa-install-item { display: none !important; }
+
+@media (display-mode: browser) {
+    .pwa-install-item { display: block !important; }
+}

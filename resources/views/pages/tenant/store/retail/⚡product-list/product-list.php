@@ -9,7 +9,6 @@ use Livewire\Component;
 new class extends Component {
     public bool $lazy = false;
     public string $category = 'all';
-    public string $search = '';
     public int $perPage = 10;
     public array $categories = [];
 
@@ -26,11 +25,6 @@ new class extends Component {
         $this->perPage = 10;
     }
 
-    public function updatedSearch(): void
-    {
-        $this->perPage = 10;
-    }
-
     public function loadMore(): void
     {
         $this->perPage += 10;
@@ -43,10 +37,6 @@ new class extends Component {
             ->when(
                 $this->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
-            )
-            ->when(
-                strlen($this->search) > 0,
-                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
             )
             ->count();
 
@@ -63,11 +53,7 @@ new class extends Component {
                 $this->category !== 'all',
                 fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
             )
-            ->when(
-                strlen($this->search) > 0,
-                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
-            )
-            ->orderByRaw('is_active DESC')
+            ->orderByRaw('is_active DESC') 
             ->take($this->perPage)
             ->get()
             ->map(fn(Product $p) => [
@@ -77,6 +63,8 @@ new class extends Component {
                 'image' => $p->image ? Storage::url($p->image) : null,
                 'price' => $p->price,
                 'formatted_price' => $p->formatted_price,
+                'active_discount_price' => $p->variants->min('active_discount_price'),
+                'active_discount_name' => $p->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
                 'category' => $p->category?->name ?? '',
                 'is_active' => $p->is_active,
                 'has_variants' => $p->has_variants,
@@ -86,6 +74,8 @@ new class extends Component {
                     'id' => $v->id,
                     'name' => $v->name,
                     'price' => $v->price,
+                    'active_discount_price' => $v->active_discount_price,
+                    'active_discount_name' => $v->active_discount_name,
                 ])->toArray(),
             ])
             ->toArray();

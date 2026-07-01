@@ -23,7 +23,7 @@ class MenuController extends Controller
         $restaurant = StoreSetting::first() ?? new StoreSetting(['name' => 'Resto']);
         $productUrl = route('product.show', $product);
 
-        return view('tenant.story_preview', [
+        return view('pages.tenant.store.story-preview', [
             'restaurant' => $restaurant,
             'product' => $product,
             'image_url' => $product->image ? Storage::url($product->image) : null,

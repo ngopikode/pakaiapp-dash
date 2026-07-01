@@ -76,14 +76,14 @@
         <!-- KOLOM KERANJANG (Sembunyi di HP kalau belum pencet tombol keranjang) -->
         <div class="col-lg-5 col-xl-4 h-100 px-2 px-lg-3 cart-mobile-wrapper"
              :class="isMobileCartOpen ? 'd-block' : 'd-none d-lg-block'">
-            @include('pages.tenant.pos._cart-retail')
+            @include('pages.tenant.pos.partials._cart-retail')
         </div>
     </div>
 
     {{-- ===== TAB 2: RIWAYAT TRANSAKSI ===== --}}
     <div x-show="currentTab === 'history'" wire:loading.class="d-none" wire:target="changeTab" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
          x-transition.opacity.duration.150ms>
-        @include('pages.tenant.post._history-retail')
+        @include('pages.tenant.pos.partials._history-retail')
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
@@ -98,11 +98,11 @@
     </template>
 
     {{-- Shared Modals --}}
-    @include('pages.tenant.pos._modal-payment')
-    @include('pages.tenant.pos._modal-variant')
-    @include('pages.tenant.pos._modal-success')
-    @include('pages.tenant.pos._modal-held-orders')
-    @include('pages.tenant.pos._pos-tour-guide', ['mode' => 'retail'])
+    @include('pages.tenant.pos.partials._modal-payment')
+    @include('pages.tenant.pos.partials._modal-variant')
+    @include('pages.tenant.pos.partials._modal-success')
+    @include('pages.tenant.pos.partials._modal-held-orders')
+    @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'retail'])
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">

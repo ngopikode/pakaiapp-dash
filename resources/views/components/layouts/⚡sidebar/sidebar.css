@@ -1,0 +1,5 @@
+.sidebar-pwa-install-btn { display: none !important; }
+
+@media (display-mode: browser) {
+    .sidebar-pwa-install-btn { display: none !important; }
+}

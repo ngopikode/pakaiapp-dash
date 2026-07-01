@@ -98,7 +98,7 @@
         <!-- KOLOM KERANJANG (Sembunyi di HP kalau belum pencet tombol keranjang) -->
         <div class="col-lg-5 col-xl-4 h-100 px-2 px-lg-3 cart-mobile-wrapper"
              :class="isMobileCartOpen ? 'd-block' : 'd-none d-lg-block'">
-            @include('pages.tenant.pos._cart-resto', ['orderTypes' => $restoOrderTypes])
+            @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes])
         </div>
     </div>
 
@@ -121,7 +121,7 @@
             </button>
         </div>
 
-        @include('pages.tenant.post._queue-resto')
+        @include('pages.tenant.pos.partials._queue-resto')
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
@@ -136,14 +136,14 @@
     </template>
 
     {{-- Shared Modals --}}
-    @include('pages.tenant.pos._modal-payment')
-    @include('pages.tenant.pos._modal-variant')
-    @include('pages.tenant.pos._modal-success')
-    @include('pages.tenant.pos._pos-tour-guide', ['mode' => 'resto'])
+    @include('pages.tenant.pos.partials._modal-payment')
+    @include('pages.tenant.pos.partials._modal-variant')
+    @include('pages.tenant.pos.partials._modal-success')
+    @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'resto'])
 
-    @include('pages.tenant.pos._modal-option')
+    @include('pages.tenant.pos.partials._modal-option')
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
-    @include('pages.tenant.pos._modal-merge-resto')
+    @include('pages.tenant.pos.partials._modal-merge-resto')
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">

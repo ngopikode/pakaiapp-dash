@@ -138,39 +138,7 @@
     </div>
 </div>
 
-@assets
-<style>
-    /* Force dark mode for KDS */
-    body:has(.kds-container) {
-        background-color: #121212 !important;
-        color: #fff !important;
-    }
 
-    body:has(.kds-container) #wrapper {
-        background-color: #121212 !important;
-    }
-
-    .kds-container {
-        background-color: #121212;
-    }
-
-    .kds-card {
-        background-color: #1e1e1e;
-        border-radius: 16px;
-        border-width: 2px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .kds-card .card-header {
-        border-top-left-radius: 14px;
-        border-top-right-radius: 14px;
-    }
-
-    .kds-card.border-warning {
-        box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
-    }
-</style>
-@endassets
 
 @script
 {{-- Audio System Notification --}}

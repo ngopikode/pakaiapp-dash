@@ -141,57 +141,7 @@
             </div>
         </div>
 
-        {{-- Refined Micro-Animations --}}
-        <style>
-            @keyframes smooth-bounce {
-                0%, 100% {
-                    transform: translateY(0) rotate(0);
-                }
-                10% {
-                    transform: translateY(-4px) rotate(-8deg);
-                }
-                20% {
-                    transform: translateY(-4px) rotate(8deg);
-                }
-                30% {
-                    transform: translateY(0) rotate(-4deg);
-                }
-                40% {
-                    transform: translateY(0) rotate(4deg);
-                }
-                50% {
-                    transform: translateY(0) rotate(0);
-                }
-            }
 
-            @keyframes pulse-glow {
-                0% {
-                    transform: scale(0.9);
-                    opacity: 0.3;
-                }
-                50% {
-                    transform: scale(1.2);
-                    opacity: 0;
-                }
-                100% {
-                    transform: scale(0.9);
-                    opacity: 0.3;
-                }
-            }
-
-            .animate-pulse {
-                animation: text-pulse 1.5s infinite ease-in-out;
-            }
-
-            @keyframes text-pulse {
-                0%, 100% {
-                    opacity: 1;
-                }
-                50% {
-                    opacity: 0.6;
-                }
-            }
-        </style>
 
         {{-- Audio System Notification --}}
         <script>

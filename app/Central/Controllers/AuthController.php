@@ -31,18 +31,18 @@ class AuthController extends Controller
 
     public function showRegister(): View
     {
-        return view('register');
+        return view('pages.auth.register');
     }
 
     public function showLogin(): View
     {
-        return view('login');
+        return view('pages.auth.login');
     }
 
     public function registerStatus(string $invoiceCode): View
     {
         $registration = TenantRegistration::where('invoice_code', $invoiceCode)->firstOrFail();
-        return view('register-status', compact('registration'));
+        return view('pages.auth.register-status', compact('registration'));
     }
 
     public function apiRegisterStatus(string $invoiceCode): JsonResponse

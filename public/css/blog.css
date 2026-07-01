@@ -1,0 +1,7 @@
+body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+.blog-header { background: #fff; padding: 2rem 0; border-bottom: 1px solid #eaeaea; text-align: center; }
+.card-blog { border: none; border-radius: 12px; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.card-blog:hover { transform: translateY(-5px); }
+.article-content { background: #fff; padding: 3rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.article-content h2 { margin-top: 2rem; margin-bottom: 1rem; }
+.article-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; }

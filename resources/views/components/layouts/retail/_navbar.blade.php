@@ -6,10 +6,7 @@
     $themeColor = $setting->theme_color ?? '#3b82f6'; // default blue for retail
 @endphp
 
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-zinc-200/50 shadow-sm">
-    <style>
-        :root { --primary-color: {{ $themeColor }}; }
-    </style>
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-zinc-200/50 shadow-sm" style="--primary-color: {{ $themeColor }};">
     <div class="max-w-xl mx-auto flex justify-between items-center px-5 py-3">
         <div class="flex items-center gap-3">
             <div class="bg-gradient-to-br from-[var(--primary-color)] to-blue-500 w-10 h-10 rounded-full flex items-center justify-center shadow-md border border-black/5 hover:scale-105 transition-transform duration-300 overflow-hidden shrink-0">

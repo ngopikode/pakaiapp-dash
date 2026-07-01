@@ -177,7 +177,7 @@
 <body>
 
 {{-- ===== PAGE LOADER — OUTSIDE x-data so Alpine errors can NEVER block it ===== --}}
-@include('pages.tenant.store.resto._loader')
+@include('pages.tenant.store.resto.partials._loader')
 
 <div
     class="bg-[var(--bg-soft)] min-h-screen text-[var(--foreground)] font-sans antialiased relative selection:bg-[var(--primary-color)] selection:text-black"
@@ -587,10 +587,10 @@
     </div>
 
     {{-- Variant Option Modal --}}
-    @include('pages.tenant.store.resto.option-modal')
+    @include('pages.tenant.store.resto.modals.option-modal')
 
     {{-- Checkout Modal --}}
-    @include('pages.tenant.store.resto.checkout-modal', ['orderTypes' => $orderTypes])
+    @include('pages.tenant.store.resto.modals.checkout-modal', ['orderTypes' => $orderTypes])
 
 </div>
 

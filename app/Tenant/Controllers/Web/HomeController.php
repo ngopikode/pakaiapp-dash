@@ -13,7 +13,7 @@ class HomeController extends Controller
     public function __invoke(): View
     {
         if (tenant('store_type') === 'retail') {
-            return view('pages.tenant.retail.index');
+            return view('pages.tenant.store.retail.index');
         }
 
         return view('pages.tenant.store.resto.index');

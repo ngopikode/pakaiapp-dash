@@ -126,19 +126,7 @@
                         <!-- Tampilan Duitku -->
                         <template x-if="paymentMethod === 'duitku'">
                             <div class="d-flex flex-column h-100 py-2">
-                                <style>
-                                    .border-translucent {
-                                        border-color: rgba(0, 0, 0, 0.08) !important;
-                                    }
-                                    .scale-active {
-                                        transform: scale(0.98);
-                                        border-width: 2px !important;
-                                        box-shadow: 0 4px 12px rgba(202, 138, 4, 0.15) !important;
-                                    }
-                                    .transition-all {
-                                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                                    }
-                                </style>
+
 
                                 <!-- Banner Info Duitku -->
                                 <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-3 mb-3 text-center text-sm-start d-flex flex-column flex-sm-row align-items-center gap-3">

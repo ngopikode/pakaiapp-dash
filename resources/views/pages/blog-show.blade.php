@@ -7,13 +7,7 @@
     <meta name="description" content="{{ $article->meta_description ?? $article->excerpt }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-        .blog-header { background: #fff; padding: 2rem 0; border-bottom: 1px solid #eaeaea; }
-        .article-content { background: #fff; padding: 3rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .article-content h2 { margin-top: 2rem; margin-bottom: 1rem; }
-        .article-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
 </head>
 <body>
 

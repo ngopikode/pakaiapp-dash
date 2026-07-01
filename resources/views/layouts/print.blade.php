@@ -16,51 +16,9 @@
         rel="stylesheet">
 
     @vite(['resources/sass/app.scss'])
-
-    <style>
-        body {
-            background-color: #f3f4f6;
-            font-family: 'Inter', sans-serif;
-        }
-
-        @media print {
-            @page {
-                margin: 0; /* Wajib: Menghilangkan margin/header/footer bawaan browser */
-            }
-
-            html, body {
-                background-color: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                height: auto !important; /* Jangan paksa setinggi layar */
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            /* Reset semua class margin/padding/flex dari body saat diprint */
-            body.antialiased {
-                display: block !important;
-                min-height: 0 !important;
-            }
-
-            .print-container {
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 80mm !important; /* Sesuaikan dengan ukuran thermal kamu (80mm/58mm) */
-                max-width: 80mm !important;
-            }
-
-            /* Sembunyikan elemen yang tidak perlu diprint */
-            .no-print {
-                display: none !important;
-            }
-        }
-    </style>
 </head>
 
-<body class="antialiased">
+<body class="antialiased print-body">
 
 <div class="print-container">
     {{ $slot }}
