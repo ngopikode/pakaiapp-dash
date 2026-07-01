@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+// Controllers — API
 use App\Tenant\Controllers\Api\DuitkuApiController;
 use App\Tenant\Controllers\Api\OrderApiController;
 use App\Tenant\Controllers\Api\OrderHistoryApiController;
 use App\Tenant\Controllers\Api\RestaurantApiController;
+// Controllers — Web
 use App\Tenant\Controllers\Web\HomeController;
 use App\Tenant\Controllers\Web\MenuController;
 use App\Tenant\Controllers\Web\TenantManifestController;
+// Middleware & Support
 use App\Shared\Middleware\FileUrlMiddleware;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -33,18 +36,27 @@ Route::middleware([
     FileUrlMiddleware::class,
 ])->group(function () {
 
-    Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
-    Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
-
-    Route::get('/manifest.json', TenantManifestController::class);
-
+    /*
+    |──────────────────────────────────────────────────────────────────────────────
+    | Public Routes
+    |──────────────────────────────────────────────────────────────────────────────
+    */
     Route::get('/', HomeController::class)->name('index');
-
+    Route::get('/manifest.json', TenantManifestController::class);
+    
     Route::controller(MenuController::class)->prefix('menu')->name('product.')->group(function () {
         Route::get('/{product}', 'show')->name('show');
         Route::get('/{product}/story', 'shareAsStory')->name('story');
     });
 
+    Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
+    Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
+
+    /*
+    |──────────────────────────────────────────────────────────────────────────────
+    | Authenticated Routes
+    |──────────────────────────────────────────────────────────────────────────────
+    */
     Route::middleware('auth')->group(function () {
 
         // Routes accessible by manager AND cashier
@@ -75,6 +87,11 @@ Route::middleware([
         });
     });
 
+    /*
+    |──────────────────────────────────────────────────────────────────────────────
+    | API Routes
+    |──────────────────────────────────────────────────────────────────────────────
+    */
     Route::prefix('api')->middleware(['api'])->group(function () {
         Route::get('/restaurant', RestaurantApiController::class)->name('api.restaurant');
         

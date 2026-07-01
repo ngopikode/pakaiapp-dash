@@ -4,17 +4,32 @@ use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Session;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 new class extends Component {
-    public bool $lazy = false;
+    #[Url(as: 'kategori', except: 'all')]
     public string $category = 'all';
-    public int $perPage = 10;
+
+    public int $page = 1;
+
     public array $categories = [];
+
+    #[Url(as: 'sort', except: 'popular')]
     public string $sort = 'popular';
+
+    #[Url(as: 'min', except: null)]
     public ?int $minPrice = null;
+
+    #[Url(as: 'max', except: null)]
     public ?int $maxPrice = null;
+
+    #[Url(as: 'q', except: '')]
     public string $search = '';
+
+    #[Session]
+    public string $viewMode = 'grid';
 
     public function mount(): void
     {
@@ -26,13 +41,13 @@ new class extends Component {
     public function setCategory(string $category): void
     {
         $this->category = $category;
-        $this->perPage = 10;
+        $this->page = 1;
     }
 
     public function setSort(string $sort): void
     {
         $this->sort = $sort;
-        $this->perPage = 10;
+        $this->page = 1;
     }
 
     public function resetFilters(): void
@@ -42,18 +57,44 @@ new class extends Component {
         $this->minPrice = null;
         $this->maxPrice = null;
         $this->search = '';
-        $this->perPage = 10;
+        $this->page = 1;
     }
 
     public function applyFilters(): void
     {
-        $this->perPage = 10;
+        $this->page = 1;
         // Optional logic you might want when 'Apply Filters' is clicked
     }
 
     public function loadMore(): void
     {
-        $this->perPage += 10;
+        $this->page++;
+    }
+
+    private function getBaseProductQuery()
+    {
+        $query = Product::query()
+            ->when(
+                $this->category === 'promo',
+                fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price'))
+            )
+            ->when(
+                $this->category !== 'all' && $this->category !== 'promo',
+                fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
+            )
+            ->when(
+                $this->search !== '',
+                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
+            );
+
+        if ($this->minPrice !== null || $this->maxPrice !== null) {
+            $query->whereHas('variants', function ($q) {
+                if ($this->minPrice !== null) $q->where('price', '>=', $this->minPrice);
+                if ($this->maxPrice !== null) $q->where('price', '<=', $this->maxPrice);
+            });
+        }
+
+        return $query;
     }
 
     #[Computed]
@@ -65,55 +106,13 @@ new class extends Component {
     #[Computed]
     public function hasMore(): bool
     {
-        $query = Product::query()
-            ->when(
-                $this->category === 'promo',
-                fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price'))
-            )
-            ->when(
-                $this->category !== 'all' && $this->category !== 'promo',
-                fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
-            )
-            ->when(
-                $this->search !== '',
-                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
-            );
-
-        if ($this->minPrice !== null || $this->maxPrice !== null) {
-            $query->whereHas('variants', function ($q) {
-                if ($this->minPrice !== null) $q->where('price', '>=', $this->minPrice);
-                if ($this->maxPrice !== null) $q->where('price', '<=', $this->maxPrice);
-            });
-        }
-
-        return $query->count() > $this->perPage;
+        return $this->getBaseProductQuery()->count() > ($this->page * 10);
     }
 
     #[Computed]
     public function products(): array
     {
-        if ($this->lazy) return [];
-        $query = Product::query()
-            ->with(['category', 'variants', 'extras'])
-            ->when(
-                $this->category === 'promo',
-                fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price'))
-            )
-            ->when(
-                $this->category !== 'all' && $this->category !== 'promo',
-                fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
-            )
-            ->when(
-                $this->search !== '',
-                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
-            );
-
-        if ($this->minPrice !== null || $this->maxPrice !== null) {
-            $query->whereHas('variants', function ($q) {
-                if ($this->minPrice !== null) $q->where('price', '>=', $this->minPrice);
-                if ($this->maxPrice !== null) $q->where('price', '<=', $this->maxPrice);
-            });
-        }
+        $query = $this->getBaseProductQuery()->with(['category', 'variants', 'extras']);
 
         if ($this->sort === 'newest') {
             $query->orderBy('created_at', 'desc');
@@ -125,7 +124,7 @@ new class extends Component {
             $query->orderByRaw('is_active DESC');
         }
 
-        return $query->take($this->perPage)
+        return $query->forPage($this->page, 10)
             ->get()
             ->map(fn(Product $p) => [
                 'id' => $p->id,

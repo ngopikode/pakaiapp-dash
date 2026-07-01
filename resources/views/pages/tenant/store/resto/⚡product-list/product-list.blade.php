@@ -1,49 +1,130 @@
-@php use App\Tenant\Models\Core\Product; @endphp
 <div
     {{--    wire:init="$set('lazy', false)"--}}
     x-data="{
-        viewMode: 'grid',
+        viewMode: $wire.entangle('viewMode').live,
         showFilter: false
     }"
     @refresh-menu-data.window="$wire.setCategory($wire.category).then(() => { isRefreshing = false; pullY = 0; })"
 >
 
     {{-- ===== STICKY SEARCH & CATEGORY BAR ===== --}}
-    <div id="menu-start" class="scroll-mt-0 sticky top-0 z-40 bg-[var(--surface)]/90 backdrop-blur-xl border-b border-[var(--border)] shadow-sm shadow-[var(--border)]">
+    <div id="menu-start"
+         class="scroll-mt-0 sticky top-0 z-40 bg-[var(--surface)]/90 backdrop-blur-xl border-b border-[var(--border)] shadow-sm shadow-[var(--border)]">
         <div class="max-w-xl mx-auto px-4 py-3 flex gap-2">
             <div class="relative flex-1">
-                <input placeholder="Cari apa hari ini?" wire:model.live.debounce.500ms="search" class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none shadow-sm transition-all border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)]" type="text" value="">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                <input placeholder="Cari apa hari ini?" wire:model.live.debounce.500ms="search"
+                       class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none shadow-sm transition-all border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)]"
+                       type="text" value="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="w-4 h-4 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]"
+                     aria-hidden="true">
+                    <path d="m21 21-4.34-4.34"></path>
+                    <circle cx="11" cy="11" r="8"></circle>
+                </svg>
             </div>
-            <button @click="showFilter = true" class="p-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-sm active:scale-95 transition-all relative">
+            <button @click="showFilter = true"
+                    class="p-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-sm active:scale-95 transition-all relative">
                 @if($sort !== 'popular' || $minPrice || $maxPrice)
-                    <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[var(--surface)]"></span>
+                    <span
+                        class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[var(--surface)]"></span>
                 @endif
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                </svg>
             </button>
         </div>
         <div class="max-w-xl mx-auto px-5 pb-3 flex items-center justify-between gap-3">
             <div class="flex gap-2 overflow-x-auto no-scrollbar flex-1 py-1">
-                <button wire:click="setCategory('all')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === 'all' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">Semua</button>
+                <button wire:click="setCategory('all')"
+                        class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === 'all' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                    Semua
+                </button>
                 @if($this->hasPromoItems)
-                    <button wire:click="setCategory('promo')" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === 'promo' ? 'bg-red-500 text-white shadow-lg border-red-500' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40' }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                    <button wire:click="setCategory('promo')"
+                            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === 'promo' ? 'bg-red-500 text-white shadow-lg border-red-500' : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+                             fill="currentColor">
+                            <path
+                                d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                        </svg>
                         Promo
                     </button>
                 @endif
                 @foreach($categories as $cat)
-                    <button wire:click="setCategory('{{ $cat }}')" class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === $cat ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">{{ $cat }}</button>
+                    <button wire:click="setCategory('{{ $cat }}')"
+                            class="px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all duration-300 active:scale-95 border cursor-pointer {{ $category === $cat ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)] shadow-lg shadow-[var(--primary-color)]/20' : 'bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">{{ $cat }}</button>
                 @endforeach
             </div>
             <div class="flex bg-[var(--surface)] p-1 rounded-xl border border-[var(--border)] shadow-sm shrink-0">
-                <button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--foreground)]'" class="p-2 rounded-lg transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg></button>
-                <button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--foreground)]'" class="p-2 rounded-lg transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></button>
+                <button @click="viewMode = 'list'"
+                        :class="viewMode === 'list' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--foreground)]'"
+                        class="p-2 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" x2="21" y1="6" y2="6"/>
+                        <line x1="3" x2="21" y1="12" y2="12"/>
+                        <line x1="3" x2="21" y1="18" y2="18"/>
+                    </svg>
+                </button>
+                <button @click="viewMode = 'grid'"
+                        :class="viewMode === 'grid' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--foreground)]'"
+                        class="p-2 rounded-lg transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="7" x="3" y="3" rx="1"/>
+                        <rect width="7" height="7" x="14" y="3" rx="1"/>
+                        <rect width="7" height="7" x="14" y="14" rx="1"/>
+                        <rect width="7" height="7" x="3" y="14" rx="1"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
-    {{-- Loading Skeleton (Pake class bg-skeleton dari store.css) --}}
-    <div wire:loading.class.remove="hidden" wire:target="setCategory,lazy" class="hidden">
+    {{-- Loading Skeleton Initial (Placeholder) --}}
+    @placeholder
+    <main
+        class="max-w-xl mx-auto px-5 mt-4"
+        :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
+    >
+        @for($s = 0; $s < 6; $s++)
+            <div
+                class="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-sm flex overflow-hidden"
+                :class="viewMode === 'grid' ? 'flex-col h-full' : 'flex-row items-center gap-4 p-3'"
+            >
+                {{-- Image Skeleton --}}
+                <div
+                    class="bg-skeleton shrink-0"
+                    :class="viewMode === 'grid' ? 'w-full aspect-[4/3]' : 'w-20 h-20 rounded-xl'"
+                ></div>
+
+                {{-- Content Skeleton --}}
+                <div
+                    class="flex-1 flex flex-col justify-between min-h-0"
+                    :class="viewMode === 'grid' ? 'p-3.5 pt-2.5' : ''"
+                >
+                    <div>
+                        <div class="h-4 bg-skeleton rounded-md w-3/4 mb-2"></div>
+
+                        {{-- Menggunakan x-show Alpine menggantikan @if PHP --}}
+                        <div x-show="viewMode === 'list'" class="h-3.5 bg-skeleton rounded-md w-1/3 mb-2"></div>
+
+                        <div class="h-2.5 bg-skeleton rounded-md w-full mb-1.5"></div>
+                        <div class="h-2.5 bg-skeleton rounded-md w-2/3"></div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="w-full h-8 bg-skeleton rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+        @endfor
+    </main>
+    @endplaceholder
+
+    {{-- Loading Skeleton Partial (saat ganti filter) --}}
+    <div wire:loading.class.remove="hidden" wire:target="setCategory,resetFilters,applyFilters,setSort" class="hidden">
         <main
             class="max-w-xl mx-auto px-5 mt-4"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
@@ -66,10 +147,7 @@
                     >
                         <div>
                             <div class="h-4 bg-skeleton rounded-md w-3/4 mb-2"></div>
-
-                            {{-- Menggunakan x-show Alpine menggantikan @if PHP --}}
                             <div x-show="viewMode === 'list'" class="h-3.5 bg-skeleton rounded-md w-1/3 mb-2"></div>
-
                             <div class="h-2.5 bg-skeleton rounded-md w-full mb-1.5"></div>
                             <div class="h-2.5 bg-skeleton rounded-md w-2/3"></div>
                         </div>
@@ -83,11 +161,12 @@
     </div>
 
     {{-- ===== PRODUCT LIST ===== --}}
-    <div wire:loading.remove wire:target="setCategory">
+    <div wire:loading.remove wire:target="setCategory,resetFilters,applyFilters,setSort">
         <main
             class="max-w-xl mx-auto px-5 mt-4"
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
         >
+            @island(name: 'products')
             @forelse($this->products as $index => $item)
                 @php $delay = $index < 20 ? $index * 50 : 0; @endphp
 
@@ -114,7 +193,8 @@
 
                     {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
                     @if($item['is_active'])
-                        <a href="{{ route('product.show', new Product($item)) }}" wire:navigate.hover
+                        <a href="{{ route('product.show', new \App\Tenant\Models\Core\Product($item)) }}"
+                           wire:navigate.hover
                            class="absolute inset-0 z-10"></a>
                     @endif
 
@@ -164,7 +244,7 @@
                                 </svg>
                             </button>
                             <button
-                                @click="window.open('{{ route('product.story', new Product($item)) }}', '_blank')"
+                                @click="window.open('{{ route('product.story', new \App\Tenant\Models\Core\Product($item)) }}', '_blank')"
                                 class="bg-[var(--surface)]/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[#25D366] hover:text-[var(--background)] hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90 group/story"
                                 aria-label="Share ke Status WA">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -193,14 +273,17 @@
                         <div class="mb-2 pointer-events-none">
                             @if(!empty($item['active_discount_price']) && !empty($item['active_discount_name']))
                                 <div class="mb-1">
-                                    <span class="inline-block px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded text-[8px] font-black uppercase tracking-widest shadow-sm">% {{ $item['active_discount_name'] }}</span>
+                                    <span
+                                        class="inline-block px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded text-[8px] font-black uppercase tracking-widest shadow-sm">% {{ $item['active_discount_name'] }}</span>
                                 </div>
                             @endif
                             <h3 class="font-black text-sm text-[var(--foreground)] leading-snug mb-0.5 truncate">{{ $item['name'] }}</h3>
                             @if(!empty($item['active_discount_price']))
                                 <div class="flex flex-col leading-tight mb-0.5">
-                                    <span class="text-[10px] text-red-400 line-through font-bold">Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
-                                    <span class="text-sm font-extrabold text-[var(--primary-color)]">Rp {{ number_format($item['active_discount_price'], 0, ',', '.') }}</span>
+                                    <span
+                                        class="text-[10px] text-red-400 line-through font-bold">Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                                    <span
+                                        class="text-sm font-extrabold text-[var(--primary-color)]">Rp {{ number_format($item['active_discount_price'], 0, ',', '.') }}</span>
                                 </div>
                             @else
                                 <p class="text-sm font-extrabold text-[var(--primary-color)] mb-0.5">{{ $item['formatted_price'] }}</p>
@@ -211,7 +294,8 @@
                         {{-- Cart Stepper / Add Button (z-20) --}}
                         <div class="mt-auto relative z-20">
                             <template x-if="showStepper">
-                                <div class="flex items-center justify-between bg-[var(--surface)] rounded-xl p-1 shadow-sm border border-[var(--border)]">
+                                <div
+                                    class="flex items-center justify-between bg-[var(--surface)] rounded-xl p-1 shadow-sm border border-[var(--border)]">
                                     <button @click="updateQty(item.name, -1)"
                                             class="w-8 h-8 flex items-center justify-center text-[var(--foreground)] hover:bg-[var(--bg-soft)] rounded-lg transition-colors active:scale-90">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -220,7 +304,8 @@
                                             <line x1="5" x2="19" y1="12" y2="12"/>
                                         </svg>
                                     </button>
-                                    <span class="font-black text-[var(--foreground)] text-sm tabular-nums" x-text="qtyInCart"></span>
+                                    <span class="font-black text-[var(--foreground)] text-sm tabular-nums"
+                                          x-text="qtyInCart"></span>
                                     <button @click="updateQty(item.name, 1)"
                                             class="w-8 h-8 flex items-center justify-center text-black bg-[var(--primary-color)] rounded-lg transition-all active:scale-90 hover:brightness-110">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
@@ -257,19 +342,26 @@
             @empty
                 <div class="col-span-2 text-center py-16 flex flex-col items-center gap-3">
                     <div class="w-14 h-14 rounded-2xl bg-[var(--bg-soft)] flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--border)]"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                             class="text-[var(--border)]">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                            <path d="M3 6h18"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
                     </div>
                     <p class="text-[var(--text-secondary)] text-sm font-bold">Belum ada menu</p>
                     <p class="text-xs text-[var(--text-secondary)] opacity-60">untuk kategori ini</p>
                 </div>
             @endforelse
+            @endisland
         </main>
 
         {{-- ===== INFINITE SCROLL SENTINEL & LOAD MORE SKELETON ===== --}}
         @if($this->hasMore)
             <div
-                wire:key="scroll-sentinel-{{ $category }}-{{ $perPage }}"
-                x-intersect.once="$wire.loadMore()"
+                wire:key="scroll-sentinel-{{ $category }}-{{ $page }}"
+                x-intersect.once="$wire.$island('products', { mode: 'append' }).loadMore()"
                 {{-- FIX: Tambahin pembatas lebar dan margin biar presisi sama list di atasnya --}}
                 class="max-w-xl mx-auto px-5 pt-4 pb-8"
             >
@@ -330,7 +422,8 @@
                     </div>
                 </div>
                 <div class="relative flex items-center gap-2 pr-1">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--primary-color)] group-hover:text-white transition-colors">Checkout</span>
+                    <span
+                        class="text-[10px] font-black uppercase tracking-widest text-[var(--primary-color)] group-hover:text-white transition-colors">Checkout</span>
                     <div
                         class="bg-[var(--primary-color)]/10 text-[var(--primary-color)] p-1.5 rounded-full group-hover:bg-[var(--primary-color)] transition-colors group-hover:text-black">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -345,31 +438,67 @@
 
     {{-- ===== FILTER & SORT DRAWER ===== --}}
     <div x-show="showFilter" class="relative z-[150]" style="display: none;">
-        <div x-show="showFilter" x-transition.opacity.duration.300ms @click="showFilter = false" class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <div x-show="showFilter" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md z-[151] rounded-t-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] bg-[var(--background)] border-t border-[var(--border)]">
-            <div class="p-2 flex justify-center shrink-0" @click="showFilter = false"><div class="w-14 h-1.5 rounded-full cursor-pointer opacity-50 hover:opacity-100 transition-opacity bg-[var(--border)]"></div></div>
-            <div class="px-6 pb-4 border-b border-[var(--border)] flex justify-between items-center rounded-t-[2.5rem] sticky top-0 z-10 bg-[var(--background)]">
+        <div x-show="showFilter" x-transition.opacity.duration.300ms @click="showFilter = false"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div x-show="showFilter" x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+             x-transition:leave-end="translate-y-full"
+             class="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md z-[151] rounded-t-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] bg-[var(--background)] border-t border-[var(--border)]">
+            <div class="p-2 flex justify-center shrink-0" @click="showFilter = false">
+                <div
+                    class="w-14 h-1.5 rounded-full cursor-pointer opacity-50 hover:opacity-100 transition-opacity bg-[var(--border)]"></div>
+            </div>
+            <div
+                class="px-6 pb-4 border-b border-[var(--border)] flex justify-between items-center rounded-t-[2.5rem] sticky top-0 z-10 bg-[var(--background)]">
                 <h2 class="text-xl font-bold text-[var(--foreground)]">Filter &amp; Sort</h2>
-                <button wire:click="resetFilters" @click="showFilter = false" class="text-xs font-semibold text-[var(--primary)] px-3 py-1.5 rounded-lg hover:bg-[var(--primary)]/10 transition-colors">Reset</button>
+                <button wire:click="resetFilters" @click="showFilter = false"
+                        class="text-xs font-semibold text-[var(--primary)] px-3 py-1.5 rounded-lg hover:bg-[var(--primary)]/10 transition-colors">
+                    Reset
+                </button>
             </div>
             <div class="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8">
                 <section>
                     <h3 class="text-sm font-bold text-[var(--foreground)] mb-3">Sort By</h3>
                     <div class="grid grid-cols-2 gap-3">
-                        <button wire:click="setSort('popular')" class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'popular' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                        <button wire:click="setSort('popular')"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'popular' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path
+                                    d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                            </svg>
                             <span class="text-sm">Popular</span>
                         </button>
-                        <button wire:click="setSort('newest')" class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'newest' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        <button wire:click="setSort('newest')"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'newest' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path
+                                    d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                            </svg>
                             <span class="text-sm">Newest</span>
                         </button>
-                        <button wire:click="setSort('lowest_price')" class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'lowest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+                        <button wire:click="setSort('lowest_price')"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'lowest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/>
+                                <polyline points="16 17 22 17 22 11"/>
+                            </svg>
                             <span class="text-sm">Terendah</span>
                         </button>
-                        <button wire:click="setSort('highest_price')" class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'highest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                        <button wire:click="setSort('highest_price')"
+                                class="px-4 py-3.5 rounded-2xl text-left font-bold border transition-all active:scale-[0.98] flex items-center gap-2.5 relative overflow-hidden shadow-sm {{ $sort === 'highest_price' ? 'bg-[var(--primary-color)] text-black border-[var(--primary-color)]' : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--bg-soft)]' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                                <polyline points="16 7 22 7 22 13"/>
+                            </svg>
                             <span class="text-sm">Tertinggi</span>
                         </button>
                     </div>
@@ -377,13 +506,27 @@
                 <section>
                     <h3 class="text-sm font-bold text-[var(--foreground)] mb-3">Price Range</h3>
                     <div class="flex gap-4 items-center">
-                        <div class="relative flex-1 group"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input wire:model="minPrice" inputmode="numeric" placeholder="Min" class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all" type="number"></div>
+                        <div class="relative flex-1 group"><span
+                                class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input
+                                wire:model="minPrice" inputmode="numeric" placeholder="Min"
+                                class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all"
+                                type="number"></div>
                         <span class="text-[var(--text-secondary)] font-bold">-</span>
-                        <div class="relative flex-1 group"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input wire:model="maxPrice" inputmode="numeric" placeholder="Max" class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all" type="number"></div>
+                        <div class="relative flex-1 group"><span
+                                class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-secondary)]">Rp</span><input
+                                wire:model="maxPrice" inputmode="numeric" placeholder="Max"
+                                class="w-full pl-9 pr-3 py-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-sm focus:outline-none transition-all"
+                                type="number"></div>
                     </div>
                 </section>
             </div>
-            <div class="p-4 border-t border-[var(--border)] bg-[var(--background)] rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]"><button wire:click="applyFilters" @click="showFilter = false" class="w-full py-4 rounded-2xl font-bold text-lg shadow-xl active:scale-[0.98] transition-all bg-[var(--primary)] text-[var(--primary-foreground)]">Apply Filters</button></div>
+            <div
+                class="p-4 border-t border-[var(--border)] bg-[var(--background)] rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+                <button wire:click="applyFilters" @click="showFilter = false"
+                        class="w-full py-4 rounded-2xl font-bold text-lg shadow-xl active:scale-[0.98] transition-all bg-[var(--primary)] text-[var(--primary-foreground)]">
+                    Apply Filters
+                </button>
+            </div>
         </div>
     </div>
 
