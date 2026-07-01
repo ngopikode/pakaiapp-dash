@@ -23,7 +23,7 @@
 
         {{-- Gradient overlay — Nyatu mulus di bawah, tapi tetep gelap pekat ke atas --}}
         <div
-            class="absolute inset-0 bg-gradient-to-t from-[var(--background)] from-0% via-black/75 via-15% to-black/95 to-100% dark:via-black/40 dark:to-black/60 pointer-events-none"></div>
+            class="absolute inset-0 bg-gradient-to-t from-[var(--background)] from-0% via-white/75 via-15% to-white/95 to-100% dark:via-black/75 dark:via-15% dark:to-black/95 pointer-events-none"></div>
 
         {{-- TOP-LEFT: Promo badge (back to original position) --}}
         @if($setting->hero_promo_text)
