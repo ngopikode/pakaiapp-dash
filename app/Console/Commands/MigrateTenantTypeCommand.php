@@ -13,7 +13,7 @@ class MigrateTenantTypeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'tenants:migrate-type {type : Tipe toko tenant (misal: retail, resto, all)}';
+    protected $signature = 'tenants:migrate-type {type : Tipe toko tenant (misal: retail, resto, all)} {--force : Force the operation to run when in production}';
 
     /**
      * The console command description.
@@ -29,10 +29,12 @@ class MigrateTenantTypeCommand extends Command
     {
         $type = $this->argument('type');
 
+        $force = $this->option('force');
+
         if ($type === 'all') {
             $this->info("🚀 Menjalankan migrasi berjenjang untuk SEMUA tipe tenant (retail & resto)...");
-            $this->call('tenants:migrate-type', ['type' => 'retail']);
-            $this->call('tenants:migrate-type', ['type' => 'resto']);
+            $this->call('tenants:migrate-type', ['type' => 'retail', '--force' => $force]);
+            $this->call('tenants:migrate-type', ['type' => 'resto', '--force' => $force]);
             $this->info("🌟 Migrasi ALL (Semua Tenant) Selesai!");
             return;
         }
@@ -52,6 +54,7 @@ class MigrateTenantTypeCommand extends Command
 
         $options = [
             '--tenants' => $tenantIds,
+            '--force' => $force,
         ];
 
         // 1. Jalankan migrasi core
