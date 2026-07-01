@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Shared\Middleware\FileUrlMiddleware;
 use App\Shared\Jobs\CreateFrameworkDirectoriesForTenant;
+use App\Shared\Middleware\FileUrlMiddleware;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -111,13 +111,19 @@ class TenancyServiceProvider extends ServiceProvider
         $this->makeTenancyMiddlewareHighestPriority();
 
         Livewire::setUpdateRoute(function ($handle, $path) {
-            return Route::post($path, $handle)
+            $path = substr($path, 9);
+            return Route::post("/sys$path", $handle)
                 ->middleware([
                     'web',
                     'universal',
                     InitializeTenancyByDomain::class,
                     FileUrlMiddleware::class,
                 ]);
+        });
+
+        Livewire::setScriptRoute(function ($handle, $path) {
+            $path = substr($path, 9);
+            return Route::get("/sys/js$path", $handle);
         });
 
         FilePreviewController::$middleware = ['web', 'universal', InitializeTenancyByDomain::class];
