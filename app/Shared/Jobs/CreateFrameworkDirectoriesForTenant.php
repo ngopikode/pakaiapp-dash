@@ -27,18 +27,26 @@ class CreateFrameworkDirectoriesForTenant implements ShouldQueue
             $suffixBase = config('tenancy.filesystem.suffix_base');
 
             if (!is_dir(public_path($suffixBase))) {
-                @mkdir(public_path($suffixBase), 0777, true);
+                @mkdir(public_path($suffixBase), 0775, true);
             }
 
-            if (!is_dir($storage_path)) {
-                @mkdir("$storage_path/app/public", 0777, true);
-                @mkdir("$storage_path/framework/cache", 0777, true);
-                @mkdir("$storage_path/framework/views", 0777, true);
-                @mkdir("$storage_path/framework/sessions", 0777, true);
-                $symlinkTarget = public_path("$suffixBase$tenant->id");
-                if (!file_exists($symlinkTarget) && !is_link($symlinkTarget)) {
-                    symlink("$storage_path/app/public", $symlinkTarget);
+            $dirs = [
+                $storage_path,
+                "$storage_path/app/public",
+                "$storage_path/framework/cache",
+                "$storage_path/framework/views",
+                "$storage_path/framework/sessions",
+            ];
+
+            foreach ($dirs as $dir) {
+                if (!is_dir($dir)) {
+                    @mkdir($dir, 0775, true);
                 }
+            }
+
+            $symlinkTarget = public_path("$suffixBase$tenant->id");
+            if (!file_exists($symlinkTarget) && !is_link($symlinkTarget)) {
+                @symlink("$storage_path/app/public", $symlinkTarget);
             }
         });
     }
