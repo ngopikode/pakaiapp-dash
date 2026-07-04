@@ -1,8 +1,9 @@
 <?php
 
-use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HigherOrderWhenProxy;
+use LaravelIdea\Helper\App\Tenant\Models\Core\_IH_Product_QB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Session;
@@ -14,8 +15,6 @@ new class extends Component {
     public string $category = 'all';
 
     public int $page = 1;
-
-
 
     #[Url(as: 'sort', except: 'popular')]
     public string $sort = 'popular';
@@ -50,25 +49,23 @@ new class extends Component {
     public function loadMore(): void
     {
         $this->page++;
-        if (!$this->hasMore()) {
-            $this->dispatch('no-more-products');
-        }
+        if (!$this->hasMore()) $this->dispatch('no-more-products');
     }
 
-    private function getBaseProductQuery()
+    private function getBaseProductQuery(): Builder|_IH_Product_QB|HigherOrderWhenProxy
     {
         $query = Product::query()
             ->when(
-                $this->category === 'promo',
-                fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price'))
+                value: $this->category === 'promo',
+                callback: fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price'))
             )
             ->when(
-                $this->category !== 'all' && $this->category !== 'promo',
-                fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
+                value: $this->category !== 'all' && $this->category !== 'promo',
+                callback: fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
             )
             ->when(
                 $this->search !== '',
-                fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
+                fn($q) => $q->where('products.name', 'like', '%' . $this->search . '%')
             );
 
         if ($this->minPrice !== null || $this->maxPrice !== null) {
@@ -80,7 +77,6 @@ new class extends Component {
 
         return $query;
     }
-
 
 
     #[Computed]
@@ -97,14 +93,14 @@ new class extends Component {
         if ($this->sort === 'newest') {
             $query->orderBy('created_at', 'desc');
         } elseif ($this->sort === 'lowest_price') {
-            $query->withMin('variants', 'price')->orderBy('variants_min_price', 'asc');
+            $query->withMin('variants', 'price')->orderBy('variants_min_price');
         } elseif ($this->sort === 'highest_price') {
             $query->withMin('variants', 'price')->orderBy('variants_min_price', 'desc');
         } else {
             $query->leftJoin('categories as cat_sort', 'products.category_id', '=', 'cat_sort.id')
-                ->orderBy('cat_sort.order_column', 'asc')
+                ->orderBy('cat_sort.order_column')
                 ->orderByRaw('products.is_active DESC')
-                ->orderBy('products.id', 'asc')
+                ->orderBy('products.id')
                 ->select('products.*');
         }
 
