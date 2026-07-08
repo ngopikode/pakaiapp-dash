@@ -79,8 +79,8 @@ pakaiapp-dash/
 
 ### 2. Clone & Install Dependencies
 ```bash
-git clone https://github.com/username/pakaiapp-pos.git
-cd pakaiapp-pos
+git clone https://github.com/ngopikode/pakaiapp-dash.git
+cd pakaiapp-dash
 
 composer install
 npm install
