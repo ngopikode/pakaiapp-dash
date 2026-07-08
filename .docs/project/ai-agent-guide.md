@@ -10,7 +10,7 @@ Halo, AI Agent (dan Developer)! File ini dibuat khusus untuk memberikan konteks 
 Proyek ini menggunakan *stack* berikut:
 - **Backend:** PHP 8.3+, Laravel 13.x
 - **Frontend / Interactivity:** Livewire 4.x
-- **UI Component / Styling:** Bootstrap 5.x
+- **UI Component / Styling:** Bootstrap 5.x (Admin Dashboard/POS) & TailwindCSS (Landing Page & Customer QR Menu)
 - **Multi-Tenancy:** Stancl/Tenancy (Arsitektur Multi-Database)
 - **Asset Bundler:** Vite
 
@@ -30,6 +30,14 @@ Semua dokumentasi proyek terpusat di direktori [`.docs/`](../../README.md). Beri
 | **Architecture Plan** | [`project/architecture-plan.md`](./architecture-plan.md) | Rencana restrukturisasi arsitektur (4 phase). |
 | **Flowchart POS Resto** | [`project/pos-resto-flowchart.md`](./pos-resto-flowchart.md) | Alur (*flowchart*) operasional kasir/resto. |
 | **Flowchart POS Kitchen** | [`project/pos-kitchen-flowchart.md`](./pos-kitchen-flowchart.md) | Alur pesanan dari kasir ke dapur. |
+| **Tenant API Spec** | [`project/api-spec.md`](./api-spec.md) | Spesifikasi REST API untuk kasir dan menu digital. |
+
+### Decisions (ADRs)
+| Dokumen | Lokasi | Deskripsi |
+| --- | --- | --- |
+| **ADR-0001: Tenancy** | [`decisions/0001-multi-database-tenancy.md`](../decisions/0001-multi-database-tenancy.md) | Alasan pemilihan isolasi database fisik untuk tenant. |
+| **ADR-0002: Service Injection** | [`decisions/0002-service-injection-guidelines.md`](../decisions/0002-service-injection-guidelines.md) | Aturan standardisasi injeksi dependensi dalam kelas PHP. |
+| **ADR-0003: Absolute Variant Pricing** | [`decisions/0003-absolute-variant-pricing.md`](../decisions/0003-absolute-variant-pricing.md) | Kebijakan isolasi harga mutlak di tingkat varian produk. |
 
 ### Features — AI Menu Engine
 | Dokumen | Lokasi | Deskripsi |

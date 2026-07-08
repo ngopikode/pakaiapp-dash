@@ -5,7 +5,7 @@
 * **Fitur Utama:** AI Autonomous Menu Engine (Sistem Menu Otomatis & Interaktif)
 * **Versi:** 1.0
 * **Status:** System Design Phase
-* **Stack:** Full Laravel + Livewire 3
+* **Stack:** Full Laravel + Livewire 4
 
 ---
 
@@ -65,7 +65,7 @@ Dengan menggunakan arsitektur **Full Livewire**, kompleksitas *state management*
     2. Menyimpan pesan ke tabel `ai_chat_messages`.
     3. Memanggil *Service Class* (misal: `OpenAiService`) dengan mengirimkan histori percakapan dan katalog *variants* yang aktif.
     4. Menerima kembalian (*response stream*) dari OpenAI.
-    5. Menggunakan fitur `wire:stream` (Livewire 3) untuk memunculkan efek teks mengetik (*typewriter effect*) di *frontend* tanpa memblokir proses lain.
+    5. Menggunakan fitur `wire:stream` (Livewire 4) untuk memunculkan efek teks mengetik (*typewriter effect*) di *frontend* tanpa memblokir proses lain.
 * `public function addVariantToCart($variantId)`
   *(Dipanggil ketika pelanggan mengklik tombol "Tambah" pada Product Card yang direkomendasikan oleh AI di dalam *chat*. Langsung berinteraksi dengan layanan Keranjang/POS lokal).*
 

@@ -68,10 +68,10 @@ Untuk menjaga performa aplikasi tetap optimal, bersih, dan menghindari redundans
 Pengembangan fitur ini diselaraskan dengan efisiensi performa tinggi di lingkungan WSL2 dengan target stack sebagai berikut:
 
 * **Backend Engine (Core Logic):** **PHP dengan Framework Laravel**. Bertanggung jawab penuh atas manajemen database, penanganan logika bisnis, pengelolaan *cron jobs / scheduled workers* untuk skema *dynamic pricing*, serta enkapsulasi komunikasi aman menuju API eksternal.
-* **Frontend Admin Dashboard:** **Bootstrap & Livewire**. Digunakan untuk membangun halaman manajemen AI di sisi merchant agar interaksi antarmuka tetap dinamis, bersih, *clean*, cepat matang, dan mudah di-maintenance secara independen.
-* **Frontend Customer QR Menu:** **React / Next.js**. Diimplementasikan pada sisi pelanggan untuk mengejar performa rendering yang instan dan kapabilitas penanganan *real-time streaming text* (efek mengetik teks AI).
+* **Frontend Admin Dashboard:** **Bootstrap & Livewire 4**. Digunakan untuk membangun halaman manajemen AI di sisi merchant agar interaksi antarmuka tetap dinamis, bersih, cepat matang, dan mudah dipelihara secara independen.
+* **Frontend Customer QR Menu:** **Livewire 4 & Bootstrap 5**. Diimplementasikan secara penuh pada sisi pelanggan untuk mempermudah integrasi data binding, state management, dan perutean tenant tanpa memerlukan kompilasi runtime terpisah (seperti React/Next.js).
 * **AI Integration Layer:** Menggunakan **OpenAI Responses API / Conversations API** resmi (Menghindari penggunaan Assistants API lawas yang sudah didepresiasi). Koneksi dikelola menggunakan *Service Class* khusus di Laravel untuk mengirimkan skrip *System Prompt* ketat, data struktural menu harian (diambil dari tabel `variants`), dan sisa stok bahan.
-* **Streaming Handler:** Memanfaatkan **Vercel AI SDK** di sisi *frontend* pelanggan untuk menangani transmisi *buffer* teks dari OpenAI secara *real-time* ke komponen UI chat agar menghemat beban memori server.
+* **Streaming Handler:** Memanfaatkan fitur **Livewire 4 Streaming (`wire:stream`)** untuk menangani transmisi respons teks secara *real-time* (efek mengetik) dari OpenAI ke komponen UI chat di client secara efisien.
 
 ---
 
@@ -86,8 +86,8 @@ Pengembangan fitur ini diselaraskan dengan efisiensi performa tinggi di lingkung
 ### 6.2 Alur Pemesanan Interaktif oleh Pelanggan
 ```
 [Scan QR Meja] -> [Buka Floating Chat AI] -> [Input Request: "Menu non-kopi segar"] 
-  -> [Laravel Mengirim Konteks Varian Aktif ke OpenAI] -> [OpenAI Memproses Respon Struktural] 
-  -> [Next.js Merender Teks Streaming + Product Card Varian] -> [Pelanggan Klik "Tambah ke Keranjang"] 
+  -> [Laravel Mengirim Konteks Varian Aktif ke OpenAI] -> [OpenAI Memproses Respon Projek] 
+  -> [Livewire 4 Merender Teks Streaming + Product Card Varian via Blade] -> [Pelanggan Klik "Tambah ke Keranjang"] 
   -> [Varian Masuk Cart POS Resto]
 ```
 

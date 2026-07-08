@@ -14,6 +14,19 @@ Dokumen tingkat proyek: konteks, arsitektur, dan analisis bisnis.
 | [Architecture Plan](project/architecture-plan.md) | Rencana restrukturisasi arsitektur (4 phase) |
 | [POS Resto Flowchart](project/pos-resto-flowchart.md) | Alur bisnis kasir resto (Mermaid flowchart) |
 | [POS Kitchen Flowchart](project/pos-kitchen-flowchart.md) | Alur bisnis dapur/kitchen (Mermaid flowchart) |
+| [Tenant API Specification](project/api-spec.md) | Spesifikasi REST API untuk kasir dan menu digital |
+
+---
+
+## Decisions (ADRs)
+
+Architecture Decision Records (ADRs) yang mendokumentasikan keputusan teknis besar beserta konteks dan konsekuensinya.
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [ADR-0001: Multi-Database Tenancy](decisions/0001-multi-database-tenancy.md) | Alasan pemilihan isolasi database fisik untuk tenant |
+| [ADR-0002: Service Injection](decisions/0002-service-injection-guidelines.md) | Aturan standardisasi injeksi dependensi dalam kelas PHP |
+| [ADR-0003: Absolute Variant Pricing](decisions/0003-absolute-variant-pricing.md) | Kebijakan isolasi harga mutlak di tingkat varian produk |
 
 ---
 
@@ -189,6 +202,23 @@ Dokumentasi payment gateway Midtrans (Snap, CoreAPI, GoPay, dll).
 | [Testing on Sandbox](references/midtrans/testing-payment-on-sandbox.md) | Testing di sandbox |
 | [Transaction Status Cycle](references/midtrans/transaction-status-cycle.md) | Siklus status transaksi |
 | [Technical Reference](references/midtrans/technical-reference.md) | Referensi teknis & developer tools |
+
+---
+
+## Archive
+
+Arsip dokumen perencanaan dan riwayat refaktorisasi sistem:
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [Phase 2: Domain Separation](archive/refactors/PHASE2_DOMAIN_SEPARATION.md) | Catatan migrasi pemisahan domain Central dan Tenant |
+| [Phase 3: View & Asset Restructuring](archive/refactors/PHASE3_VIEW_ASSET_RESTRUCTURING.md) | Catatan restrukturisasi berkas tampilan dan asset |
+| [Central Refactoring Plan](archive/refactors/REFACTOR_CENTRAL.md) | Log pembersihan Controller & Service di Central |
+| [Livewire Standardization Plan](archive/refactors/REFACTOR_LIVEWIRE_STANDARDIZATION.md) | Standardisasi pemanggilan Livewire 4 & Alpine.js |
+| [Spatie Data Migration](archive/refactors/REFACTOR_SPATIE_DATA.md) | Migrasi request validation ke Spatie Data Objects |
+| [Tenant Refactoring Plan](archive/refactors/REFACTOR_TENANT.md) | Log pembersihan Controller & Service di Tenant |
+| [Webhook Refactoring Plan](archive/refactors/REFACTOR_WEBHOOK.md) | Perombakan sistem terima callback Webhook pembayaran |
+| [Livewire 4 Features Plan](archive/refactors/LIVEWIRE4_FEATURES_PLAN.md) | Rencana awal adopsi fitur-fitur baru Livewire 4 |
 
 ---
 

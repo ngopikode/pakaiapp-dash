@@ -5,7 +5,7 @@
 * **Fitur Utama:** AI Autonomous Menu Engine
 * **Versi:** 1.0
 * **Status:** Development Phase (Backlog)
-* **Stack:** Full Laravel + Livewire 3
+* **Stack:** Full Laravel + Livewire 4
 
 ---
 
