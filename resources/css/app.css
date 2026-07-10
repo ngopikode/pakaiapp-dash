@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --brand-accent:       #10B981;
+        --brand-accent-dark:  #059669;
+        --brand-accent-light: #34D399;
+        --brand-green:        #22C55E;
+        --brand-red:          #EF4444;
+        --brand-purple:       #A78BFA;
+        --brand-sky:          #38BDF8;
+
+        /* Backward compat aliases */
+        --brand-espresso: #1E293B;
+        --brand-caramel:  #10B981;
+        --brand-mocha:    #64748B;
+        --brand-latte:    #F8FAFC;
+
+        /* Theme vars */
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 160 84% 39%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 160 84% 39%;
+        --radius: 0.5rem;
+
+        --bs-border-color-translucent: rgba(15, 23, 42, 0.08);
+    }
+
+    .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 160 84% 39%;
+        --primary-foreground: 222.2 47.4% 11.2%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 160 84% 39%;
+
+        --bs-border-color-translucent: rgba(240, 244, 248, 0.08);
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
+    }
+}
+
+@layer components {
+    .page-store-name {
+        @apply text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100;
+    }
+    
+    .dash-card {
+        @apply rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-all duration-300;
+    }
+
+    .sidebar-item-active {
+        @apply bg-brand-accent/10 text-brand-accent dark:bg-brand-accent/20 dark:text-brand-accent-light border-r-4 border-brand-accent;
+    }
+
+    /* Keep generic animation classes used */
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: .5;
+        }
+    }
+    
+    .spin-icon { 
+        display: inline-block; 
+        animation: spin-icon 1.2s linear infinite; 
+    }
+    @keyframes spin-icon { 100% { transform: rotate(360deg); } }
+}

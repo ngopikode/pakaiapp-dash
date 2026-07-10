@@ -26,36 +26,36 @@ new class extends Component {
             [
                 'title' => 'Menu Utama',
                 'items' => [
-                    ['route' => 'dashboard', 'icon' => 'bi bi-grid-fill', 'label' => 'Dashboard', 'roles' => ['manager']],
-                    ['route' => 'cashier', 'icon' => 'bi bi-cash-coin', 'label' => 'Kasir / POS', 'roles' => ['manager', 'cashier']],
-                    ['route' => 'order', 'icon' => 'bi bi-receipt-cutoff', 'label' => $storeType === 'resto' ? 'Pesanan & Riwayat' : 'Riwayat Transaksi', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'dashboard', 'icon' => 'ph-fill ph-squares-four', 'label' => 'Dashboard', 'roles' => ['manager']],
+                    ['route' => 'cashier', 'icon' => 'ph-fill ph-cash-register', 'label' => 'Kasir / POS', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'order', 'icon' => 'ph-fill ph-receipt', 'label' => $storeType === 'resto' ? 'Pesanan & Riwayat' : 'Riwayat Transaksi', 'roles' => ['manager', 'cashier']],
                 ]
             ],
             [
                 'title' => 'Katalog & Inventaris',
                 'items' => [
-                    ['route' => 'product', 'icon' => 'bi bi-journal-richtext', 'label' => 'Katalog Produk', 'roles' => ['manager']],
-                    ['route' => 'product-slot.buy', 'icon' => 'bi bi-cart-plus', 'label' => 'Beli Slot Produk', 'roles' => ['manager']],
+                    ['route' => 'product', 'icon' => 'ph-fill ph-book-open', 'label' => 'Katalog Produk', 'roles' => ['manager']],
+                    ['route' => 'product-slot.buy', 'icon' => 'ph-fill ph-shopping-cart-simple', 'label' => 'Beli Slot Produk', 'roles' => ['manager']],
                 ]
             ],
             [
                 'title' => 'Sistem & Pengaturan',
                 'items' => [
-                    ['route' => 'wallet', 'icon' => 'bi bi-wallet2', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
-                    ['route' => 'store-setting', 'icon' => 'bi bi-shop', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
-                    ['route' => 'user', 'icon' => 'bi bi-people', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
-                    ['route' => 'profile', 'icon' => 'bi bi-person-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
-                    ['route' => 'ai-engine', 'icon' => 'bi bi-stars', 'label' => 'AI Menu Engine', 'roles' => ['manager']],
+                    ['route' => 'wallet', 'icon' => 'ph-fill ph-wallet', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
+                    ['route' => 'store-setting', 'icon' => 'ph-fill ph-storefront', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
+                    ['route' => 'user', 'icon' => 'ph-fill ph-users', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
+                    ['route' => 'profile', 'icon' => 'ph-fill ph-user-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'ai-engine', 'icon' => 'ph-fill ph-sparkle', 'label' => 'AI Menu Engine', 'roles' => ['manager']],
                 ]
             ]
         ];
 
         if ($storeType === 'resto') {
             // Add Kitchen Screen to Menu Utama
-            $sections[0]['items'][] = ['route' => 'kitchen', 'icon' => 'bi bi-display', 'label' => 'Layar Dapur (Kitchen)', 'roles' => ['manager', 'kitchen']];
+            $sections[0]['items'][] = ['route' => 'kitchen', 'icon' => 'ph-fill ph-monitor', 'label' => 'Layar Dapur (Kitchen)', 'roles' => ['manager', 'kitchen']];
 
             // Add Bahan Baku to Katalog & Inventaris
-            $sections[1]['items'][] = ['route' => 'raw-material', 'icon' => 'bi bi-box-seam', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
+            $sections[1]['items'][] = ['route' => 'raw-material', 'icon' => 'ph-fill ph-package', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
         }
 
         // Filter Menu berdasarkan Role

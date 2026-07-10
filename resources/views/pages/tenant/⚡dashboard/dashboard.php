@@ -9,13 +9,18 @@ use App\Tenant\Services\TenantWalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 new #[Title('Dashboard Overview')]
+#[Lazy]
 class extends Component {
     public int $lastCheckedOrderId = 0;
+    public string $dateFilter = 'today';
+    public string $customStartDate = '';
+    public string $customEndDate = '';
 
     // Tarif per transaksi, disamakan dengan kasir
     private int $feePerTransaction = 300;
@@ -23,6 +28,52 @@ class extends Component {
     public function mount(): void
     {
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
+    }
+
+    public function setDateFilter($filter)
+    {
+        $this->dateFilter = $filter;
+    }
+
+    public function applyCustomDateFilter()
+    {
+        if ($this->customStartDate && $this->customEndDate) {
+            $this->dateFilter = 'custom';
+        }
+    }
+
+    public function placeholder()
+    {
+        return <<<'HTML'
+        <main class="pb-10 min-vh-100 p-4">
+            <div class="space-y-6">
+                <!-- Header Skeleton -->
+                <div class="flex justify-between">
+                    <div class="space-y-2">
+                        <div class="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                        <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                    </div>
+                    <div class="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
+                </div>
+                
+                <!-- KPI Skeleton -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                </div>
+
+                <!-- Chart Skeleton -->
+                <div class="h-72 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                
+                <div class="flex flex-col items-center justify-center py-4">
+                    <div class="w-8 h-8 border-4 border-slate-200 border-t-orange-500 rounded-full animate-spin mb-3"></div>
+                    <p class="text-xs text-slate-500 font-bold animate-pulse">Menghitung Data F&B...</p>
+                </div>
+            </div>
+        </main>
+        HTML;
     }
 
     public function acknowledgeOrders(): void
@@ -79,19 +130,33 @@ class extends Component {
         $topProducts = [];
         $newOrderCount = 0;
         $chartData = [];
+        $outOfStockCount = 0;
+        $outOfStockFirst = null;
 
         if ($store) {
-            // Stats Hari Ini & Bulanan
-            $stats['orders_today'] = Order::whereDate('created_at', today())->count();
-            $stats['revenue_today'] = Order::whereDate('created_at', today())->whereIn('status', ['paid', 'completed'])->sum('total_price');
+            $startDate = today()->startOfDay();
+            $endDate = today()->endOfDay();
+
+            if ($this->dateFilter === '7days') {
+                $startDate = today()->subDays(6)->startOfDay();
+            } elseif ($this->dateFilter === '30days') {
+                $startDate = today()->subDays(29)->startOfDay();
+            } elseif ($this->dateFilter === 'custom' && $this->customStartDate && $this->customEndDate) {
+                $startDate = \Carbon\Carbon::parse($this->customStartDate)->startOfDay();
+                $endDate = \Carbon\Carbon::parse($this->customEndDate)->endOfDay();
+            }
+
+            // Stats Terfilter (sebelumnya Hari Ini & Bulanan)
+            $stats['orders_today'] = Order::whereBetween('created_at', [$startDate, $endDate])->count();
+            $stats['revenue_today'] = Order::whereBetween('created_at', [$startDate, $endDate])->whereIn('status', ['paid', 'completed'])->sum('total_price');
             $stats['revenue_month'] = Order::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->whereIn('status', ['paid', 'completed'])->sum('total_price');
 
-            $todayHpp = DB::table('orders')
+            $filteredHpp = DB::table('orders')
                 ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                ->whereDate('orders.created_at', today())
+                ->whereBetween('orders.created_at', [$startDate, $endDate])
                 ->whereIn('orders.status', ['paid', 'completed'])
                 ->sum(DB::raw('order_items.quantity * order_items.cost'));
-            $stats['profit_today'] = $stats['revenue_today'] - $todayHpp;
+            $stats['profit_today'] = $stats['revenue_today'] - $filteredHpp;
 
             $monthHpp = DB::table('orders')
                 ->join('order_items', 'orders.id', '=', 'order_items.order_id')
@@ -104,10 +169,26 @@ class extends Component {
             $stats['pending_orders'] = Order::where('status', 'pending')->count();
             $stats['active_products'] = Product::where('is_active', true)->count();
 
-            // Calculate Trends
-            $yesterdayRevenue = Order::whereDate('created_at', today()->subDay())->whereIn('status', ['paid', 'completed'])->sum('total_price');
-            if ($yesterdayRevenue > 0) {
-                $stats['revenue_trend_today'] = round((($stats['revenue_today'] - $yesterdayRevenue) / $yesterdayRevenue) * 100);
+            // Calculate Trends (bandingkan dengan periode sebelumnya dengan durasi yang sama)
+            if ($this->dateFilter === 'today') {
+                $pastStartDate = today()->subDay()->startOfDay();
+                $pastEndDate = today()->subDay()->endOfDay();
+            } elseif ($this->dateFilter === '7days') {
+                $pastStartDate = today()->subDays(13)->startOfDay();
+                $pastEndDate = today()->subDays(7)->endOfDay();
+            } elseif ($this->dateFilter === '30days') {
+                $pastStartDate = today()->subDays(59)->startOfDay();
+                $pastEndDate = today()->subDays(30)->endOfDay();
+            } else {
+                // Untuk custom date, bandingkan dengan periode sebelumnya yang berdurasi sama
+                $diffInDays = $startDate->diffInDays($endDate);
+                $pastEndDate = $startDate->copy()->subDay()->endOfDay();
+                $pastStartDate = $pastEndDate->copy()->subDays($diffInDays)->startOfDay();
+            }
+
+            $pastRevenue = Order::whereBetween('created_at', [$pastStartDate, $pastEndDate])->whereIn('status', ['paid', 'completed'])->sum('total_price');
+            if ($pastRevenue > 0) {
+                $stats['revenue_trend_today'] = round((($stats['revenue_today'] - $pastRevenue) / $pastRevenue) * 100);
             } else {
                 $stats['revenue_trend_today'] = $stats['revenue_today'] > 0 ? 100 : 0;
             }
@@ -123,23 +204,44 @@ class extends Component {
                 $stats['revenue_trend_month'] = $stats['revenue_month'] > 0 ? 100 : 0;
             }
 
-            // 7 Days Chart Data
-            $sevenDaysAgo = today()->subDays(6)->startOfDay();
+            // Chart Data Generation (Dynamic based on selected date range)
+            if ($this->dateFilter === 'today') {
+                // Hourly for today
+                $hourlyRevenues = collect([]);
+                try {
+                    $hourlyRevenues = Order::whereBetween('created_at', [$startDate, $endDate])
+                        ->whereIn('status', ['paid', 'completed'])
+                        ->select(DB::raw('HOUR(created_at) as hour_string'), DB::raw('SUM(total_price) as total_revenue'))
+                        ->groupBy('hour_string')
+                        ->pluck('total_revenue', 'hour_string');
+                } catch (\Exception $e) {}
 
-            // Standardizing date extraction to support different DB drivers
-            $dailyRevenues = Order::where('created_at', '>=', $sevenDaysAgo)
-                ->whereIn('status', ['paid', 'completed'])
-                ->select(DB::raw('DATE(created_at) as date_string'), DB::raw('SUM(total_price) as total_revenue'))
-                ->groupBy('date_string')
-                ->pluck('total_revenue', 'date_string');
+                $chartData = collect(range(0, 23))->map(function ($hour) use ($hourlyRevenues) {
+                    return [
+                        'date' => sprintf('%02d:00', $hour),
+                        'revenue' => $hourlyRevenues->get($hour, 0)
+                    ];
+                });
+            } else {
+                $diffInDays = $startDate->diffInDays($endDate);
+                $pointsCount = min($diffInDays, 30); // Max 31 points to avoid crowding
+                
+                $chartStartDate = $endDate->copy()->subDays($pointsCount)->startOfDay();
 
-            $chartData = collect(range(6, 0))->map(function ($daysAgo) use ($dailyRevenues) {
-                $date = today()->subDays($daysAgo);
-                return [
-                    'date' => $date->format('d M'),
-                    'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
-                ];
-            });
+                $dailyRevenues = Order::whereBetween('created_at', [$chartStartDate, $endDate])
+                    ->whereIn('status', ['paid', 'completed'])
+                    ->select(DB::raw('DATE(created_at) as date_string'), DB::raw('SUM(total_price) as total_revenue'))
+                    ->groupBy('date_string')
+                    ->pluck('total_revenue', 'date_string');
+
+                $chartData = collect(range($pointsCount, 0))->map(function ($daysAgo) use ($dailyRevenues, $endDate) {
+                    $date = $endDate->copy()->subDays($daysAgo);
+                    return [
+                        'date' => $date->format('d M'),
+                        'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
+                    ];
+                });
+            }
 
             // AMBIL SALDO WALLET
             $stats['wallet_balance'] = app(TenantWalletService::class)->getWallet()->balance;
@@ -150,73 +252,105 @@ class extends Component {
             // Produk Terlaris, Metode Pembayaran, & Tipe Pesanan
             $paymentMethods = collect([]);
             $orderTypes = collect([]);
-            try {
-                $topProducts = DB::table('order_items')
-                    ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                    ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
-                    ->whereMonth('orders.created_at', date('m'))
-                    ->whereIn('orders.status', ['paid', 'completed'])
-                    ->groupBy('order_items.product_name')
-                    ->orderByDesc('total_sold')
-                    ->limit(5)
-                    ->get();
-
-                $paymentMethods = DB::table('orders')
-                    ->select('payment_method', DB::raw('COUNT(id) as total'), DB::raw('SUM(total_price) as total_amount'))
-                    ->whereMonth('created_at', date('m'))
-                    ->whereIn('status', ['paid', 'completed'])
-                    ->groupBy('payment_method')
-                    ->get();
-
-                $orderTypes = DB::table('orders')
-                    ->select('order_type', DB::raw('COUNT(id) as total'))
-                    ->whereMonth('created_at', date('m'))
-                    ->whereIn('status', ['paid', 'completed'])
-                    ->groupBy('order_type')
-                    ->get();
-            } catch (\Exception $e) {
-                $topProducts = collect([]);
-            }
-
             $peakSalesTimes = collect([]);
             $slowMovingProducts = collect([]);
+            $topProducts = collect([]);
 
             try {
-                // Peak Sales Time (Top 3 Hours in the last 30 days)
-                $peakSalesTimes = DB::table('orders')
-                    ->select(DB::raw("STRFTIME('%H', created_at) as hour"), DB::raw("COUNT(id) as total_orders"))
-                    ->whereIn('status', ['paid', 'completed'])
-                    ->where('created_at', '>=', today()->subDays(30))
-                    ->groupBy('hour')
-                    ->orderByDesc('total_orders')
-                    ->limit(3)
-                    ->get()
-                    ->map(function ($item) {
-                        return (object)[
-                            'time_range' => $item->hour . ':00 - ' . str_pad((int)$item->hour + 1, 2, '0', STR_PAD_LEFT) . ':00',
-                            'orders' => $item->total_orders
-                        ];
-                    });
+                $cacheKeySuffix = $this->dateFilter . '_' . $startDate->format('Ymd') . '_' . $endDate->format('Ymd');
+                $cacheTtl = 60; // 60 seconds (1 minute)
 
-                // Slow-moving Items (Bottom 5 Active Products by quantity sold in the last 30 days)
-                $slowMovingProducts = DB::table('products')
-                    ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-                    ->leftJoin('orders', function ($join) {
-                        $join->on('order_items.order_id', '=', 'orders.id')
-                            ->whereIn('orders.status', ['paid', 'completed'])
-                            ->where('orders.created_at', '>=', today()->subDays(30));
-                    })
-                    ->select('products.name', DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'))
-                    ->where('products.is_active', true)
-                    ->groupBy('products.id', 'products.name')
-                    ->orderBy('total_sold', 'asc')
-                    ->limit(5)
-                    ->get();
+                $topProducts = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_top_products_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                    return DB::table('order_items')
+                        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                        ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
+                        ->whereBetween('orders.created_at', [$startDate, $endDate])
+                        ->whereIn('orders.status', ['paid', 'completed'])
+                        ->groupBy('order_items.product_name')
+                        ->orderByDesc('total_sold')
+                        ->limit(5)
+                        ->get()
+                        ->map(fn($item) => (array)$item)
+                        ->toArray();
+                }))->map(fn($item) => (object)$item);
+
+                $paymentMethods = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_payment_methods_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                    return DB::table('orders')
+                        ->select('payment_method', DB::raw('COUNT(id) as total'), DB::raw('SUM(total_price) as total_amount'))
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->whereIn('status', ['paid', 'completed'])
+                        ->groupBy('payment_method')
+                        ->get()
+                        ->map(fn($item) => (array)$item)
+                        ->toArray();
+                }))->map(fn($item) => (object)$item);
+
+                $orderTypes = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_order_types_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                    return DB::table('orders')
+                        ->select('order_type', DB::raw('COUNT(id) as total'))
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->whereIn('status', ['paid', 'completed'])
+                        ->groupBy('order_type')
+                        ->get()
+                        ->map(fn($item) => (array)$item)
+                        ->toArray();
+                }))->map(fn($item) => (object)$item);
+
+                // Peak Hours F&B
+                $peakSalesTimes = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_peak_hours_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                    return DB::table('orders')
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->whereIn('status', ['paid', 'completed'])
+                        ->select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as orders'))
+                        ->groupBy('hour')
+                        ->orderByDesc('orders')
+                        ->limit(3)
+                        ->get()
+                        ->map(function ($item) {
+                            $item->time_range = sprintf('%02d:00 - %02d:00', $item->hour, $item->hour + 1);
+                            return (array)$item;
+                        })
+                        ->toArray();
+                }))->map(fn($item) => (object)$item);
+
+                // Slow Moving Products (kurang laku)
+                $slowMovingProducts = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_slow_moving_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                    return DB::table('order_items')
+                        ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                        ->whereBetween('orders.created_at', [$startDate, $endDate])
+                        ->whereIn('orders.status', ['paid', 'completed'])
+                        ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
+                        ->groupBy('order_items.product_name')
+                        ->having('total_sold', '<', 5)
+                        ->orderBy('total_sold')
+                        ->limit(3)
+                        ->get()
+                        ->map(fn($item) => (array)$item)
+                        ->toArray();
+                }))->map(fn($item) => (object)$item);
             } catch (\Exception $e) {
+                // Ignore jika ada fungsi SQL yang tidak di-support driver database tertentu
             }
+
+            try {
+                // Out of stock calculation via ProductVariant
+                $outOfStockVariants = \App\Tenant\Models\Core\ProductVariant::with('product')
+                    ->where('stock', '<=', 0)
+                    ->whereHas('product', fn($q) => $q->where('is_active', true))
+                    ->get();
+                    
+                $outOfStockCount = $outOfStockVariants->count();
+                if ($outOfStockCount > 0) {
+                    $outOfStockFirst = $outOfStockVariants->first()->product->name ?? $outOfStockVariants->first()->name;
+                }
+            } catch (\Exception $e) {}
 
             $newOrderCount = Order::where('id', '>', $this->lastCheckedOrderId)->count();
         }
+
+        $totalPaymentVol = isset($paymentMethods) ? $paymentMethods->sum('total') : 0;
+        $totalOrderTypes = isset($orderTypes) ? $orderTypes->sum('total') : 0;
+        $maxPeak = isset($peakSalesTimes) ? ($peakSalesTimes->max('orders') ?: 1) : 1;
 
         return [
             'user' => $user,
@@ -228,7 +362,12 @@ class extends Component {
             'orderTypes' => $orderTypes ?? collect([]),
             'peakSalesTimes' => $peakSalesTimes,
             'slowMovingProducts' => $slowMovingProducts,
+            'totalPaymentVol' => $totalPaymentVol,
+            'totalOrderTypes' => $totalOrderTypes,
+            'maxPeak' => $maxPeak,
             'newOrderCount' => $newOrderCount,
+            'outOfStockCount' => $outOfStockCount,
+            'outOfStockFirst' => $outOfStockFirst,
             'chartData' => collect($chartData)->toJson(),
         ];
     }

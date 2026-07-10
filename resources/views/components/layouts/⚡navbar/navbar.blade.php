@@ -1,129 +1,152 @@
-<nav class="navbar navbar-expand navbar-light sticky-top px-3 px-lg-4 border-bottom shadow-sm navbar-dashboard"
-     id="mainNavbar" style="min-height: 70px;">
+<nav class="sticky top-0 z-40 w-full bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between px-4 lg:px-8 h-16 lg:h-[72px] transition-colors" id="mainNavbar">
 
-    <div class="d-flex align-items-center justify-content-between w-100 flex-nowrap">
+    <div class="flex items-center gap-3">
+        <!-- Mobile/Tablet Toggle (Alpine) -->
+        <button class="lg:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none transition-colors" 
+                type="button" 
+                @click="$dispatch('open-mobile-sidebar')">
+            <i class="ph-bold ph-list text-2xl"></i>
+        </button>
+        <span class="lg:hidden font-sans font-extrabold text-slate-900 dark:text-white truncate max-w-[140px] text-lg tracking-tight" title="{{ $header ?? 'Dashboard' }}">
+            {{ $header ?? 'Dashboard' }}
+        </span>
 
-        <div class="d-flex align-items-center gap-2 gap-lg-3">
-            <!-- Mobile/Tablet Toggle (Offcanvas) -->
-            <button class="btn text-primary border-0 p-2 d-lg-none" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-            <span class="fs-6 fw-bold font-serif text-truncate d-lg-none" style="max-width: 130px;" title="{{ $header ?? 'Dashboard' }}">
-                {{ $header ?? 'Dashboard' }}
-            </span>
-
-            <!-- Desktop Toggle -->
-            <button class="btn text-primary border-0 p-2 d-none d-lg-block" id="sidebarToggle">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-            <h5 class="m-0 font-serif fw-bold text-truncate d-none d-lg-block" style="max-width: 300px;">
-                {{ $header ?? 'Dashboard' }}
-            </h5>
-        </div>
-
-        <ul class="navbar-nav ms-auto flex-row align-items-center gap-2 gap-lg-3">
-
-            <li class="nav-item">
-                <button
-                    x-data="{ theme: localStorage.getItem('theme') || 'light' }" @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.setAttribute('data-bs-theme', theme)"
-                    class="btn btn-link nav-link text-secondary p-2"
-                    title="Ganti Tema"
-                >
-                    <i x-show="theme === 'dark'" class="ph-fill ph-sun fs-5 text-warning" x-cloak></i>
-
-                    <i x-show="theme === 'light'" class="ph-fill ph-moon fs-5" x-cloak></i>
-                </button>
-            </li>
-
-            <li class="nav-item dropdown">
-                <a class="nav-link text-secondary position-relative p-2 hover-lift d-flex align-items-center" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" wire:poll.15s.visible>
-                    <i class="bi bi-bell fs-5" id="notifBellIcon"></i>
-                    @if($this->pendingOrdersCount > 0)
-                        <span
-                            class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-pill bg-danger p-1 px-2 mt-2 me-2 badge-pulse"
-                            style="font-size: 0.65rem;">
-                            {{ $this->pendingOrdersCount }}
-                            <span class="visually-hidden">pesanan baru</span>
-                        </span>
-                    @endif
-                </a>
-
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 dropdown-menu-responsive-notif" style="width: 320px;" aria-labelledby="notifDropdown">
-                    <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center rounded-top-4">
-                        <span class="fw-bold text-body">Notifikasi</span>
-                        @if($this->pendingOrdersCount > 0)
-                            <span class="badge bg-danger rounded-pill">{{ $this->pendingOrdersCount }} Baru</span>
-                        @endif
-                    </li>
-
-                    @if($this->pendingOrdersCount > 0)
-                        <li>
-                            <a class="dropdown-item py-3 px-3 d-flex flex-column hover-bg-light text-wrap" href="{{ route('order') }}" wire:navigate.hover>
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="fw-bold text-body fs-6"><i class="bi bi-bag-check-fill text-primary me-2"></i>Pesanan Baru</span>
-                                    <small class="text-primary fw-bold"><i class="bi bi-arrow-right"></i></small>
-                                </div>
-                                <span class="text-muted small">Ada {{ $this->pendingOrdersCount }} pesanan yang menunggu konfirmasi pembayaran. Segera cek!</span>
-                            </a>
-                        </li>
-                    @else
-                        <li>
-                            <div class="px-3 py-4 text-center text-muted">
-                                <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary opacity-50"></i>
-                                <span class="small fw-bold text-body">Belum ada notifikasi baru</span>
-                            </div>
-                        </li>
-                    @endif
-
-                    <li class="border-top">
-                        <a href="{{ route('order') }}" wire:navigate.hover class="dropdown-item text-center py-2 text-primary fw-bold small rounded-bottom-4">Lihat Semua Pesanan</a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 p-1" href="#" id="navbarDropdown"
-                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
-
-                    <div
-                        class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
-                        style="width: 38px; height: 38px;">
-                        <span class="fw-bold">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
-                    </div>
-
-                    <div class="text-start lh-1 d-none d-lg-block">
-                        <div class="fw-bold small text-dark text-truncate" style="max-width: 120px;">
-                            {{ Auth::user()->name ?? 'User' }}
-                        </div>
-                        <small class="text-muted" style="font-size: 0.7rem;">Admin</small>
-                    </div>
-                </a>
-
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2"
-                    aria-labelledby="navbarDropdown">
-                    <li class="px-3 py-2 border-bottom mb-2 d-lg-none">
-                        <span class="fw-bold d-block text-dark">{{ Auth::user()->name ?? 'User' }}</span>
-                        <small class="text-muted">Admin</small>
-                    </li>
-
-                    <li>
-                        <a class="dropdown-item py-2" href="{{ route('profile') }}" wire:navigate.hover><i
-                                class="bi bi-person me-2"></i>
-                            Edit Profil
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <button type="button" wire:click="logout()"
-                                class="dropdown-item py-2 text-danger">
-                            <i class="bi bi-box-arrow-right me-2"></i> Log Out
-                        </button>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+        <!-- Desktop Toggle -->
+        <button class="hidden lg:block p-2.5 -ml-3 text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none transition-colors" 
+                @click="showDesktopSidebar = !showDesktopSidebar">
+            <i class="ph-bold ph-list text-[22px]"></i>
+        </button>
+        <h5 class="hidden lg:block m-0 font-sans font-black text-slate-900 dark:text-white truncate max-w-[300px] text-xl tracking-tight">
+            {{ $header ?? 'Dashboard' }}
+        </h5>
     </div>
+
+    <ul class="flex items-center gap-1.5 lg:gap-3 m-0 p-0 list-none">
+
+        <!-- Theme Toggle -->
+        <li>
+            <button
+                x-data="{ theme: localStorage.getItem('theme') || 'light' }" 
+                @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.classList.toggle('dark', theme === 'dark')"
+                class="relative p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-800/50 transition-colors focus:outline-none"
+                title="Ganti Tema"
+            >
+                <i x-show="theme === 'dark'" class="ph-fill ph-sun text-[22px] text-orange-400" x-cloak></i>
+                <i x-show="theme === 'light'" class="ph-fill ph-moon text-[22px] text-slate-600" x-cloak></i>
+            </button>
+        </li>
+
+        <!-- Notification Dropdown -->
+        <li x-data="{ open: false }" class="relative">
+            <button @click="open = !open" @click.outside="open = false" 
+               class="relative p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-800/50 transition-colors flex items-center focus:outline-none" 
+               wire:poll.15s.visible>
+                <i class="ph-bold ph-bell text-[22px]"></i>
+                @if($this->pendingOrdersCount > 0)
+                    <span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#0B1120] animate-pulse">
+                        {{ $this->pendingOrdersCount }}
+                    </span>
+                @endif
+            </button>
+
+            <div x-show="open" 
+                 x-transition:enter="transition ease-out duration-200" 
+                 x-transition:enter-start="opacity-0 translate-y-2 scale-95" 
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                 x-transition:leave="transition ease-in duration-150" 
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                 x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                 class="absolute right-0 mt-3 w-[320px] bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 overflow-hidden" 
+                 style="display: none;">
+                <div class="px-5 py-4 border-b border-border flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+                    <span class="font-bold text-slate-800 dark:text-slate-200 tracking-tight text-[13px] uppercase">Notifikasi</span>
+                    @if($this->pendingOrdersCount > 0)
+                        <span class="px-2.5 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400 text-[11px] font-bold">{{ $this->pendingOrdersCount }} Baru</span>
+                    @endif
+                </div>
+
+                <div class="max-h-[300px] overflow-y-auto">
+                    @if($this->pendingOrdersCount > 0)
+                        <a href="{{ route('order') }}" wire:navigate.hover class="block p-5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                            <div class="flex justify-between items-start mb-1.5">
+                                <span class="font-bold text-slate-800 dark:text-slate-200 flex items-center text-sm">
+                                    <div class="w-7 h-7 rounded-full bg-orange-500/10 dark:bg-orange-500/20 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                                        <i class="ph-fill ph-bag text-orange-600 dark:text-orange-400 text-base"></i>
+                                    </div>
+                                    Pesanan Baru
+                                </span>
+                                <i class="ph-bold ph-caret-right text-slate-300 dark:text-slate-600 group-hover:text-orange-500 transition-colors"></i>
+                            </div>
+                            <p class="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed m-0 pl-10">Ada {{ $this->pendingOrdersCount }} pesanan yang menunggu konfirmasi pembayaran. Segera cek!</p>
+                        </a>
+                    @else
+                        <div class="px-5 py-10 text-center text-slate-400 dark:text-slate-500">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mx-auto mb-3">
+                                <i class="ph-fill ph-check-circle text-2xl opacity-60"></i>
+                            </div>
+                            <p class="text-[13px] font-bold m-0 text-slate-500 dark:text-slate-400">Semua pesanan sudah diurus</p>
+                            <p class="text-[12px] text-slate-400 mt-0.5">Tidak ada antrean baru.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="border-t border-border bg-slate-50/80 dark:bg-slate-900/80 p-3">
+                    <a href="{{ route('order') }}" wire:navigate.hover class="block text-center py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-[13px] hover:text-orange-600 hover:border-orange-500/30 dark:hover:text-orange-400 transition-all shadow-sm">
+                        Lihat Semua Pesanan
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        <!-- User Dropdown -->
+        <li x-data="{ open: false }" class="relative">
+            <button @click="open = !open" @click.outside="open = false" 
+               class="flex items-center gap-2 p-1.5 pr-2.5 lg:pr-3 rounded-full border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors focus:outline-none ml-1">
+
+                <div class="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 dark:from-slate-700 dark:to-slate-500 text-white flex items-center justify-center shadow-sm shrink-0 font-bold text-[14px]">
+                    {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                </div>
+
+                <div class="text-left leading-tight hidden lg:block mr-1">
+                    <div class="font-bold text-[13px] text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
+                        {{ Auth::user()->name ?? 'User' }}
+                    </div>
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Admin</div>
+                </div>
+                <i class="ph-bold ph-caret-down text-slate-400 dark:text-slate-500 hidden lg:block text-[10px] transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+            </button>
+
+            <div x-show="open" 
+                 x-transition:enter="transition ease-out duration-200" 
+                 x-transition:enter-start="opacity-0 translate-y-2 scale-95" 
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                 x-transition:leave="transition ease-in duration-150" 
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                 x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                 class="absolute right-0 mt-3 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 p-2"
+                 style="display: none;">
+                
+                <div class="px-3 py-3 border-b border-border mb-1 lg:hidden flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 dark:from-slate-700 dark:to-slate-500 text-white flex items-center justify-center shadow-sm shrink-0 font-bold text-lg">
+                        {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                    </div>
+                    <div>
+                        <span class="font-bold block text-slate-800 dark:text-slate-200 text-sm">{{ Auth::user()->name ?? 'User' }}</span>
+                        <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Admin</span>
+                    </div>
+                </div>
+
+                <a href="{{ route('profile') }}" wire:navigate.hover class="flex items-center px-3 py-2.5 text-[13px] font-medium text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <i class="ph-fill ph-user-circle mr-2.5 text-[18px] text-slate-400 dark:text-slate-500"></i> Edit Profil
+                </a>
+                
+                <div class="my-1 border-t border-border mx-2"></div>
+                
+                <button type="button" wire:click="logout()"
+                        class="w-full flex items-center px-3 py-2.5 text-[13px] font-bold text-red-600 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left group">
+                    <i class="ph-bold ph-sign-out mr-2.5 text-[18px] group-hover:-translate-x-0.5 transition-transform"></i> Log Out
+                </button>
+            </div>
+        </li>
+    </ul>
 </nav>
