@@ -52,7 +52,7 @@
     "src": "node_modules/@phosphor-icons/web/src/regular/Phosphor.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-Cf00apJQ.css",
+    "file": "assets/app-DiEHmj9I.css",
     "name": "app",
     "names": [
       "app.css"
@@ -61,7 +61,7 @@
     "isEntry": true
   },
   "resources/css/store.css": {
-    "file": "assets/store-B99egSny.css",
+    "file": "assets/store-BwlpRo5r.css",
     "name": "store",
     "names": [
       "store.css"
@@ -70,7 +70,7 @@
     "isEntry": true
   },
   "resources/css/welcome.css": {
-    "file": "assets/welcome-C_W9Zkx3.css",
+    "file": "assets/welcome-CCNXEyfE.css",
     "name": "welcome",
     "names": [
       "welcome.css"

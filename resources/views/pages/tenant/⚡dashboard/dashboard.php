@@ -224,23 +224,43 @@ class extends Component {
                 });
             } else {
                 $diffInDays = $startDate->diffInDays($endDate);
-                $pointsCount = min($diffInDays, 30); // Max 31 points to avoid crowding
                 
-                $chartStartDate = $endDate->copy()->subDays($pointsCount)->startOfDay();
+                if ($diffInDays <= 31) {
+                    $pointsCount = $diffInDays;
+                    $chartStartDate = $startDate->copy()->startOfDay();
 
-                $dailyRevenues = Order::whereBetween('created_at', [$chartStartDate, $endDate])
-                    ->whereIn('status', ['paid', 'completed'])
-                    ->select(DB::raw('DATE(created_at) as date_string'), DB::raw('SUM(total_price) as total_revenue'))
-                    ->groupBy('date_string')
-                    ->pluck('total_revenue', 'date_string');
+                    $dailyRevenues = Order::whereBetween('created_at', [$chartStartDate, $endDate])
+                        ->whereIn('status', ['paid', 'completed'])
+                        ->select(DB::raw('DATE(created_at) as date_string'), DB::raw('SUM(total_price) as total_revenue'))
+                        ->groupBy('date_string')
+                        ->pluck('total_revenue', 'date_string');
 
-                $chartData = collect(range($pointsCount, 0))->map(function ($daysAgo) use ($dailyRevenues, $endDate) {
-                    $date = $endDate->copy()->subDays($daysAgo);
-                    return [
-                        'date' => $date->format('d M'),
-                        'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
-                    ];
-                });
+                    $chartData = collect(range($pointsCount, 0))->map(function ($daysAgo) use ($dailyRevenues, $endDate) {
+                        $date = $endDate->copy()->subDays($daysAgo);
+                        return [
+                            'date' => $date->translatedFormat('d M'),
+                            'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
+                        ];
+                    });
+                } else {
+                    $chartStartDate = $startDate->copy()->startOfDay();
+                    
+                    $monthlyRevenues = Order::whereBetween('created_at', [$chartStartDate, $endDate])
+                        ->whereIn('status', ['paid', 'completed'])
+                        ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month_string'), DB::raw('SUM(total_price) as total_revenue'))
+                        ->groupBy('month_string')
+                        ->pluck('total_revenue', 'month_string');
+
+                    $diffInMonths = $startDate->copy()->startOfMonth()->diffInMonths($endDate->copy()->startOfMonth());
+                    
+                    $chartData = collect(range($diffInMonths, 0))->map(function ($monthsAgo) use ($monthlyRevenues, $endDate) {
+                        $date = $endDate->copy()->startOfMonth()->subMonthsNoOverflow($monthsAgo);
+                        return [
+                            'date' => $date->translatedFormat('M Y'),
+                            'revenue' => $monthlyRevenues->get($date->format('Y-m'), 0)
+                        ];
+                    });
+                }
             }
 
             // AMBIL SALDO WALLET
