@@ -12,6 +12,7 @@ Artisan::command('inspire', function () {
 Schedule::command('pakaiapp:run-ai-pricing')->everyMinute()->withoutOverlapping();
 
 // Bersihkan data sampah (Garbage Collection): Hapus histori chat AI yang sudah kadaluarsa (di atas 24 jam)
-Schedule::command('model:prune', [
-    '--model' => [AiChatSession::class]
+Schedule::command('tenants:run', [
+    'model:prune',
+    '--option=model=' . AiChatSession::class
 ])->daily();
