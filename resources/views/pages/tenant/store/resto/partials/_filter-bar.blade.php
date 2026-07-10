@@ -6,8 +6,8 @@
         <div class="max-w-xl mx-auto px-4 py-3 flex gap-2">
             <div class="relative flex-1">
                 <input placeholder="Cari apa hari ini?" 
-                       x-model.debounce.500ms="search" 
-                       @input="apply()"
+                       :value="search" 
+                       @input.debounce.500ms="search = $event.target.value; apply()"
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none shadow-sm transition-all border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)]"
                        type="text">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
