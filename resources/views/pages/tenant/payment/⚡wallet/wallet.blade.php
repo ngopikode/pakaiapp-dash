@@ -303,13 +303,13 @@
                         @island(name: 'tx-list', always: true)
                             @placeholder
                                 @for($i = 0; $i < 5; $i++)
-                                    <tr class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 border-b border-slate-100 dark:border-slate-800/80 md:border-none animate-pulse">
-                                        <td class="p-0 md:py-4 md:px-6 flex items-center md:table-cell md:text-center md:w-16"><div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800"></div></td>
-                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded"></div></td>
-                                        <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 flex-1 min-w-0 md:table-cell"><div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div><div class="h-3 w-20 bg-slate-100 dark:bg-slate-800/50 rounded mt-1 md:hidden"></div></td>
-                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded"></div></td>
-                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full"></div></td>
-                                        <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 text-right md:table-cell shrink-0"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded ml-auto"></div></td>
+                                    <tr class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 border-b border-slate-100 dark:border-slate-800/80 md:border-none">
+                                        <td class="p-0 md:py-4 md:px-6 flex items-center md:table-cell md:text-center md:w-16"><div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div></td>
+                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div></td>
+                                        <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 flex-1 min-w-0 md:table-cell"><div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse mb-1"></div><div class="h-3 w-20 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse mt-1 md:hidden"></div></td>
+                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div></td>
+                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse"></div></td>
+                                        <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 text-right md:table-cell shrink-0"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div></td>
                                     </tr>
                                 @endfor
                             @endplaceholder
