@@ -179,10 +179,9 @@
                     {{-- row skeletons --}}
                     <div class="divide-y divide-slate-100 dark:divide-slate-800">
                         @for($i = 0; $i < 7; $i++)
-                            <div class="flex items-start justify-between p-4 md:px-6 md:py-4 md:items-center animate-pulse">
-                                {{-- Mobile Skeleton Row (flex on mobile, hidden on desktop) --}}
-                                <div class="flex items-start gap-3 md:hidden w-full">
-                                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
+                            <div class="flex items-start justify-between p-4 animate-pulse">
+                                <div class="flex items-start gap-3 w-full">
+                                    <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
                                     <div class="flex-grow flex justify-between items-start min-w-0">
                                         <div class="min-w-0 pr-2 space-y-1.5">
                                             <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
@@ -195,19 +194,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                {{-- Desktop Skeleton Cells (hidden on mobile, flex/blocks on desktop) --}}
-                                <div class="hidden md:flex items-center gap-3 flex-1 min-w-0">
-                                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
-                                    <div class="flex-grow space-y-1.5">
-                                        <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        <div class="h-3 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                                    </div>
-                                </div>
-                                <div class="hidden md:block h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-                                <div class="hidden md:block h-6 w-14 bg-slate-200 dark:bg-slate-700 rounded-full ml-4"></div>
-                                <div class="hidden md:block h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
-                                <div class="hidden md:block h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
                             </div>
                         @endfor
                     </div>
@@ -326,24 +312,14 @@
                     @endfor
                 </div>
                 <table class="w-full text-left border-collapse whitespace-nowrap">
-                    <thead class="sticky top-0 z-10 hidden md:table-header-group">
-                        <tr class="bg-white dark:bg-slate-900 text-xs uppercase tracking-wider font-bold text-muted-foreground border-b border-slate-200 dark:border-slate-800">
-                            <th class="py-4 px-6">Transaksi</th>
-                            <th class="py-4 px-6 hidden md:table-cell">Tanggal</th>
-                            <th class="py-4 px-6 hidden md:table-cell text-center">Tipe</th>
-                            <th class="py-4 px-6 text-right">Nominal</th>
-                            <th class="py-4 px-6 hidden md:table-cell text-right">Saldo Akhir</th>
-                        </tr>
-                    </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
                         
                         @island(name: 'tx-list', always: true)
                             @placeholder
                                 @for($i = 0; $i < 5; $i++)
-                                    <tr class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 border-b border-slate-100 dark:border-slate-800/80 md:border-none">
-                                        {{-- Mobile Skeleton Row (flex on mobile, hidden on desktop) --}}
-                                        <td class="p-0 flex items-start gap-3 md:hidden w-full">
-                                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
+                                    <tr class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80">
+                                        <td class="p-0 flex items-start gap-3.5 w-full">
+                                            <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
                                             <div class="flex-grow flex justify-between items-start min-w-0">
                                                 <div class="min-w-0 pr-2 space-y-1.5">
                                                     <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
@@ -356,21 +332,6 @@
                                                 </div>
                                             </div>
                                         </td>
-
-                                        {{-- Desktop Skeleton Cells (hidden on mobile, table-cells on desktop) --}}
-                                        <td class="hidden md:table-cell py-4 px-6">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
-                                                <div class="flex-grow space-y-1.5">
-                                                    <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
-                                                    <div class="h-3 w-20 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="hidden md:table-cell py-4 px-6"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div></td>
-                                        <td class="hidden md:table-cell py-4 px-6 text-center"><div class="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse mx-auto"></div></td>
-                                        <td class="hidden md:table-cell py-4 px-6 text-right"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div></td>
-                                        <td class="hidden md:table-cell py-4 px-6 text-right"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div></td>
                                     </tr>
                                 @endfor
                             @endplaceholder
@@ -379,45 +340,76 @@
                             @forelse($transactions as $tx)
                                 @php
                                     $txMonth = $tx->created_at->translatedFormat('F Y');
+                                    
+                                    // Parse description into Title & Subtitle
+                                    $desc = $tx->description ?? 'Transaksi';
+                                    $title = $tx->type === 'DEBIT' ? 'Pembayaran' : 'Terima Dana';
+                                    $subtitle = $desc;
+
+                                    if (str_contains($desc, 'Biaya layanan')) {
+                                        $title = 'Biaya Layanan';
+                                        if (preg_match('/INV-[A-Z0-9]+/', $desc, $matches)) {
+                                            $subtitle = 'Pesanan ' . $matches[0];
+                                        } else {
+                                            $subtitle = 'Layanan Aplikasi';
+                                        }
+                                    } elseif (str_contains($desc, 'Penerimaan dana')) {
+                                        $title = 'Penerimaan Dana';
+                                        if (preg_match('/INV-[A-Z0-9]+/', $desc, $matches)) {
+                                            $subtitle = 'Pesanan ' . $matches[0];
+                                        } else {
+                                            $subtitle = 'Hasil Penjualan';
+                                        }
+                                    } elseif (str_contains($desc, 'Pencairan dana')) {
+                                        $title = 'Pencairan Dana';
+                                        $subtitle = 'Transfer Keluar';
+                                    } elseif (str_contains($desc, 'Top up')) {
+                                        $title = 'Top Up Saldo';
+                                        $subtitle = 'Isi Saldo';
+                                    }
+
+                                    // Dynamic SVG icon based on Title / Description
+                                    $iconBg = 'bg-[#f15a24]'; // Consistent brand orange-red color from screenshot
+                                    
+                                    $descLower = strtolower($desc);
+                                    if (str_contains($descLower, 'listrik') || str_contains($descLower, 'pln')) {
+                                        $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>';
+                                    } elseif (str_contains($descLower, 'cashback') || str_contains($descLower, 'bonus')) {
+                                        $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm-9 4h18M5 11h14v10H5V11z" /></svg>';
+                                    } elseif (str_contains($descLower, 'pesanan') || str_contains($descLower, 'toko') || str_contains($descLower, 'belanja')) {
+                                        $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>';
+                                    } else {
+                                        $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>';
+                                    }
                                 @endphp
 
                                 @if($txMonth !== $currentMonth)
                                     @php $currentMonth = $txMonth; @endphp
-                                    <tr class="bg-slate-50 dark:bg-slate-800/20 md:hidden">
-                                        <td colspan="6" class="px-4 py-2.5 text-sm font-extrabold text-slate-700 dark:text-slate-300 block">
+                                    <tr class="bg-slate-50 dark:bg-slate-800/20 flex w-full">
+                                        <td class="px-4 py-2.5 text-sm font-extrabold text-slate-700 dark:text-slate-300 block w-full">
                                             {{ $txMonth }}
                                         </td>
                                     </tr>
                                 @endif
 
-                                <tr wire:key="tx-{{ $tx->id }}" class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group border-b border-slate-100 dark:border-slate-800/80 md:border-none">
+                                <tr wire:key="tx-{{ $tx->id }}" class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group border-b border-slate-100 dark:border-slate-800/80">
                                     
-                                    {{-- MOBILE VIEW ROW (flex on mobile, hidden on desktop) --}}
-                                    <td class="p-0 flex items-start gap-3 md:hidden w-full">
+                                    {{-- UNIFIED VIEW ROW (rendered on all screen sizes) --}}
+                                    <td class="p-0 flex items-start gap-3.5 w-full">
                                         {{-- 1. Ikon Tunggal --}}
-                                        @if($tx->type === 'DEBIT')
-                                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-red-50 dark:bg-red-500/10 text-red-500 shadow-sm mt-0.5">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>
-                                            </div>
-                                        @else
-                                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 shadow-sm mt-0.5">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>
-                                            </div>
-                                        @endif
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 {{ $iconBg }} shadow-sm">
+                                            {!! $iconSvg !!}
+                                        </div>
 
                                         {{-- 2. Detail Data --}}
                                         <div class="flex-grow flex justify-between items-start min-w-0">
                                             {{-- Sisi Kiri: Deskripsi, Subtitle (Ref/Keterangan), Tanggal --}}
                                             <div class="min-w-0 pr-2 flex flex-col gap-0.5">
                                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
-                                                    {{ $tx->description ?? 'Transaksi Sistem' }}
+                                                    {{ $title }}
                                                 </p>
                                                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
-                                                    @if($tx->reference_id)
-                                                        Ref #{{ $tx->reference_id }}
-                                                    @else
-                                                        Ref -
-                                                    @endif
+                                                    {{ $subtitle }}
                                                 </p>
                                                 <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
                                                     {{ $tx->created_at->translatedFormat('d F Y H:i') }}
@@ -444,67 +436,6 @@
                                             </div>
                                         </div>
                                     </td>
-
-                                    {{-- DESKTOP VIEW CELLS (hidden on mobile, table-cells on desktop) --}}
-                                    {{-- 1. Transaksi (Ikon + Deskripsi + Ref) --}}
-                                    <td class="hidden md:table-cell py-4 px-6">
-                                        <div class="flex items-center gap-3">
-                                            @if($tx->type === 'DEBIT')
-                                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-500 shrink-0">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>
-                                                </div>
-                                            @else
-                                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 shrink-0">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>
-                                                </div>
-                                            @endif
-
-                                            <div class="min-w-0">
-                                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate max-w-[320px]" title="{{ $tx->description }}">
-                                                    {{ $tx->description ?? 'Transaksi Sistem' }}
-                                                </p>
-                                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                                                    @if($tx->reference_id)
-                                                        Ref #{{ $tx->reference_id }}
-                                                    @else
-                                                        Ref -
-                                                    @endif
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    {{-- 2. Tanggal --}}
-                                    <td class="hidden md:table-cell py-4 px-6">
-                                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ $tx->created_at->format('d M Y') }}</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">{{ $tx->created_at->format('H:i') }}</p>
-                                    </td>
-
-                                    {{-- 3. Tipe Badge --}}
-                                    <td class="hidden md:table-cell py-4 px-6 text-center">
-                                        @if($tx->type === 'DEBIT')
-                                            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-                                                Keluar
-                                            </span>
-                                        @else
-                                            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
-                                                Masuk
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    {{-- 4. Nominal --}}
-                                    <td class="hidden md:table-cell py-4 px-6 text-right">
-                                        <p class="text-base font-bold font-mono {{ $tx->type === 'CREDIT' ? '' : 'text-slate-800 dark:text-slate-200' }}" {!! $tx->type === 'CREDIT' ? 'style="color: var(--brand-accent);"' : '' !!}>
-                                            {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp {{ number_format($tx->amount, 0, ',', '.') }}
-                                        </p>
-                                    </td>
-
-                                    {{-- 5. Saldo Akhir --}}
-                                    <td class="hidden md:table-cell py-4 px-6 text-right font-bold text-slate-800 dark:text-slate-200">
-                                        Rp {{ number_format($tx->closing_balance, 0, ',', '.') }}
-                                    </td>
-                                </tr>
                             @empty
                                 {{-- Hanya tampil di page 1 tanpa data --}}
                                 @if($transactions->currentPage() === 1)
