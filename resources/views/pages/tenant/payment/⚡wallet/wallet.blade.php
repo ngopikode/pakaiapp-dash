@@ -359,7 +359,7 @@
                                     {{-- UNIFIED VIEW ROW (rendered on all screen sizes) --}}
                                     <td class="p-0 flex items-start gap-3.5 w-full">
                                         {{-- 1. Ikon Tunggal --}}
-                                        <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 {{ $iconBg }} shadow-sm">
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 bg-[#f15a24] shadow-sm">
                                             {!! $iconSvg !!}
                                         </div>
 
