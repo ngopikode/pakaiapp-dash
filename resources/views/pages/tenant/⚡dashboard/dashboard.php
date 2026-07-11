@@ -45,31 +45,56 @@ class extends Component {
     public function placeholder()
     {
         return <<<'HTML'
-        <main class="pb-10 min-vh-100 p-4">
+        <main class="min-vh-100 rounded-[2rem] bg-slate-50 p-4 pb-10 font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-200 md:p-6">
             <div class="space-y-6">
-                <!-- Header Skeleton -->
-                <div class="flex justify-between">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="space-y-2">
-                        <div class="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
-                        <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                        <div class="h-3 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-8 w-40 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
                     </div>
-                    <div class="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
-                </div>
-                
-                <!-- KPI Skeleton -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                    <div class="h-28 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
+                    <div class="flex w-full gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 dark:border-slate-800 dark:bg-slate-900 md:w-80">
+                        <div class="h-9 flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-9 flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-9 flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-9 w-10 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                    </div>
                 </div>
 
-                <!-- Chart Skeleton -->
-                <div class="h-72 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
-                
-                <div class="flex flex-col items-center justify-center py-4">
-                    <div class="w-8 h-8 border-4 border-slate-200 border-t-orange-500 rounded-full animate-spin mb-3"></div>
-                    <p class="text-xs text-slate-500 font-bold animate-pulse">Menghitung Data F&B...</p>
+                <div class="rounded-[2rem] border border-slate-200 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="h-32 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-32 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-32 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="h-32 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div class="lg:col-span-2 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+                        <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div class="space-y-2">
+                                <div class="h-5 w-36 rounded bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                                <div class="h-3 w-48 rounded bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="h-[280px] rounded-3xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                    </div>
+
+                    <div class="h-[360px] rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+                        <div class="mb-4 h-5 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
+                        <div class="space-y-4">
+                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div class="h-56 rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 animate-pulse"></div>
+                    <div class="h-56 rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 animate-pulse"></div>
+                    <div class="h-56 rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 animate-pulse"></div>
                 </div>
             </div>
         </main>

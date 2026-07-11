@@ -1,4 +1,4 @@
-<div class="pos-container d-flex flex-column h-100 bg-transparent position-relative" x-data='restoPos({
+<div class="pos-shell min-vh-100 rounded-[2rem] bg-[#f6f2e8] p-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:p-5" x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
         customerName: window.posInitialData?.customerName || "",
         tableNumber: window.posInitialData?.tableNumber || "",
@@ -31,90 +31,66 @@
         };
     </script>
 
-    {{-- Premium Glassmorphism Loading Screen --}}
-    <div wire:loading.flex wire:target="changeTab"
-         class="position-fixed top-0 start-0 w-100 h-100 justify-content-center align-items-center"
-         style="z-index: 9999; background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(8px); transition: all 0.3s ease;">
-        <div class="text-center bg-body p-4 rounded-4 shadow border"
-             style="border-color: var(--bs-border-color-translucent) !important; min-width: 180px;">
-            <div class="spinner-border text-warning mb-3" role="status"
-                 style="width: 2.5rem; height: 2.5rem; border-width: 4px;">
-                <span class="visually-hidden">Loading...</span>
+    <div wire:loading.flex wire:target="changeTab" class="fixed inset-0 z-[9999] items-center justify-center bg-white/60 backdrop-blur-md dark:bg-slate-950/70">
+        <div class="rounded-3xl border border-emerald-200 bg-white px-6 py-5 text-center shadow-xl dark:border-slate-800 dark:bg-slate-900">
+            <div class="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-700 dark:border-slate-800 dark:border-t-emerald-400"></div>
+            <div class="text-sm font-black text-slate-900 dark:text-white">Sinkronisasi...</div>
+            <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Mengambil data terbaru</div>
+        </div>
+    </div>
+
+    <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-800 text-white shadow-sm dark:bg-emerald-500 dark:text-slate-950">
+                <i class="bi bi-cup-hot-fill text-xl"></i>
             </div>
-            <h6 class="fw-bold mb-1 text-body">Sinkronisasi...</h6>
-            <small class="text-secondary" style="font-size: 0.75rem;">Mengambil data terbaru</small>
+            <div>
+                <div class="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-800 dark:text-emerald-400">PakaiApp POS</div>
+                <h1 class="mb-0 text-2xl font-black text-slate-950 dark:text-white">Kasir Resto</h1>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3">
+            <div class="inline-flex rounded-full border border-emerald-800/20 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <button wire:click="changeTab('cashier')" @click="if(isEditingOrder) window.location.href='/cashier'"
+                        class="rounded-full px-4 py-2 text-sm font-black transition"
+                        :class="currentTab === 'cashier' ? 'bg-emerald-800 text-white dark:bg-white dark:text-slate-950' : 'text-slate-500 hover:text-emerald-800 dark:text-slate-400 dark:hover:text-white'">
+                    Kasir
+                </button>
+                <button wire:click="changeTab('queue')" title="Daftar Open Bill"
+                        class="relative rounded-full px-4 py-2 text-sm font-black transition"
+                        :class="currentTab === 'queue' ? 'bg-emerald-800 text-white dark:bg-white dark:text-slate-950' : 'text-slate-500 hover:text-emerald-800 dark:text-slate-400 dark:hover:text-white'">
+                    Open Bill
+                    @if($pendingOrders->count() > 0)
+                        <span class="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">{{ $pendingOrders->count() }}</span>
+                    @endif
+                </button>
+            </div>
+            <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
+                    class="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-800/20 bg-white text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800"
+                    title="Panduan & Tutorial Penggunaan">
+                <i class="bi bi-lightbulb-fill text-lg"></i>
+            </button>
         </div>
     </div>
 
-    {{-- Tab Navigation (Premium Segmented Control) --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0 px-3 px-lg-0 mt-3 mt-lg-0">
-        <div class="bg-body-tertiary p-1 rounded-pill border d-inline-flex shadow-sm" style="border-color: var(--bs-border-color-translucent) !important;">
-            <!-- Tab: Kasir Baru -->
-            <button wire:click="changeTab('cashier')" @click="if(isEditingOrder) window.location.href='/cashier'"
-                    class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0"
-                    :class="currentTab === 'cashier' ? 'bg-body shadow-sm text-primary' : 'text-secondary hover-bg-light'"
-                    style="font-size: 0.9rem;">
-                <i class="bi bi-calculator-fill fs-6"></i>
-                <span class="d-none d-sm-inline">Kasir Baru</span>
-                <span class="d-inline d-sm-none">Kasir</span>
-            </button>
-
-            <!-- Tab: Open Bill -->
-            <button wire:click="changeTab('queue')" title="Daftar Open Bill"
-                    class="btn fw-bold px-3 px-md-4 py-2 d-flex align-items-center gap-2 transition-all rounded-pill border-0 position-relative"
-                    :class="currentTab === 'queue' ? 'bg-body shadow-sm text-info' : 'text-secondary hover-bg-light'"
-                    style="font-size: 0.9rem;">
-                <i class="bi bi-receipt fs-6"></i>
-                <span class="d-none d-sm-inline">Open Bill</span>
-                <span class="d-inline d-sm-none">Bill</span>
-                
-                @if($pendingOrders->count() > 0)
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.65rem;">
-                        {{ $pendingOrders->count() }}
-                    </span>
-                @endif
-            </button>
-        </div>
-
-        {{-- Premium Help Button (Now gracefully sitting in the header) --}}
-        <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
-                class="btn btn-light bg-body border fw-bold rounded-circle shadow-sm d-flex align-items-center justify-content-center transition-all hover-scale text-warning me-1 me-lg-0"
-                style="width: 44px; height: 44px; border-color: var(--bs-border-color-translucent) !important;"
-                title="Panduan & Tutorial Penggunaan">
-            <i class="bi bi-lightbulb-fill fs-5"></i>
-        </button>
-    </div>
-
-    {{-- ===== TAB 1: KASIR BARU ===== --}}
-    <div x-show="currentTab === 'cashier'" wire:loading.class="d-none" wire:target="changeTab" class="row g-3 g-lg-4 flex-grow-1 mx-0" style="min-height: 0;"
-         x-transition.opacity.duration.150ms>
-
-        <!-- KOLOM PRODUK (Sembunyi di HP kalau keranjang dibuka) -->
-        <div class="col-lg-7 col-xl-8 flex-column h-100 px-2 px-lg-3"
-             :class="isMobileCartOpen ? 'd-none d-lg-flex' : 'd-flex'">
+    <div x-show="currentTab === 'cashier'" wire:loading.class="hidden" wire:target="changeTab" class="flex min-h-[calc(100vh-12rem)] flex-col gap-5 lg:flex-row" x-transition.opacity.duration.150ms>
+        <div class="min-h-0 min-w-0 flex-1" :class="isMobileCartOpen ? 'hidden lg:block' : 'block'">
             <livewire:tenant.pos.product-list/>
         </div>
 
-        <!-- KOLOM KERANJANG (Sembunyi di HP kalau belum pencet tombol keranjang) -->
-        <div class="col-lg-5 col-xl-4 h-100 px-2 px-lg-3 cart-mobile-wrapper"
-             :class="isMobileCartOpen ? 'd-block' : 'd-none d-lg-block'">
+        <div class="min-h-0 w-full shrink-0 cart-mobile-wrapper lg:w-[390px] xl:w-[430px]" :class="isMobileCartOpen ? 'block' : 'hidden lg:block'">
             @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes])
         </div>
     </div>
 
-    {{-- ===== TAB 2: ANTRIAN (Pesanan Pending) ===== --}}
-    <div x-show="currentTab === 'queue'" wire:loading.class="d-none" wire:target="changeTab" class="flex-grow-1 overflow-y-auto bg-transparent px-2 px-lg-3" style="min-height: 0;"
-         x-transition.opacity.duration.150ms>
-        {{-- Tab Header with Refresh Button --}}
-        <div class="d-flex justify-content-between align-items-center mb-3 sticky-top bg-body-tertiary p-3 rounded-4 border shadow-sm" style="z-index: 10; border-color: var(--bs-border-color-translucent) !important;">
-            <div class="d-flex align-items-center gap-2">
-                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                    <i class="bi bi-clock-history fs-5"></i>
-                </div>
-                <h5 class="fw-bold mb-0 text-body">Pesanan Ditahan</h5>
+    <div x-show="currentTab === 'queue'" wire:loading.class="hidden" wire:target="changeTab" class="min-h-[calc(100vh-12rem)] overflow-y-auto" x-transition.opacity.duration.150ms>
+        <div class="sticky top-0 z-10 mb-4 flex items-center justify-between rounded-3xl border border-emerald-800/15 bg-white/90 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
+            <div>
+                <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Pesanan Ditahan</h5>
+                <p class="mb-0 text-xs font-semibold text-slate-500 dark:text-slate-400">Open bill yang belum selesai</p>
             </div>
-            
-            <button type="button" wire:click="$refresh" class="btn btn-outline-primary btn-sm rounded-pill fw-bold d-flex align-items-center gap-2 px-3 shadow-sm bg-body">
+            <button type="button" wire:click="$refresh" class="rounded-full border border-emerald-800/20 bg-white px-4 py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-950 dark:text-emerald-400 dark:hover:bg-slate-800">
                 <i class="bi bi-arrow-clockwise" wire:loading.class="spinner-border spinner-border-sm" wire:target="$refresh"></i>
                 <span wire:loading.remove wire:target="$refresh">Refresh</span>
                 <span wire:loading wire:target="$refresh">Memuat...</span>

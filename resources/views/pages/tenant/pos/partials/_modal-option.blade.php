@@ -1,61 +1,53 @@
 <div class="modal fade" id="optionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg bg-body text-body"
-             style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
-
-            {{-- Header Modal --}}
-            <div class="modal-header border-bottom pb-3 pt-4 px-4 bg-body-tertiary"
-                 style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
+        <div class="modal-content rounded-[1.5rem] border border-emerald-800/15 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+            <div class="modal-header rounded-t-[1.5rem] border-b border-emerald-800/10 bg-emerald-50/60 px-4 pb-3 pt-4 dark:border-slate-800 dark:bg-slate-900">
                 <div>
-                    <h5 class="fw-bold mb-1">Pilih Varian</h5>
-                    <p class="text-secondary small mb-0" x-text="optionProduct ? optionProduct.name : ''"></p>
+                    <h5 class="mb-1 font-black text-slate-900 dark:text-white">Pilih Varian</h5>
+                    <p class="mb-0 text-sm font-semibold text-slate-500 dark:text-slate-400" x-text="optionProduct ? optionProduct.name : ''"></p>
                     <div x-show="optionProduct && optionProduct.selection_type === 'multiple'">
-                        <span class="badge bg-warning text-dark mt-1 fw-bold"
+                        <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-800 dark:bg-amber-500/20 dark:text-amber-400"
                               x-text="'Pilih maks ' + (optionProduct ? optionProduct.max_selections : 0) + ' pilihan'"></span>
                     </div>
                 </div>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            {{-- Body Modal --}}
-            <div class="modal-body p-4 bg-body" style="border-radius: 0 0 1.5rem 1.5rem;">
-                <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height: 50vh;">
+            <div class="modal-body rounded-b-[1.5rem] bg-white p-4 dark:bg-slate-900">
+                <div class="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
                     <div x-show="optionProduct">
                         <div>
-                            {{-- ----- VARIANTS ----- --}}
+                            {{-- Variants --}}
                             <div x-show="optionProduct?.variants?.length > 0 && optionProduct?.has_variants">
-                                <div class="d-flex flex-column gap-2 mb-3">
+                                <div class="mb-3 flex flex-col gap-2">
                                     <template x-for="variant in (optionProduct?.variants || [])" :key="variant.id">
                                         <button type="button"
-                                                class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all bg-body"
+                                                class="flex w-full flex-row items-center justify-between rounded-2xl border bg-white p-3 text-start transition-all"
                                                 :class="{
-                                                        'border-warning bg-warning bg-opacity-10': isOptionSelected(variant.name),
-                                                        'bg-body-tertiary opacity-50': variant.stock <= 0,
-                                                        'border-secondary border-opacity-25': variant.stock > 0 && !isOptionSelected(variant.name)
-                                                    }"
+                                                    'border-emerald-500 bg-emerald-50 shadow-sm': isOptionSelected(variant.name),
+                                                    'border-slate-200 bg-slate-50 opacity-50 dark:border-slate-800 dark:bg-slate-950': variant.stock <= 0,
+                                                    'border-slate-200 dark:border-slate-700': variant.stock > 0 && !isOptionSelected(variant.name)
+                                                }"
                                                 :disabled="variant.stock <= 0"
-                                                @click="if(variant.stock > 0) toggleOption(variant)"
-                                                style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
-                                            <div class="d-flex align-items-center gap-3">
+                                                @click="if(variant.stock > 0) toggleOption(variant)">
+                                            <div class="flex items-center gap-3">
                                                 <i class="bi fs-4" x-show="optionProduct?.selection_type === 'multiple'"
-                                                   :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-warning' : 'bi-square text-secondary opacity-50'"></i>
+                                                   :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-emerald-700 dark:text-emerald-400' : 'bi-square text-slate-300'"></i>
                                                 <i class="bi fs-4" x-show="optionProduct?.selection_type !== 'multiple'"
-                                                   :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-warning' : 'bi-circle text-secondary opacity-50'"></i>
+                                                   :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-emerald-700 dark:text-emerald-400' : 'bi-circle text-slate-300'"></i>
                                                 <div>
-                                                    <h6 class="fw-bold text-body mb-0" x-text="variant.name"></h6>
+                                                    <h6 class="mb-0 font-black text-slate-900 dark:text-white" x-text="variant.name"></h6>
                                                 </div>
                                             </div>
                                             <div class="text-end" x-show="optionProduct?.selection_type !== 'multiple'">
                                                 <template x-if="variant.active_discount_price && Number(variant.active_discount_price) > 0 && Number(variant.active_discount_price) < Number(variant.price)">
-                                                    <div class="d-flex flex-column align-items-end">
-                                                        <span class="text-decoration-line-through text-danger fw-semibold" style="font-size: 0.7rem;" x-text="'Rp ' + formatRupiah(variant.price)"></span>
-                                                        <span class="fw-bold text-primary" style="font-size: 0.85rem;" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></span>
+                                                    <div class="flex flex-col items-end">
+                                                        <span class="text-xs font-semibold text-red-500 line-through" x-text="'Rp ' + formatRupiah(variant.price)"></span>
+                                                        <span class="text-sm font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></span>
                                                     </div>
                                                 </template>
                                                 <template x-if="!variant.active_discount_price || Number(variant.active_discount_price) === 0 || Number(variant.active_discount_price) >= Number(variant.price)">
-                                                    <div>
-                                                        <h6 class="fw-bold text-secondary mb-0" x-text="'+ Rp ' + formatRupiah(variant.price)"></h6>
-                                                    </div>
+                                                    <h6 class="mb-0 font-black text-slate-600 dark:text-slate-300" x-text="'+ Rp ' + formatRupiah(variant.price)"></h6>
                                                 </template>
                                             </div>
                                         </button>
@@ -63,36 +55,34 @@
                                 </div>
                             </div>
 
-                            {{-- ----- ADD-ONS / EXTRAS ----- --}}
+                            {{-- Add-ons / Extras --}}
                             <div x-show="optionProduct?.extras?.length > 0">
                                 <div>
                                     <div x-show="optionProduct?.has_variants">
-                                        <div class="d-flex align-items-center gap-3 my-3">
-                                            <div class="flex-1 border-bottom"></div>
-                                            <span class="text-secondary small fw-bold text-uppercase">Tambahan / Extra</span>
-                                            <div class="flex-1 border-bottom"></div>
+                                        <div class="my-3 flex items-center gap-3">
+                                            <div class="flex-1 border-t border-emerald-800/10 dark:border-slate-800"></div>
+                                            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tambahan / Extra</span>
+                                            <div class="flex-1 border-t border-emerald-800/10 dark:border-slate-800"></div>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex flex-column gap-2">
+                                    <div class="flex flex-col gap-2">
                                         <template x-for="extra in (optionProduct?.extras || [])" :key="extra.id">
                                             <button type="button"
-                                                    class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all bg-body"
+                                                    class="flex w-full flex-row items-center justify-between rounded-2xl border bg-white p-3 text-start transition-all"
                                                     :class="{
-                                                            'border-warning bg-warning bg-opacity-10': isExtraSelected(extra.name),
-                                                            'border-secondary border-opacity-25': !isExtraSelected(extra.name)
-                                                        }"
-                                                    @click="toggleExtra(extra)"
-                                                    style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
-                                                <div class="d-flex align-items-center gap-3">
+                                                        'border-emerald-500 bg-emerald-50': isExtraSelected(extra.name),
+                                                        'border-slate-200 dark:border-slate-700': !isExtraSelected(extra.name)
+                                                    }"
+                                                    @click="toggleExtra(extra)">
+                                                <div class="flex items-center gap-3">
                                                     <i class="bi fs-4"
-                                                       :class="isExtraSelected(extra.name) ? 'bi-check-square-fill text-warning' : 'bi-square text-secondary opacity-50'"></i>
+                                                       :class="isExtraSelected(extra.name) ? 'bi-check-square-fill text-emerald-700 dark:text-emerald-400' : 'bi-square text-slate-300'"></i>
                                                     <div>
-                                                        <h6 class="fw-bold text-body mb-0" x-text="extra.name"></h6>
+                                                        <h6 class="mb-0 font-black text-slate-900 dark:text-white" x-text="extra.name"></h6>
                                                     </div>
                                                 </div>
-                                                <h6 class="fw-bold text-secondary mb-0"
-                                                    x-text="'+ Rp ' + formatRupiah(extra.price)"></h6>
+                                                <h6 class="mb-0 font-black text-slate-600 dark:text-slate-300" x-text="'+ Rp ' + formatRupiah(extra.price)"></h6>
                                             </button>
                                         </template>
                                     </div>
@@ -103,25 +93,25 @@
                 </div>
 
                 {{-- Qty + Confirm --}}
-                <div class="mt-4 pt-3 border-top" x-show="optionProduct && (optionSelected.length > 0 || !optionProduct.has_variants || (optionProduct.extras && optionProduct.extras.length > 0))"
-                     style="border-color: var(--bs-border-color-translucent) !important;">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="fw-bold text-secondary small">Jumlah Pesanan</span>
-                        <div class="d-flex align-items-center bg-body-tertiary rounded-pill border"
-                             style="padding: 0.25rem; border-color: var(--bs-border-color) !important;">
+                <div x-show="optionProduct && (optionSelected.length > 0 || !optionProduct.has_variants || (optionProduct.extras && optionProduct.extras.length > 0))"
+                     class="mt-4 border-t border-emerald-800/10 pt-3 dark:border-slate-800">
+                    <div class="mb-4 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-400">Jumlah Pesanan</span>
+                        <div class="flex items-center rounded-full border border-emerald-800/20 bg-emerald-50/60 p-1 dark:border-slate-700 dark:bg-slate-950">
                             <button @click="if(optionQty > 1) optionQty--"
-                                    class="btn btn-sm btn-secondary bg-body rounded-circle p-1 shadow-sm border"
-                                    style="width: 36px; height: 36px; color: var(--bs-body-color);"><i
-                                    class="bi bi-dash"></i></button>
-                            <span class="fw-bold px-4 fs-5 text-body" x-text="optionQty"></span>
+                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <span class="px-4 text-base font-black text-slate-900 dark:text-white" x-text="optionQty"></span>
                             <button @click="optionQty++"
-                                    class="btn btn-sm btn-primary rounded-circle p-1 shadow-sm border-0"
-                                    style="width: 36px; height: 36px; color: white;"><i class="bi bi-plus"></i></button>
+                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-800 text-white shadow-sm dark:bg-emerald-400 dark:text-slate-950">
+                                <i class="bi bi-plus"></i>
+                            </button>
                         </div>
                     </div>
                     <button @click="confirmOption"
-                            class="btn btn-primary fw-bold w-100 py-3 d-flex justify-content-between align-items-center shadow-sm text-white border-0"
-                            style="border-radius: 1rem; background: #F97316;"
+                            class="flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-600 p-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.01] dark:from-emerald-500 dark:to-emerald-400 dark:text-slate-950"
+                            style="border: none;"
                             :disabled="optionProduct && optionProduct.has_variants && optionSelected.length === 0">
                         <span><i class="bi bi-cart-plus me-2"></i>Tambahkan ke Keranjang</span>
                         <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>

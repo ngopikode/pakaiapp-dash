@@ -1,56 +1,49 @@
 <div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 text-center p-4 shadow"
-             style="border-radius: 1.5rem; background-color: var(--bs-body-bg); font-family: 'Open Sans', sans-serif;">
-             
-            {{-- Success Icon with subtle pulse animation effect --}}
-            <div class="d-flex justify-content-center mb-4 mt-3">
-                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                     style="width: 88px; height: 88px; background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.15), rgba(var(--bs-primary-rgb), 0.05)); border: 2px solid rgba(var(--bs-primary-rgb), 0.2);">
-                    <i class="bi bi-check-circle-fill" style="font-size: 3.5rem; color: var(--bs-primary);"></i>
+        <div class="modal-content rounded-[1.5rem] border border-emerald-800/15 bg-white p-4 text-center shadow-lg dark:border-slate-700 dark:bg-slate-900">
+            <div class="mb-4 mt-3 flex justify-center">
+                <div class="flex h-20 w-20 items-center justify-center rounded-full border-2 shadow-sm"
+                     style="border-color: rgba(5,150,105,0.2); background: linear-gradient(135deg, rgba(5,150,105,0.15), rgba(5,150,105,0.05));">
+                    <i class="bi bi-check-circle-fill text-5xl text-emerald-800 dark:text-emerald-400"></i>
                 </div>
             </div>
-            
-            <h4 class="fw-bolder mb-1" style="font-family: 'Poppins', sans-serif; color: var(--bs-body-color);">Pembayaran Berhasil!</h4>
-            <p class="text-secondary small mb-4">No. Invoice: <span class="fw-bold px-2 py-1 rounded" style="background-color: var(--bs-tertiary-bg); color: var(--bs-body-color);" x-text="lastOrder.invoice_code"></span></p>
 
-            <div class="d-flex flex-column gap-3 mb-2">
-                {{-- Phone Input area for Whatsapp --}}
+            <h4 class="mb-1 font-black text-slate-900 dark:text-white">Pembayaran Berhasil!</h4>
+            <p class="mb-4 text-sm font-semibold text-slate-500 dark:text-slate-400">
+                No. Invoice:
+                <span class="rounded border border-emerald-800/15 bg-slate-50 px-2 py-1 font-black text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-white" x-text="lastOrder.invoice_code"></span>
+            </p>
+
+            <div class="flex flex-col gap-3">
                 <div class="text-start">
-                    <label class="small fw-semibold mb-2" style="color: var(--bs-secondary-color);">Kirim Struk WhatsApp (Opsional)</label>
-                    <div class="input-group shadow-sm" style="border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--bs-border-color-translucent);">
-                        <span class="input-group-text bg-body border-0" style="color: var(--bs-primary);">
+                    <label class="mb-2 text-xs font-bold text-slate-600 dark:text-slate-400">Kirim Struk WhatsApp (Opsional)</label>
+                    <div class="flex overflow-hidden rounded-2xl border border-emerald-800/20 shadow-sm">
+                        <span class="flex items-center border-r border-emerald-800/10 bg-slate-50 px-3 text-emerald-800 dark:border-slate-800 dark:bg-slate-950 dark:text-emerald-400">
                             <i class="bi bi-telephone"></i>
                         </span>
-                        <input type="text" class="form-control bg-body border-0 shadow-none px-2"
-                               x-model="lastOrder.customer_phone" placeholder="Cth: 0812..."
-                               style="color: var(--bs-body-color); font-size: 0.95rem;">
+                        <input type="text" class="w-full border-0 bg-white px-2 text-sm font-bold text-slate-900 outline-none dark:bg-slate-900 dark:text-white"
+                               x-model="lastOrder.customer_phone" placeholder="Cth: 0812...">
                     </div>
                 </div>
 
                 <template x-if="lastOrder.customer_phone && lastOrder.customer_phone.length >= 9">
                     <button type="button" @click="sendWa"
-                            class="btn fw-bold p-3 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white"
-                            style="border-radius: 1rem; background: linear-gradient(135deg, #25D366, #128C7E); border: none; transition: all 0.2s ease;"
-                            onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                        <i class="bi bi-whatsapp fs-5"></i> Kirim Struk via WA
+                            class="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] p-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.02]"
+                            style="border: none;">
+                        <i class="bi bi-whatsapp text-lg"></i> Kirim Struk via WA
                     </button>
                 </template>
 
-                <div class="d-flex gap-2">
+                <div class="flex gap-2">
                     <button type="button" @click="window.open('/invoice/' + lastOrder.invoice_code, '_blank')"
-                            class="btn flex-grow-1 fw-bold p-3 d-flex align-items-center justify-content-center gap-2"
-                            style="border-radius: 1rem; background-color: var(--bs-tertiary-bg); color: var(--bs-body-color); border: 1px solid var(--bs-border-color-translucent); transition: all 0.2s ease;"
-                            onmouseover="this.style.backgroundColor='var(--bs-secondary-bg)'; this.style.transform='scale(1.02)'" 
-                            onmouseout="this.style.backgroundColor='var(--bs-tertiary-bg)'; this.style.transform='scale(1)'">
-                        <i class="bi bi-printer fs-5"></i> Cetak Struk
+                            class="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-emerald-800/15 bg-white p-3 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50 hover:scale-[1.02] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800">
+                        <i class="bi bi-printer text-lg"></i> Cetak Struk
                     </button>
                 </div>
 
                 <button type="button" @click="closeSuccessModal"
-                        class="btn fw-bold p-3 mt-2 text-white shadow-sm"
-                        style="border-radius: 1rem; background: linear-gradient(135deg, var(--bs-primary), var(--brand-accent-dark)); font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; transition: all 0.2s ease;"
-                        onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        class="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-600 p-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.02] dark:from-emerald-500 dark:to-emerald-400 dark:text-slate-950"
+                        style="border: none;">
                     Tutup & Pesanan Baru
                 </button>
             </div>

@@ -28,39 +28,43 @@
     {{-- BARIS 2: WALLET OVERVIEW BANNER ──────────────────────────────────── --}}
     @island(name: 'wallet-overview', defer: true)
         @placeholder
-            {{-- Skeleton: virtual card + arus kas cards --}}
             <div class="flex flex-col md:flex-row gap-6">
-                {{-- Skeleton: Virtual Card --}}
-                <div class="w-full md:w-3/5 bg-slate-900 rounded-3xl p-6 md:p-8 animate-pulse border border-slate-800 min-h-[180px] flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <div class="space-y-3">
-                            <div class="h-3 w-28 bg-slate-700 rounded"></div>
-                            <div class="h-10 w-52 bg-slate-700 rounded-xl"></div>
+                <div class="w-full md:w-3/5 rounded-3xl p-6 md:p-8 min-h-[170px] relative overflow-hidden border border-slate-800 shadow-xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 animate-pulse">
+                    <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+                    <div class="absolute -right-20 -bottom-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -left-20 -top-20 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col justify-between h-full min-h-[170px]">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-2">
+                                <div class="h-2.5 w-28 bg-emerald-400/40 rounded"></div>
+                                <div class="h-10 md:h-12 w-48 md:w-56 bg-slate-700 rounded-xl"></div>
+                            </div>
+                            <div class="w-12 h-9 rounded-lg bg-gradient-to-br from-amber-200 via-yellow-400 to-amber-500 p-[1.5px] shrink-0">
+                                <div class="w-full h-full rounded-[6px] bg-slate-950/30"></div>
+                            </div>
                         </div>
-                        <div class="w-12 h-9 bg-slate-700 rounded-lg"></div>
-                    </div>
-                    <div class="flex justify-between items-end mt-8 pt-4 border-t border-white/5">
-                        <div class="space-y-1.5">
-                            <div class="h-2.5 w-20 bg-slate-700 rounded"></div>
-                            <div class="h-4 w-32 bg-slate-700 rounded"></div>
-                        </div>
-                        <div class="space-y-1.5 text-right">
-                            <div class="h-2.5 w-20 bg-slate-700 rounded ml-auto"></div>
-                            <div class="h-4 w-28 bg-slate-700 rounded"></div>
+                        <div class="flex justify-between items-end mt-8 pt-4 border-t border-white/5">
+                            <div class="space-y-1.5">
+                                <div class="h-2.5 w-20 bg-slate-700 rounded"></div>
+                                <div class="h-4 w-32 bg-slate-700 rounded"></div>
+                            </div>
+                            <div class="space-y-1.5 text-right">
+                                <div class="h-2.5 w-20 bg-slate-700 rounded ml-auto"></div>
+                                <div class="h-4 w-24 bg-slate-700 rounded ml-auto"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                {{-- Skeleton: Kas Cards --}}
                 <div class="w-full md:w-2/5 flex flex-col sm:flex-row gap-4">
                     @for($i = 0; $i < 2; $i++)
                         <div class="flex-1 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 animate-pulse flex flex-col justify-between gap-6">
                             <div class="flex justify-between items-start">
-                                <div class="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-700"></div>
-                                <div class="h-6 w-14 rounded-lg bg-slate-200 dark:bg-slate-700"></div>
+                                <div class="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-700 shadow-sm"></div>
+                                <div class="h-6 w-16 rounded-lg bg-slate-200 dark:bg-slate-700"></div>
                             </div>
                             <div class="space-y-2">
-                                <div class="h-3 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-7 w-28 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-7 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
                             </div>
                         </div>
                     @endfor
@@ -161,36 +165,33 @@
     @island(name: 'tx-section', defer: true)
         @placeholder
             <div class="flex flex-col-reverse md:flex-row gap-6 items-start">
-                {{-- Skeleton: tabel transaksi --}}
-                <div class="w-full md:w-[65%] dash-card p-0 overflow-hidden">
-                    {{-- header skeleton --}}
-                    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 animate-pulse">
-                        <div class="h-5 w-5 rounded bg-slate-200 dark:bg-slate-700"></div>
-                        <div class="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                        <div class="ml-auto flex gap-2">
-                            <div class="h-7 w-20 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                            <div class="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+                <div class="w-full md:w-[65%] dash-card p-0 flex flex-col overflow-hidden">
+                    <div class="p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-wrap items-center gap-3 animate-pulse">
+                        <div class="h-5 w-40 max-w-full bg-slate-200 dark:bg-slate-700 rounded mr-auto"></div>
+                        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 max-w-full">
+                            <div class="h-7 w-16 bg-white dark:bg-slate-700 rounded-lg"></div>
+                            <div class="h-7 w-14 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                            <div class="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
                         </div>
+                        <div class="h-8 w-20 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
                     </div>
-                    {{-- search skeleton --}}
-                    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 animate-pulse">
+                    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 animate-pulse">
                         <div class="h-10 w-full bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
                     </div>
-                    {{-- row skeletons --}}
-                    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <div class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
                         @for($i = 0; $i < 7; $i++)
-                            <div class="flex items-start justify-between p-4 animate-pulse">
-                                <div class="flex items-start gap-3 w-full">
+                            <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80 last:border-b-0">
+                                <div class="p-0 flex items-start gap-3.5 w-full min-w-0 animate-pulse">
                                     <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
-                                    <div class="flex-grow flex justify-between items-start min-w-0">
-                                        <div class="min-w-0 pr-2 space-y-1.5">
-                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                            <div class="h-3.5 w-20 bg-slate-100 dark:bg-slate-800/50 rounded"></div>
-                                            <div class="h-3 w-28 bg-slate-100 dark:bg-slate-800/30 rounded mt-1"></div>
+                                    <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                        <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                            <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                            <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded"></div>
+                                            <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded mt-0.5"></div>
                                         </div>
-                                        <div class="shrink-0 text-right space-y-1.5">
-                                            <div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
-                                            <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded-full ml-auto"></div>
+                                        <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                            <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
+                                            <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded ml-auto"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -198,16 +199,27 @@
                         @endfor
                     </div>
                 </div>
-                {{-- Skeleton: chart kanan --}}
-                <div class="w-full md:w-[35%] dash-card p-6 flex flex-col gap-6 animate-pulse">
-                    <div class="flex items-center gap-2">
-                        <div class="w-5 h-5 rounded bg-slate-200 dark:bg-slate-700"></div>
-                        <div class="h-5 w-36 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                <div class="w-full md:w-[35%] dash-card p-6 flex flex-col bg-card relative overflow-hidden animate-pulse">
+                    <div class="flex items-center justify-between mb-8 relative z-10">
+                        <div class="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
                     </div>
-                    <div class="w-48 h-48 rounded-full bg-slate-200 dark:bg-slate-700 mx-auto"></div>
-                    <div class="space-y-3">
+                    <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center">
+                        <div class="w-56 h-56 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                            <div class="h-2.5 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                            <div class="h-6 w-28 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3 mt-auto relative z-10">
                         @for($i = 0; $i < 3; $i++)
-                            <div class="h-14 w-full bg-slate-200 dark:bg-slate-700 rounded-2xl"></div>
+                            <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                </div>
+                                <div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                            </div>
                         @endfor
                     </div>
                 </div>
@@ -271,62 +283,47 @@
             </div>
 
             {{-- Table Container with Max Height, Sticky Header + wire:loading skeleton --}}
-            <div class="overflow-x-auto overflow-y-auto max-h-[480px] w-full relative">
+            <div class="overflow-x-hidden md:overflow-x-auto overflow-y-auto max-h-[480px] w-full relative">
 
-                {{-- Skeleton overlay saat loading filter/sort (bg solid agar text tabel di belakang tidak tembus) --}}
                 <div wire:loading wire:target="filter,sortOrder,toggleSort,search"
                      class="absolute inset-0 z-20 bg-white dark:bg-slate-900 flex flex-col p-0 divide-y divide-slate-100 dark:divide-slate-800/80">
                     @for($i = 0; $i < 6; $i++)
-                        <div class="flex items-start justify-between p-4 md:px-6 md:py-4 md:items-center animate-pulse">
-                            {{-- Mobile Skeleton Row (flex on mobile, hidden on desktop) --}}
-                            <div class="flex items-start gap-3 md:hidden w-full">
-                                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
-                                <div class="flex-grow flex justify-between items-start min-w-0">
-                                    <div class="min-w-0 pr-2 space-y-1.5">
-                                        <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        <div class="h-3.5 w-20 bg-slate-100 dark:bg-slate-800/50 rounded"></div>
-                                        <div class="h-3 w-28 bg-slate-100 dark:bg-slate-800/30 rounded mt-1"></div>
+                        <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80 last:border-b-0">
+                            <div class="p-0 flex items-start gap-3.5 w-full min-w-0 animate-pulse">
+                                <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
+                                <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                    <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                        <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded"></div>
+                                        <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded mt-0.5"></div>
                                     </div>
-                                    <div class="shrink-0 text-right space-y-1.5">
-                                        <div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
-                                        <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded-full ml-auto"></div>
+                                    <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                        <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
+                                        <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded ml-auto"></div>
                                     </div>
                                 </div>
                             </div>
-
-                            {{-- Desktop Skeleton Cells (hidden on mobile, flex/blocks on desktop) --}}
-                            <div class="hidden md:flex items-center gap-3 flex-1 min-w-0">
-                                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
-                                <div class="flex-grow space-y-1.5">
-                                    <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                    <div class="h-3 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                                </div>
-                            </div>
-                            <div class="hidden md:block h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-                            <div class="hidden md:block h-6 w-14 bg-slate-200 dark:bg-slate-700 rounded-full ml-4"></div>
-                            <div class="hidden md:block h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
-                            <div class="hidden md:block h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
                         </div>
                     @endfor
                 </div>
-                <table class="w-full text-left border-collapse whitespace-nowrap">
+                <table class="w-full text-left border-collapse md:whitespace-nowrap">
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
                         
                         @island(name: 'tx-list', always: true)
                             @placeholder
                                 @for($i = 0; $i < 5; $i++)
                                     <tr class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80">
-                                        <td class="p-0 flex items-start gap-3.5 w-full">
+                                        <td class="p-0 flex items-start gap-3.5 w-full min-w-0">
                                             <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
-                                            <div class="flex-grow flex justify-between items-start min-w-0">
-                                                <div class="min-w-0 pr-2 space-y-1.5">
-                                                    <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
-                                                    <div class="h-3.5 w-20 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
-                                                    <div class="h-3 w-28 bg-slate-100 dark:bg-slate-800/30 rounded animate-pulse mt-1"></div>
+                                            <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                                <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                                    <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                                                    <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
+                                                    <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded animate-pulse mt-0.5"></div>
                                                 </div>
-                                                <div class="shrink-0 text-right space-y-1.5">
-                                                    <div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
-                                                    <div class="h-4 w-12 bg-slate-100 dark:bg-slate-850 rounded-full animate-pulse ml-auto"></div>
+                                                <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                                    <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
+                                                    <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -355,42 +352,35 @@
                                 @endif
 
                                 <tr wire:key="tx-{{ $tx->id }}" class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group border-b border-slate-100 dark:border-slate-800/80">
-                                    
-                                    {{-- UNIFIED VIEW ROW (rendered on all screen sizes) --}}
-                                    <td class="p-0 flex items-start gap-3.5 w-full">
-                                        {{-- 1. Ikon Tunggal --}}
+                                    <td class="p-0 flex items-start gap-3.5 w-full min-w-0">
                                         <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 bg-[#f15a24] shadow-sm">
                                             {!! $iconSvg !!}
                                         </div>
 
-                                        {{-- 2. Detail Data --}}
-                                        <div class="flex-grow flex justify-between items-start min-w-0">
-                                            {{-- Sisi Kiri: Deskripsi, Subtitle (Ref/Keterangan), Tanggal --}}
-                                            <div class="min-w-0 pr-2 flex flex-col gap-0.5">
-                                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
+                                        <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                            <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 break-words leading-snug md:truncate">
                                                     {{ $title }}
                                                 </p>
-                                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium break-words leading-snug md:truncate">
                                                     {{ $subtitle }}
                                                 </p>
-                                                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                                                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5 whitespace-nowrap">
                                                     {{ $tx->created_at->translatedFormat('d F Y H:i') }}
                                                 </p>
                                             </div>
 
-                                            {{-- Sisi Kanan: Nominal (+/- Rp), Status --}}
-                                            <div class="shrink-0 text-right flex flex-col gap-1">
-                                                <p class="text-sm font-bold font-mono {{ $tx->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200' }}">
+                                            <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                                <p class="text-xs sm:text-sm font-bold font-mono whitespace-nowrap {{ $tx->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200' }}">
                                                     {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp{{ number_format($tx->amount, 0, ',', '.') }}
                                                 </p>
-                                                {{-- Status Badge --}}
                                                 <div>
                                                     @if($tx->type === 'DEBIT')
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
                                                             Keluar
                                                         </span>
                                                     @else
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
                                                             Masuk
                                                         </span>
                                                     @endif

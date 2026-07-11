@@ -1,183 +1,149 @@
-<div class="d-flex flex-column h-100">
-
-    {{-- 1. Search Bar --}}
+<div class="flex h-full min-h-0 flex-col rounded-[2rem] border border-emerald-800/15 bg-white/70 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/70 lg:p-5">
     <div class="mb-4">
-        <div class="position-relative">
-            <i class="bi bi-search position-absolute text-muted fs-5"
-               style="top: 50%; left: 1.25rem; transform: translateY(-50%); pointer-events: none;"></i>
-            <input type="text" id="tour-pos-search" class="form-control form-control-lg glass-search ps-5 py-2.5"
-                   style="border-radius: 2rem; font-size: 0.95rem; padding-right: 3rem;"
-                   wire:model.live.debounce.300ms="search" 
-                   wire:keydown.enter="handleEnter($event.target.value)"
-                   placeholder="Cari menu atau produk jualan...">
-                   
+        <div class="relative">
+            <i class="bi bi-search pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-lg text-emerald-800/70 dark:text-emerald-400"></i>
+            <input
+                type="text"
+                id="tour-pos-search"
+                class="w-full rounded-full border border-emerald-800/30 bg-white py-4 pl-12 pr-12 text-sm font-bold text-slate-900 shadow-sm outline-none transition focus:border-emerald-800 focus:ring-4 focus:ring-emerald-800/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-emerald-400"
+                wire:model.live.debounce.300ms="search"
+                wire:keydown.enter="handleEnter($event.target.value)"
+                placeholder="Cari menu atau produk jualan..."
+            >
+
             @if(strlen(trim($search)) > 0)
-                <button type="button" wire:click="$set('search', '')" class="btn btn-link position-absolute text-muted p-0 border-0 shadow-none d-flex align-items-center justify-content-center"
-                        style="top: 50%; right: 1.25rem; transform: translateY(-50%); z-index: 5;" title="Bersihkan Pencarian">
-                    <i class="bi bi-x-circle-fill fs-5 opacity-50 hover-opacity-100 transition-all"></i>
+                <button
+                    type="button"
+                    wire:click="$set('search', '')"
+                    class="absolute right-5 top-1/2 z-[5] -translate-y-1/2 text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
+                    title="Bersihkan Pencarian"
+                >
+                    <i class="bi bi-x-circle-fill text-lg"></i>
                 </button>
             @endif
         </div>
     </div>
 
-    {{-- 2. Category Filter Segmented Tabs --}}
-    <div class="cat-scroll mb-4">
-        <button type="button" wire:click="$set('categoryFilter', 'all')"
-                class="cat-btn {{ $categoryFilter === 'all' ? 'active' : '' }}">
+    <div class="mb-4 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <button
+            type="button"
+            wire:click="$set('categoryFilter', 'all')"
+            class="shrink-0 rounded-2xl border px-5 py-3 text-sm font-black transition {{ $categoryFilter === 'all' ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-400 dark:bg-emerald-400 dark:text-slate-950' : 'border-emerald-800/15 bg-white text-slate-600 hover:border-emerald-800/40 hover:text-emerald-800 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white' }}"
+        >
             Semua Menu
         </button>
         @if($hasPromoItems)
-        <button type="button" wire:click="$set('categoryFilter', 'promo')"
-                class="cat-btn {{ $categoryFilter === 'promo' ? 'active' : '' }}"
-                style="{{ $categoryFilter === 'promo' ? 'background: #ef4444; color: white; border-color: #ef4444;' : 'background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.3);' }}">
-            🔥 Promo
-        </button>
+            <button
+                type="button"
+                wire:click="$set('categoryFilter', 'promo')"
+                class="shrink-0 rounded-2xl border px-5 py-3 text-sm font-black transition {{ $categoryFilter === 'promo' ? 'border-red-500 bg-red-500 text-white' : 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20' }}"
+            >
+                Promo
+            </button>
         @endif
         @foreach($categories as $category)
-            <button type="button" wire:click="$set('categoryFilter', '{{ $category->id }}')"
-                    class="cat-btn {{ $categoryFilter == $category->id ? 'active' : '' }}">
+            <button
+                type="button"
+                wire:click="$set('categoryFilter', '{{ $category->id }}')"
+                class="shrink-0 rounded-2xl border px-5 py-3 text-sm font-black transition {{ $categoryFilter == $category->id ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-400 dark:bg-emerald-400 dark:text-slate-950' : 'border-emerald-800/15 bg-white text-slate-600 hover:border-emerald-800/40 hover:text-emerald-800 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-white' }}"
+            >
                 {{ $category->name }}
             </button>
         @endforeach
     </div>
 
-    {{-- 3. Product Grid Canvas --}}
-    <div id="tour-product-grid" class="product-grid pb-4">
-
-        {{-- KONDISI LOADING: Layer Skeleton Muncul --}}
-        <div wire:loading wire:target="search, categoryFilter" class="w-100">
-            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+    <div id="tour-product-grid" class="min-h-0 flex-1 overflow-y-auto pb-4 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div wire:loading wire:target="search, categoryFilter" class="w-full">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 @for($i = 0; $i < 8; $i++)
-                    <div class="col">
-                        <div class="card h-100 border p-2 bg-body-tertiary" style="border-radius: 1rem;">
-                            <!-- Aspect Ratio Image Skeleton -->
-                            <div class="ratio ratio-1x1 skeleton-shimmer mb-3" style="border-radius: 0.75rem;"></div>
-                            <div class="card-body p-2 d-flex flex-column align-items-center">
-                                <!-- Title Skeleton -->
-                                <div class="skeleton-shimmer mb-2" style="width: 75%; height: 16px;"></div>
-                                <!-- Price Skeleton -->
-                                <div class="skeleton-shimmer" style="width: 45%; height: 14px;"></div>
-                            </div>
+                    <div class="rounded-3xl border border-emerald-800/15 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
+                        <div class="skeleton-shimmer h-28 rounded-2xl md:h-32"></div>
+                        <div class="mt-4 space-y-2">
+                            <div class="skeleton-shimmer h-4 w-3/4"></div>
+                            <div class="skeleton-shimmer h-4 w-1/2"></div>
                         </div>
                     </div>
                 @endfor
             </div>
         </div>
 
-        {{-- KONDISI NORMAL: Live Data Layer --}}
-        <div wire:loading.remove wire:target="search, categoryFilter" class="w-100">
-            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+        <div wire:loading.remove wire:target="search, categoryFilter" class="w-full">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 @forelse($products as $product)
-                    <div class="col tour-product-item">
+                    <div class="tour-product-item">
                         <div
-                            class="card product-card-hover h-100 overflow-hidden cursor-pointer user-select-none bg-body border {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
-                            style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02);"
+                            class="relative flex h-full min-h-[190px] cursor-pointer select-none flex-col overflow-hidden rounded-3xl border border-emerald-800/30 bg-white p-3 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-emerald-800 hover:shadow-xl active:scale-[0.98] dark:border-slate-700 dark:bg-slate-950 dark:hover:border-emerald-400 {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
                             x-data
-                            @click="$dispatch('add-product', { product: {{ json_encode($product) }} })">
-
-                            <!-- Layer Badges -->
+                            @click="$dispatch('add-product', { product: {{ json_encode($product) }} })"
+                        >
                             @if($product['has_variants'] || (!empty($product['extras']) && count($product['extras']) > 0))
-                                <span
-                                    class="position-absolute top-0 end-0 m-2 badge bg-primary bg-opacity-90 shadow-sm rounded-pill py-1.5 px-2.5"
-                                    style="z-index: 2; font-size: 0.65rem; font-weight: 700;">Ada Opsi</span>
+                                <span class="absolute left-3 top-3 z-[2] rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-extrabold text-white shadow-sm">Ada Opsi</span>
                             @endif
-
-
 
                             @if(!$product['has_variants'] && $product['stock'] <= 0)
-                                <span
-                                    class="position-absolute top-0 start-0 m-2 badge bg-danger bg-opacity-90 shadow-sm rounded-pill py-1.5 px-2.5"
-                                    style="z-index: 2; font-size: 0.65rem; font-weight: 700;">Stok Habis</span>
+                                <span class="absolute left-3 top-3 z-[2] rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-extrabold text-white shadow-sm">Stok Habis</span>
                             @endif
 
-                            {{-- Image Container --}}
-                            <div class="ratio ratio-1x1 bg-body-tertiary position-relative border-bottom"
-                                 style="border-color: var(--bs-border-color-translucent) !important;">
+                            <div class="flex h-28 items-center justify-center rounded-2xl bg-[#f6f2e8] dark:bg-slate-900 md:h-32">
                                 @if($product['image_url'])
-                                    <img src="{{ $product['image_url'] }}" class="w-100 h-100 object-fit-cover"
-                                         loading="lazy" alt="{{ $product['name'] }}">
+                                    <img src="{{ $product['image_url'] }}" class="h-full w-full object-contain p-2" loading="lazy" alt="{{ $product['name'] }}">
                                 @else
-                                    <div
-                                        class="d-flex align-items-center justify-content-center text-muted opacity-25 h-100 w-100">
-                                        <i class="bi bi-cup-hot-fill fs-2"></i>
-                                    </div>
+                                    <i class="bi bi-cup-hot-fill text-4xl text-emerald-800/30 dark:text-slate-700"></i>
                                 @endif
                             </div>
 
-                            {{-- Info Content --}}
-                            <div class="card-body p-3 text-center d-flex flex-column justify-content-between bg-body">
+                            <div class="mt-3 flex flex-1 flex-col justify-between">
                                 <div>
                                     @if(!empty($product['active_discount_price']) && !empty($product['active_discount_name']))
-                                        <div class="mb-1">
-                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-2 py-1" style="font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px;">% {{ $product['active_discount_name'] }}</span>
-                                        </div>
+                                        <span class="mb-1 inline-flex rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-extrabold tracking-wide text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
+                                            % {{ $product['active_discount_name'] }}
+                                        </span>
                                     @endif
-                                    <h6 class="fw-bold font-serif mb-1 text-truncate text-body"
-                                        style="font-size: 0.9rem;">
-                                        {{ $product['name'] }}
-                                    </h6>
+                                    <h6 class="truncate text-sm font-black text-slate-950 dark:text-white">{{ $product['name'] }}</h6>
                                     @if(tenant('store_type') === 'retail' && count($product['variants']) > 0)
-                                        <div class="text-secondary mb-1 text-truncate" style="font-size: 0.75rem;" title="{{ collect($product['variants'])->pluck('sku')->filter()->join(', ') }}">
-                                            <i class="bi bi-upc-scan me-1"></i>
+                                        <div class="mt-1 truncate text-xs font-medium text-slate-500 dark:text-slate-400" title="{{ collect($product['variants'])->pluck('sku')->filter()->join(', ') }}">
+                                            <i class="bi bi-upc-scan mr-1"></i>
                                             {{ collect($product['variants'])->pluck('sku')->filter()->join(', ') ?: 'No SKU' }}
                                         </div>
                                     @endif
                                 </div>
-                                <div class="mt-2">
-                                    @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))
-                                        @if(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'])
-                                            <div class="d-flex flex-column">
-                                                <span class="text-decoration-line-through text-danger" style="font-size: 0.75rem; font-weight: 600;">Rp {{ number_format($product['price'], 0, ',', '.') }}</span>
-                                                <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
-                                                    Rp {{ number_format($product['active_discount_price'], 0, ',', '.') }}
-                                                </p>
-                                            </div>
+                                <div class="mt-3 flex items-end justify-between gap-2">
+                                    <div>
+                                        @if(!$product['has_variants'] && (!isset($product['extras']) || count($product['extras']) === 0))
+                                            @if(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'])
+                                                <span class="block text-xs font-semibold text-red-500 line-through">Rp {{ number_format($product['price'], 0, ',', '.') }}</span>
+                                                <p class="mb-0 text-sm font-black text-emerald-800 dark:text-emerald-400">Rp {{ number_format($product['active_discount_price'], 0, ',', '.') }}</p>
+                                            @else
+                                                <p class="mb-0 text-sm font-black text-emerald-800 dark:text-emerald-400">Rp {{ number_format($product['price'], 0, ',', '.') }}</p>
+                                            @endif
+                                            <small class="mt-1 block text-[10px] font-bold text-slate-500 dark:text-slate-400">Stok: <span class="text-slate-900 dark:text-white">{{ $product['stock'] }}</span></small>
                                         @else
-                                            <p class="fw-bold mb-0 text-caramel-solid" style="font-size: 1rem;">
-                                                Rp {{ number_format($product['price'], 0, ',', '.') }}
-                                            </p>
+                                            <p class="mb-0 text-xs font-bold text-slate-500 dark:text-slate-400">Mulai <span class="block text-sm font-black text-emerald-800 dark:text-emerald-400">Rp {{ number_format(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'] ? $product['active_discount_price'] : $product['price'], 0, ',', '.') }}</span></p>
                                         @endif
-                                        <small class="text-muted d-block mt-1"
-                                               style="font-size: 0.7rem; font-weight: 500;">
-                                            Sisa Stok: <span class="fw-bold text-body">{{ $product['stock'] }}</span>
-                                        </small>
-                                    @else
-                                        <p class="text-secondary mb-0 small"
-                                           style="font-size: 0.75rem; font-weight: 500;">
-                                            Mulai
-                                            <span class="text-caramel-solid d-block d-md-inline mt-1 mt-md-0"
-                                                  style="font-size: 1rem;">
-                                                Rp {{ number_format(!empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price'] ? $product['active_discount_price'] : $product['price'], 0, ',', '.') }}
-                                            </span>
-                                        </p>
-                                    @endif
+                                    </div>
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-emerald-800 text-xl text-emerald-800 dark:border-emerald-400 dark:text-emerald-400">+</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-12 text-center py-5">
-                        <div class="card p-5 border border-dashed rounded-4 bg-body-tertiary"
-                             style="border-width: 2px; border-color: var(--bs-border-color) !important;">
-                            <i class="bi bi-search fs-1 mb-3 text-muted opacity-25"></i>
-                            <h5 class="fw-bold text-body">Produk tidak ditemukan</h5>
-                            <p class="text-muted small mb-0">Coba cari dengan kata kunci lain atau pilih semua
-                                kategori.</p>
+                    <div class="col-span-full py-10 text-center">
+                        <div class="rounded-3xl border-2 border-dashed border-emerald-800/20 bg-white/70 p-8 dark:border-slate-800 dark:bg-slate-900/60">
+                            <i class="bi bi-search mb-3 block text-4xl text-slate-300 dark:text-slate-700"></i>
+                            <h5 class="text-lg font-bold text-slate-900 dark:text-white">Produk tidak ditemukan</h5>
+                            <p class="mb-0 text-sm text-slate-500 dark:text-slate-400">Coba cari dengan kata kunci lain atau pilih semua kategori.</p>
                         </div>
                     </div>
                 @endforelse
             </div>
 
-            {{-- Pagination / Infinite Scroll Bottom --}}
             @if($hasMore)
-                <div x-intersect.full="$wire.loadMore()"
-                     class="d-flex justify-content-center align-items-center py-4 text-muted small fw-bold">
-                    <div class="spinner-border text-secondary spinner-border-sm me-2" role="status"></div>
+                <div x-intersect.full="$wire.loadMore()" class="flex items-center justify-center gap-2 py-4 text-sm font-bold text-slate-500 dark:text-slate-400">
+                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600 dark:border-slate-700 dark:border-t-slate-200"></div>
                     Memuat item lainnya...
                 </div>
             @else
-                <div class="text-center py-4 text-muted small fw-bold opacity-50 border-top mt-4"
-                     style="border-color: var(--bs-border-color-translucent) !important;">
+                <div class="mt-4 border-t border-emerald-800/10 py-4 text-center text-sm font-bold text-slate-400 dark:border-slate-800 dark:text-slate-500">
                     <i class="bi bi-check2-all"></i> Semua menu telah dimuat
                 </div>
             @endif

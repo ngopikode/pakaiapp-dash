@@ -1,193 +1,111 @@
-<div class="card d-flex flex-column h-100 border shadow-sm bg-body text-body"
-     style="border-radius: 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
-     
-    <div x-show="isEditingOrder" class="bg-primary bg-opacity-10 text-primary px-3 py-2 border-bottom fw-medium text-center small position-relative" style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important; display: none;">
-        <i class="bi bi-info-circle-fill me-1"></i> Menambah ke <span class="fw-bold" x-text="editInvoiceCode"></span> (<span x-text="customerName || tableNumber"></span>)
-        <button type="button" class="btn-close position-absolute end-0 top-50 translate-middle-y me-3" style="font-size: 0.6rem;" @click="isEditingOrder = false; @this.cancelEditOrder(); currentTab = 'queue';" title="Batal Edit"></button>
-    </div>
-
-    {{-- Header (Safe Context Light/Dark) --}}
-    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-body"
-         :style="isEditingOrder ? 'border-radius: 0;' : 'border-radius: 1.5rem 1.5rem 0 0;'" style="border-color: var(--bs-border-color-translucent) !important;">
-        <div class="d-flex align-items-center gap-2">
-            <!-- Tombol Kembali Khusus HP -->
-            <button @click="isMobileCartOpen = false"
-                    class="btn btn-sm btn-secondary d-lg-none rounded-circle shadow-sm d-flex align-items-center justify-content-center bg-body border"
-                    style="width: 36px; height: 36px;">
-                <i class="bi bi-arrow-left fs-5 text-body"></i>
-            </button>
-            <h5 class="fw-bold mb-0 text-truncate" style="max-width: 140px;">
-                <i class="bi bi-shop-window text-warning me-1 d-none d-lg-inline-block"></i>Pesanan
-            </h5>
-        </div>
-        <button @click="clearCart" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center rounded-circle shadow-sm"
-                x-show="cart.length > 0" title="Bersihkan (F4)" style="width: 36px; height: 36px;">
-            <i class="bi bi-trash3 fs-6"></i>
+<div class="flex h-full min-h-[640px] flex-col overflow-hidden rounded-[2rem] border border-emerald-800/15 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div x-show="isEditingOrder" class="border-b border-emerald-800/10 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-emerald-800 dark:border-slate-800 dark:bg-emerald-500/10 dark:text-emerald-400" style="display: none;">
+        Menambah ke <span x-text="editInvoiceCode"></span> (<span x-text="customerName || tableNumber"></span>)
+        <button type="button" class="float-end text-slate-500" @click="isEditingOrder = false; @this.cancelEditOrder(); currentTab = 'queue';" title="Batal Edit">
+            <i class="bi bi-x-lg"></i>
         </button>
     </div>
 
-    {{-- Cart Items --}}
-    <div id="tour-cart-items" class="card-body p-3 overflow-y-auto flex-grow-1 bg-body-tertiary">
-        <div x-show="cart.length === 0" style="display: none;">
-            <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50">
-                <i class="bi bi-bag-dash mb-3" style="font-size: 3.5rem;"></i>
-                <p class="fw-bold mb-0">Keranjang Kosong</p>
-                <small>Pilih menu untuk memulai</small>
-            </div>
+    <div class="flex items-center justify-between border-b border-emerald-800/10 px-4 py-4 dark:border-slate-800">
+        <button @click="isMobileCartOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 lg:hidden">
+            <i class="bi bi-arrow-left text-lg"></i>
+        </button>
+        <div>
+            <div class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Receipt</div>
+            <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Pesanan</h5>
         </div>
-
-        <div class="d-flex flex-column gap-3">
-            <template x-for="(item, index) in cart" :key="index">
-                <div class="card p-3 border shadow-sm bg-body"
-                     style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="pe-2">
-                            <h6 class="fw-bold mb-1 text-body" x-text="item.name"></h6>
-                            <template x-if="item.variant_name">
-                                <span class="badge bg-body-tertiary text-secondary border rounded-pill mb-1"
-                                      style="font-size: 0.7rem; white-space: normal;" x-text="item.variant_name"></span>
-                            </template>
-                        </div>
-                        <button @click="removeFromCart(index)"
-                                class="btn btn-sm btn-secondary bg-body text-danger p-0 shadow-sm rounded-circle border d-flex align-items-center justify-content-center"
-                                style="width: 28px; height: 28px; flex-shrink: 0;">
-                            <i class="bi bi-x fs-5"></i>
-                        </button>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <span class="fw-bold text-primary" x-text="'Rp ' + formatRupiah(item.subtotal)"></span>
-                        <div class="d-flex align-items-center bg-body-tertiary rounded-pill border"
-                             style="padding: 0.2rem; border-color: var(--bs-border-color) !important;">
-                            <button @click="decreaseQty(index)"
-                                    class="btn btn-sm btn-secondary bg-body rounded-circle p-1 shadow-sm border"
-                                    style="width: 28px; height: 28px; color: var(--bs-body-color);"><i
-                                    class="bi bi-dash"></i></button>
-                            <span class="fw-bold px-3 small text-body" x-text="item.quantity"></span>
-                            <button @click="increaseQty(index)"
-                                    class="btn btn-sm btn-primary rounded-circle p-1 shadow-sm border-0"
-                                    style="width: 28px; height: 28px;" :disabled="item.quantity >= item.stock"><i
-                                    class="bi bi-plus"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <input type="text"
-                               class="form-control form-control-sm bg-body-tertiary text-body border-0"
-                               x-model="item.note"
-                               placeholder="Catatan (opsional)..."
-                               style="border-radius: 0.5rem; border-color: var(--bs-border-color-translucent) !important;">
-                    </div>
-                </div>
-            </template>
-        </div>
+        <button @click="clearCart" class="flex h-10 w-10 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 shadow-sm transition hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400" x-show="cart.length > 0" title="Bersihkan">
+            <i class="bi bi-trash3"></i>
+        </button>
     </div>
 
-    {{-- Bottom Section (Action Buttons) --}}
-    <div class="p-3 border-top bg-body pb-mobile-nav"
-         style="border-radius: 0 0 1.5rem 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
-
-        {{-- Order Type Selector --}}
-        <div class="d-flex gap-2 overflow-x-auto hide-scrollbar mb-3 pb-1">
+    <div class="border-b border-emerald-800/10 p-4 dark:border-slate-800">
+        <div class="mb-3 grid grid-cols-3 gap-2">
             @foreach($orderTypes as $type)
                 <button @click="orderType = '{{ $type['id'] }}'; if('{{ $type['id'] }}' !== 'dinein') tableNumber = ''"
-                        class="btn fw-bold py-2 px-3 flex-shrink-0 transition-all rounded-pill"
-                        :class="orderType === '{{ $type['id'] }}' ? 'btn-primary text-white' : 'btn-outline-secondary bg-body-tertiary border text-secondary'"
-                        style="font-size: 0.85rem;"
+                        class="rounded-full border px-3 py-2 text-xs font-black transition"
+                        :class="orderType === '{{ $type['id'] }}' ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-400 dark:bg-emerald-400 dark:text-slate-950' : 'border-emerald-800/20 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400'"
                         :disabled="isEditingOrder">
                     {{ $type['label'] }}
                 </button>
             @endforeach
         </div>
 
-        {{-- Inputs --}}
-        <div class="row g-2 mb-3">
-            <div :class="orderType === 'dinein' ? 'col-7' : 'col-12'">
-                <input type="text" class="form-control bg-body-tertiary text-body border" x-model="customerName"
-                       placeholder="Nama Pelanggan" :disabled="isEditingOrder"
-                       style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
-            </div>
-            <div class="col-5" x-show="orderType === 'dinein'">
-                <input type="text" class="form-control bg-body-tertiary text-body border" x-model="tableNumber"
-                       placeholder="Meja" :disabled="isEditingOrder"
-                       style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
+        <div class="grid gap-2" :class="orderType === 'dinein' ? 'grid-cols-2' : 'grid-cols-1'">
+            <input type="text" class="rounded-2xl border border-emerald-800/30 bg-white px-4 py-3 text-sm font-bold text-slate-900 outline-none focus:border-emerald-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white" x-model="customerName" placeholder="Nama Pelanggan" :disabled="isEditingOrder">
+            <input type="text" class="rounded-2xl border border-emerald-800/30 bg-white px-4 py-3 text-sm font-bold text-slate-900 outline-none focus:border-emerald-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white" x-show="orderType === 'dinein'" x-model="tableNumber" placeholder="Meja" :disabled="isEditingOrder">
+        </div>
+    </div>
+
+    <div id="tour-cart-items" class="min-h-0 flex-1 overflow-y-auto bg-[#fbfaf5] p-4 dark:bg-slate-950/60">
+        <div x-show="cart.length === 0" style="display: none;">
+            <div class="flex h-full min-h-[280px] flex-col items-center justify-center text-center text-slate-400">
+                <i class="bi bi-bag-dash mb-3 text-5xl"></i>
+                <p class="mb-0 text-sm font-black">Keranjang Kosong</p>
+                <small>Pilih menu untuk memulai</small>
             </div>
         </div>
 
-        <div x-show="stockError" class="text-danger small fw-bold mb-2 text-center" x-text="stockError"></div>
-
-        {{-- Ringkasan Biaya & Pajak --}}
-        <div class="card p-3 border mb-3 bg-body-tertiary"
-             style="border-radius: 0.75rem; border-color: var(--bs-border-color-translucent) !important;">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-secondary small">Subtotal</span>
-                <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(subTotal)"></span>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-secondary small">Biaya Layanan (<span x-text="serviceChargeRate"></span>%)</span>
-                    <div class="form-check form-switch mb-0 min-height-0">
-                        <input class="form-check-input" type="checkbox" role="switch" x-model="isServiceActive"
-                               style="cursor: pointer;">
+        <div class="flex flex-col gap-3">
+            <template x-for="(item, index) in cart" :key="index">
+                <div class="rounded-3xl border border-emerald-800/20 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h6 class="mb-1 truncate text-sm font-black text-slate-950 dark:text-white" x-text="item.name"></h6>
+                            <template x-if="item.variant_name">
+                                <span class="inline-flex rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300" x-text="item.variant_name"></span>
+                            </template>
+                        </div>
+                        <button @click="removeFromCart(index)" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-500/10">
+                            <i class="bi bi-x text-lg"></i>
+                        </button>
                     </div>
-                </div>
-                <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(serviceChargeAmount)"></span>
-            </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-secondary small">Pajak PB1 (<span x-text="taxRate"></span>%)</span>
-                    <div class="form-check form-switch mb-0 min-height-0">
-                        <input class="form-check-input" type="checkbox" role="switch" x-model="isTaxActive"
-                               style="cursor: pointer;">
+                    <div class="mt-3 flex items-center justify-between">
+                        <span class="text-sm font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(item.subtotal)"></span>
+                        <div class="flex items-center rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950">
+                            <button @click="decreaseQty(index)" class="flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200"><i class="bi bi-dash"></i></button>
+                            <span class="px-3 text-sm font-black text-slate-900 dark:text-white" x-text="item.quantity"></span>
+                            <button @click="increaseQty(index)" class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-800 text-white shadow-sm dark:bg-emerald-400 dark:text-slate-950" :disabled="item.quantity >= item.stock"><i class="bi bi-plus"></i></button>
+                        </div>
                     </div>
+
+                    <input type="text" class="mt-3 w-full rounded-2xl border-0 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 outline-none dark:bg-slate-950 dark:text-slate-200" x-model="item.note" placeholder="Catatan (opsional)...">
                 </div>
-                <span class="fw-semibold text-body small" x-text="'Rp ' + formatRupiah(taxAmount)"></span>
+            </template>
+        </div>
+    </div>
+
+    <div class="border-t border-emerald-800/10 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div x-show="stockError" class="mb-3 rounded-2xl bg-red-50 p-3 text-center text-xs font-black text-red-600 dark:bg-red-500/10 dark:text-red-400" x-text="stockError"></div>
+
+        <div class="mb-3 rounded-3xl border border-emerald-800/10 bg-[#fbfaf5] p-4 dark:border-slate-800 dark:bg-slate-950">
+            <div class="mb-2 flex justify-between text-sm">
+                <span class="font-semibold text-slate-500 dark:text-slate-400">Subtotal</span>
+                <span class="font-black text-slate-900 dark:text-white" x-text="'Rp ' + formatRupiah(subTotal)"></span>
             </div>
-
-            <div class="border-top my-2" style="border-color: var(--bs-border-color) !important;"></div>
-
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-body">Total</span>
-                <span class="fw-bold text-primary" x-text="'Rp ' + formatRupiah(subTotalWithCharges)"></span>
+            <div class="mb-2 flex justify-between text-sm">
+                <span class="font-semibold text-slate-500 dark:text-slate-400">Biaya Layanan (<span x-text="serviceChargeRate"></span>%)</span>
+                <span class="font-black text-slate-900 dark:text-white" x-text="'Rp ' + formatRupiah(serviceChargeAmount)"></span>
+            </div>
+            <div class="mb-2 flex justify-between text-sm">
+                <span class="font-semibold text-slate-500 dark:text-slate-400">Pajak PB1 (<span x-text="taxRate"></span>%)</span>
+                <span class="font-black text-slate-900 dark:text-white" x-text="'Rp ' + formatRupiah(taxAmount)"></span>
+            </div>
+            <div class="my-3 border-t border-emerald-800/10 dark:border-slate-800"></div>
+            <div class="flex justify-between">
+                <span class="font-black text-slate-950 dark:text-white">Total</span>
+                <span class="font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(subTotalWithCharges)"></span>
             </div>
         </div>
 
-        <div class="row g-2">
-            <div class="col-12" :class="isEditingOrder ? '' : 'col-xl-6'">
-                <button id="tour-resto-save" @click="submitNewOrder"
-                        class="btn btn-warning w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center text-dark py-3"
-                        :disabled="cart.length === 0 || stockError !== '' || isSubmitting" style="border-radius: 1rem;">
-                    <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Bill')"></span>
-                </button>
-            </div>
-            <div class="col-12 col-xl-6" x-show="!isEditingOrder">
-                <button id="tour-resto-pay" @click="openDirectPaymentModal"
-                        class="btn w-100 fw-bold shadow-sm d-flex justify-content-between align-items-center py-3 text-white"
-                        :disabled="cart.length === 0 || stockError !== '' || isSubmitting"
-                        style="border-radius: 1rem; background: #F97316; border: none;">
-                    <span>Bayar</span>
-                    <span x-text="formatRupiah(subTotalWithCharges)"></span>
-                </button>
-            </div>
-        </div>
-
-        {{-- Keyboard Shortcuts Legend --}}
-        <div class="mt-3 text-center border-top pt-2 d-none d-xl-block"
-             style="border-color: var(--bs-border-color-translucent) !important;">
-            <div class="d-flex justify-content-center flex-wrap gap-2 text-secondary" style="font-size: 0.7rem;">
-                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
-                        class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F2</kbd> Bayar</span>
-                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
-                        class="bg-dark text-white px-1 rounded small" style="font-size: 0.65rem;">F3</kbd> Simpan Bill</span>
-                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
-                        class="bg-dark text-white px-1 rounded small"
-                        style="font-size: 0.65rem;">F4</kbd> Bersihkan</span>
-                <span class="badge bg-body-tertiary border text-secondary px-2 py-1"><kbd
-                        class="bg-dark text-white px-1 rounded small"
-                        style="font-size: 0.65rem;">F8</kbd> Toggle Tab</span>
-            </div>
+        <div class="grid gap-2" :class="isEditingOrder ? 'grid-cols-1' : 'grid-cols-2'">
+            <button id="tour-resto-save" @click="submitNewOrder" class="rounded-2xl bg-amber-400 px-4 py-3 text-sm font-black text-slate-950 shadow-sm transition hover:bg-amber-300" :disabled="cart.length === 0 || stockError !== '' || isSubmitting">
+                <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Bill')"></span>
+            </button>
+            <button id="tour-resto-pay" @click="openDirectPaymentModal" class="rounded-2xl bg-emerald-800 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-emerald-700 dark:bg-emerald-500 dark:text-slate-950" x-show="!isEditingOrder" :disabled="cart.length === 0 || stockError !== '' || isSubmitting">
+                Bayar <span x-text="formatRupiah(subTotalWithCharges)"></span>
+            </button>
         </div>
     </div>
 </div>

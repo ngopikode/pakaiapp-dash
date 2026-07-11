@@ -90,6 +90,10 @@
         @apply bg-brand-accent/10 text-brand-accent dark:bg-brand-accent/20 dark:text-brand-accent-light border-r-4 border-brand-accent;
     }
 
+    .skeleton-shimmer {
+        @apply animate-pulse rounded bg-slate-200 dark:bg-slate-800;
+    }
+
     /* Keep generic animation classes used */
     .animate-pulse {
         animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
