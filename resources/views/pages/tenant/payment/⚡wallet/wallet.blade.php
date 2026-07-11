@@ -258,19 +258,17 @@
                 </button>
             </div>
 
-            {{-- Search Bar (dalam island agar update realtime tanpa re-render seluruh komponen) --}}
-            @island(name: 'tx-toolbar', always: true)
-                <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                        <input type="text" wire:model.live.debounce.300ms="search"
-                               class="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all bg-white dark:bg-slate-950"
-                               placeholder="Cari transaksi...">
+            {{-- Search Bar (di tx-section agar trigger re-render tx-list) --}}
+            <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
+                    <input type="text" wire:model.live.debounce.300ms="search"
+                           class="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all bg-white dark:bg-slate-950"
+                           placeholder="Cari transaksi...">
                 </div>
-            @endisland
+            </div>
 
             {{-- Table Container with Max Height, Sticky Header + wire:loading skeleton --}}
             <div class="overflow-x-auto overflow-y-auto max-h-[480px] w-full relative">
