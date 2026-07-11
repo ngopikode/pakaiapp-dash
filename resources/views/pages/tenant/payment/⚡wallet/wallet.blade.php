@@ -401,12 +401,14 @@
                             {{-- x-show="!fired" ensures the spinner from the old island chunk --}}
                             {{-- disappears immediately once it fires (mode:append keeps old DOM). --}}
                             @if($transactions->hasMorePages())
-                                <tr class="flex md:table-row w-full">
+                                <tr
+                                    x-data="{ fired: false }"
+                                    x-show="!fired"
+                                    class="flex md:table-row w-full"
+                                >
                                     <td colspan="6" class="w-full py-4 block md:table-cell">
                                         <div
-                                            x-data="{ fired: false }"
                                             x-intersect.margin.200px="fired = true; $wire.$island('tx-list', { mode: 'append' }).nextPage()"
-                                            x-show="!fired"
                                             class="flex flex-col items-center justify-center gap-2 py-2"
                                         >
                                             <div class="animate-spin rounded-full h-5 w-5 border-b-2" style="border-color: var(--brand-accent);"></div>
