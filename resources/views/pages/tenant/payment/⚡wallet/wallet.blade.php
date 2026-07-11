@@ -288,7 +288,7 @@
                     @endfor
                 </div>
                 <table class="w-full text-left border-collapse whitespace-nowrap">
-                    <thead class="sticky top-0 z-10">
+                    <thead class="sticky top-0 z-10 hidden md:table-header-group">
                         <tr class="bg-white dark:bg-slate-900 text-xs uppercase tracking-wider font-bold text-muted-foreground border-b border-slate-200 dark:border-slate-800">
                             <th class="py-4 px-6 w-16 text-center">Status</th>
                             <th class="py-4 px-6 hidden md:table-cell">Tanggal</th>
@@ -303,31 +303,28 @@
                         @island(name: 'tx-list', always: true)
                             @placeholder
                                 @for($i = 0; $i < 5; $i++)
-                                    <tr>
-                                        <td class="py-4 px-6"><div class="w-10 h-10 rounded-full mx-auto bg-slate-200 dark:bg-slate-800 animate-pulse"></div></td>
-                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div></td>
-                                        <td class="py-4 px-6">
-                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
-                                            <div class="h-3 w-20 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse mt-1 md:hidden"></div>
-                                        </td>
-                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div></td>
-                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse"></div></td>
-                                        <td class="py-4 px-6"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div></td>
+                                    <tr class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 border-b border-slate-100 dark:border-slate-800/80 md:border-none animate-pulse">
+                                        <td class="p-0 md:py-4 md:px-6 flex items-center md:table-cell md:text-center md:w-16"><div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800"></div></td>
+                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded"></div></td>
+                                        <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 flex-1 min-w-0 md:table-cell"><div class="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div><div class="h-3 w-20 bg-slate-100 dark:bg-slate-800/50 rounded mt-1 md:hidden"></div></td>
+                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded"></div></td>
+                                        <td class="py-4 px-6 hidden md:table-cell"><div class="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full"></div></td>
+                                        <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 text-right md:table-cell shrink-0"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded ml-auto"></div></td>
                                     </tr>
                                 @endfor
                             @endplaceholder
 
                             @forelse($transactions as $tx)
-                                <tr wire:key="tx-{{ $tx->id }}" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                                <tr wire:key="tx-{{ $tx->id }}" class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group border-b border-slate-100 dark:border-slate-800/80 md:border-none">
                                     
                                     {{-- 1. Ikon Indikator --}}
-                                    <td class="py-4 px-6 text-center">
+                                    <td class="p-0 md:py-4 md:px-6 flex items-center md:table-cell md:text-center md:w-16">
                                         @if($tx->type === 'DEBIT')
-                                            <div class="w-10 h-10 rounded-full mx-auto flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm" style="background-color: rgba(239, 68, 68, 0.08); color: var(--brand-red, #EF4444);">
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm" style="background-color: rgba(239, 68, 68, 0.08); color: var(--brand-red, #EF4444);">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>
                                             </div>
                                         @else
-                                            <div class="w-10 h-10 rounded-full mx-auto flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm" style="background-color: rgba(16, 185, 129, 0.08); color: var(--brand-accent);">
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm" style="background-color: rgba(16, 185, 129, 0.08); color: var(--brand-accent);">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>
                                             </div>
                                         @endif
@@ -340,7 +337,7 @@
                                     </td>
 
                                     {{-- 3. Description (Responsive) --}}
-                                    <td class="py-4 px-6">
+                                    <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 flex-1 min-w-0 md:table-cell">
                                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate max-w-[140px] xs:max-w-[180px] sm:max-w-[240px] md:max-w-[200px]" title="{{ $tx->description }}">
                                             {{ $tx->description ?? 'Transaksi Sistem' }}
                                         </p>
@@ -379,7 +376,7 @@
                                     </td>
 
                                     {{-- 6. Amount --}}
-                                    <td class="py-4 px-6 text-right">
+                                    <td class="p-0 pl-3 md:pl-0 md:py-4 md:px-6 text-right md:table-cell shrink-0">
                                         <p class="text-base font-bold font-mono {{ $tx->type === 'CREDIT' ? '' : 'text-slate-800 dark:text-slate-200' }}" {!! $tx->type === 'CREDIT' ? 'style="color: var(--brand-accent);"' : '' !!}>
                                             {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp {{ number_format($tx->amount, 0, ',', '.') }}
                                         </p>
@@ -388,8 +385,8 @@
                             @empty
                                 {{-- Hanya tampil di page 1 tanpa data --}}
                                 @if($transactions->currentPage() === 1)
-                                    <tr>
-                                        <td colspan="6" class="py-16 text-center">
+                                    <tr class="flex md:table-row w-full">
+                                        <td colspan="6" class="w-full py-16 text-center block md:table-cell">
                                             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-slate-50 dark:bg-slate-800 text-muted-foreground">
                                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                             </div>
@@ -404,8 +401,8 @@
                             {{-- x-show="!fired" ensures the spinner from the old island chunk --}}
                             {{-- disappears immediately once it fires (mode:append keeps old DOM). --}}
                             @if($transactions->hasMorePages())
-                                <tr>
-                                    <td colspan="6" class="py-4">
+                                <tr class="flex md:table-row w-full">
+                                    <td colspan="6" class="w-full py-4 block md:table-cell">
                                         <div
                                             x-data="{ fired: false }"
                                             x-intersect.margin.200px="fired = true; $wire.$island('tx-list', { mode: 'append' }).nextPage()"
@@ -419,8 +416,8 @@
                                 </tr>
                             @else
                                 @if($transactions->total() > 0)
-                                    <tr>
-                                        <td colspan="6" class="py-3 text-center">
+                                    <tr class="flex md:table-row w-full">
+                                        <td colspan="6" class="w-full py-3 text-center block md:table-cell">
                                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-widest">— Semua transaksi telah dimuat —</span>
                                         </td>
                                     </tr>
