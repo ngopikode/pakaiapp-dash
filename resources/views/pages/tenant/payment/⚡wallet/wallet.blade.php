@@ -375,7 +375,21 @@
                                 @endfor
                             @endplaceholder
 
+                            @php $currentMonth = null; @endphp
                             @forelse($transactions as $tx)
+                                @php
+                                    $txMonth = $tx->created_at->translatedFormat('F Y');
+                                @endphp
+
+                                @if($txMonth !== $currentMonth)
+                                    @php $currentMonth = $txMonth; @endphp
+                                    <tr class="bg-slate-50 dark:bg-slate-800/20 md:hidden">
+                                        <td colspan="6" class="px-4 py-2.5 text-sm font-extrabold text-slate-700 dark:text-slate-300 block">
+                                            {{ $txMonth }}
+                                        </td>
+                                    </tr>
+                                @endif
+
                                 <tr wire:key="tx-{{ $tx->id }}" class="flex md:table-row items-center justify-between p-4 md:py-4 md:px-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group border-b border-slate-100 dark:border-slate-800/80 md:border-none">
                                     
                                     {{-- MOBILE VIEW ROW (flex on mobile, hidden on desktop) --}}
@@ -393,35 +407,36 @@
 
                                         {{-- 2. Detail Data --}}
                                         <div class="flex-grow flex justify-between items-start min-w-0">
-                                            {{-- Sisi Kiri: Deskripsi, Subtitle (Ref), Tanggal --}}
-                                            <div class="min-w-0 pr-2">
-                                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate" title="{{ $tx->description }}">
+                                            {{-- Sisi Kiri: Deskripsi, Subtitle (Ref/Keterangan), Tanggal --}}
+                                            <div class="min-w-0 pr-2 flex flex-col gap-0.5">
+                                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
                                                     {{ $tx->description ?? 'Transaksi Sistem' }}
                                                 </p>
-                                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
                                                     @if($tx->reference_id)
                                                         Ref #{{ $tx->reference_id }}
                                                     @else
                                                         Ref -
                                                     @endif
                                                 </p>
-                                                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1">
-                                                    {{ $tx->created_at->format('d M Y H:i') }}
+                                                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                                                    {{ $tx->created_at->translatedFormat('d F Y H:i') }}
                                                 </p>
                                             </div>
 
                                             {{-- Sisi Kanan: Nominal (+/- Rp), Status --}}
-                                            <div class="shrink-0 text-right">
-                                                <p class="text-sm font-extrabold font-mono {{ $tx->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200' }}">
-                                                    {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp {{ number_format($tx->amount, 0, ',', '.') }}
+                                            <div class="shrink-0 text-right flex flex-col gap-1">
+                                                <p class="text-sm font-bold font-mono {{ $tx->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200' }}">
+                                                    {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp{{ number_format($tx->amount, 0, ',', '.') }}
                                                 </p>
-                                                <div class="mt-1">
+                                                {{-- Status Badge --}}
+                                                <div>
                                                     @if($tx->type === 'DEBIT')
-                                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
                                                             Keluar
                                                         </span>
                                                     @else
-                                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
                                                             Masuk
                                                         </span>
                                                     @endif
