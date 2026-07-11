@@ -272,17 +272,17 @@
 
                 {{-- Skeleton overlay saat loading filter/sort (bg solid agar text tabel di belakang tidak tembus) --}}
                 <div wire:loading wire:target="filter,sortOrder,toggleSort,search"
-                     class="absolute inset-0 z-20 bg-white dark:bg-slate-900 flex flex-col gap-3 p-4">
+                     class="absolute inset-0 z-20 bg-white dark:bg-slate-900 flex flex-col p-0 divide-y divide-slate-100 dark:divide-slate-800/80">
                     @for($i = 0; $i < 6; $i++)
-                        <div class="flex items-center gap-4 animate-pulse">
+                        <div class="flex items-center justify-between px-6 py-4 animate-pulse">
                             <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
-                            <div class="hidden md:block h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                            <div class="flex-1 flex flex-col gap-1.5">
+                            <div class="hidden md:block h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
+                            <div class="flex-1 flex flex-col gap-1.5 ml-4">
                                 <div class="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded"></div>
                                 <div class="h-3 w-28 bg-slate-100 dark:bg-slate-800 rounded md:hidden"></div>
                             </div>
-                            <div class="hidden md:block h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                            <div class="hidden md:block h-6 w-14 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                            <div class="hidden md:block h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
+                            <div class="hidden md:block h-6 w-14 bg-slate-200 dark:bg-slate-700 rounded-full ml-4"></div>
                             <div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
                         </div>
                     @endfor
