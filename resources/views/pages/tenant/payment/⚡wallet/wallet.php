@@ -42,7 +42,7 @@ class extends Component {
         $transactions = WalletTransaction::query()
             ->select([
                 'id', 'type', 'amount', 'description',
-                'reference_id', 'wallet_id', 'created_at',
+                'reference_id', 'wallet_id', 'created_at', 'closing_balance',
                 // Aggregate sums as extra columns — computed once per query execution
                 DB::raw("(SELECT SUM(amount) FROM wallet_transactions WHERE wallet_id = {$walletId} AND type = 'CREDIT') as total_credit"),
                 DB::raw("(SELECT SUM(amount) FROM wallet_transactions WHERE wallet_id = {$walletId} AND type = 'DEBIT')  as total_debit"),
