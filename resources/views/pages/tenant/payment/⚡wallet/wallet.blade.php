@@ -270,9 +270,9 @@
             {{-- Table Container with Max Height, Sticky Header + wire:loading skeleton --}}
             <div class="overflow-x-auto overflow-y-auto max-h-[480px] w-full relative">
 
-                {{-- Skeleton overlay saat loading filter/sort --}}
+                {{-- Skeleton overlay saat loading filter/sort (bg solid agar text tabel di belakang tidak tembus) --}}
                 <div wire:loading wire:target="filter,sortOrder,toggleSort,search"
-                     class="absolute inset-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-[1px] flex flex-col gap-3 p-4">
+                     class="absolute inset-0 z-20 bg-white dark:bg-slate-900 flex flex-col gap-3 p-4">
                     @for($i = 0; $i < 6; $i++)
                         <div class="flex items-center gap-4 animate-pulse">
                             <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
