@@ -59,7 +59,7 @@ class AuthController extends Controller
     {
         try {
             $data = $this->tenantRegistrationService()->processCentralLogin(trim($input->login_input));
-            return $this->successResponse(data: $data);
+            return $this->successResponse(data: $data->toArray());
         } catch (DomainException $e) {
             return $this->failResponse(code: $e->getCode() ?: ResponseAlias::HTTP_BAD_REQUEST, message: $e->getMessage());
         }
