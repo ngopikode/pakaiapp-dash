@@ -4,8 +4,7 @@ export default {
     content: [
         './resources/**/*.blade.php',
         './resources/**/*.js',
-        './resources/**/*.vue',
-        './app/Livewire/**/*.php' // Penting agar class di Livewire Volt terbaca!
+        './resources/**/*.vue'
     ],
     theme: {
         extend: {

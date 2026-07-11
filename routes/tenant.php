@@ -2,17 +2,10 @@
 
 declare(strict_types=1);
 
-// Controllers — API
-use App\Tenant\Controllers\Api\DuitkuApiController;
-use App\Tenant\Controllers\Api\OrderApiController;
-use App\Tenant\Controllers\Api\OrderHistoryApiController;
-use App\Tenant\Controllers\Api\RestaurantApiController;
-// Controllers — Web
+use App\Shared\Middleware\FileUrlMiddleware;
 use App\Tenant\Controllers\Web\HomeController;
 use App\Tenant\Controllers\Web\MenuController;
 use App\Tenant\Controllers\Web\TenantManifestController;
-// Middleware & Support
-use App\Shared\Middleware\FileUrlMiddleware;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -43,7 +36,7 @@ Route::middleware([
     */
     Route::get('/', HomeController::class)->name('index');
     Route::get('/manifest.json', TenantManifestController::class);
-    
+
     Route::controller(MenuController::class)->prefix('menu')->name('product.')->group(function () {
         Route::get('/{product}', 'show')->name('show');
         Route::get('/{product}/story', 'shareAsStory')->name('story');
@@ -87,25 +80,6 @@ Route::middleware([
         });
     });
 
-    /*
-    |──────────────────────────────────────────────────────────────────────────────
-    | API Routes
-    |──────────────────────────────────────────────────────────────────────────────
-    */
-    Route::prefix('api')->middleware(['api'])->group(function () {
-        Route::get('/restaurant', RestaurantApiController::class)->name('api.restaurant');
-        
-        Route::prefix('orders')->name('api.orders.')->group(function () {
-            Route::post('/', [OrderApiController::class, 'store'])->middleware('throttle:orders')->name('store');
-            Route::post('/history', [OrderHistoryApiController::class, 'index'])->middleware('throttle:30,1')->name('history');
-        });
-
-        // ─── Duitku — callback/return/status sudah pindah ke central domain ────
-        // Payment methods: tetap di tenant karena butuh context tenant untuk amount
-        Route::prefix('duitku')->name('duitku.')->group(function () {
-            Route::get('/payment-methods', [DuitkuApiController::class, 'getPaymentMethods'])->name('payment-methods');
-        });
-    });
-
+    require __DIR__ . '/tenant/api.php';
     require __DIR__ . '/auth.php';
 });
