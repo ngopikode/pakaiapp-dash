@@ -21,7 +21,7 @@
                               x-text="'Pilih maks ' + (optionProduct ? optionProduct.max_selections : 0) + ' pilihan'"></span>
                     </div>
                 </div>
-                <button type="button" @click="isOptionModalOpen = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><i class="ph-bold ph-x text-lg"></i></button>
+                <button type="button" @click="isOptionModalOpen = false" aria-label="Tutup" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
 
             <div class="rounded-b-[1.5rem] bg-white p-4 dark:bg-slate-900">
@@ -33,19 +33,19 @@
                                 <div class="mb-3 flex flex-col gap-2">
                                     <template x-for="variant in (optionProduct?.variants || [])" :key="variant.id">
                                         <button type="button"
-                                                class="flex w-full flex-row items-center justify-between rounded-2xl border bg-white p-3 text-start transition-all"
+                                                class="flex w-full flex-row items-center justify-between rounded-2xl border p-3 text-start transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
                                                 :class="{
-                                                    'border-emerald-500 bg-emerald-50 shadow-sm': isOptionSelected(variant.name),
-                                                    'border-slate-200 bg-slate-50 opacity-50 dark:border-slate-800 dark:bg-slate-950': variant.stock <= 0,
-                                                    'border-slate-200 dark:border-slate-700': variant.stock > 0 && !isOptionSelected(variant.name)
+                                                    'border-emerald-700 bg-emerald-100 ring-2 ring-emerald-700/25 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/15 dark:ring-emerald-400/25': isOptionSelected(variant.name),
+                                                    'cursor-not-allowed border-slate-200 bg-slate-50 opacity-50 grayscale dark:border-slate-800 dark:bg-slate-950': variant.stock <= 0,
+                                                    'border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/60 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10': variant.stock > 0 && !isOptionSelected(variant.name)
                                                 }"
                                                 :disabled="variant.stock <= 0"
                                                 @click="if(variant.stock > 0) toggleOption(variant)">
                                             <div class="flex items-center gap-3">
-                                                <i class="bi fs-4" x-show="optionProduct?.selection_type === 'multiple'"
-                                                   :class="isOptionSelected(variant.name) ? 'bi-check-square-fill text-emerald-700 dark:text-emerald-400' : 'bi-square text-slate-300'"></i>
-                                                <i class="bi fs-4" x-show="optionProduct?.selection_type !== 'multiple'"
-                                                   :class="isOptionSelected(variant.name) ? 'bi-record-circle-fill text-emerald-700 dark:text-emerald-400' : 'bi-circle text-slate-300'"></i>
+                                                <i class="text-2xl" x-show="optionProduct?.selection_type === 'multiple'"
+                                                   :class="isOptionSelected(variant.name) ? 'ph-fill ph-check-square text-emerald-800 dark:text-emerald-400' : 'ph-bold ph-square text-slate-300 dark:text-slate-600'"></i>
+                                                <i class="text-2xl" x-show="optionProduct?.selection_type !== 'multiple'"
+                                                   :class="isOptionSelected(variant.name) ? 'ph-fill ph-record text-emerald-800 dark:text-emerald-400' : 'ph-bold ph-circle text-slate-300 dark:text-slate-600'"></i>
                                                 <div>
                                                     <h6 class="mb-0 font-black text-slate-900 dark:text-white" x-text="variant.name"></h6>
                                                 </div>
@@ -80,15 +80,15 @@
                                     <div class="flex flex-col gap-2">
                                         <template x-for="extra in (optionProduct?.extras || [])" :key="extra.id">
                                             <button type="button"
-                                                    class="flex w-full flex-row items-center justify-between rounded-2xl border bg-white p-3 text-start transition-all"
+                                                    class="flex w-full flex-row items-center justify-between rounded-2xl border p-3 text-start transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
                                                     :class="{
-                                                        'border-emerald-500 bg-emerald-50': isExtraSelected(extra.name),
-                                                        'border-slate-200 dark:border-slate-700': !isExtraSelected(extra.name)
+                                                        'border-emerald-700 bg-emerald-100 ring-2 ring-emerald-700/25 dark:border-emerald-400 dark:bg-emerald-500/15 dark:ring-emerald-400/25': isExtraSelected(extra.name),
+                                                        'border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/60 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10': !isExtraSelected(extra.name)
                                                     }"
                                                     @click="toggleExtra(extra)">
                                                 <div class="flex items-center gap-3">
-                                                    <i class="bi fs-4"
-                                                       :class="isExtraSelected(extra.name) ? 'bi-check-square-fill text-emerald-700 dark:text-emerald-400' : 'bi-square text-slate-300'"></i>
+                                                    <i class="text-2xl"
+                                                       :class="isExtraSelected(extra.name) ? 'ph-fill ph-check-square text-emerald-800 dark:text-emerald-400' : 'ph-bold ph-square text-slate-300 dark:text-slate-600'"></i>
                                                     <div>
                                                         <h6 class="mb-0 font-black text-slate-900 dark:text-white" x-text="extra.name"></h6>
                                                     </div>
@@ -121,8 +121,7 @@
                         </div>
                     </div>
                     <button @click="confirmOption"
-                            class="flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-600 p-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.01] dark:from-emerald-500 dark:to-emerald-400 dark:text-slate-950"
-                            style="border: none;"
+                            class="flex w-full items-center justify-between rounded-2xl bg-emerald-800 p-3 text-sm font-black text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400 dark:focus:ring-offset-slate-900"
                             :disabled="optionProduct && optionProduct.has_variants && optionSelected.length === 0">
                         <span><i class="ph-bold ph-shopping-cart me-2"></i>Tambahkan ke Keranjang</span>
                         <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>

@@ -27,7 +27,7 @@
         </button>
         @if($isPosNavbar)
             <div class="hidden min-w-0 flex-col leading-tight lg:flex"
-                 x-data="{ now: new Date(), init() { setInterval(() => this.now = new Date(), 1000) }, formatted() { return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(this.now) } }">
+                 x-data="{ now: new Date(), init() { setInterval(() => this.now = new Date(), 1000) }, formatted() { const d=this.now,p=n=>String(n).padStart(2,'0'),w=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],m=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return w[d.getDay()]+', '+p(d.getDate())+' '+m[d.getMonth()]+' '+d.getFullYear()+' pukul '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()) } }">
                 <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
                     <i class="ph-fill ph-coffee text-2xl"></i>
                     <div class="text-xl font-black tracking-tight">{{ $navbarTitle }}</div>

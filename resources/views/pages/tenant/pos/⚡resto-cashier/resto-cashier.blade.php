@@ -1,5 +1,5 @@
 <div
-    class="pos-shell m-2 h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-5 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-6 lg:pb-6 lg:pt-4"
+    class="pos-shell m-2 h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-0 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-4 lg:pb-6 lg:pt-4"
     x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
         customerName: window.posInitialData?.customerName || "",
@@ -61,14 +61,15 @@
         <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029] lg:hidden" x-transition.opacity>
             <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileCartOpen = false"></div>
 
-            <div class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900"
-                 x-show="isMobileCartOpen"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="translate-y-full"
-                 x-transition:enter-end="translate-y-0"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="translate-y-0"
-                 x-transition:leave-end="translate-y-full">
+            <div
+                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900"
+                x-show="isMobileCartOpen"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="translate-y-full"
+                x-transition:enter-end="translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="translate-y-0"
+                x-transition:leave-end="translate-y-full">
                 {{-- Drag handle --}}
                 <div class="flex shrink-0 justify-center pt-3 pb-1">
                     <div class="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-700"></div>
@@ -112,7 +113,6 @@
 
     {{-- Shared Modals --}}
     @include('pages.tenant.pos.partials._modal-payment')
-    @include('pages.tenant.pos.partials._modal-variant')
     @include('pages.tenant.pos.partials._modal-success')
     {{-- @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'resto']) --}}
 
@@ -134,8 +134,6 @@
 
             currentTab: config.currentTab,
 
-            selectedProduct: null,
-            isVariantModalOpen: false,
             isPaymentModalOpen: false,
             isSuccessModalOpen: false,
             isOptionModalOpen: false,
@@ -462,12 +460,6 @@
                         image_url: product.image_url || null
                     });
                 }
-            },
-
-            addVariantToCart(variant) {
-                this.addToCart(this.selectedProduct || this.optionProduct, variant);
-                this.isVariantModalOpen = false;
-                setTimeout(() => this.selectedProduct = null, 300);
             },
 
             increaseQty(i) {
