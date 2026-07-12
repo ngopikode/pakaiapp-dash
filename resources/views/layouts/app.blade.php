@@ -44,7 +44,7 @@
     </script>
 </head>
 <body class="bg-slate-50 dark:bg-[#0B1120] text-slate-800 dark:text-slate-200 antialiased font-sans selection:bg-orange-500/20 selection:text-orange-600 dark:selection:text-orange-400 flex flex-col min-h-screen"
-      x-data="{ showDesktopSidebar: localStorage.getItem('sb|sidebar-toggle') !== 'false' }"
+      x-data="{ showDesktopSidebar: window.innerWidth >= 1280 && localStorage.getItem('sb|sidebar-toggle') !== 'false' }"
       x-init="$watch('showDesktopSidebar', value => localStorage.setItem('sb|sidebar-toggle', value))">
 
 <div id="global-loader" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-50/90 dark:bg-[#0B1120]/90 backdrop-blur-md transition-all duration-500">
@@ -61,6 +61,8 @@
 <?php
 $userMenuRole = auth()->user()?->role ?? 'cashier';
 $storeType = StoreSetting::first()?->store_type ?? 'retail';
+$routeName = request()->route()?->getName();
+$isPos = $routeName === 'cashier';
 
 $allRoles = [
     ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
@@ -122,10 +124,10 @@ $showSidebar = $accessibleMenus > 1;
     <div id="page-content-wrapper" class="flex-1 flex flex-col w-0 min-w-0 transition-[margin] duration-300 ease-in-out"
          @if(!$showSidebar) style="margin-left: 0 !important; padding-top: 0 !important;" @endif>
         @if($showSidebar)
-            <livewire:layouts.navbar :header="$title ?? null"/>
+            <livewire:layouts.navbar :header="$isPos ? ['mode' => 'pos', 'title' => 'PakaiApp POS'] : ($title ?? null)"/>
         @endif
 
-        <main class="w-full @if($showSidebar) p-4 md:p-6 @else @endif">
+        <main class="w-full @if($showSidebar) p-4 md:p-6 @else @endif @if($isPos) !p-0 overflow-hidden @endif">
             {{ $slot }}
         </main>
     </div>

@@ -1,25 +1,62 @@
-<nav class="sticky top-0 z-40 w-full bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between px-4 lg:px-8 h-16 lg:h-[72px] transition-colors" id="mainNavbar">
+@php
+    $isPosNavbar = is_array($header) && ($header['mode'] ?? null) === 'pos';
+    $navbarTitle = $isPosNavbar ? ($header['title'] ?? 'PakaiApp POS') : ($header ?? 'Dashboard');
+@endphp
 
-    <div class="flex items-center gap-3">
-        <!-- Mobile/Tablet Toggle (Alpine) -->
-        <button class="lg:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none transition-colors" 
-                type="button" 
+<nav class="sticky top-0 z-40 w-full bg-white/85 dark:bg-[#0B1120]/85 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between gap-3 px-4 lg:px-8 h-16 lg:h-[72px] transition-colors" id="mainNavbar">
+
+    <div class="flex min-w-0 items-center gap-3">
+        <button class="lg:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors"
+                type="button"
                 @click="$dispatch('open-mobile-sidebar')">
             <i class="ph-bold ph-list text-2xl"></i>
         </button>
-        <span class="lg:hidden font-sans font-extrabold text-slate-900 dark:text-white truncate max-w-[140px] text-lg tracking-tight" title="{{ $header ?? 'Dashboard' }}">
-            {{ $header ?? 'Dashboard' }}
+        <span class="lg:hidden font-sans font-extrabold text-slate-900 dark:text-white truncate max-w-[150px] text-lg tracking-tight" title="{{ $navbarTitle }}">
+            {{ $navbarTitle }}
         </span>
 
-        <!-- Desktop Toggle -->
-        <button class="hidden lg:block p-2.5 -ml-3 text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none transition-colors" 
+        <button class="hidden lg:block p-2.5 -ml-3 text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors"
                 @click="showDesktopSidebar = !showDesktopSidebar">
             <i class="ph-bold ph-list text-[22px]"></i>
         </button>
-        <h5 class="hidden lg:block m-0 font-sans font-black text-slate-900 dark:text-white truncate max-w-[300px] text-xl tracking-tight">
-            {{ $header ?? 'Dashboard' }}
-        </h5>
+        @if($isPosNavbar)
+            <div class="hidden min-w-0 flex-col leading-tight lg:flex" x-data="{ now: new Date(), init() { setInterval(() => this.now = new Date(), 1000) }, formatted() { return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(this.now) } }">
+                <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
+                    <i class="ph-fill ph-coffee text-2xl"></i>
+                    <div class="text-xl font-black tracking-tight">{{ $navbarTitle }}</div>
+                </div>
+                <div class="mt-0.5 text-xs font-bold text-emerald-800/70 dark:text-emerald-400/70" x-text="formatted()"></div>
+            </div>
+        @else
+            <h5 class="hidden lg:block m-0 font-sans font-black text-slate-900 dark:text-white truncate max-w-[300px] text-xl tracking-tight">
+                {{ $navbarTitle }}
+            </h5>
+        @endif
     </div>
+
+    @if($isPosNavbar)
+        <div class="flex flex-1 items-center justify-center gap-3"
+             x-data="{ tab: 'cashier', change(v) { this.tab = v; window.dispatchEvent(new CustomEvent('pos-change-tab', { detail: v })) } }"
+             @force-cashier-tab.window="tab = 'cashier'">
+            <span class="hidden text-sm font-bold text-emerald-800/80 dark:text-emerald-400/80 sm:inline">Total: {{ $this->pendingOrdersCount }} Orders</span>
+            <div class="inline-flex rounded-full bg-slate-100 p-1 shadow-inner dark:bg-slate-900">
+                <button type="button" @click="change('cashier')"
+                    class="rounded-full px-3 py-2 text-xs font-black transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 lg:px-4 lg:text-sm"
+                    :class="tab === 'cashier' ? 'bg-white text-emerald-800 shadow-sm dark:bg-slate-800 dark:text-emerald-400' : 'text-slate-600 hover:text-emerald-800 dark:text-slate-300 dark:hover:text-emerald-400'">Kasir</button>
+                <button type="button" @click="change('queue')"
+                    class="relative rounded-full px-3 py-2 text-xs font-black transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 lg:px-4 lg:text-sm"
+                    :class="tab === 'queue' ? 'bg-white text-emerald-800 shadow-sm dark:bg-slate-800 dark:text-emerald-400' : 'text-slate-600 hover:text-emerald-800 dark:text-slate-300 dark:hover:text-emerald-400'">Open Bill
+                    @if($this->pendingOrdersCount > 0)<span class="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">{{ $this->pendingOrdersCount }}</span>@endif
+                </button>
+            </div>
+            <button id="tour-pos-help" type="button"
+                @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
+                class="hidden h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-emerald-800 transition hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:flex dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800"
+                title="Panduan & Tutorial Penggunaan">
+                <i class="ph-bold ph-lightbulb text-lg"></i>
+            </button>
+        </div>
+    @endif
 
     <ul class="flex items-center gap-1.5 lg:gap-3 m-0 p-0 list-none">
 

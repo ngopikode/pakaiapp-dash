@@ -1,7 +1,18 @@
-<div class="modal fade" id="optionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-[1.5rem] border border-emerald-800/15 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
-            <div class="modal-header rounded-t-[1.5rem] border-b border-emerald-800/10 bg-emerald-50/60 px-4 pb-3 pt-4 dark:border-slate-800 dark:bg-slate-900">
+<div x-show="isOptionModalOpen" x-cloak class="fixed inset-0 z-[1050] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        {{-- Backdrop --}}
+        <div x-show="isOptionModalOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
+             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" 
+             @click="isOptionModalOpen = false" aria-hidden="true"></div>
+
+        {{-- Modal Dialog --}}
+        <div x-show="isOptionModalOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+             class="relative w-full max-w-lg transform overflow-hidden rounded-[1.5rem] border border-emerald-800/15 bg-white text-left shadow-xl transition-all dark:border-slate-700 dark:bg-slate-900 sm:my-8 flex flex-col">
+            <div class="flex items-center justify-between rounded-t-[1.5rem] border-b border-emerald-800/10 bg-emerald-50/60 px-4 pb-3 pt-4 dark:border-slate-800 dark:bg-slate-900">
                 <div>
                     <h5 class="mb-1 font-black text-slate-900 dark:text-white">Pilih Varian</h5>
                     <p class="mb-0 text-sm font-semibold text-slate-500 dark:text-slate-400" x-text="optionProduct ? optionProduct.name : ''"></p>
@@ -10,10 +21,10 @@
                               x-text="'Pilih maks ' + (optionProduct ? optionProduct.max_selections : 0) + ' pilihan'"></span>
                     </div>
                 </div>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" @click="isOptionModalOpen = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
 
-            <div class="modal-body rounded-b-[1.5rem] bg-white p-4 dark:bg-slate-900">
+            <div class="rounded-b-[1.5rem] bg-white p-4 dark:bg-slate-900">
                 <div class="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
                     <div x-show="optionProduct">
                         <div>
@@ -100,12 +111,12 @@
                         <div class="flex items-center rounded-full border border-emerald-800/20 bg-emerald-50/60 p-1 dark:border-slate-700 dark:bg-slate-950">
                             <button @click="if(optionQty > 1) optionQty--"
                                     class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200">
-                                <i class="bi bi-dash"></i>
+                                <i class="ph-bold ph-minus"></i>
                             </button>
                             <span class="px-4 text-base font-black text-slate-900 dark:text-white" x-text="optionQty"></span>
                             <button @click="optionQty++"
                                     class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-800 text-white shadow-sm dark:bg-emerald-400 dark:text-slate-950">
-                                <i class="bi bi-plus"></i>
+                                <i class="ph-bold ph-plus"></i>
                             </button>
                         </div>
                     </div>
@@ -113,7 +124,7 @@
                             class="flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-600 p-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.01] dark:from-emerald-500 dark:to-emerald-400 dark:text-slate-950"
                             style="border: none;"
                             :disabled="optionProduct && optionProduct.has_variants && optionSelected.length === 0">
-                        <span><i class="bi bi-cart-plus me-2"></i>Tambahkan ke Keranjang</span>
+                        <span><i class="ph-bold ph-shopping-cart me-2"></i>Tambahkan ke Keranjang</span>
                         <span x-text="'Rp ' + formatRupiah(optionTotalPrice)"></span>
                     </button>
                 </div>

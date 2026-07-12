@@ -1,4 +1,4 @@
-<div class="pos-shell min-vh-100 rounded-[2rem] bg-[#f6f2e8] p-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:p-5" x-data='restoPos({
+<div class="pos-shell h-full min-h-0 overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-5 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-6 lg:pb-6 lg:pt-4" x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
         customerName: window.posInitialData?.customerName || "",
         tableNumber: window.posInitialData?.tableNumber || "",
@@ -17,6 +17,7 @@
      @open-mobile-cart.window="isMobileCartOpen = true"
      @close-mobile-cart.window="isMobileCartOpen = false"
      @force-cashier-tab.window="currentTab = 'cashier'"
+     @pos-change-tab.window="if($event.detail === 'cashier' && isEditingOrder) window.location.href='/cashier'; else currentTab = $event.detail"
      @open-payment-modal.window="openPayForOrder($event.detail)"
      @start-editing-order.window="isEditingOrder = true; editInvoiceCode = $event.detail.invoice_code; customerName = $event.detail.customer; tableNumber = $event.detail.table; orderType = $event.detail.type"
      x-cloak>
@@ -39,59 +40,24 @@
         </div>
     </div>
 
-    <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-800 text-white shadow-sm dark:bg-emerald-500 dark:text-slate-950">
-                <i class="bi bi-cup-hot-fill text-xl"></i>
-            </div>
-            <div>
-                <div class="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-800 dark:text-emerald-400">PakaiApp POS</div>
-                <h1 class="mb-0 text-2xl font-black text-slate-950 dark:text-white">Kasir Resto</h1>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-between gap-3">
-            <div class="inline-flex rounded-full border border-emerald-800/20 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <button wire:click="changeTab('cashier')" @click="if(isEditingOrder) window.location.href='/cashier'"
-                        class="rounded-full px-4 py-2 text-sm font-black transition"
-                        :class="currentTab === 'cashier' ? 'bg-emerald-800 text-white dark:bg-white dark:text-slate-950' : 'text-slate-500 hover:text-emerald-800 dark:text-slate-400 dark:hover:text-white'">
-                    Kasir
-                </button>
-                <button wire:click="changeTab('queue')" title="Daftar Open Bill"
-                        class="relative rounded-full px-4 py-2 text-sm font-black transition"
-                        :class="currentTab === 'queue' ? 'bg-emerald-800 text-white dark:bg-white dark:text-slate-950' : 'text-slate-500 hover:text-emerald-800 dark:text-slate-400 dark:hover:text-white'">
-                    Open Bill
-                    @if($pendingOrders->count() > 0)
-                        <span class="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">{{ $pendingOrders->count() }}</span>
-                    @endif
-                </button>
-            </div>
-            <button id="tour-pos-help" @click="window.dispatchEvent(new CustomEvent('force-cashier-tab')); setTimeout(() => window.dispatchEvent(new CustomEvent('start-pos-tour')), 300)"
-                    class="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-800/20 bg-white text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800"
-                    title="Panduan & Tutorial Penggunaan">
-                <i class="bi bi-lightbulb-fill text-lg"></i>
-            </button>
-        </div>
-    </div>
-
-    <div x-show="currentTab === 'cashier'" wire:loading.class="hidden" wire:target="changeTab" class="flex min-h-[calc(100vh-12rem)] flex-col gap-5 lg:flex-row" x-transition.opacity.duration.150ms>
-        <div class="min-h-0 min-w-0 flex-1" :class="isMobileCartOpen ? 'hidden lg:block' : 'block'">
+    <div x-show="currentTab === 'cashier'" wire:loading.class="hidden" wire:target="changeTab" class="flex h-full min-h-0 flex-col gap-5 overflow-hidden lg:flex-row" x-transition.opacity.duration.150ms>
+        <div class="min-h-0 min-w-0 flex-1 overflow-hidden" :class="isMobileCartOpen ? 'hidden lg:block' : 'block'">
             <livewire:tenant.pos.product-list/>
         </div>
 
-        <div class="min-h-0 w-full shrink-0 cart-mobile-wrapper lg:w-[390px] xl:w-[430px]" :class="isMobileCartOpen ? 'block' : 'hidden lg:block'">
+        <div class="min-h-0 h-full w-full shrink-0 cart-mobile-wrapper lg:w-[390px] xl:w-[430px]" :class="isMobileCartOpen ? 'block' : 'hidden lg:block'">
             @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes])
         </div>
     </div>
 
-    <div x-show="currentTab === 'queue'" wire:loading.class="hidden" wire:target="changeTab" class="min-h-[calc(100vh-12rem)] overflow-y-auto" x-transition.opacity.duration.150ms>
+    <div x-show="currentTab === 'queue'" wire:loading.class="hidden" wire:target="changeTab" class="h-full overflow-y-auto" x-transition.opacity.duration.150ms>
         <div class="sticky top-0 z-10 mb-4 flex items-center justify-between rounded-3xl border border-emerald-800/15 bg-white/90 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
             <div>
                 <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Pesanan Ditahan</h5>
                 <p class="mb-0 text-xs font-semibold text-slate-500 dark:text-slate-400">Open bill yang belum selesai</p>
             </div>
             <button type="button" wire:click="$refresh" class="rounded-full border border-emerald-800/20 bg-white px-4 py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-950 dark:text-emerald-400 dark:hover:bg-slate-800">
-                <i class="bi bi-arrow-clockwise" wire:loading.class="spinner-border spinner-border-sm" wire:target="$refresh"></i>
+                <i class="ph-bold ph-arrows-clockwise" wire:loading.class="spinner-border spinner-border-sm" wire:target="$refresh"></i>
                 <span wire:loading.remove wire:target="$refresh">Refresh</span>
                 <span wire:loading wire:target="$refresh">Memuat...</span>
             </button>
@@ -101,12 +67,11 @@
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
-    <template x-if="currentTab === 'cashier' && !isMobileCartOpen">
+    <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
         <button
-            class="btn btn-primary fw-bold p-3 floating-cart-btn d-lg-none d-flex justify-content-between align-items-center text-white"
-            @click="isMobileCartOpen = true"
-            style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1030; border-radius: 1rem; background: #F97316; border: none; box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);">
-            <span><i class="bi bi-cart3 me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
+            class="floating-cart-btn fixed bottom-5 left-1/2 z-[1030] flex w-[90%] -translate-x-1/2 items-center justify-between rounded-2xl bg-emerald-800 p-4 text-sm font-black text-white shadow-xl lg:hidden"
+            @click="isMobileCartOpen = true">
+            <span><i class="ph-bold ph-shopping-cart me-2"></i>Lihat Keranjang (<span x-text="cart.length"></span>)</span>
             <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
         </button>
     </template>
@@ -115,7 +80,7 @@
     @include('pages.tenant.pos.partials._modal-payment')
     @include('pages.tenant.pos.partials._modal-variant')
     @include('pages.tenant.pos.partials._modal-success')
-    @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'resto'])
+    {{-- @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'resto']) --}}
 
     @include('pages.tenant.pos.partials._modal-option')
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
@@ -137,12 +102,12 @@
         currentTab: config.currentTab,
 
         selectedProduct: null,
-        variantModalInstance: null,
-        paymentModalInstance: null,
-        successModalInstance: null,
-        optionModalInstance: null,
-        splitBillModalInstance: null,
-        mergeModalInstance: null,
+        isVariantModalOpen: false,
+        isPaymentModalOpen: false,
+        isSuccessModalOpen: false,
+        isOptionModalOpen: false,
+        showSplitModalState: false,
+        isMergeModalOpen: false,
 
         optionProduct: null,
         optionSelected: [],
@@ -195,12 +160,6 @@
         isServiceActive: config.isServiceActive,
 
         init() {
-            this.variantModalInstance = new bootstrap.Modal(document.getElementById('variantModal'));
-            this.paymentModalInstance = new bootstrap.Modal(document.getElementById('paymentModal'));
-            this.successModalInstance = new bootstrap.Modal(document.getElementById('successModal'));
-            this.optionModalInstance = new bootstrap.Modal(document.getElementById('optionModal'));
-            this.splitBillModalInstance = new bootstrap.Modal(document.getElementById('splitBillModal'));
-            this.mergeModalInstance = new bootstrap.Modal(document.getElementById('mergeModal'));
             this.$watch('cart', () => this.validateStock(), {deep: true});
         },
 
@@ -219,7 +178,7 @@
                 maxQty: parseInt(i.quantity),
                 qtyToSplit: 0
             }));
-            this.splitBillModalInstance.show();
+            this.showSplitModalState = true;
         },
         submitSplitOrder() {
             if (this.splitTotalItems === 0) {
@@ -247,7 +206,7 @@
             this.mergeTargetId = order.id;
             this.mergeTargetInvoice = order.invoice_code;
             this.mergeSourceId = '';
-            this.mergeModalInstance.show();
+            this.isMergeModalOpen = true;
         },
         submitMergeOrder() {
             if (!this.mergeSourceId) {
@@ -255,7 +214,7 @@
                 return;
             }
             this.$wire.mergeOrder(this.mergeSourceId, this.mergeTargetId);
-            this.mergeModalInstance.hide();
+            this.isMergeModalOpen = false;
         },
 
         get subTotal() {
@@ -310,7 +269,7 @@
             this.optionQty = 1;
             this.optionSelected = product.selection_type === 'multiple' ? [] : (product.variants.find(v => v.stock > 0) ? [product.variants.find(v => v.stock > 0).name] : []);
             this.extrasSelected = [];
-            this.optionModalInstance.show();
+            this.isOptionModalOpen = true;
         },
 
         toggleExtra(extra) {
@@ -434,11 +393,12 @@
                     quantity: this.optionQty,
                     subtotal: finalUnitPrice * this.optionQty,
                     stock: minStock,
-                    note: ''
+                    note: '',
+                    image_url: this.optionProduct.image_url || null
                 });
             }
 
-            this.optionModalInstance.hide();
+            this.isOptionModalOpen = false;
             setTimeout(() => this.optionProduct = null, 300);
         },
 
@@ -465,14 +425,15 @@
                     id: product.id, variant_id: variant.id, name: product.name,
                     variant_name: product.has_variants ? variant.name : null,
                     price: finalPrice, quantity: qty, subtotal: finalPrice * qty,
-                    stock: variant.stock, note: ''
+                    stock: variant.stock, note: '',
+                    image_url: product.image_url || null
                 });
             }
         },
 
         addVariantToCart(variant) {
             this.addToCart(this.selectedProduct || this.optionProduct, variant);
-            this.variantModalInstance.hide();
+            this.isVariantModalOpen = false;
             setTimeout(() => this.selectedProduct = null, 300);
         },
 
@@ -550,7 +511,7 @@
             this.paymentMethod = 'cash';
             this.duitkuMethod = null;
             this.duitkuCustomerEmail = '';
-            this.paymentModalInstance.show();
+            this.isPaymentModalOpen = true;
             this.fetchDuitkuMethods();
         },
 
@@ -566,7 +527,7 @@
             this.paymentMethod = 'cash';
             this.duitkuMethod = null;
             this.duitkuCustomerEmail = '';
-            this.paymentModalInstance.show();
+            this.isPaymentModalOpen = true;
             this.fetchDuitkuMethods();
         },
 
@@ -607,7 +568,7 @@
                                 this.payingOrder.id, this.duitkuMethod, custEmail
                             );
                             if (result && result.success && result.payment_url) {
-                                this.paymentModalInstance.hide();
+                                this.isPaymentModalOpen = false;
                                 window.open(result.payment_url, '_blank');
                                 showIslandToast(`Link Duitku dibuka! Invoice: ${this.payingOrder.invoice_code}`, 'success');
                                 this.payingOrder = null;
@@ -623,7 +584,7 @@
                                 this.payingOrder.id, custEmail
                             );
                             if (result && result.success && result.snap_token) {
-                                this.paymentModalInstance.hide();
+                                this.isPaymentModalOpen = false;
                                 window.snap.pay(result.snap_token, {
                                     onSuccess: (res) => {
                                         showIslandToast(`Pembayaran berhasil!`, 'success');
@@ -676,7 +637,7 @@
                     const data = await res.json();
 
                     if (res.ok && data.data?.payment_url) {
-                        this.paymentModalInstance.hide();
+                        this.isPaymentModalOpen = false;
                         window.open(data.data.payment_url, '_blank');
                         showIslandToast(`Link Duitku dibuka! Invoice: ${data.data.invoice_code}`, 'success');
                         if (isDirect) {
@@ -687,7 +648,7 @@
                         this.duitkuMethod = null;
                         this.duitkuCustomerEmail = '';
                     } else if (res.ok && data.data?.snap_token) {
-                        this.paymentModalInstance.hide();
+                        this.isPaymentModalOpen = false;
                         window.snap.pay(data.data.snap_token, {
                             onSuccess: (res) => {
                                 showIslandToast(`Pembayaran berhasil!`, 'success');
@@ -744,7 +705,7 @@
 
                 if (result && result.success) {
                     this.lastOrder = result;
-                    this.paymentModalInstance.hide();
+                    this.isPaymentModalOpen = false;
                     this.payingOrder = null;
                     if (isDirect) {
                         this.clearCart();
@@ -752,13 +713,13 @@
                         this.tableNumber = '';
                     }
                     Livewire.dispatch('stock-updated');
-                    setTimeout(() => this.successModalInstance.show(), 300);
+                    setTimeout(() => this.isSuccessModalOpen = true, 300);
                 } else if (result && result.error) {
-                    this.paymentModalInstance.hide();
+                    this.isPaymentModalOpen = false;
                     showIslandToast(result.error, 'danger');
                 }
             } catch (e) {
-                this.paymentModalInstance.hide();
+                this.isPaymentModalOpen = false;
                 console.error('Kasir Sistem Error:', e);
                 showIslandToast('Sistem Error: ' + e.message, 'danger');
             }
@@ -794,7 +755,7 @@
                 return;
             }
 
-            if (e.key === 'Enter' && document.getElementById('paymentModal').classList.contains('show')) {
+            if (e.key === 'Enter' && this.isPaymentModalOpen) {
                 e.preventDefault();
                 this.submitPayment();
                 return;
@@ -831,7 +792,7 @@
             }
         },
         closeSuccessModal() {
-            this.successModalInstance.hide();
+            this.isSuccessModalOpen = false;
             this.clearCart();
             this.customerName = '';
             this.tableNumber = '';
