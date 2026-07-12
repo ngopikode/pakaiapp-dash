@@ -302,6 +302,9 @@ new class extends Component {
                     'status' => $newStatus,
                 ]);
 
+                // Beritahu dapur ada update status pembayaran
+                event(new \App\Tenant\Events\KitchenUpdated());
+
                 // --- POTONG SALDO WALLET ---
                 app(BillingService::class)->chargeTransactionFee($order);
 

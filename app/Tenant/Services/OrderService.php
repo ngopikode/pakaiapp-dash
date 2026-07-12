@@ -8,6 +8,7 @@ use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\ProductExtra;
 use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Events\KitchenUpdated;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -239,6 +240,9 @@ class OrderService
                 }
             }
         }
+
+        // Beritahu dapur ada order baru/update via Reverb
+        event(new KitchenUpdated());
 
         return $order;
     }
