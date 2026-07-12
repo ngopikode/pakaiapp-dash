@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Shared\Middleware\FileUrlMiddleware;
+use App\Tenant\Controllers\Web\CashierController;
 use App\Tenant\Controllers\Web\HomeController;
 use App\Tenant\Controllers\Web\MenuController;
 use App\Tenant\Controllers\Web\TenantManifestController;
@@ -54,7 +55,7 @@ Route::middleware([
 
         // Routes accessible by manager AND cashier
         Route::middleware('role:manager,cashier')->group(function () {
-            Route::livewire('cashier', 'pages::tenant.pos.index')->name('cashier');
+            Route::get('cashier', CashierController::class)->name('cashier');
             Route::view('order', 'pages.tenant.order.index')->name('order');
             Route::livewire('profile', 'pages::tenant.profile.user-profile')->name('profile');
             Route::livewire('menu', 'pages::tenant.mobile-menu')->name('menu');
