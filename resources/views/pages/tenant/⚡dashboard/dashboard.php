@@ -37,9 +37,20 @@ class extends Component {
 
     public function applyCustomDateFilter()
     {
-        if ($this->customStartDate && $this->customEndDate) {
-            $this->dateFilter = 'custom';
+        if (!$this->customStartDate || !$this->customEndDate) {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Tanggal mulai dan tanggal akhir wajib diisi.']);
+            return;
         }
+
+        $startDate = \Carbon\Carbon::parse($this->customStartDate);
+        $endDate = \Carbon\Carbon::parse($this->customEndDate);
+
+        if ($startDate->gt($endDate)) {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.']);
+            return;
+        }
+
+        $this->dateFilter = 'custom';
     }
 
     public function placeholder()
@@ -169,6 +180,8 @@ class extends Component {
             } elseif ($this->dateFilter === 'custom' && $this->customStartDate && $this->customEndDate) {
                 $startDate = \Carbon\Carbon::parse($this->customStartDate)->startOfDay();
                 $endDate = \Carbon\Carbon::parse($this->customEndDate)->endOfDay();
+            } elseif ($this->dateFilter === 'custom') {
+                $this->dateFilter = 'today';
             }
 
             // Stats Terfilter (sebelumnya Hari Ini & Bulanan)
