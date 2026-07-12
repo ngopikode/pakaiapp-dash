@@ -1,5 +1,5 @@
 <div
-    class="pos-shell h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-5 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-6 lg:pb-6 lg:pt-4"
+    class="pos-shell m-2 h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-5 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-6 lg:pb-6 lg:pt-4"
     x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
         customerName: window.posInitialData?.customerName || "",
