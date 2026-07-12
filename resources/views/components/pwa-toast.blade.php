@@ -9,19 +9,19 @@
 @endphp
 
 <!-- PWA Install Toast -->
-<div id="pwa-toast" class="pwa-toast bg-body-tertiary border shadow-lg" style="display: none;">
-    <div class="d-flex align-items-center gap-3">
-        <div class="pwa-icon flex-shrink-0" style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; background: var(--bs-secondary-bg);">
-            <img src="{{ asset('android-chrome-192x192.png') }}" alt="App Icon" class="w-100 h-100 object-fit-cover">
+<div id="pwa-toast" class="pwa-toast fixed bottom-4 left-1/2 z-[9999] hidden w-[90%] max-w-md -translate-x-1/2 flex-col gap-3 rounded-2xl border border-emerald-800/15 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900 sm:bottom-6">
+    <div class="flex items-center gap-3">
+        <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
+            <img src="{{ asset('android-chrome-192x192.png') }}" alt="App Icon" class="h-full w-full object-cover">
         </div>
-        <div class="d-flex flex-column">
-            <strong class="text-body fw-bold mb-1" style="font-size: 0.95rem;">Install {{ $appName }}</strong>
-            <span class="text-secondary" style="font-size: 0.8rem; line-height: 1.3;">Tambahkan ke layar utama HP kamu untuk akses super cepat!</span>
+        <div class="flex flex-col">
+            <strong class="mb-0.5 text-sm font-bold text-slate-900 dark:text-white">Install {{ $appName }}</strong>
+            <span class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Tambahkan ke layar utama HP kamu untuk akses super cepat!</span>
         </div>
     </div>
-    <div class="d-flex gap-2 mt-1">
-        <button id="pwa-dismiss" class="btn border fw-bold px-3 py-2 rounded-3 text-body flex-grow-1" style="font-size: 0.85rem; background-color: var(--bs-body-bg);">Nanti</button>
-        <button id="pwa-install" class="btn btn-success fw-bold px-3 py-2 rounded-3 flex-grow-1 text-white shadow-sm" style="font-size: 0.85rem;">Install App</button>
+    <div class="flex gap-2">
+        <button id="pwa-dismiss" class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800">Nanti</button>
+        <button id="pwa-install" class="flex-1 rounded-xl bg-emerald-800 px-3 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400">Install App</button>
     </div>
 </div>
 
@@ -58,10 +58,7 @@
             
             if (!lastDismissed || (Date.now() - parseInt(lastDismissed)) > delayDaysMs) {
                 if (pwaToast) {
-                    pwaToast.style.display = 'flex';
-                    setTimeout(() => {
-                        pwaToast.classList.add('show');
-                    }, 500);
+                    pwaToast.classList.remove('hidden');
                 }
             }
         });
@@ -69,8 +66,7 @@
         window.installPwa = async function() {
             if (window.deferredPrompt) {
                 if (pwaToast) {
-                    pwaToast.classList.remove('show');
-                    setTimeout(() => { pwaToast.style.display = 'none'; }, 400);
+                    pwaToast.classList.add('hidden');
                 }
                 
                 window.deferredPrompt.prompt();
@@ -102,8 +98,7 @@
 
         if (pwaDismissBtn) {
             pwaDismissBtn.addEventListener('click', () => {
-                pwaToast.classList.remove('show');
-                setTimeout(() => { pwaToast.style.display = 'none'; }, 400);
+                pwaToast.classList.add('hidden');
                 localStorage.setItem('pwaDismissedTs', Date.now().toString());
                 
                 if (typeof Swal !== 'undefined') {
