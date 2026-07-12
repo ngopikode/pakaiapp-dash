@@ -1,505 +1,214 @@
-<div @if($order->status === 'pending') wire:poll.5s="refreshOrder" @endif class="py-4 py-md-5 px-3">
-    <!-- Premium Copy Toast Notification -->
-    <div id="custom-toast" class="custom-toast bg-dark text-white rounded-3 shadow-lg px-4 py-2 text-center"
-         style="display:none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; font-size: 0.85rem; font-weight: bold;">
+<div @if($order->status === 'pending') wire:poll.5s="refreshOrder" @endif class="mx-auto max-w-lg px-3 py-4">
+    <div id="custom-toast" class="fixed left-1/2 top-5 z-[9999] hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-bold text-white shadow-lg transition-opacity duration-300">
         Tersalin!
     </div>
 
-    <div class="mx-auto mb-4 d-flex flex-nowrap justify-content-center align-items-center gap-2 no-print w-100"
-         style="max-width: 450px;">
-        <button @click="$wire.markAsPrinted().then(() => setTimeout(() => window.print(), 150))"
-                class="btn btn-dark rounded-3 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-1 gap-sm-2 px-2 py-2 flex-grow-1" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
-            <i class="bi bi-printer"></i> Cetak
-        </button>
-        <button onclick="downloadReceipt()"
-                class="btn btn-primary rounded-3 shadow-sm px-2 py-2 d-flex justify-content-center align-items-center gap-1 gap-sm-2 flex-grow-1 fw-bold" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
-            <i class="bi bi-download"></i> Simpan
-        </button>
+    <div class="no-print mb-4 flex flex-nowrap items-center justify-center gap-2">
+        <a href="{{ url('/receipt/' . $order->invoice_code) }}"
+           class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-slate-800">
+            <i class="ph-bold ph-printer"></i> Lihat Struk
+        </a>
         <a href="https://wa.me/?text={{ urlencode(url()->current()) }}" target="_blank"
-           class="btn btn-success rounded-3 shadow-sm px-2 py-2 d-flex justify-content-center align-items-center gap-1 gap-sm-2 flex-grow-1 fw-bold" style="flex-basis: 0; font-size: 0.85rem; white-space: nowrap;">
-            <i class="bi bi-whatsapp"></i> Bagikan
+           class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-700">
+            <i class="ph-bold ph-whatsapp-logo"></i> Bagikan
         </a>
     </div>
 
-    <!-- Panel Selesaikan Pembayaran Dinamis (Duitku) -->
     @if($order->status === 'pending' && ($order->duitku_va_number || $order->duitku_payment_url))
         @php
             $duitkuDetails = $this->getPaymentMethodDetails();
             $instructions = $this->getPaymentInstructions();
         @endphp
-        <div class="payment-instruction-container mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border no-print"
-             style="max-width: 420px; border-radius: 16px !important;">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <span class="badge bg-warning text-dark fw-bold text-uppercase px-2.5 py-1.5 animate-pulse"
-                      style="font-size: 0.7rem; border-radius: 6px;">Menunggu Pembayaran</span>
-                <span class="small text-muted d-flex align-items-center gap-1" style="font-size: 0.75rem;">
-                    <i class="bi bi-clock-history"></i> Cek otomatis...
+        <div class="no-print mx-auto mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm" x-data="{ open: null }">
+            <div class="mb-3 flex items-center justify-between">
+                <span class="animate-pulse rounded-md bg-amber-100 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-amber-700">Menunggu Pembayaran</span>
+                <span class="flex items-center gap-1 text-[0.7rem] text-slate-400">
+                    <i class="ph-bold ph-clock"></i> Cek otomatis...
                 </span>
             </div>
 
             @if(config('duitku.sandbox'))
-                <div class="alert alert-warning border-0 rounded-3 mb-3 p-3 text-start d-flex gap-2.5 shadow-none"
-                     style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important; border-radius: 10px !important;">
-                    <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0" style="margin-top: 1px;"></i>
+                <div class="mb-3 flex gap-2.5 rounded-xl border-l-4 border-amber-400 bg-amber-50 p-3">
+                    <i class="ph-fill ph-warning mt-0.5 shrink-0 text-lg text-amber-500"></i>
                     <div>
-                        <h6 class="fw-bold mb-1" style="font-size: 0.8rem; color: #78350f;">Mode Uji Coba (Sandbox)</h6>
-                        <p class="mb-0 text-muted" style="font-size: 0.7rem; line-height: 1.4; color: #92400e !important;">
+                        <p class="mb-0 text-xs font-bold text-amber-800">Mode Uji Coba (Sandbox)</p>
+                        <p class="mt-0.5 text-[0.65rem] leading-tight text-amber-700">
                             Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
                         </p>
                     </div>
                 </div>
             @endif
 
-            <div class="d-flex align-items-center gap-3 bg-light p-3 rounded-3 mb-4"
-                 style="border-radius: 12px !important;">
+            <div class="mb-4 flex items-center gap-3 rounded-xl bg-slate-50 p-3">
                 <img src="{{ $duitkuDetails['logo'] }}" alt="{{ $duitkuDetails['name'] }}"
-                     class="rounded shadow-sm bg-white" style="width: 55px; height: auto; padding: 2px;">
+                     class="rounded bg-white shadow-sm" style="width: 55px; height: auto; padding: 2px;">
                 <div>
-                    <h6 class="fw-bold mb-0.5 text-dark" style="font-size: 0.9rem;">{{ $duitkuDetails['name'] }}</h6>
-                    <span class="text-muted small" style="font-size: 0.75rem;">Pembayaran digital via Duitku</span>
+                    <p class="text-[0.8rem] font-bold text-slate-900">{{ $duitkuDetails['name'] }}</p>
+                    <p class="text-[0.7rem] text-slate-400">Pembayaran digital via Duitku</p>
                 </div>
             </div>
 
-            <!-- Nominal Pembayaran -->
-            <div class="mb-4 text-center py-3 bg-dark text-white rounded-3 position-relative overflow-hidden"
-                 style="border-radius: 12px !important;">
-                <span class="text-zinc-400 small text-uppercase tracking-wider fw-bold d-block mb-1"
-                      style="font-size: 0.7rem; color: #a1a1aa;">Total Tagihan</span>
-                <h3 class="fw-bolder mb-2 text-warning font-mono" style="font-size: 1.45rem;">
-                    Rp {{ number_format($order->total_price, 0, ',', '.') }}</h3>
+            <div class="mb-4 overflow-hidden rounded-xl bg-slate-900 py-3 text-center text-white">
+                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400">Total Tagihan</p>
+                <p class="mb-2 font-black font-mono text-amber-400" style="font-size: 1.45rem;">
+                    Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                </p>
                 <button onclick="copyToClipboard('{{ $order->total_price }}', 'Nominal Berhasil Disalin!')"
-                        class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold border-zinc-700 hover:bg-zinc-800 text-xs"
-                        style="font-size: 0.7rem;">
-                    <i class="bi bi-clipboard me-1"></i> Salin Nominal
+                        class="rounded-full border border-zinc-600 bg-transparent px-3 py-1 text-[0.65rem] font-bold text-white transition-colors hover:bg-zinc-800">
+                    <i class="ph-bold ph-clipboard mr-1"></i> Salin Nominal
                 </button>
             </div>
 
             @if($order->duitku_va_number)
-                <!-- Virtual Account -->
                 <div class="mb-4">
-                    <label class="form-label text-muted small fw-bold text-uppercase tracking-wider mb-2"
-                           style="font-size: 0.7rem;">Nomor Virtual Account</label>
-                    <div class="d-flex align-items-center gap-2 p-3 bg-light border rounded-3 justify-content-between"
-                         style="border-radius: 12px !important;">
-                        <span class="fs-5 fw-bold font-mono text-dark"
-                              style="letter-spacing: 1px;">{{ $order->duitku_va_number }}</span>
-                        <button
-                            onclick="copyToClipboard('{{ $order->duitku_va_number }}', 'Nomor VA Berhasil Disalin!')"
-                            class="btn btn-primary btn-sm rounded-3 shadow-sm px-3 fw-bold flex-shrink-0 d-flex align-items-center gap-1.5"
-                            style="border-radius: 8px !important;">
-                            <i class="bi bi-clipboard"></i> Salin
+                    <label class="mb-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Nomor Virtual Account</label>
+                    <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <span class="font-bold tracking-widest text-slate-900 font-mono">{{ $order->duitku_va_number }}</span>
+                        <button onclick="copyToClipboard('{{ $order->duitku_va_number }}', 'Nomor VA Berhasil Disalin!')"
+                                class="shrink-0 flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm">
+                            <i class="ph-bold ph-clipboard"></i> Salin
                         </button>
                     </div>
                 </div>
 
-                <!-- Petunjuk Pembayaran -->
                 <div>
-                    <label class="form-label text-muted small fw-bold text-uppercase tracking-wider mb-2"
-                           style="font-size: 0.7rem;">Petunjuk Pembayaran</label>
-                    <div class="accordion" id="accordionInstructions">
-                        @foreach($instructions as $title => $steps)
-                            <div class="accordion-item border rounded-3 mb-2 overflow-hidden bg-white shadow-sm"
-                                 style="border-radius: 10px !important;">
-                                <h2 class="accordion-header" id="heading{{ \Illuminate\Support\Str::slug($title) }}">
-                                    <button
-                                        class="accordion-button collapsed fw-bold text-dark bg-white py-3 px-3 shadow-none"
-                                        type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapse{{ \Illuminate\Support\Str::slug($title) }}"
-                                        aria-expanded="false"
-                                        aria-controls="collapse{{ \Illuminate\Support\Str::slug($title) }}"
-                                        style="font-size: 0.8rem;">
-                                        {{ $title }}
-                                    </button>
-                                </h2>
-                                <div id="collapse{{ \Illuminate\Support\Str::slug($title) }}"
-                                     class="accordion-collapse collapse"
-                                     aria-labelledby="heading{{ \Illuminate\Support\Str::slug($title) }}"
-                                     data-bs-parent="#accordionInstructions">
-                                    <div class="accordion-body bg-light text-muted small py-3 px-3"
-                                         style="font-size: 0.75rem;">
-                                        <ol class="mb-0 ps-3">
-                                            @foreach($steps as $step)
-                                                <li class="mb-2">{!! $step !!}</li>
-                                            @endforeach
-                                        </ol>
-                                    </div>
+                    <label class="mb-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Petunjuk Pembayaran</label>
+                    @foreach($instructions as $title => $steps)
+                        @php $slug = \Illuminate\Support\Str::slug($title); @endphp
+                        <div class="mb-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                            <button @click="open === '{{ $slug }}' ? open = null : open = '{{ $slug }}'"
+                                    class="flex w-full items-center justify-between px-3 py-3 text-left text-[0.8rem] font-bold text-slate-900">
+                                {{ $title }}
+                                <i class="ph-bold ph-caret-down shrink-0 transition-transform duration-200"
+                                   :class="open === '{{ $slug }}' ? 'rotate-180' : ''"></i>
+                            </button>
+                            <div x-show="open === '{{ $slug }}'" x-collapse>
+                                <div class="border-t border-slate-100 bg-slate-50 px-3 py-3 text-[0.7rem] text-slate-500">
+                                    <ol class="list-inside list-decimal space-y-2">
+                                        @foreach($steps as $step)
+                                            <li>{!! $step !!}</li>
+                                        @endforeach
+                                    </ol>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             @else
-                <!-- Non-VA (QRIS, E-Wallet, CC) -->
                 <div class="text-center py-2">
-                    <p class="text-muted small mb-4" style="font-size: 0.75rem; line-height: 1.5;">
-                        Silakan klik tombol di bawah ini untuk memproses pembayaran digital Anda via portal pembayaran
-                        aman Duitku.
+                    <p class="mb-4 text-[0.7rem] leading-relaxed text-slate-400">
+                        Silakan klik tombol di bawah ini untuk memproses pembayaran digital Anda via portal pembayaran aman Duitku.
                     </p>
                     <a href="{{ $order->duitku_payment_url }}" target="_blank"
-                       class="btn btn-dark w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 text-uppercase tracking-wider"
-                       style="font-size: 0.8rem; border-radius: 12px !important;">
-                        <i class="bi bi-wallet2"></i> Bayar Sekarang via Duitku
+                       class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-slate-800">
+                        <i class="ph-bold ph-wallet"></i> Bayar Sekarang via Duitku
                     </a>
                 </div>
             @endif
         </div>
     @endif
 
-    <!-- Panel Selesaikan Pembayaran Dinamis (Midtrans) -->
     @if($order->status === 'pending' && $order->midtrans_snap_token)
-        <!-- Load Midtrans Snap.js -->
         <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
 
-        <div class="payment-instruction-container mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border no-print"
-             style="max-width: 420px; border-radius: 16px !important;">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <span class="badge bg-warning text-dark fw-bold text-uppercase px-2.5 py-1.5 animate-pulse"
-                      style="font-size: 0.7rem; border-radius: 6px;">Menunggu Pembayaran</span>
-                <span class="small text-muted d-flex align-items-center gap-1" style="font-size: 0.75rem;">
-                    <i class="bi bi-clock-history"></i> Cek otomatis...
+        <div class="no-print mx-auto mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="mb-3 flex items-center justify-between">
+                <span class="animate-pulse rounded-md bg-amber-100 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-amber-700">Menunggu Pembayaran</span>
+                <span class="flex items-center gap-1 text-[0.7rem] text-slate-400">
+                    <i class="ph-bold ph-clock"></i> Cek otomatis...
                 </span>
             </div>
 
-            <div class="d-flex align-items-center gap-3 bg-light p-3 rounded-3 mb-4"
-                 style="border-radius: 12px !important;">
-                <div class="rounded shadow-sm bg-white d-flex align-items-center justify-content-center" style="width: 55px; height: 40px; padding: 2px;">
-                    <i class="bi bi-wallet2 fs-4 text-primary"></i>
+            <div class="mb-4 flex items-center gap-3 rounded-xl bg-slate-50 p-3">
+                <div class="flex h-[40px] w-[55px] shrink-0 items-center justify-center rounded bg-white shadow-sm">
+                    <i class="ph-fill ph-credit-card text-xl text-emerald-600"></i>
                 </div>
                 <div>
-                    <h6 class="fw-bold mb-0.5 text-dark" style="font-size: 0.9rem;">Pembayaran Digital</h6>
-                    <span class="text-muted small" style="font-size: 0.75rem;">Midtrans (QRIS, VA, E-Wallet)</span>
+                    <p class="text-[0.8rem] font-bold text-slate-900">Pembayaran Digital</p>
+                    <p class="text-[0.7rem] text-slate-400">Midtrans (QRIS, VA, E-Wallet)</p>
                 </div>
             </div>
 
-            <!-- Nominal Pembayaran -->
-            <div class="mb-4 text-center py-3 bg-dark text-white rounded-3 position-relative overflow-hidden"
-                 style="border-radius: 12px !important;">
-                <span class="text-zinc-400 small text-uppercase tracking-wider fw-bold d-block mb-1"
-                      style="font-size: 0.7rem; color: #a1a1aa;">Total Tagihan</span>
-                <h3 class="fw-bolder mb-2 text-warning font-mono" style="font-size: 1.45rem;">
-                    Rp {{ number_format($order->total_price, 0, ',', '.') }}</h3>
+            <div class="mb-4 overflow-hidden rounded-xl bg-slate-900 py-3 text-center text-white">
+                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400">Total Tagihan</p>
+                <p class="mb-2 font-black font-mono text-amber-400" style="font-size: 1.45rem;">
+                    Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                </p>
                 <button onclick="copyToClipboard('{{ $order->total_price }}', 'Nominal Berhasil Disalin!')"
-                        class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold border-zinc-700 hover:bg-zinc-800 text-xs"
-                        style="font-size: 0.7rem;">
-                    <i class="bi bi-clipboard me-1"></i> Salin Nominal
+                        class="rounded-full border border-zinc-600 bg-transparent px-3 py-1 text-[0.65rem] font-bold text-white transition-colors hover:bg-zinc-800">
+                    <i class="ph-bold ph-clipboard mr-1"></i> Salin Nominal
                 </button>
             </div>
 
             <div class="text-center py-2">
-                <p class="text-muted small mb-4" style="font-size: 0.75rem; line-height: 1.5;">
+                <p class="mb-4 text-[0.7rem] leading-relaxed text-slate-400">
                     Jika popup pembayaran sebelumnya tertutup, Anda dapat melanjutkannya dengan menekan tombol di bawah.
                 </p>
                 <button onclick="window.snap.pay('{{ $order->midtrans_snap_token }}', { onSuccess: function(){ location.reload() } })"
-                   class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 text-uppercase tracking-wider"
-                   style="font-size: 0.8rem; border-radius: 12px !important;">
-                    <i class="bi bi-credit-card"></i> Lanjutkan Pembayaran
+                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-emerald-700">
+                    <i class="ph-bold ph-credit-card"></i> Lanjutkan Pembayaran
                 </button>
             </div>
         </div>
     @endif
 
-    {{-- Tombol Kembali ke Menu (hanya tampil di halaman standalone, BUKAN dalam iframe/modal) --}}
     @if(($store->store_type ?? 'resto') === 'resto')
-        <div id="back-to-menu-btn" class="mx-auto mb-4 d-flex flex-wrap justify-content-center align-items-center gap-2 no-print"
-             style="max-width: 450px;">
+        <div id="back-to-menu-btn" class="no-print mx-auto mb-4 max-w-lg">
             <a href="{{ url('/') }}"
-               class="btn btn-outline-dark rounded-3 fw-bold shadow-sm gap-2 px-3 py-2 w-100 text-center">
-                <i class="bi bi-house-door"></i> Kembali ke Menu Utama
+               class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+                <i class="ph-bold ph-house"></i> Kembali ke Menu Utama
             </a>
         </div>
         <script>
-            // Sembunyikan tombol jika invoice dirender dalam iframe (mis. di order modal)
             if (window.self !== window.top) {
                 document.getElementById('back-to-menu-btn')?.remove();
             }
         </script>
     @endif
 
-    <!-- Banner Status Pesanan Aktif (Bukan Pending) -->
     @if($order->status !== 'pending')
-        <div class="mx-auto mb-4 p-4 rounded-4 shadow-sm bg-white border text-center no-print"
-             style="max-width: 420px; border-radius: 16px !important;">
-            
-            @if($order->status === 'paid')
-                <div class="d-inline-flex align-items-center justify-content-center bg-info-subtle text-info rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #e0f2fe !important; color: #0284c7 !important;">
-                    <i class="bi bi-check-circle-fill fs-3"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Menunggu Disiapkan</h5>
-                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">Pembayaran sukses! Pesanan kamu telah dikonfirmasi dan sedang menunggu disiapkan oleh outlet.</p>
-            @elseif($order->status === 'progress')
-                <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3 p-3 animate-pulse" style="width: 60px; height: 60px; background-color: #eff6ff !important; color: #2563eb !important;">
-                    <i class="bi bi-clock-fill fs-3"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Sedang Diproses</h5>
-                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">Pesanan kamu sedang disiapkan dengan kasih sayang. Mohon ditunggu sebentar ya!</p>
-            @elseif($order->status === 'completed')
-                <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #f0fdf4 !important; color: #16a34a !important;">
-                    <i class="bi bi-bag-check-fill fs-3"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Pesanan Selesai</h5>
-                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">Terima kasih banyak telah berbelanja di outlet kami. Selamat menikmati!</p>
-            @elseif($order->status === 'cancelled')
-                <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #fef2f2 !important; color: #dc2626 !important;">
-                    <i class="bi bi-x-circle-fill fs-3"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Pesanan Dibatalkan</h5>
-                <p class="text-muted mb-0 text-sm" style="font-size: 0.8rem;">
-                    Pesanan ini telah dibatalkan.
-                    @if($order->cancellation_note)
-                        <br><span class="text-danger small mt-1 d-block fw-bold">Alasan: {{ $order->cancellation_note }}</span>
-                    @endif
-                </p>
-            @else
-                <div class="d-inline-flex align-items-center justify-content-center bg-secondary-subtle text-secondary rounded-circle mb-3 p-3" style="width: 60px; height: 60px; background-color: #f4f4f5 !important; color: #71717a !important;">
-                    <i class="bi bi-info-circle-fill fs-3"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1 text-uppercase">{{ $order->status }}</h5>
+        <div class="no-print mx-auto mb-4 max-w-lg rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
+            <div class="mx-auto mb-3 flex h-[60px] w-[60px] items-center justify-center rounded-full bg-emerald-50">
+                <i class="ph-fill ph-check-circle text-3xl text-emerald-500"></i>
+            </div>
+            <h5 class="mb-1 text-lg font-bold text-slate-900">
+                Pesanan {{ $order->status === 'paid' ? 'Dibayar' : ($order->status === 'completed' ? 'Selesai' : 'Diproses') }}
+            </h5>
+            <p class="mb-3 text-[0.8rem] text-slate-500">
+                @if($order->status === 'paid') Pembayaran sukses! Pesanan sedang disiapkan.
+                @elseif($order->status === 'progress') Pesanan sedang diproses.
+                @elseif($order->status === 'completed') Pesanan selesai. Terima kasih!
+                @elseif($order->status === 'cancelled') Pesanan dibatalkan.
+                    @if($order->cancellation_note)<br><span class="mt-1 block text-xs font-bold text-red-600">Alasan: {{ $order->cancellation_note }}</span>@endif
+                @endif
+            </p>
+            @if(in_array($order->status, ['paid', 'completed', 'progress']))
+                <a href="{{ url('/receipt/' . $order->invoice_code) }}"
+                   class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-slate-800">
+                    <i class="ph-bold ph-receipt"></i> Lihat Struk Pembayaran
+                </a>
             @endif
         </div>
     @endif
-
-    <div id="receipt-content" class="receipt-container p-4 p-md-5 mt-2">
-        <div class="text-center mb-4">
-            @if($store && $store->logo)
-                <img src="{{ Storage::url($store->logo) }}" alt="Logo" class="mb-3"
-                     style="max-height: 55px; object-fit: contain;">
-            @else
-                <div
-                    class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm"
-                    style="width: 55px; height: 55px; font-size: 1.5rem; font-weight: bold;">
-                    {{ substr($store->name ?? 'T', 0, 1) }}
-                </div>
-            @endif
-
-            <h3 class="fw-bolder text-dark mb-1" style="letter-spacing: -0.5px;">{{ $store->name ?? 'Nama Toko' }}</h3>
-            @if($store && $store->address)
-                <p class="text-muted small mb-0">{{ $store->address }}</p>
-            @endif
-            @if($store && $store->whatsapp_number)
-                <p class="text-muted small mb-0">WA: {{ $store->whatsapp_number }}</p>
-            @endif
-        </div>
-
-        <div class="dashed-border py-3 mb-3 text-center">
-            @if($order->is_printed)
-                <div class="mb-2">
-                     <h2 class="fw-bold text-dark text-uppercase mb-1" style="letter-spacing: 2px; border: 2px solid #000; display: inline-block; padding: 4px 12px; font-size: 1.2rem;">COPY / REPRINT</h2>
-                     <p class="small text-muted mb-0" style="font-size: 0.7rem;">Dicetak ulang pada: {{ now()->format('d M Y, H:i') }}</p>
-                </div>
-            @else
-                <h6 class="fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 3px;">E-Receipt</h6>
-            @endif
-        </div>
-
-        <div class="mb-4 small">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">No. Pesanan</span>
-                <span class="fw-bold text-dark receipt-monospace">{{ $order->invoice_code }}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Tanggal</span>
-                <span class="fw-bold text-dark">{{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Tipe Pesanan</span>
-                <span class="fw-bold text-dark text-uppercase">
-                    @if($order->is_online)
-                        <span class="badge bg-success me-1" style="font-size: 0.65rem;"><i class="bi bi-globe2"></i> ONLINE</span>
-                    @endif
-                    {{ $order->order_type }}
-                    @if($order->table_number)
-                        <span class="badge bg-dark ms-1">Meja: {{ $order->table_number }}</span>
-                    @endif
-                </span>
-            </div>
-            @if($order->notes)
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Catatan</span>
-                <span class="fw-bold text-dark text-end" style="max-width: 60%;">{{ $order->notes }}</span>
-            </div>
-            @endif
-
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Pelanggan</span>
-                <div class="text-end fw-bold text-dark">
-                    {{ $order->customer_name ?? 'Guest' }}
-                    @if($order->customer_phone)
-                        <br><span class="text-muted small fw-normal">{{ $order->customer_phone }}</span>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <div class="dashed-border pt-3 mb-3 receipt-monospace" style="font-size: 0.85rem;">
-            <div class="d-flex justify-content-between text-muted small fw-bold mb-3 pb-2 border-bottom"
-                 style="font-size: 0.8rem;">
-                <div style="width: 50%;">Item</div>
-                <div class="text-center" style="width: 20%;">Qty</div>
-                <div class="text-end" style="width: 30%;">Subtotal</div>
-            </div>
-
-            @foreach($order->items as $item)
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-start text-dark">
-                        <div style="width: 50%; padding-right: 5px;">
-                            <div class="fw-bold" style="font-size: 0.9rem;">{{ $item->product_name }}</div>
-                            @if($item->variant_name)
-                                <div class="text-muted" style="font-size: 0.75rem;">- {{ $item->variant_name }}</div>
-                            @endif
-                            @if($item->discount > 0)
-                                <div class="text-danger small" style="font-size: 0.75rem;">Diskon:
-                                    -Rp {{ number_format($item->discount, 0, ',', '.') }}</div>
-                            @endif
-                        </div>
-                        <div class="text-center" style="width: 20%;">
-                            <span class="fw-bold">{{ $item->quantity }}x</span>
-                            <div class="text-muted" style="font-size: 0.75rem;">@
-                                Rp {{ number_format($item->price, 0, ',', '.') }}</div>
-                        </div>
-                        <div class="text-end fw-bold" style="width: 30%; font-size: 0.9rem;">
-                            @if($item->discount > 0)
-                                <span class="text-muted text-decoration-line-through d-block fw-normal"
-                                      style="font-size: 0.75rem;">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
-                            @endif
-                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                        </div>
-                    </div>
-                    @if($item->note)
-                        <div class="text-muted mt-1" style="font-size: 0.75rem; font-style: italic;">
-                            * {{ $item->note }}</div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-
-        @php
-            $totalItemDiscount = $order->items->sum('discount');
-            $extraDiscount = max(0, $order->discount - $totalItemDiscount);
-        @endphp
-        <div class="dashed-border pt-3 mb-4 receipt-monospace" style="font-size: 0.85rem;">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Subtotal</span>
-                <span class="fw-bold text-dark">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
-            </div>
-            @if($totalItemDiscount > 0)
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Diskon Item</span>
-                    <span class="fw-bold text-danger">- Rp {{ number_format($totalItemDiscount, 0, ',', '.') }}</span>
-                </div>
-            @endif
-            @if($extraDiscount > 0)
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Diskon Ekstra</span>
-                    <span class="fw-bold text-danger">- Rp {{ number_format($extraDiscount, 0, ',', '.') }}</span>
-                </div>
-            @endif
-            @if(($order->service_charge_amount ?? 0) > 0)
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Biaya Layanan ({{ number_format($order->service_charge_percentage ?? 5, 0) }}%)</span>
-                    <span
-                        class="fw-bold text-dark">Rp {{ number_format($order->service_charge_amount, 0, ',', '.') }}</span>
-                </div>
-            @endif
-            @if(($order->tax_amount ?? 0) > 0)
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Pajak PB1 ({{ number_format($order->tax_percentage ?? 10, 0) }}%)</span>
-                    <span class="fw-bold text-dark">Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</span>
-                </div>
-            @endif
-            <div class="d-flex justify-content-between mt-3 pt-3 border-top border-2">
-                <span class="fw-bolder text-dark fs-5">TOTAL</span>
-                <span class="fw-bolder text-dark fs-5">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
-            </div>
-        </div>
-
-        <div class="bg-light p-3 rounded-2 small mb-4 border payment-box">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Metode Pembayaran</span>
-                <span class="fw-bold text-dark text-uppercase">
-                    @if($order->duitku_payment_method)
-                        {{ $this->getPaymentMethodDetails()['name'] }}
-                    @else
-                        {{ $order->formatted_payment_method }}
-                    @endif
-                </span>
-            </div>
-            @if($order->payment_method == 'cash')
-                <div class="d-flex justify-content-between mb-2 receipt-monospace" style="font-size: 0.85rem;">
-                    <span class="text-muted">Tunai Diterima</span>
-                    <span class="fw-bold text-dark">Rp {{ number_format($order->amount_paid, 0, ',', '.') }}</span>
-                </div>
-                <div class="d-flex justify-content-between receipt-monospace" style="font-size: 0.85rem;">
-                    <span class="text-muted">Kembalian</span>
-                    <span class="fw-bold text-dark">Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
-                </div>
-            @endif
-
-            @if(in_array($order->status, ['paid', 'progress', 'completed']))
-                <div class="status-stamp stamp-paid">LUNAS</div>
-            @else
-                <div class="status-stamp stamp-unpaid text-uppercase">BELUM LUNAS</div>
-            @endif
-        </div>
-
-        <div class="text-center mt-4 pt-3 dashed-border">
-            <div class="text-center mb-3">
-                <img id="receipt-qrcode" 
-                     src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/invoice/' . $order->invoice_code)) }}&bgcolor=ffffff&color=111827&margin=0" 
-                     alt="QR Code" 
-                     class="d-inline-block p-2 bg-white rounded-2 border" 
-                     style="width: 90px; height: 90px; object-fit: contain;">
-                <div class="text-muted mt-2" style="font-size: 0.7rem; letter-spacing: 1px;">{{ $order->invoice_code }}</div>
-            </div>
-            <p class="fw-bold text-dark mb-1">Terima Kasih!</p>
-            <p class="text-muted" style="font-size: 0.8rem;">Struk ini adalah bukti pembayaran yang sah.<br>Harap
-                disimpan dengan baik.</p>
-        </div>
-    </div>
 </div>
 
 @assets
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <script>
-    function downloadReceipt() {
-        const receipt = document.getElementById('receipt-content');
-        const originalBoxShadow = receipt.style.boxShadow;
-        const originalBorderRadius = receipt.style.borderRadius;
-
-        receipt.style.boxShadow = 'none';
-        receipt.style.borderRadius = '0px';
-
-        html2canvas(receipt, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            useCORS: true
-        }).then(canvas => {
-            receipt.style.boxShadow = originalBoxShadow;
-            receipt.style.borderRadius = originalBorderRadius;
-
-            let link = document.createElement('a');
-            link.download = 'Invoice-{{ $order->invoice_code }}.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
-    }
-
     function copyToClipboard(text, successMessage) {
         navigator.clipboard.writeText(text).then(function () {
             const toast = document.getElementById('custom-toast');
             toast.textContent = successMessage;
-            toast.style.display = 'block';
+            toast.classList.remove('hidden');
             toast.style.opacity = '1';
             setTimeout(function () {
                 toast.style.opacity = '0';
                 setTimeout(function () {
-                    toast.style.display = 'none';
+                    toast.classList.add('hidden');
                 }, 300);
             }, 2000);
         }).catch(function (err) {
             console.error('Gagal menyalin: ', err);
         });
     }
-
 </script>
 @endassets

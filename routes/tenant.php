@@ -44,6 +44,7 @@ Route::middleware([
     });
 
     Route::livewire('/invoice/{code}', 'pages::tenant.invoice.show')->name('invoice.show');
+    Route::livewire('/receipt/{code}', 'pages::tenant.receipt.show')->name('receipt.show');
     Route::livewire('/order/{code}', 'pages::tenant.order.show')->name('order.show');
 
     /*

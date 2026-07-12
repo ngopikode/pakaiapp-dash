@@ -11,25 +11,25 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    @vite(['resources/sass/app.scss'])
+    @vite(['resources/css/app.css'])
+    @livewireStyles
 </head>
 
-<body class="antialiased print-body">
+<body class="bg-slate-50 font-sans text-slate-950 antialiased print:bg-white">
 
-<div class="print-container">
+<div class="mx-auto w-full">
     {{ $slot }}
 </div>
 
-<div class="text-center mt-4 mb-5 no-print">
-    <p class="small text-muted mb-0 opacity-75" style="font-size: 0.75rem;">
+<div class="no-print mb-5 mt-4 text-center">
+    <p class="mb-0 text-xs text-slate-400">
         {{ config('app.name', 'EzMenu Enterprise') }}
         <span class="mx-1">&bull;</span>
         Powered by &copy; {{ date('Y') }} ngopikode.
     </p>
 </div>
+@livewireScripts
 </body>
 </html>

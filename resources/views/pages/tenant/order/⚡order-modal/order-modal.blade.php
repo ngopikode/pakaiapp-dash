@@ -250,9 +250,9 @@
                             </div>
                         @else
                             <div class="d-flex gap-2 w-100 justify-content-between align-items-center">
-                                <a href="{{ url('/invoice/' . $order->invoice_code) }}" target="_blank"
+                                <a href="{{ in_array($order->status, ['paid', 'progress', 'completed']) ? url('/receipt/' . $order->invoice_code) : url('/invoice/' . $order->invoice_code) }}" target="_blank"
                                    class="btn btn-outline-secondary fw-bold rounded-3 px-4">
-                                    <i class="bi bi-receipt me-1"></i>Lihat Struk
+                                    <i class="bi bi-receipt me-1"></i>{{ in_array($order->status, ['paid', 'progress', 'completed']) ? 'Lihat Struk' : 'Lihat Invoice' }}
                                 </a>
                                 
                                 <div class="d-flex gap-2">

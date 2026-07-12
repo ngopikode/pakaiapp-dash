@@ -232,7 +232,7 @@
                         Hubungi Resto
                     </a>
                 @endif
-                <a href="{{ route('invoice.show', $order->invoice_code) }}" target="_blank"
+                <a href="{{ in_array($order->status, ['paid', 'progress', 'completed']) ? route('receipt.show', $order->invoice_code) : route('invoice.show', $order->invoice_code) }}" target="_blank"
                    class="flex-[0.8] bg-foreground hover:bg-foreground/90 text-background rounded-2xl py-3.5 px-4 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-md cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -240,7 +240,7 @@
                         <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
                         <path d="M12 17.5v-11"/>
                     </svg>
-                    Struk
+                    {{ in_array($order->status, ['paid', 'progress', 'completed']) ? 'Struk' : 'Invoice' }}
                 </a>
             </div>
         </div>

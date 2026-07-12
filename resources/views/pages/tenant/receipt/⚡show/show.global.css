@@ -1,0 +1,104 @@
+.receipt-page {
+    max-width: 430px;
+    margin: 0 auto;
+}
+
+@media (max-width: 800px) {
+    .receipt-page {
+        max-width: 100%;
+        padding: 1rem;
+    }
+}
+
+.receipt-container {
+    background: #fff;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 1.25rem 1.25rem 0 0;
+    box-shadow: 0 8px 24px rgb(15 23 42 / 0.06);
+    position: relative;
+}
+
+.receipt-container::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-size: 20px 20px;
+    background-repeat: repeat-x;
+    background-image: linear-gradient(135deg, #fff 25%, transparent 25%),
+        linear-gradient(225deg, #fff 25%, transparent 25%);
+    background-position: 0 0;
+}
+
+.dashed-border {
+    border-top: 2px dashed rgb(203 213 225);
+}
+
+.receipt-monospace {
+    font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+}
+
+.status-stamp {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    padding: 3px 10px;
+    transform: translateY(-50%) rotate(-12deg);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 10;
+    letter-spacing: 1px;
+}
+
+.stamp-paid {
+    color: #16a34a;
+    border-color: #16a34a;
+}
+
+.stamp-unpaid {
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+@media print {
+    @page {
+        margin: 8mm;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .receipt-page {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .receipt-container {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .receipt-container::after {
+        display: none !important;
+    }
+
+    .receipt-container * {
+        color: #000 !important;
+    }
+}

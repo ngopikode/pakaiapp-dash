@@ -816,7 +816,7 @@
                 if (this.lastOrder.customer_phone) {
                     this.$wire.updateCustomerPhone(this.lastOrder.invoice_code, this.lastOrder.customer_phone);
                     let phone = this.formatPhoneForWA(this.lastOrder.customer_phone);
-                    let url = `${window.location.origin}/invoice/${this.lastOrder.invoice_code}`;
+                    let url = `${window.location.origin}/receipt/${this.lastOrder.invoice_code}`;
                     let msg = `Halo Kak *${this.lastOrder.customer_name}*,\n\nTerima kasih!\nStruk: ${url}\nTotal: Rp ${this.formatRupiah(this.lastOrder.total_price)}`;
                     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
                     this.closeSuccessModal();
