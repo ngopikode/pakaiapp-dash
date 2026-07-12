@@ -74,7 +74,7 @@ artisan down || true
 # 3. TARIK KODE TERBARU
 # ==============================================================================
 log "📥 Menarik kode terbaru dari git (master)..."
-git pull origin master
+git pull --ff-only origin master
 
 # ==============================================================================
 # 4. COMPOSER INSTALL
