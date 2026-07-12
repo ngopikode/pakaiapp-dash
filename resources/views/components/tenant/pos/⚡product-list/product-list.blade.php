@@ -1,4 +1,4 @@
-<div class="flex h-full min-h-0 flex-col overflow-hidden px-2 pb-4 lg:px-4">
+<div class="flex h-0 min-h-0 flex-1 flex-col overflow-hidden px-2 pb-4 lg:px-4">
     <div class="mb-4">
         <div class="relative">
             <i class="ph-bold ph-magnifying-glass pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-lg text-emerald-800/70 dark:text-emerald-400"></i>

@@ -1,5 +1,5 @@
 <div
-    class="pos-shell h-full min-h-0 overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-5 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-6 lg:pb-6 lg:pt-4"
+    class="pos-shell h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-5 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-6 lg:pb-6 lg:pt-4"
     x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
         customerName: window.posInitialData?.customerName || "",
@@ -47,13 +47,34 @@
 
     <div x-show="currentTab === 'cashier'" wire:loading.class="hidden" wire:target="changeTab"
          class="flex h-full min-h-0 flex-col gap-5 overflow-hidden lg:flex-row" x-transition.opacity.duration.150ms>
-        <div class="min-h-0 min-w-0 flex-1 overflow-hidden" :class="isMobileCartOpen ? 'hidden lg:block' : 'block'">
+        {{-- Product list — always fills viewport --}}
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <livewire:tenant.pos.product-list/>
         </div>
 
-        <div class="min-h-0 h-full w-full shrink-0 cart-mobile-wrapper lg:w-[390px] xl:w-[430px]"
-             :class="isMobileCartOpen ? 'block' : 'hidden lg:block'">
-            @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes])
+        {{-- Desktop cart (sidebar) --}}
+        <div class="hidden min-h-0 h-full w-full shrink-0 cart-mobile-wrapper lg:block lg:w-[390px] xl:w-[430px]">
+            @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes, 'isSheet' => false])
+        </div>
+
+        {{-- Mobile bottom sheet overlay --}}
+        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029] lg:hidden" x-transition.opacity>
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileCartOpen = false"></div>
+
+            <div class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900"
+                 x-show="isMobileCartOpen"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="translate-y-full"
+                 x-transition:enter-end="translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="translate-y-0"
+                 x-transition:leave-end="translate-y-full">
+                {{-- Drag handle --}}
+                <div class="flex shrink-0 justify-center pt-3 pb-1">
+                    <div class="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                </div>
+                @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes, 'isSheet' => true])
+            </div>
         </div>
     </div>
 
