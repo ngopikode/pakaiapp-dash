@@ -3,6 +3,7 @@
 namespace App\Central\Services;
 
 use App\Tenant\Models\Core\Order;
+use App\Tenant\Services\SettingService;
 use App\Tenant\Services\TenantWalletService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
