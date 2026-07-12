@@ -116,11 +116,12 @@
                             @endif
 
                             @if($product['image_url'])
-                                <img src="{{ $product['image_url'] }}" class="h-[200px] w-full shrink-0 object-cover"
+                                <img src="{{ $product['image_url'] }}"
+                                     class="mx-2 mt-2 h-[190px] shrink-0 rounded-xl object-cover"
                                      loading="lazy" alt="{{ $product['name'] }}">
                             @else
                                 <div
-                                    class="flex h-[200px] w-full shrink-0 items-center justify-center bg-slate-100 dark:bg-slate-800">
+                                    class="mx-2 mt-2 flex h-[190px] shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
                                     <i class="ph-bold ph-image text-4xl text-slate-300 dark:text-slate-600"></i>
                                 </div>
                             @endif
@@ -134,12 +135,12 @@
                                         @php $hasDiscount = !empty($product['active_discount_price']) && $product['active_discount_price'] < $product['price']; @endphp
                                         @if($hasDiscount)
                                             <p class="mb-0 truncate whitespace-nowrap text-[10px] font-bold text-slate-400 line-through dark:text-slate-500">
-                                                Rp {{ number_format($product['price'], 0, ',', '.') }}</p>
+                                                Rp{{ number_format($product['price'], 0, ',', '.') }}</p>
                                             <p class="mb-0 truncate whitespace-nowrap text-xs font-bold text-red-600 dark:text-red-400">
-                                                Rp {{ number_format($product['active_discount_price'], 0, ',', '.') }}</p>
+                                                Rp{{ number_format($product['active_discount_price'], 0, ',', '.') }}</p>
                                         @else
                                             <p class="mb-0 truncate whitespace-nowrap text-xs font-bold text-slate-700 dark:text-slate-300">
-                                                Rp {{ number_format($product['price'], 0, ',', '.') }}</p>
+                                                Rp{{ number_format($product['price'], 0, ',', '.') }}</p>
                                         @endif
                                     </div>
                                     <div
