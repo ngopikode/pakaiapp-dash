@@ -3,6 +3,7 @@
 use Livewire\Component;
 use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 
 new class extends Component {
     public string|array|null $header = 'Dashboard Overview';
@@ -14,6 +15,12 @@ new class extends Component {
         session()->regenerateToken();
 
         $this->redirectRoute('dashboard');
+    }
+
+    #[On('echo:kitchen,.KitchenUpdated')]
+    public function refreshNotification()
+    {
+        // Pancing render ulang
     }
 
     #[Computed]

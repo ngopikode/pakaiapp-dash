@@ -92,7 +92,7 @@
             </div>
             @endplaceholder
 
-            <div x-data="{ open: false }" class="relative" wire:poll.20s.visible>
+            <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" @click.outside="open = false"
                         class="relative p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-800/50 transition-colors flex items-center focus:outline-none">
                     <i class="ph-bold ph-bell text-[22px]"></i>
