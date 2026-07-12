@@ -260,8 +260,8 @@ class extends Component {
                         ->groupBy('date_string')
                         ->pluck('total_revenue', 'date_string');
 
-                    $chartData = collect(range($pointsCount, 0))->map(function ($daysAgo) use ($dailyRevenues, $endDate) {
-                        $date = $endDate->copy()->subDays($daysAgo);
+                    $chartData = collect(range(0, $pointsCount))->map(function ($dayOffset) use ($dailyRevenues, $chartStartDate) {
+                        $date = $chartStartDate->copy()->addDays($dayOffset);
                         return [
                             'date' => $date->translatedFormat('d M'),
                             'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
@@ -276,10 +276,11 @@ class extends Component {
                         ->groupBy('month_string')
                         ->pluck('total_revenue', 'month_string');
 
-                    $diffInMonths = $startDate->copy()->startOfMonth()->diffInMonths($endDate->copy()->startOfMonth());
-                    
-                    $chartData = collect(range($diffInMonths, 0))->map(function ($monthsAgo) use ($monthlyRevenues, $endDate) {
-                        $date = $endDate->copy()->startOfMonth()->subMonthsNoOverflow($monthsAgo);
+                    $chartStartMonth = $startDate->copy()->startOfMonth();
+                    $diffInMonths = $chartStartMonth->diffInMonths($endDate->copy()->startOfMonth());
+
+                    $chartData = collect(range(0, $diffInMonths))->map(function ($monthOffset) use ($monthlyRevenues, $chartStartMonth) {
+                        $date = $chartStartMonth->copy()->addMonthsNoOverflow($monthOffset);
                         return [
                             'date' => $date->translatedFormat('M Y'),
                             'revenue' => $monthlyRevenues->get($date->format('Y-m'), 0)
