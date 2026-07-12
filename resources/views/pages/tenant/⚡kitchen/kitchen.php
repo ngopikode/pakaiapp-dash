@@ -2,6 +2,8 @@
 
 use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new #[Title("Tampilan Dapur")]
@@ -92,6 +94,12 @@ class extends Component {
         }
     }
 
+    #[On('echo:kitchen,KitchenUpdated')]
+    public function refreshKitchen()
+    {
+        unset($this->kitchenBatches);
+    }
+
     public function logout(): void
     {
         \Illuminate\Support\Facades\Auth::logout();
@@ -101,9 +109,14 @@ class extends Component {
         $this->redirectRoute('login');
     }
 
-    public function with(): array
+    #[Computed]
+    public function kitchenBatches(): array
     {
-        $orders = Order::with('items')
+        // Performance Optimization: Select hanya kolom yang dibutuhkan untuk KDS
+        $orders = Order::with(['items' => function($q) {
+                $q->select('id', 'order_id', 'product_name', 'variant_name', 'note', 'quantity', 'kitchen_status', 'created_at');
+            }])
+            ->select('id', 'invoice_code', 'status', 'kitchen_status', 'order_type', 'table_number', 'notes', 'amount_paid', 'total_price', 'created_at', 'is_online')
             ->where(function ($query) {
                 // Tampilkan pesanan yang sudah dibayar/progress
                 $query->whereIn('status', ['paid', 'progress'])
@@ -146,8 +159,6 @@ class extends Component {
             return $a['created_at'] <=> $b['created_at'];
         });
 
-        return [
-            'kitchenBatches' => $batches,
-        ];
+        return $batches;
     }
 };

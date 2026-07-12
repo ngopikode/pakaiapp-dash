@@ -52,6 +52,42 @@ log "--- DEPLOY STARTED [$TIMESTAMP] ---"
 log "🚀 Memulai proses deployment Pakaiapp..."
 
 # ==============================================================================
+# 0. CEK DEPLOY CONFIGS (Reverb, Queue, Nginx)
+# ==============================================================================
+log "🔍 Mengecek konfigurasi deploy (Nginx & Supervisor)..."
+# Periksa apakah dijalankan secara interaktif (di terminal)
+if [ -t 1 ]; then
+    echo ""
+    echo "==========================================================="
+    echo "Terdapat konfigurasi server di folder deploy/:"
+    echo " - nginx-wildcard.conf"
+    echo " - supervisor-reverb.conf"
+    echo " - supervisor-queue.conf"
+    echo "==========================================================="
+    echo -n "Apakah Anda ingin memasang/memperbarui konfigurasi ini ke sistem server (/etc/)? [y/N] (Otomatis skip dalam 10 detik): "
+    read -t 10 CONFIRM || CONFIRM="n"
+    if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+        log "⚙️  Memasang konfigurasi sistem dari deploy/..."
+        sudo cp deploy/nginx-wildcard.conf /etc/nginx/sites-available/wildcard.pakaiapp.online.conf
+        sudo cp deploy/supervisor-reverb.conf /etc/supervisor/conf.d/pakaiapp-reverb.conf
+        sudo cp deploy/supervisor-queue.conf /etc/supervisor/conf.d/pakaiapp-queue.conf
+        
+        log "🗑️  Menghapus konfigurasi lama (pakaiapp-worker.conf)..."
+        sudo rm -f /etc/supervisor/conf.d/pakaiapp-worker.conf
+        
+        log "🔄 Restarting Nginx & Supervisor..."
+        sudo nginx -t && sudo systemctl reload nginx || log "⚠️  Nginx reload gagal/diabaikan."
+        sudo supervisorctl update || true
+        sudo supervisorctl restart pakaiapp-reverb:* || true
+        log "✅ Konfigurasi sistem berhasil dipasang!"
+    else
+        log "⏭️  Pemasangan konfigurasi sistem dilewati."
+    fi
+else
+    log "ℹ️  Non-interactive mode. Pemasangan konfigurasi sistem dilewati."
+fi
+
+# ==============================================================================
 # 1. CEK APAKAH ADA UPDATE DARI REMOTE
 # ==============================================================================
 log "🔍 Mengecek update dari remote..."

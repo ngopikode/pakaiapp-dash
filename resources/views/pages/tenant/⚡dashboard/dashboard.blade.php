@@ -30,13 +30,13 @@
                     <div class="space-y-3">
                         <div>
                             <label class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-400">Mulai Dari</label>
-                            <input type="date" wire:model="customStartDate" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                            <input type="date" wire:model="customStartDate" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                         </div>
                         <div>
                             <label class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-400">Sampai Dengan</label>
-                            <input type="date" wire:model="customEndDate" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                            <input type="date" wire:model="customEndDate" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                         </div>
-                        <button type="button" wire:click="applyCustomDateFilter" class="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-2 text-sm font-bold text-white transition-colors hover:bg-orange-600">
+                        <button type="button" wire:click="applyCustomDateFilter" class="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-800 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-900">
                             <span wire:loading.remove wire:target="applyCustomDateFilter">Terapkan Filter</span>
                             <span wire:loading wire:target="applyCustomDateFilter" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
                         </button>
@@ -52,15 +52,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @if($stats['pending_orders'] > 0)
                 <a href="{{ route('kitchen') }}"
-                   class="group flex items-center justify-between rounded-3xl border border-orange-200 bg-orange-50 p-4 transition-colors hover:bg-orange-100 dark:border-orange-500/20 dark:bg-orange-500/10 dark:hover:bg-orange-500/20">
+                   class="group flex items-center justify-between rounded-3xl border border-emerald-200 bg-emerald-50 p-4 transition-colors hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20">
                     <div class="flex items-center gap-3">
-                        <div class="h-2 w-2 rounded-full bg-orange-500 animate-pulse"></div>
+                        <div class="h-2 w-2 rounded-full bg-emerald-600 animate-pulse"></div>
                         <div>
-                            <span class="block text-sm font-bold text-orange-800 dark:text-orange-400">Antrean Dapur Aktif</span>
-                            <span class="text-xs text-orange-600/80 dark:text-orange-400/80">{{ $stats['pending_orders'] }} pesanan menunggu diproses</span>
+                            <span class="block text-sm font-bold text-emerald-800 dark:text-emerald-400">Antrean Dapur Aktif</span>
+                            <span class="text-xs text-emerald-700/80 dark:text-emerald-400/80">{{ $stats['pending_orders'] }} pesanan menunggu diproses</span>
                         </div>
                     </div>
-                    <span class="text-orange-500 transition-transform group-hover:translate-x-1">→</span>
+                    <span class="text-emerald-600 transition-transform group-hover:translate-x-1">→</span>
                 </a>
                 @endif
 
@@ -85,7 +85,7 @@
         {{-- ═══════════════════════════════════════════════════════════
              3. KPI UTAMA (Metrics)
         ═══════════════════════════════════════════════════════════ --}}
-        <div class="rounded-[2rem] border border-slate-200 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+        <div class="rounded-[2rem] bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
             <div class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4" wire:loading.class.remove="hidden" wire:loading.class="grid" wire:target="setDateFilter,applyCustomDateFilter">
                 <div class="h-32 rounded-[1.5rem] bg-slate-100 animate-pulse dark:bg-slate-800"></div>
                 <div class="h-32 rounded-[1.5rem] bg-slate-100 animate-pulse dark:bg-slate-800"></div>
@@ -97,7 +97,7 @@
                 <div class="rounded-[1.5rem] px-5 py-5 lg:border-r lg:border-slate-100 dark:lg:border-slate-800">
                     <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                            <svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 2v8m0 0v2"></path></svg>
+                            <svg class="h-4 w-4 text-emerald-800 dark:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 2v8m0 0v2"></path></svg>
                             <span class="text-sm font-bold">Total Revenue</span>
                         </div>
                         <span class="text-xs font-semibold text-slate-400">{{ $dateFilter === 'today' ? 'Hari Ini' : ($dateFilter === '7days' ? '7 Hari' : ($dateFilter === '30days' ? '30 Hari' : 'Kustom')) }}</span>
@@ -111,7 +111,7 @@
 
                 <div class="rounded-[1.5rem] px-5 py-5 lg:border-r lg:border-slate-100 dark:lg:border-slate-800">
                     <div class="mb-4 flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                        <svg class="h-4 w-4 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10V4M5 20h14"></path></svg>
+                        <svg class="h-4 w-4 text-emerald-800 dark:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10V4M5 20h14"></path></svg>
                         <span class="text-sm font-bold">Transaksi</span>
                     </div>
                     <div class="text-3xl font-black text-slate-900 dark:text-white">{{ $stats['orders_today'] }}</div>
@@ -121,13 +121,13 @@
                 <a wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter" wire:navigate href="/orders?status=pending" class="group rounded-[1.5rem] px-5 py-5 lg:border-r lg:border-slate-100 dark:lg:border-slate-800">
                     <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                            <svg class="h-4 w-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <svg class="h-4 w-4 text-emerald-800 dark:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span class="text-sm font-bold">Pesanan Menunggu</span>
                         </div>
-                        <span class="rounded-full bg-orange-50 px-2 py-1 text-[11px] font-bold text-orange-500 dark:bg-orange-500/10">Live</span>
+                        <span class="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-600 dark:bg-emerald-500/10">Live</span>
                     </div>
                     <div class="text-3xl font-black text-slate-900 dark:text-white">{{ $stats['pending_orders'] }}</div>
-                    <div class="mt-2 text-xs font-semibold {{ $stats['pending_orders'] > 0 ? 'text-orange-500' : 'text-slate-400' }}">{{ $stats['pending_orders'] > 0 ? 'Perlu segera diproses →' : 'Semua pesanan selesai' }}</div>
+                    <div class="mt-2 text-xs font-semibold {{ $stats['pending_orders'] > 0 ? 'text-emerald-600' : 'text-slate-400' }}">{{ $stats['pending_orders'] > 0 ? 'Perlu segera diproses →' : 'Semua pesanan selesai' }}</div>
                 </a>
 
                 <div class="rounded-[1.5rem] bg-slate-900 px-5 py-5 text-white dark:bg-slate-950">
@@ -145,7 +145,7 @@
              4. CHARTS & TRANSACTIONS
         ═══════════════════════════════════════════════════════════ --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] relative overflow-hidden dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+            <div class="lg:col-span-2 rounded-[2rem] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] relative overflow-hidden dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                 <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-5 animate-pulse">
                     <div>
                         <div class="h-6 w-40 rounded bg-slate-200 dark:bg-slate-800"></div>
@@ -184,7 +184,7 @@
                                 const isDark = document.documentElement.classList.contains('dark');
                                 const textColor = isDark ? '#94a3b8' : '#64748b';
                                 const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
-                                const brandColor = '#f97316';
+                                const brandColor = '#065f46';
                                 
                                 let options = {
                                     series: [{name: 'Omzet', data: revenues}],
@@ -223,7 +223,7 @@
                 </div>
             </div>
 
-            <div class="max-h-[360px] flex flex-col relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+            <div class="max-h-[360px] flex flex-col relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                 <h3 class="mb-4 shrink-0 text-sm font-bold text-slate-900 dark:text-white">
                     Menu Terlaris
                     <span class="text-xs font-normal text-slate-500 dark:text-slate-400">
@@ -272,10 +272,10 @@
              6. AI RADAR & NAVIGASI CEPAT
         ═══════════════════════════════════════════════════════════ --}}
         <div class="w-full">
-            <div class="w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+            <div class="w-full rounded-[2rem] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                 <div class="mb-4 flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <svg class="h-5 w-5 text-emerald-800 dark:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         <h3 class="text-base font-black text-slate-900 dark:text-white">Smart Insight (Rekomendasi AI)</h3>
                     </div>
                 </div>
@@ -313,7 +313,7 @@
         ═══════════════════════════════════════════════════════════ --}}
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {{-- Metode Pembayaran --}}
-            <div class="relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+            <div class="relative flex flex-col overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                 <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-4 animate-pulse">
                     <div class="h-5 w-32 rounded bg-slate-200 dark:bg-slate-800"></div>
                     @foreach(range(1, 4) as $skeleton)
@@ -364,7 +364,7 @@
             </div>
 
             {{-- Distribusi Pesanan --}}
-            <div class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+            <div class="relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                 <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-3 animate-pulse">
                     <div class="h-5 w-32 rounded bg-slate-200 dark:bg-slate-800"></div>
                     @foreach(range(1, 4) as $skeleton)
@@ -390,7 +390,7 @@
                                         <span>{{ $percent }}%</span>
                                     </div>
                                     <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800">
-                                        <div class="h-1.5 rounded-full bg-orange-500" style="width: {{ $percent }}%"></div>
+                                        <div class="h-1.5 rounded-full bg-emerald-600" style="width: {{ $percent }}%"></div>
                                     </div>
                                 </div>
                             @endforeach
@@ -404,7 +404,7 @@
             </div>
 
             {{-- Jam Tersibuk (Peak Hours) --}}
-            <div class="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+            <div class="relative flex flex-col justify-between overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                 <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-4 animate-pulse">
                     <div class="h-5 w-40 rounded bg-slate-200 dark:bg-slate-800"></div>
                     @foreach(range(1, 4) as $skeleton)
@@ -433,7 +433,7 @@
                                             <span class="text-slate-900 dark:text-white">{{ $peak->orders }} Transaksi</span>
                                         </div>
                                         <div class="ml-4 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800" style="width: calc(100% - 1rem);">
-                                            <div class="h-1.5 rounded-full bg-orange-500" style="width: {{ $peakPercent }}%"></div>
+                                            <div class="h-1.5 rounded-full bg-emerald-600" style="width: {{ $peakPercent }}%"></div>
                                         </div>
                                     </div>
                                 @endforeach
