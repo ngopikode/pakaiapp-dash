@@ -561,6 +561,10 @@
                     showIslandToast('Masukkan nominal pembayaran untuk Cash.', 'warning');
                     return;
                 }
+                if (this.paymentMethod === 'cash' && parseFloat(this.amountPaid) < this.payTotal) {
+                    showIslandToast('Nominal pembayaran kurang dari total tagihan.', 'warning');
+                    return;
+                }
 
                 // Validasi Duitku: cukup metode yang wajib ada, email opsional
                 if (this.paymentMethod === 'duitku') {
