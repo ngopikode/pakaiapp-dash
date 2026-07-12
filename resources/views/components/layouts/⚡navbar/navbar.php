@@ -5,7 +5,7 @@ use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Computed;
 
 new class extends Component {
-    public ?string $header = 'Dashboard Overview';
+    public string|array|null $header = 'Dashboard Overview';
 
     public function logout(): void
     {

@@ -1,10 +1,10 @@
-<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true"
+<div class="modal fade" :class="{ 'show d-block': isOpen }" x-show="isOpen" style="background-color: rgba(0,0,0,0.5);" id="cancelOrderModal" tabindex="-1" aria-hidden="true"
      x-data="{
          orderId: null,
          note: '',
          customMode: false,
          isSubmitting: false,
-         modalInstance: null,
+         isOpen: false,
          reasons: [
              'Pelanggan tidak jadi / berubah pikiran',
              'Uang pembayaran tidak cukup',
@@ -14,10 +14,9 @@
          ],
 
          init() {
-             this.modalInstance = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
              window.addEventListener('close-cancel-modal', () => {
                  this.isSubmitting = false;
-                 this.modalInstance.hide();
+                 this.isOpen = false;
              });
          },
 
@@ -26,7 +25,7 @@
              this.note = '';
              this.customMode = false;
              this.isSubmitting = false;
-             this.modalInstance.show();
+             this.isOpen = true;
          },
 
          confirmCancel() {
@@ -50,9 +49,9 @@
             {{-- Header Modal - Menggunakan merah transparan agar tetap terlihat alert di mode gelap --}}
             <div class="modal-header border-bottom-0 p-4" style="background: rgba(220, 53, 69, 0.1);">
                 <h5 class="modal-title fw-bold text-danger">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Batalkan Pesanan
+                    <i class="ph-fill ph-warning text-xl me-2"></i>Batalkan Pesanan
                 </h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close shadow-none" @click="isOpen = false" aria-label="Close"></button>
             </div>
 
             <div class="modal-body p-4 bg-body">
@@ -65,8 +64,8 @@
                                 :class="note === reason && !customMode ? 'btn-danger shadow-sm text-white' : 'btn-outline-secondary bg-body-tertiary text-body'"
                                 class="btn text-start rounded-3 fw-medium px-3 py-2 transition-all border"
                                 style="border-color: var(--bs-border-color-translucent) !important;">
-                            <i class="bi bi-check-circle-fill me-2" x-show="note === reason && !customMode"></i>
-                            <i class="bi bi-circle me-2" x-show="note !== reason || customMode"></i>
+                            <i class="ph-fill ph-check-circle text-lg me-2" x-show="note === reason && !customMode"></i>
+                            <i class="ph-bold ph-circle text-lg me-2" x-show="note !== reason || customMode"></i>
                             <span x-text="reason"></span>
                         </button>
                     </template>
@@ -75,8 +74,8 @@
                             :class="customMode ? 'btn-danger shadow-sm text-white' : 'btn-outline-secondary bg-body-tertiary text-body'"
                             class="btn text-start rounded-3 fw-medium px-3 py-2 transition-all border"
                             style="border-color: var(--bs-border-color-translucent) !important;">
-                        <i class="bi bi-pencil-fill me-2" x-show="customMode"></i>
-                        <i class="bi bi-circle me-2" x-show="!customMode"></i>
+                        <i class="ph-fill ph-pencil text-lg me-2" x-show="customMode"></i>
+                        <i class="ph-bold ph-circle text-lg me-2" x-show="!customMode"></i>
                         Alasan Lainnya...
                     </button>
                 </div>
@@ -91,7 +90,7 @@
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top"
                      style="border-color: var(--bs-border-color-translucent) !important;">
                     <button type="button" class="btn btn-secondary border bg-body text-body fw-bold px-4 rounded-3"
-                            data-bs-dismiss="modal">Kembali
+                            @click="isOpen = false">Kembali
                     </button>
                     <button type="button" @click="confirmCancel()"
                             class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm d-flex align-items-center gap-2 text-white">

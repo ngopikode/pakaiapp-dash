@@ -1,730 +1,455 @@
-<div class="pb-5 min-vh-100">
+<main class="min-vh-100 rounded-[2rem] bg-slate-50 p-4 pb-10 font-sans text-slate-800 dark:bg-slate-950 dark:text-slate-200 md:p-6">
+    <div class="space-y-6">
 
-    {{-- Welcome Header Row --}}
-    <div class="row align-items-center mb-4 pb-3 border-bottom pt-3">
-        {{-- Store Identity Left Column --}}
-        <div class="col-12 col-md-6 mb-3 mb-md-0">
-            <div class="d-inline-flex align-items-center gap-2 flex-wrap">
-                <h2 class="page-store-name mb-0 fw-bold text-body" style="font-size: 1.75rem;">
-                    {{ $store->name ?? 'Setup Tokomu' }}
-                </h2>
-                @if($store)
-                    <span
-                        class="badge bg-success bg-opacity-10 text-success rounded-pill px-2.5 py-1 fw-bold d-flex align-items-center gap-1 border border-success border-opacity-10"
-                        style="font-size: 0.65rem; height: fit-content;">
-                    <span class="active-glow-dot" style="width:6px;height:6px;"></span> Online
-                </span>
-                    <a href="{{ url('/') }}" target="_blank"
-                       class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 text-decoration-none d-flex align-items-center gap-1 ms-1"
-                       style="font-size: 0.72rem; height: fit-content; font-weight: 600;">
-                        <i class="ph-bold ph-arrow-square-out"></i> Buka Toko
-                    </a>
-                @endif
+        {{-- ═══════════════════════════════════════════════════════════
+             1. HEADER & GLOBAL FILTERS
+        ═══════════════════════════════════════════════════════════ --}}
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.22em] text-slate-400 dark:text-slate-500">
+                    {{ $store->name ?? 'Kafe Outlet' }}
+                </p>
+                <h1 class="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+                    Dashboard
+                </h1>
             </div>
-        </div>
 
-        {{-- Actions & Wallet Right Column --}}
-        <div class="col-12 col-md-6 text-md-end">
-            <div class="d-flex flex-wrap align-items-center justify-content-start justify-content-md-end gap-3">
-                {{-- Profile Info --}}
-                <div class="d-flex align-items-center gap-2">
-                    <div
-                        class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold"
-                        style="width: 32px; height: 32px; font-size: 0.8rem;">
-                        {{ substr(explode(' ', $user->name)[0], 0, 1) }}
-                    </div>
-                    <span class="text-secondary small fw-medium">
-                    Halo, {{ explode(' ', $user->name)[0] }}
-                </span>
-                </div>
+            <details class="relative flex-shrink-0 w-full md:w-auto max-w-full group">
+                <summary class="flex list-none items-center justify-between gap-1 sm:gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-sm relative w-full overflow-x-auto cursor-pointer [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] marker:content-none" wire:loading.class="opacity-50 pointer-events-none">
+                    <button type="button" wire:click="setDateFilter('today')" class="flex-1 sm:flex-none whitespace-nowrap px-2 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors text-center {{ $dateFilter === 'today' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">Hari Ini</button>
+                    <button type="button" wire:click="setDateFilter('7days')" class="flex-1 sm:flex-none whitespace-nowrap px-2 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors text-center {{ $dateFilter === '7days' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">7 Hari</button>
+                    <button type="button" wire:click="setDateFilter('30days')" class="flex-1 sm:flex-none whitespace-nowrap px-2 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors text-center {{ $dateFilter === '30days' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' }}">30 Hari</button>
+                    <div class="hidden sm:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0"></div>
+                    <span class="shrink-0 px-2 sm:px-3 py-2 text-slate-400 group-open:bg-slate-100 group-open:dark:bg-slate-800 group-open:rounded-xl">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </span>
+                </summary>
 
-                <span class="text-secondary opacity-25 d-none d-md-inline">|</span>
-
-                {{-- Saldo Pakaiapp Wallet Badge --}}
-                <div
-                    class="d-flex align-items-center justify-content-between gap-3 py-1.5 px-3 rounded-pill border bg-body shadow-sm"
-                    style="border-color: var(--bs-border-color-translucent) !important; font-size: 0.85rem;">
-                    <div class="d-flex align-items-center gap-2">
-                        <div
-                            class="rounded-circle d-flex align-items-center justify-content-center bg-emerald-500 bg-opacity-10 text-emerald-600 flex-shrink-0"
-                            style="width: 28px; height: 28px;">
-                            <i class="ph-fill ph-wallet" style="font-size: 0.85rem;"></i>
+                <div class="absolute right-0 top-full z-50 mt-2 w-72 rounded-3xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                    <h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">Pilih Rentang Waktu</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-400">Mulai Dari</label>
+                            <input type="date" wire:model="customStartDate" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                         </div>
-                        <div class="d-flex flex-column lh-1 text-start">
-                            <span class="text-secondary small fw-bold"
-                                  style="font-size: 0.55rem; letter-spacing: 0.5px; text-transform: uppercase;">Saldo Pakaiapp</span>
-                            <div class="d-flex align-items-center gap-2 mt-0.5">
-                            <span
-                                class="fw-bold text-body {{ $stats['wallet_balance'] < 3000 ? 'text-danger animate-pulse' : '' }}"
-                                style="font-size: 0.9rem;">
-                                Rp {{ number_format($stats['wallet_balance'], 0, ',', '.') }}
-                            </span>
-                                @if($stats['wallet_balance'] >= 3000)
-                                    <span class="badge bg-body-tertiary text-secondary border fw-medium"
-                                          style="font-size: 0.55rem; padding: 2px 4px;">~{{ floor($stats['wallet_balance'] / $stats['fee_per_trx']) }} trx</span>
-                                @else
-                                    <span
-                                        class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 fw-medium animate-pulse"
-                                        style="font-size: 0.55rem; padding: 2px 4px;">Habis!</span>
-                                @endif
-                            </div>
+                        <div>
+                            <label class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-400">Sampai Dengan</label>
+                            <input type="date" wire:model="customEndDate" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                         </div>
-                    </div>
-                    <div class="border-start ps-3 py-0.5">
-                        <button class="btn btn-sm p-0 text-primary fw-bold hover-translate" data-bs-toggle="modal"
-                                data-bs-target="#topUpModal" type="button">
-                            <i class="ph-fill ph-plus-circle fs-5"></i>
+                        <button type="button" wire:click="applyCustomDateFilter" class="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-2 text-sm font-bold text-white transition-colors hover:bg-orange-600">
+                            <span wire:loading.remove wire:target="applyCustomDateFilter">Terapkan Filter</span>
+                            <span wire:loading wire:target="applyCustomDateFilter" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
                         </button>
                     </div>
                 </div>
-
-                {{-- Action Buttons --}}
-                <div class="d-flex align-items-center gap-2">
-                    <button wire:click="exportLaporan"
-                            class="btn btn-outline-secondary btn-sm py-2 px-3 rounded-3 d-flex align-items-center gap-1"
-                            wire:loading.attr="disabled" style="font-size: 0.8rem; font-weight: 600;">
-                        <span wire:loading.remove wire:target="exportLaporan"><i
-                                class="ph-fill ph-file-csv text-success fs-6 me-1"></i> Export</span>
-                        <span wire:loading wire:target="exportLaporan"><span
-                                class="spinner-border spinner-border-sm me-1"></span> Proses...</span>
-                    </button>
-                    <a href="{{ route('cashier') }}" wire:navigate.hover
-                       class="btn btn-success btn-sm py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-1 text-white fw-bold"
-                       style="font-size: 0.8rem; font-weight: 750; background-color: #10B981; border: none;">
-                        <i class="ph-fill ph-shopping-cart fs-6"></i> Kasir
-                        @if($newOrderCount > 0)
-                            <span class="badge rounded-circle ms-1 bg-white text-danger"
-                                  style="font-size: 0.7rem;">{{ $newOrderCount }}</span>
-                        @endif
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- New Order Notification Glassmorphism Island --}}
-    @if($newOrderCount > 0)
-        <div class="notif-new-order p-3 mb-4 transition-all"
-             style="position: relative; overflow: hidden; border-radius: 1rem;">
-            {{-- Decorative Subtle Glow Behind --}}
-            <div class="position-absolute rounded-circle"
-                 style="width: 150px; height: 150px; background: rgba(202, 138, 4, 0.15); filter: blur(40px); top: -50px; right: -30px; pointer-events: none;"></div>
-
-            <div
-                class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 position-relative z-1">
-                <div class="d-flex align-items-center gap-3">
-                    {{-- Glowing Icon Wrapper --}}
-                    <div
-                        class="d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm rounded-circle position-relative bg-body border"
-                        style="width: 48px; height: 48px; border-color: rgba(180, 83, 9, 0.2) !important;">
-                        <div class="position-absolute rounded-circle bg-warning opacity-25 w-100 h-100"
-                             style="animation: pulse-glow 2s infinite;"></div>
-                        <i class="ph-fill ph-bell-ringing fs-5"
-                           style="color: #10B981; animation: smooth-bounce 2.5s ease infinite;"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <h6 class="fw-black mb-0 text-body" style="letter-spacing: -0.3px;">{{ $newOrderCount }}
-                                Pesanan Baru Masuk!</h6>
-                            <span class="badge bg-danger rounded-pill fw-bold animate-pulse"
-                                  style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">LIVE</span>
-                        </div>
-                        <p class="mb-0 small text-secondary fw-medium mt-0.5 opacity-75">Antrian kasir bertambah. Segera
-                            periksa dan proses pesanan pelanggan.</p>
-                    </div>
-                </div>
-                {{-- Premium Action Button --}}
-                <button wire:click="acknowledgeOrders" class="btn btn-emerald-solid flex-shrink-0 w-100 w-md-auto"
-                        type="button">
-                    <i class="bi bi-check2-all me-1"></i> Selesai Periksa
-                </button>
-            </div>
+            </details>
         </div>
 
-
-
-        {{-- Audio System Notification --}}
-        <script>
-            if (!window._newOrderAlertPlayed) {
-                try {
-                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.4);
-                    window._newOrderAlertPlayed = true;
-                } catch (e) {
-                }
-            }
-        </script>
-    @else
-        <script>window._newOrderAlertPlayed = false;</script>
-    @endif
-
-    @if(!$store)
-        <div class="card bg-warning bg-opacity-10 border-0 rounded-4 p-4 mb-5 dash-card">
-            <div class="d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-4">
-                <div
-                    class="bg-warning text-dark rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
-                    style="width: 60px; height: 60px;">
-                    <i class="ph-fill ph-storefront fs-3"></i>
-                </div>
-                <div class="w-100">
-                    <h5 class="fw-bold mb-1 text-body">Lengkapi Profil Tokomu!</h5>
-                    <p class="mb-3 small text-secondary">Pelanggan belum bisa melihat katalogmu karena informasi toko
-                        masih kosong.</p>
-                    <a href="{{ route('dashboard') }}"
-                       class="btn btn-success fw-bold rounded-pill px-4 border-0 text-dark">Atur Sekarang</a>
-                </div>
-            </div>
-        </div>
-    @else
-        {{-- ROW 1: CORE METRICS GRID --}}
-        <div class="row g-2 g-md-3 mb-4">
-            {{-- Omset Hari Ini Card --}}
-            <div class="col-6 col-md-4">
-                <div class="card h-100 rounded-3 shadow-sm border p-2 p-md-3">
-                    <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
-                        <div
-                            class="rounded-circle d-flex align-items-center justify-content-center bg-emerald-500 bg-opacity-10 text-emerald-600 flex-shrink-0"
-                            style="width: 32px; height: 32px; @media(min-width: 768px){ width: 40px; height: 40px; }">
-                            <i class="ph-fill ph-wallet fs-6 fs-md-5" style="color: #10B981;"></i>
-                        </div>
-                        <span
-                            class="badge text-secondary border rounded-pill px-2 py-0.5 px-md-2.5 py-md-1 bg-body-tertiary"
-                            style="font-size: 0.65rem;">Hari Ini</span>
-                    </div>
-                    <div>
-                        <h3 class="fw-bold text-body mb-1 mb-md-2 text-truncate"
-                            style="font-size: 1.1rem; @media(min-width: 768px){ font-size: 1.75rem; } letter-spacing: -0.5px;">
-                            Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}
-                        </h3>
-                        <div class="d-flex flex-column gap-1">
-                            <p class="text-secondary small fw-bold mb-0 opacity-75 text-truncate"
-                               style="font-size: 0.65rem;">
-                                {{ $stats['orders_today'] }} Trx
-                                @if($stats['revenue_trend_today'] != 0)
-                                    <span
-                                        class="ms-0.5 px-1 rounded {{ $stats['revenue_trend_today'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
-                                        style="font-size: 0.6rem;">
-                                    <i class="bi {{ $stats['revenue_trend_today'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_today']) }}%
-                                </span>
-                                @endif
-                            </p>
-                            <p class="text-success fw-bold mb-0 text-truncate" style="font-size: 0.7rem;">
-                                <i class="bi bi-piggy-bank-fill me-1"></i>Laba:
-                                Rp {{ number_format($stats['profit_today'], 0, ',', '.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Pendapatan Bulan Ini Card --}}
-            <div class="col-6 col-md-4">
-                <div class="card h-100 rounded-3 shadow-sm border p-2 p-md-3">
-                    <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
-                        <div
-                            class="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success flex-shrink-0"
-                            style="width: 32px; height: 32px; @media(min-width: 768px){ width: 40px; height: 40px; }">
-                            <i class="ph-bold ph-trend-up fs-6 fs-md-5"></i>
-                        </div>
-                        <span
-                            class="badge text-secondary border rounded-pill px-2 py-0.5 px-md-2.5 py-md-1 bg-body-tertiary"
-                            style="font-size: 0.65rem;">Bulan Ini</span>
-                    </div>
-                    <div>
-                        <h3 class="fw-bold text-body mb-1 mb-md-2 text-truncate"
-                            style="font-size: 1.1rem; @media(min-width: 768px){ font-size: 1.75rem; } letter-spacing: -0.5px;">
-                            Rp {{ number_format($stats['revenue_month'], 0, ',', '.') }}
-                        </h3>
-                        <div class="d-flex flex-column gap-1">
-                            <p class="text-secondary small fw-bold mb-0 opacity-75 text-truncate"
-                               style="font-size: 0.65rem;">
-                                Pendapatan
-                                @if($stats['revenue_trend_month'] != 0)
-                                    <span
-                                        class="ms-0.5 px-1 rounded {{ $stats['revenue_trend_month'] > 0 ? 'bg-success text-white' : 'bg-danger text-white' }}"
-                                        style="font-size: 0.6rem;">
-                                    <i class="bi {{ $stats['revenue_trend_month'] > 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i> {{ abs($stats['revenue_trend_month']) }}%
-                                </span>
-                                @endif
-                            </p>
-                            <p class="text-success fw-bold mb-0 text-truncate" style="font-size: 0.7rem;">
-                                <i class="bi bi-piggy-bank-fill me-1"></i>Laba:
-                                Rp {{ number_format($stats['profit_month'], 0, ',', '.') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Antrean Card --}}
-            <div class="col-12 col-md-4">
-                <div
-                    class="card h-100 rounded-3 shadow-sm border p-2 p-md-3 {{ $stats['pending_orders'] > 0 ? 'card-pending-alert' : '' }}">
-                    <div class="d-flex justify-content-between align-items-center mb-2 mb-md-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <div
-                                class="rounded-circle d-flex align-items-center justify-content-center {{ $stats['pending_orders'] > 0 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-secondary bg-opacity-10 text-secondary' }} flex-shrink-0"
-                                style="width: 32px; height: 32px; @media(min-width: 768px){ width: 40px; height: 40px; }">
-                                <i class="bi bi-hourglass-split fs-6 fs-md-5"></i>
-                            </div>
-                            <span
-                                class="badge text-secondary border rounded-pill px-2 py-0.5 px-md-2.5 py-md-1 bg-body-tertiary"
-                                style="font-size: 0.65rem;">Antrean</span>
-                        </div>
+        {{-- ═══════════════════════════════════════════════════════════
+             2. PERLU PERHATIAN (Urgent Alerts)
+        ═══════════════════════════════════════════════════════════ --}}
+        @if($stats['pending_orders'] > 0 || $outOfStockCount > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @if($stats['pending_orders'] > 0)
+                <a href="{{ route('kitchen') }}"
+                   class="group flex items-center justify-between rounded-3xl border border-orange-200 bg-orange-50 p-4 transition-colors hover:bg-orange-100 dark:border-orange-500/20 dark:bg-orange-500/10 dark:hover:bg-orange-500/20">
+                    <div class="flex items-center gap-3">
+                        <div class="h-2 w-2 rounded-full bg-orange-500 animate-pulse"></div>
                         <div>
-                            <h3 class="fw-bold {{ $stats['pending_orders'] > 0 ? 'text-danger' : 'text-body' }} mb-0"
-                                style="font-size: 1.25rem; @media(min-width: 768px){ font-size: 1.75rem; } letter-spacing: -0.5px;">
-                                {{ $stats['pending_orders'] }} <span style="font-size: 0.9rem;" class="fw-medium">Pesanan</span>
-                            </h3>
+                            <span class="block text-sm font-bold text-orange-800 dark:text-orange-400">Antrean Dapur Aktif</span>
+                            <span class="text-xs text-orange-600/80 dark:text-orange-400/80">{{ $stats['pending_orders'] }} pesanan menunggu diproses</span>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-secondary small fw-bold mb-0 opacity-75" style="font-size: 0.7rem;">Menunggu
-                            Diproses di Kasir</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ROW 2: MAIN CONTENT & SIDEBAR SPLIT --}}
-        <div class="row g-4 align-items-start">
-            {{-- LEFT MAIN COLUMN --}}
-            <div class="col-12 col-lg-8 d-flex flex-column gap-3">
-                {{-- Item A: AI Daily Briefing --}}
-                <div>
-                    <livewire:pages::tenant.ai-daily-briefing
-                        :stats="$stats"
-                        :topProducts="$topProducts"
-                        :slowMovingProducts="$slowMovingProducts"
-                        :key="'ai-briefing-' . time()"
-                    />
-                </div>
-
-                {{-- Item B: Trend Pendapatan (7 Hari) --}}
-                <div class="card rounded-3 shadow-sm border p-3">
-                    <h5 class="fw-bold mb-3 text-body" style="font-size: 1.1rem;"><i
-                            class="bi bi-graph-up text-primary me-2"></i>Trend Pendapatan (7 Hari)</h5>
-
-                    <div class="position-relative" wire:ignore>
-                        @php
-                            $chartDataArr = json_decode($chartData ?? '[]');
-                            $hasChartData = false;
-                            if (is_array($chartDataArr) && count($chartDataArr) > 0) {
-                                foreach ($chartDataArr as $item) {
-                                    if (($item->revenue ?? 0) > 0) {
-                                        $hasChartData = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        @endphp
-
-                        @if(!$hasChartData)
-                            <div
-                                class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center z-3 chart-empty-overlay">
-                                <div class="text-center d-flex flex-column align-items-center">
-                                    <i class="bi bi-graph-up text-secondary opacity-50 fs-2 mb-2"></i>
-                                    <p class="mb-0 text-secondary fw-medium small" style="font-size: 0.8rem;">Belum ada
-                                        data penjualan 7 hari terakhir.</p>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div id="revenueChart"
-                             style="min-height: 250px; @if(!$hasChartData) opacity: 0.35; @endif"></div>
-                    </div>
-                </div>
-
-                {{-- Item C: Sub-row for breakdown metrics --}}
-                <div class="row g-3">
-                    {{-- Metode Pembayaran Card --}}
-                    <div class="col-12 col-md-6">
-                        <div class="card h-100 rounded-3 shadow-sm border p-3">
-                            <h6 class="fw-bold mb-3 text-body" style="font-size: 0.95rem;"><i
-                                    class="bi bi-credit-card-2-front-fill me-2 text-primary"></i>Metode Pembayaran
-                                (Bulan Ini)</h6>
-
-                            @if(count($paymentMethods) > 0)
-                                @php
-                                    $totalPayments = $paymentMethods->sum('total');
-                                    $colors = ['cash' => 'success', 'qris' => 'info', 'transfer' => 'primary'];
-                                    $icons = ['cash' => 'cash-stack', 'qris' => 'qr-code-scan', 'transfer' => 'bank'];
-                                    $labels = ['cash' => 'Tunai (Cash)', 'qris' => 'QRIS', 'transfer' => 'Transfer Bank'];
-                                @endphp
-                                <div class="d-flex flex-column gap-3">
-                                    @foreach($paymentMethods as $pm)
-                                        @php
-                                            $pct = $totalPayments > 0 ? round(($pm->total / $totalPayments) * 100) : 0;
-                                            $c = $colors[$pm->payment_method] ?? 'secondary';
-                                            $i = $icons[$pm->payment_method] ?? 'credit-card';
-                                            $l = $labels[$pm->payment_method] ?? ucfirst($pm->payment_method);
-                                        @endphp
-                                        <div>
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="small fw-bold text-body"><i
-                                                        class="bi bi-{{$i}} text-{{$c}} me-1"></i> {{$l}}</span>
-                                                <span
-                                                    class="small text-secondary fw-bold">{{$pct}}% ({{$pm->total}})</span>
-                                            </div>
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar bg-{{$c}}" role="progressbar"
-                                                     style="width: {{$pct}}%" aria-valuenow="{{$pct}}" aria-valuemin="0"
-                                                     aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                                    <i class="bi bi-credit-card text-muted opacity-50 fs-2 mb-2"></i>
-                                    <span class="text-muted small text-center">Belum ada data pembayaran.</span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Sumber Pesanan Card --}}
-                    <div class="col-12 col-md-6">
-                        <div class="card h-100 rounded-3 shadow-sm border p-3">
-                            <h6 class="fw-bold mb-3 text-body" style="font-size: 0.95rem;"><i
-                                    class="ph-fill ph-storefront-window me-2 text-warning"></i>Sumber Pesanan (Bulan
-                                Ini)</h6>
-
-                            @if(count($orderTypes) > 0)
-                                @php
-                                    $totalTypes = $orderTypes->sum('total');
-                                    $tColors = ['retail' => 'secondary', 'dinein' => 'warning', 'takeaway' => 'danger', 'online' => 'success'];
-                                    $tIcons = ['retail' => 'bag', 'dinein' => 'cup-hot', 'takeaway' => 'box-seam', 'online' => 'globe'];
-                                    $tLabels = ['retail' => 'Kasir Retail', 'dinein' => 'Dine-in (Makan di Tempat)', 'takeaway' => 'Takeaway (Bawa Pulang)', 'online' => 'Online Order'];
-                                @endphp
-                                <div class="d-flex flex-column gap-3">
-                                    @foreach($orderTypes as $ot)
-                                        @php
-                                            $pct = $totalTypes > 0 ? round(($ot->total / $totalTypes) * 100) : 0;
-                                            $c = $tColors[$ot->order_type] ?? 'primary';
-                                            $i = $tIcons[$ot->order_type] ?? 'shop';
-                                            $l = $tLabels[$ot->order_type] ?? ucfirst($ot->order_type);
-                                        @endphp
-                                        <div>
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="small fw-bold text-body"><i
-                                                        class="bi bi-{{$i}} text-{{$c}} me-1"></i> {{$l}}</span>
-                                                <span class="small text-secondary fw-bold">{{$ot->total}} Trx</span>
-                                            </div>
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar bg-{{$c}}" role="progressbar"
-                                                     style="width: {{$pct}}%" aria-valuenow="{{$pct}}" aria-valuemin="0"
-                                                     aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                                    <i class="ph-fill ph-storefront text-muted opacity-50 fs-2 mb-2"></i>
-                                    <span class="text-muted small text-center">Belum ada data pesanan.</span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- RIGHT SIDEBAR COLUMN --}}
-            <div class="col-12 col-lg-4 d-flex flex-column gap-3">
-                {{-- Item A: Produk Terlaris Bulan Ini --}}
-                <div class="card rounded-3 shadow-sm border p-3">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="ph-fill ph-star text-warning fs-5"></i>
-                        <h6 class="fw-bold mb-0 text-body" style="font-size: 0.95rem;">Produk Terlaris Bulan Ini</h6>
-                    </div>
-
-                    @if(count($topProducts) > 0)
-                        <div class="d-flex flex-column gap-2">
-                            @foreach($topProducts as $index => $item)
-                                <div
-                                    class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
-                                    style="border-color: var(--bs-border-color-translucent) !important;">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div
-                                            class="rank-badge {{ $index == 0 ? 'rank-gold' : ($index == 1 ? 'rank-silver' : ($index == 2 ? 'rank-bronze' : 'rank-default')) }}">
-                                            {{ $index + 1 }}
-                                        </div>
-                                        <div class="fw-bold small text-truncate text-body"
-                                             style="max-width: 150px;">{{ $item->product_name }}</div>
-                                    </div>
-                                    <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i
-                                            class="ph-bold ph-trend-up text-success me-1"></i> {{ $item->total_sold }} Terjual</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="d-flex flex-column align-items-center justify-content-center py-4 text-center">
-                            <i class="ph-fill ph-package text-muted opacity-50 fs-2 mb-2"></i>
-                            <span class="text-muted small">Belum ada data penjualan bulan ini.</span>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Item B: Perlu Perhatian (Kurang Laku) --}}
-                <div class="card rounded-3 shadow-sm border p-3">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="bi bi-arrow-down-right-circle-fill text-danger fs-5"></i>
-                        <h6 class="fw-bold mb-0 text-body" style="font-size: 0.95rem;">Perlu Perhatian (Kurang
-                            Laku)</h6>
-                    </div>
-
-                    @if(count($slowMovingProducts) > 0)
-                        <div class="d-flex flex-column gap-2">
-                            @foreach($slowMovingProducts as $index => $item)
-                                <div
-                                    class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
-                                    style="border-color: var(--bs-border-color-translucent) !important;">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div
-                                            class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center flex-shrink-0"
-                                            style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">
-                                            !
-                                        </div>
-                                        <div class="fw-bold small text-truncate text-body"
-                                             style="max-width: 150px;">{{ $item->name }}</div>
-                                    </div>
-                                    <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i
-                                            class="bi bi-graph-down-arrow text-danger me-1"></i> {{ $item->total_sold }} Terjual</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="d-flex flex-column align-items-center justify-content-center py-4 text-center">
-                            <i class="bi bi-check2-circle text-muted fs-3 mb-2"></i>
-                            <span class="text-muted small">Semua produk terjual dengan baik!</span>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Item C: Waktu Penjualan Tersibuk --}}
-                <div class="card rounded-3 shadow-sm border p-3">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="ph-bold ph-clock-history text-primary fs-5"></i>
-                        <h6 class="fw-bold mb-0 text-body" style="font-size: 0.95rem;">Waktu Penjualan Tersibuk</h6>
-                    </div>
-
-                    @if(count($peakSalesTimes) > 0)
-                        <div class="d-flex flex-column gap-2">
-                            @foreach($peakSalesTimes as $index => $item)
-                                <div
-                                    class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-body-tertiary"
-                                    style="border-color: var(--bs-border-color-translucent) !important;">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div
-                                            class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0"
-                                            style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">
-                                            {{ $index + 1 }}
-                                        </div>
-                                        <div class="fw-bold small text-truncate text-body">{{ $item->time_range }}</div>
-                                    </div>
-                                    <span class="badge border shadow-sm rounded-pill bg-body text-secondary"><i
-                                            class="ph-fill ph-bag-check text-primary me-1"></i> {{ $item->orders }} Order</span>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-2 text-center">
-                            <small class="text-muted opacity-75" style="font-size: 0.68rem;">Berdasarkan 30 hari
-                                terakhir</small>
-                        </div>
-                    @else
-                        <div class="d-flex flex-column align-items-center justify-content-center py-4 text-center">
-                            <i class="ph-bold ph-clock text-muted fs-3 mb-2"></i>
-                            <span class="text-muted small">Belum ada data waktu penjualan.</span>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Item D: Aksi Cepat - Tambah Produk Baru --}}
-                <a href="{{ route('product.create') }}" wire:navigate.hover
-                   class="action-dashed-card d-flex flex-column align-items-center justify-content-center text-center p-4 text-decoration-none text-body rounded-3"
-                   style="border: 2px dashed var(--bs-border-color-translucent) !important; min-height: 140px;">
-                    <div class="rounded-circle d-flex justify-content-center align-items-center mb-2"
-                         style="width: 48px; height: 48px; background-color: rgba(249, 115, 22, 0.1); color: #f97316;">
-                        <i class="bi bi-plus-lg fs-4"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-body" style="font-size: 0.95rem;">Tambah Produk Baru</h6>
-                        <small class="text-muted d-block" style="font-size: 0.78rem;">Aksi Cepat - Perbarui katalog
-                            jualanmu</small>
-                    </div>
+                    <span class="text-orange-500 transition-transform group-hover:translate-x-1">→</span>
                 </a>
-            </div>
-        </div>
-    @endif
+                @endif
 
-    {{-- Premium Top Up Modal --}}
-    <div class="modal fade" id="topUpModal" tabindex="-1" aria-labelledby="topUpModalLabel" aria-hidden="true"
-         wire:ignore>
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg"
-                 style="border-radius: 1.5rem; background-color: var(--bs-card-bg);">
-                <div class="modal-header border-0 pb-0 pt-4 px-4 position-relative">
-                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-4 pt-2">
-                    {{-- Decorative Wallet Icon --}}
-                    <div
-                        class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle mb-3 p-3 text-warning shadow-sm"
-                        style="width: 70px; height: 70px; border: 1px solid rgba(182, 115, 50, 0.15);">
-                        <i class="ph-fill ph-wallet fs-2" style="color: #10B981;"></i>
-                    </div>
-
-                    <h5 class="modal-title fw-bold text-body mb-2" id="topUpModalLabel"
-                        style="font-family: var(--font-serif), sans-serif; font-size: 1.25rem;">
-                        Isi Ulang Saldo Pakaiapp
-                    </h5>
-
-                    <p class="text-secondary small mb-4 px-2">
-                        Untuk melakukan pengisian ulang saldo (Top Up) akun toko Anda, silakan hubungi Administrator
-                        kami melalui WhatsApp.
-                    </p>
-
-                    <div class="bg-body-tertiary p-3 rounded-4 border mb-4 text-start d-flex align-items-center gap-3"
-                         style="border-color: var(--bs-border-color-translucent) !important;">
-                        <div
-                            class="bg-success bg-opacity-10 text-success rounded-circle p-2.5 d-flex align-items-center justify-content-center"
-                            style="width: 42px; height: 42px;">
-                            <i class="ph-fill ph-whatsapp-logo fs-5"></i>
-                        </div>
+                @if($outOfStockCount > 0)
+                <a href="{{ route('product') }}"
+                   class="group flex items-center justify-between rounded-3xl border border-red-200 bg-red-50 p-4 transition-colors hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 dark:hover:bg-red-500/20">
+                    <div class="flex items-center gap-3">
+                        <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
                         <div>
-                            <span class="text-secondary small d-block" style="font-size: 0.72rem;">WhatsApp Admin</span>
-                            <span class="fw-black text-body" style="letter-spacing: 0.5px;">+62 851-7244-1544</span>
+                            <span class="block text-sm font-bold text-red-800 dark:text-red-400">Peringatan Stok</span>
+                            <span class="text-xs text-red-600/80 dark:text-red-400/80">{{ $outOfStockFirst }} {{ $outOfStockCount > 1 ? '& ' . ($outOfStockCount - 1) . ' item lain' : '' }} habis</span>
                         </div>
                     </div>
+                    <span class="text-red-500 transition-transform group-hover:translate-x-1">→</span>
+                </a>
+                @endif
+            </div>
+        @endif
 
-                    <a href="https://wa.me/6285172441544?text=Halo%20Admin%2C%20saya%20ingin%20melakukan%20top%20up%20saldo%20Pakaiapp%20untuk%20toko%20saya."
-                       target="_blank"
-                       class="btn w-100 rounded-pill fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 text-white border-0 transition-all hover-translate"
-                       style="background: linear-gradient(135deg, #25D366, #128C7E); font-size: 0.9rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);">
-                        <i class="ph-fill ph-whatsapp-logo fs-5"></i> Hubungi Admin Sekarang
-                    </a>
+        {{-- ═══════════════════════════════════════════════════════════
+             3. KPI UTAMA (Metrics)
+        ═══════════════════════════════════════════════════════════ --}}
+        <div class="rounded-[2rem] border border-slate-200 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+            <div class="hidden grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4" wire:loading.class.remove="hidden" wire:loading.class="grid" wire:target="setDateFilter,applyCustomDateFilter">
+                <div class="h-32 rounded-[1.5rem] bg-slate-100 animate-pulse dark:bg-slate-800"></div>
+                <div class="h-32 rounded-[1.5rem] bg-slate-100 animate-pulse dark:bg-slate-800"></div>
+                <div class="h-32 rounded-[1.5rem] bg-slate-100 animate-pulse dark:bg-slate-800"></div>
+                <div class="h-32 rounded-[1.5rem] bg-slate-100 animate-pulse dark:bg-slate-800"></div>
+            </div>
+
+            <div wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter" class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-[1.5rem] px-5 py-5 lg:border-r lg:border-slate-100 dark:lg:border-slate-800">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                            <svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 2v8m0 0v2"></path></svg>
+                            <span class="text-sm font-bold">Total Revenue</span>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-400">{{ $dateFilter === 'today' ? 'Hari Ini' : ($dateFilter === '7days' ? '7 Hari' : ($dateFilter === '30days' ? '30 Hari' : 'Kustom')) }}</span>
+                    </div>
+                    <div class="text-3xl font-black text-slate-900 dark:text-white">Rp {{ number_format($stats['revenue_today'], 0, ',', '.') }}</div>
+                    <div class="mt-2 text-xs font-semibold">
+                        <span class="{{ $stats['revenue_trend_today'] > 0 ? 'text-emerald-500' : 'text-slate-400' }}">{{ $stats['revenue_trend_today'] > 0 ? '▲' : '' }} {{ abs($stats['revenue_trend_today']) }}%</span>
+                        <span class="text-slate-400"> vs periode lalu</span>
+                    </div>
+                </div>
+
+                <div class="rounded-[1.5rem] px-5 py-5 lg:border-r lg:border-slate-100 dark:lg:border-slate-800">
+                    <div class="mb-4 flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                        <svg class="h-4 w-4 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10V4M5 20h14"></path></svg>
+                        <span class="text-sm font-bold">Transaksi</span>
+                    </div>
+                    <div class="text-3xl font-black text-slate-900 dark:text-white">{{ $stats['orders_today'] }}</div>
+                    <div class="mt-2 text-xs font-semibold text-slate-400">Total order tercatat</div>
+                </div>
+
+                <a wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter" wire:navigate href="/orders?status=pending" class="group rounded-[1.5rem] px-5 py-5 lg:border-r lg:border-slate-100 dark:lg:border-slate-800">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                            <svg class="h-4 w-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="text-sm font-bold">Pesanan Menunggu</span>
+                        </div>
+                        <span class="rounded-full bg-orange-50 px-2 py-1 text-[11px] font-bold text-orange-500 dark:bg-orange-500/10">Live</span>
+                    </div>
+                    <div class="text-3xl font-black text-slate-900 dark:text-white">{{ $stats['pending_orders'] }}</div>
+                    <div class="mt-2 text-xs font-semibold {{ $stats['pending_orders'] > 0 ? 'text-orange-500' : 'text-slate-400' }}">{{ $stats['pending_orders'] > 0 ? 'Perlu segera diproses →' : 'Semua pesanan selesai' }}</div>
+                </a>
+
+                <div class="rounded-[1.5rem] bg-slate-900 px-5 py-5 text-white dark:bg-slate-950">
+                    <div class="mb-4 flex items-center gap-2 text-slate-300">
+                        <svg class="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        <span class="text-sm font-bold">Profit Estimasi</span>
+                    </div>
+                    <div class="text-3xl font-black">Rp {{ number_format($stats['profit_month'], 0, ',', '.') }}</div>
+                    <div class="mt-2 text-xs font-semibold text-emerald-400">Bulan ini (Margin kotor)</div>
                 </div>
             </div>
         </div>
+
+        {{-- ═══════════════════════════════════════════════════════════
+             4. CHARTS & TRANSACTIONS
+        ═══════════════════════════════════════════════════════════ --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] relative overflow-hidden dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+                <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-5 animate-pulse">
+                    <div>
+                        <div class="h-6 w-40 rounded bg-slate-200 dark:bg-slate-800"></div>
+                        <div class="mt-2 h-4 w-32 rounded bg-slate-100 dark:bg-slate-800/70"></div>
+                    </div>
+                    <div class="h-[280px] rounded-[1.5rem] bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"></div>
+                </div>
+
+                <div wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter">
+                    <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h3 class="text-lg font-black text-slate-900 dark:text-white">Sales Statistic</h3>
+                            <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                Tren Penjualan
+                                @if($dateFilter === 'today') Hari Ini
+                                @elseif($dateFilter === '7days') 7 Hari Terakhir
+                                @elseif($dateFilter === '30days') 30 Hari Terakhir
+                                @else Rentang Kustom @endif
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative min-h-[280px]" 
+                         x-data="{
+                            chart: null,
+                            initChart(dataStr) {
+                                if (this.chart) {
+                                    this.chart.destroy();
+                                }
+                                let chartData = [];
+                                try { chartData = JSON.parse(dataStr); } catch(e) {}
+                                
+                                let revenues = chartData.map(i => i.revenue);
+                                let categories = chartData.map(i => i.date);
+                                
+                                const isDark = document.documentElement.classList.contains('dark');
+                                const textColor = isDark ? '#94a3b8' : '#64748b';
+                                const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
+                                const brandColor = '#f97316';
+                                
+                                let options = {
+                                    series: [{name: 'Omzet', data: revenues}],
+                                    chart: { type: 'area', height: 280, toolbar: {show: false}, fontFamily: 'inherit', parentHeightOffset: 0, background: 'transparent', animations: {enabled: true, easing: 'easeinout', speed: 600} },
+                                    colors: [brandColor],
+                                    fill: { type: 'solid', opacity: 0.08 },
+                                    dataLabels: {enabled: false},
+                                    stroke: {curve: 'smooth', width: 4},
+                                    xaxis: { categories: categories, axisBorder: {show: false}, axisTicks: {show: false}, labels: {style: {colors: textColor, fontSize: '11px', fontFamily: 'inherit'}}, crosshairs: {stroke: {color: brandColor, dashArray: 4}} },
+                                    yaxis: { min: 0, labels: { style: {colors: textColor, fontSize: '11px', fontFamily: 'inherit'}, formatter: function(val) { if (val >= 1000000) return 'Rp ' + (val / 1000000).toFixed(1) + 'M'; if (val >= 1000) return 'Rp ' + (val / 1000).toFixed(0) + 'K'; return 'Rp ' + val; } } },
+                                    grid: { borderColor: gridColor, strokeDashArray: 5, yaxis: {lines: {show: true}}, xaxis: {lines: {show: false}}, padding: {left: 10, right: 10, top: 0, bottom: 0} },
+                                    theme: {mode: isDark ? 'dark' : 'light'},
+                                    tooltip: { theme: isDark ? 'dark' : 'light', y: {formatter: val => 'Rp' + new Intl.NumberFormat('id-ID').format(val)} },
+                                    markers: { size: 0, colors: [brandColor], strokeColors: isDark ? '#0f172a' : '#ffffff', strokeWidth: 2, hover: {size: 6} }
+                                };
+                                
+                                this.chart = new ApexCharts(this.$refs.chartContainer, options);
+                                this.chart.render();
+                            }
+                         }"
+                         x-init="
+                            setTimeout(() => initChart($el.dataset.chart), 100);
+                            let observer = new MutationObserver((mutations) => {
+                                mutations.forEach((m) => {
+                                    if (m.attributeName === 'data-chart') {
+                                        initChart($el.dataset.chart);
+                                    }
+                                });
+                            });
+                            observer.observe($el, { attributes: true });
+                         "
+                         data-chart="{{ $chartData }}"
+                    >
+                        <div x-ref="chartContainer" wire:ignore></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-h-[360px] flex flex-col relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+                <h3 class="mb-4 shrink-0 text-sm font-bold text-slate-900 dark:text-white">
+                    Menu Terlaris
+                    <span class="text-xs font-normal text-slate-500 dark:text-slate-400">
+                        @if($dateFilter === 'today') (Hari Ini) 
+                        @elseif($dateFilter === '7days') (7 Hari)
+                        @elseif($dateFilter === '30days') (30 Hari)
+                        @else (Kustom) @endif
+                    </span>
+                </h3>
+
+                <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="hide-scrollbar flex-1 space-y-4 overflow-y-auto animate-pulse [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    @foreach(range(1, 4) as $skeleton)
+                        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-3 dark:border-slate-700 dark:bg-slate-800">
+                            <div class="min-w-0 flex items-center gap-3">
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white shadow-sm dark:bg-slate-950"></span>
+                                <span class="h-4 w-28 rounded bg-slate-200 dark:bg-slate-700"></span>
+                            </div>
+                            <span class="h-6 w-20 rounded-full bg-white dark:bg-slate-950"></span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter">
+                    @if($topProducts->isNotEmpty())
+                        <div class="hide-scrollbar flex-1 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            @foreach($topProducts as $index => $item)
+                                <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-3 dark:border-slate-700 dark:bg-slate-800">
+                                    <div class="min-w-0 flex items-center gap-3">
+                                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-slate-500 shadow-sm dark:bg-slate-950 dark:text-slate-200">{{ $index + 1 }}</span>
+                                        <span class="max-w-[150px] truncate text-sm font-semibold text-slate-700 dark:text-slate-200">{{ $item->product_name }}</span>
+                                    </div>
+                                    <span class="rounded-full bg-white px-2 py-1 text-xs font-bold text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+                                        {{ $item->total_sold }} terjual
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Belum ada data</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- ═══════════════════════════════════════════════════════════
+             6. AI RADAR & NAVIGASI CEPAT
+        ═══════════════════════════════════════════════════════════ --}}
+        <div class="w-full">
+            <div class="w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+                <div class="mb-4 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <h3 class="text-base font-black text-slate-900 dark:text-white">Smart Insight (Rekomendasi AI)</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="cursor-pointer rounded-2xl border border-slate-100 p-4 transition-shadow hover:shadow-md dark:border-slate-800">
+                        <div class="mb-3 flex h-8 w-8 items-center justify-center rounded bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        </div>
+                        <h4 class="mb-1 text-sm font-bold text-slate-800 dark:text-slate-200">Menu Engineering</h4>
+                        <p class="text-xs text-slate-500">Analisis matriks BCG mendeteksi 2 produk yang perlu dipromosikan (Puzzle).</p>
+                    </div>
+
+                    <div class="cursor-pointer rounded-2xl border border-slate-100 p-4 transition-shadow hover:shadow-md dark:border-slate-800">
+                        <div class="mb-3 flex h-8 w-8 items-center justify-center rounded bg-sky-100 text-sky-600 dark:bg-sky-500/20">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                        <h4 class="mb-1 text-sm font-bold text-slate-800 dark:text-slate-200">Prediksi Jam Ramai</h4>
+                        <p class="text-xs text-slate-500">Persiapkan staf tambahan di jam 12:00 dan 18:00 berdasarkan histori 30 hari.</p>
+                    </div>
+
+                    <div class="cursor-pointer rounded-2xl border border-slate-100 p-4 transition-shadow hover:shadow-md dark:border-slate-800">
+                        <div class="mb-3 flex h-8 w-8 items-center justify-center rounded bg-purple-100 text-purple-600 dark:bg-purple-500/20">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        </div>
+                        <h4 class="mb-1 text-sm font-bold text-slate-800 dark:text-slate-200">Bundle Otomatis</h4>
+                        <p class="text-xs text-slate-500">Kopi Susu & Croissant dibeli bersamaan 45% waktu. Buat paket hemat!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ═══════════════════════════════════════════════════════════
+             5. ADVANCED F&B ANALYTICS (Top, Types, Peak, Tables, Shifts)
+        ═══════════════════════════════════════════════════════════ --}}
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {{-- Metode Pembayaran --}}
+            <div class="relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+                <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-4 animate-pulse">
+                    <div class="h-5 w-32 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    @foreach(range(1, 4) as $skeleton)
+                        <div>
+                            <div class="mb-2 flex justify-between">
+                                <span class="h-4 w-20 rounded bg-slate-200 dark:bg-slate-700"></span>
+                                <span class="h-4 w-24 rounded bg-slate-100 dark:bg-slate-800"></span>
+                            </div>
+                            <div class="mb-2 flex justify-between">
+                                <span class="h-3 w-16 rounded bg-slate-100 dark:bg-slate-800"></span>
+                                <span class="h-3 w-8 rounded bg-slate-100 dark:bg-slate-800"></span>
+                            </div>
+                            <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Metode Pembayaran</h3>
+                    </div>
+
+                    @if($paymentMethods->isNotEmpty())
+                        <div class="space-y-4">
+                            @foreach($paymentMethods as $pm)
+                                @php $pmPercent = $totalPaymentVol > 0 ? round(($pm->total / $totalPaymentVol) * 100) : 0; @endphp
+                                <div>
+                                    <div class="mb-1 flex justify-between text-xs font-bold">
+                                        <span class="uppercase text-slate-700 dark:text-slate-300">{{ $pm->payment_method ?? 'Cash' }}</span>
+                                        <span class="text-slate-900 dark:text-white">Rp {{ number_format($pm->total_amount, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="mb-1.5 flex justify-between text-[10px] text-slate-500">
+                                        <span>{{ $pm->total }} Transaksi</span>
+                                        <span>{{ $pmPercent }}%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+                                        <div class="h-1.5 rounded-full bg-emerald-500" style="width: {{ $pmPercent }}%"></div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="flex flex-1 items-center justify-center text-sm font-semibold text-slate-400">
+                            Belum ada data
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Distribusi Pesanan --}}
+            <div class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+                <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-3 animate-pulse">
+                    <div class="h-5 w-32 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    @foreach(range(1, 4) as $skeleton)
+                        <div>
+                            <div class="mb-2 flex justify-between">
+                                <span class="h-4 w-24 rounded bg-slate-200 dark:bg-slate-700"></span>
+                                <span class="h-4 w-10 rounded bg-slate-100 dark:bg-slate-800"></span>
+                            </div>
+                            <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <div wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter">
+                    <h3 class="mb-4 text-sm font-bold text-slate-900 dark:text-white">Distribusi Pesanan</h3>
+                    @if($orderTypes->isNotEmpty())
+                        <div class="space-y-3">
+                            @foreach($orderTypes as $type)
+                                @php $percent = $totalOrderTypes > 0 ? round(($type->total / $totalOrderTypes) * 100) : 0; @endphp
+                                <div>
+                                    <div class="mb-1 flex justify-between text-xs font-bold">
+                                        <span class="capitalize">{{ str_replace('_', ' ', $type->order_type) }}</span>
+                                        <span>{{ $percent }}%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+                                        <div class="h-1.5 rounded-full bg-orange-500" style="width: {{ $percent }}%"></div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="flex flex-1 items-center justify-center py-6 text-sm font-semibold text-slate-400">
+                            Belum ada data transaksi
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Jam Tersibuk (Peak Hours) --}}
+            <div class="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+                <div wire:loading.block wire:target="setDateFilter,applyCustomDateFilter" class="space-y-4 animate-pulse">
+                    <div class="h-5 w-40 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    @foreach(range(1, 4) as $skeleton)
+                        <div>
+                            <div class="mb-2 flex justify-between">
+                                <span class="h-4 w-28 rounded bg-slate-200 dark:bg-slate-700"></span>
+                                <span class="h-4 w-20 rounded bg-slate-100 dark:bg-slate-800"></span>
+                            </div>
+                            <div class="ml-4 h-1.5 w-[calc(100%-1rem)] rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <div wire:loading.remove wire:target="setDateFilter,applyCustomDateFilter">
+                    <div>
+                        <h3 class="mb-4 text-sm font-bold text-slate-900 dark:text-white">Jam Tersibuk (Peak Hours)</h3>
+                        @if($peakSalesTimes->isNotEmpty())
+                            <div class="space-y-4">
+                                @foreach($peakSalesTimes as $index => $peak)
+                                    @php $peakPercent = round(($peak->orders / $maxPeak) * 100); @endphp
+                                    <div>
+                                        <div class="mb-1 flex justify-between text-xs font-bold">
+                                            <span class="text-slate-700 dark:text-slate-300">
+                                                <span class="inline-block w-4 text-slate-400">{{ $index + 1 }}.</span> {{ $peak->time_range }}
+                                            </span>
+                                            <span class="text-slate-900 dark:text-white">{{ $peak->orders }} Transaksi</span>
+                                        </div>
+                                        <div class="ml-4 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800" style="width: calc(100% - 1rem);">
+                                            <div class="h-1.5 rounded-full bg-orange-500" style="width: {{ $peakPercent }}%"></div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                        </div>
+                    @else
+                        <div class="flex flex-1 items-center justify-center py-6 text-sm font-semibold text-slate-400">
+                            Belum ada data transaksi
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
+</main>
 
 @assets
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 @endassets
-
-@script
-<script>
-    setTimeout(() => {
-        const chartDataRaw = @json($chartData ?? '[]');
-        let chartData = [];
-        try {
-            chartData = JSON.parse(chartDataRaw);
-        } catch (e) {
-        }
-
-        if (document.querySelector('#revenueChart')) {
-            const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-            const textColor = isDarkMode ? '#9ca3af' : '#6c757d';
-            const gridColor = isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-
-            // Generate last 7 days zero-filled data if empty or invalid to render empty grid lines
-            if (!chartData || chartData.length === 0) {
-                chartData = [];
-                for (let i = 6; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(d.getDate() - i);
-                    const label = d.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'});
-                    chartData.push({date: label, revenue: 0});
-                }
-            }
-
-            const revenues = chartData.map(item => item.revenue);
-            const maxRevenue = Math.max(...revenues, 0);
-
-            let yaxisConfig = {
-                min: 0,
-                forceNiceScale: true,
-                decimalsInFloat: 0,
-                labels: {
-                    style: {colors: textColor},
-                    formatter: function (val) {
-                        return 'Rp ' + new Intl.NumberFormat('id-ID', {maximumFractionDigits: 0}).format(Math.round(val));
-                    }
-                }
-            };
-
-            // Fix the Y-axis tick scaling decimals issue on low/zero sales data
-            if (maxRevenue < 50000) {
-                yaxisConfig.max = maxRevenue === 0 ? 50000 : Math.max(maxRevenue, 50000);
-                yaxisConfig.tickAmount = 5; // Rp 0, Rp 10.000, Rp 20.000, Rp 30.000, Rp 40.000, Rp 50.000
-            }
-
-            const options = {
-                series: [{
-                    name: 'Pendapatan',
-                    data: revenues
-                }],
-                chart: {
-                    type: 'area',
-                    height: 250,
-                    toolbar: {show: false},
-                    fontFamily: 'inherit',
-                    parentHeightOffset: 0,
-                    background: 'transparent'
-                },
-                colors: ['#10B981'],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.4,
-                        opacityTo: 0.05,
-                        stops: [0, 90, 100]
-                    }
-                },
-                dataLabels: {enabled: false},
-                stroke: {curve: 'smooth', width: 3},
-                xaxis: {
-                    categories: chartData.map(item => item.date),
-                    axisBorder: {show: false},
-                    axisTicks: {show: false},
-                    labels: {style: {colors: textColor}}
-                },
-                yaxis: yaxisConfig,
-                grid: {
-                    borderColor: gridColor,
-                    strokeDashArray: 4,
-                    yaxis: {lines: {show: true}}
-                },
-                theme: {
-                    mode: isDarkMode ? 'dark' : 'light'
-                },
-                tooltip: {
-                    theme: isDarkMode ? 'dark' : 'light',
-                    y: {
-                        formatter: function (val) {
-                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
-                        }
-                    }
-                }
-            };
-
-            const chart = new ApexCharts(document.querySelector('#revenueChart'), options);
-            chart.render();
-        }
-    }, 100);
-</script>
-@endscript

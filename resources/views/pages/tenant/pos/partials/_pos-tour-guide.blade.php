@@ -38,7 +38,7 @@
         <div
             class="bg-warning bg-opacity-10 text-warning rounded-4 d-flex align-items-center justify-content-center flex-shrink-0"
             style="width: 42px; height: 42px; color: #ca8a04 !important;">
-            <i class="bi bi-lightbulb fs-4"></i>
+            <i class="ph-fill ph-lightbulb fs-4"></i>
         </div>
         <div class="flex-grow-1">
             <div class="d-flex justify-content-between align-items-start">
@@ -51,7 +51,7 @@
             </p>
             <button @click="openGuide()" class="btn btn-warning btn-sm fw-bold rounded-pill w-100 text-white"
                     style="background: #F97316; border: none; font-size: 0.75rem;">
-                Buka Panduan <i class="bi bi-arrow-right ms-1"></i>
+                Buka Panduan <i class="ph-bold ph-arrow-right ms-1"></i>
             </button>
         </div>
     </div>
@@ -245,7 +245,7 @@
                             showCancelButton: true,
                             confirmButtonColor: '#F97316',
                             cancelButtonColor: '#6c757d',
-                            confirmButtonText: '<i class="bi bi-box-seam me-1"></i> Kelola Produk',
+                            confirmButtonText: '<i class="ph-bold ph-package me-1"></i> Kelola Produk',
                             cancelButtonText: 'Batal'
                         }).then((result) => {
                             if (result.isConfirmed) {
@@ -446,7 +446,7 @@
                         <div class="d-flex align-items-center mb-3">
                             <div class="bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
                                  style="width: 40px; height: 40px; background-color: rgba(var(--brand-caramel-rgb), 0.1); color: var(--brand-caramel);">
-                                <i class="bi bi-info-circle-fill fs-5"></i>
+                                <i class="ph-fill ph-info fs-5"></i>
                             </div>
                             <h5 class="fw-bold text-body mb-0" x-text="currentStepData.title"
                                 style="font-size: 1.1rem;"></h5>

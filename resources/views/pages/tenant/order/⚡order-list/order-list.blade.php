@@ -1,14 +1,11 @@
-<div class="container-fluid pb-5" x-data="{
+<div class="w-full pb-10" x-data="{
     activeFilter: $wire.entangle('statusFilter').live,
+    showGuideModalState: false,
     showGuideModal() {
         localStorage.setItem('pakaiapp_order_guide_dismissed', 'true');
-        window.dispatchEvent(new CustomEvent('guide-opened'));
-        const modalEl = document.getElementById('orderGuideModal');
-        if (modalEl) {
-            const inst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            inst.show();
-        }
+        this.showGuideModalState = true;
     },
+    showSplitModalState: false,
     splittingOrder: null,
     splitItems: [],
     get splitTotalItems() {
@@ -25,11 +22,7 @@
             qtyToSplit: 0
         }));
 
-        const modalEl = document.getElementById('splitBillModal');
-        if (modalEl) {
-            const inst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            inst.show();
-        }
+        this.showSplitModalState = true;
     },
     submitSplitOrder() {
         if (this.splitTotalItems === 0) {
@@ -52,31 +45,31 @@
 }" @if($storeType !== 'resto') wire:poll.15s @endif>
 
     {{-- Header Section (Clean & Minimalist like Product List) --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3 pt-3">
+    <div class="flex flex-col md:flex-row justify-between md:items-end mb-6 gap-4 pt-4">
         <div>
-            <h2 class="page-store-name mb-1" style="letter-spacing: -0.5px;">
+            <h2 class="text-2xl font-bold tracking-tight mb-2 text-slate-800 dark:text-slate-200">
                 {{ $storeType === 'resto' ? 'Riwayat Transaksi' : 'Dashboard Pesanan' }}
             </h2>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1.5 fw-bold border border-success border-opacity-25 d-flex align-items-center gap-2" style="font-size: 0.75rem;">
-                    <span class="pulse-dot"></span> Live Update Aktif
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="bg-emerald-500/10 text-emerald-600 rounded-full px-3 py-1.5 font-bold border border-emerald-500/20 flex items-center gap-2 text-xs">
+                    <span class="active-glow-dot w-1.5 h-1.5"></span> Live Update Aktif
                 </span>
-                <p class="text-secondary small mb-0 fw-medium">Pantau dan kelola semua transaksi masuk secara instan.</p>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-0 font-medium">Pantau dan kelola semua transaksi masuk secara instan.</p>
             </div>
         </div>
         <div>
-            <button type="button" @click="showGuideModal()" class="btn btn-outline-secondary bg-body-tertiary border text-secondary fw-bold rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm transition-all" style="font-size: 0.875rem;">
-                <i class="bi bi-question-circle"></i> Panduan Alur
+            <button type="button" @click="showGuideModal()" class="bg-white dark:bg-slate-800 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-full px-5 py-2.5 flex items-center gap-2 shadow-sm transition-all text-sm">
+                <i class="ph-bold ph-question"></i> Panduan Alur
             </button>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12" style="min-width: 0;">
-            <div class="card dash-card bg-body border h-100" style="border-color: var(--bs-border-color-translucent) !important;">
+    <div class="grid grid-cols-1">
+        <div class="min-w-0">
+            <div class="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm h-full flex flex-col">
 
                 {{-- Controls: Filters & Search --}}
-                <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4 d-flex flex-column flex-lg-row justify-content-between gap-3">
+                <div class="p-4 md:p-6 pb-2 md:pb-4 flex flex-col lg:flex-row justify-between gap-4 border-b border-border">
                     @php
                         $filters = [
                             ['id' => 'all', 'label' => 'Semua', 'count' => $allCount],
@@ -89,11 +82,11 @@
                     @endphp
 
                     {{-- Mobile Filter Dropdown --}}
-                    <div class="dropdown w-100 d-lg-none">
-                        <button class="btn btn-outline-secondary border w-100 d-flex justify-content-between align-items-center rounded-pill px-4 py-2.5 fw-bold bg-body shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: var(--bs-border-color-translucent) !important;">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-filter fs-4 text-body"></i>
-                                <span class="text-body" x-text="
+                    <div class="relative w-full lg:hidden" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" class="w-full flex justify-between items-center bg-white dark:bg-slate-800 border border-border rounded-full px-5 py-3 font-bold text-slate-700 dark:text-slate-200 shadow-sm transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-bold ph-funnel text-xl text-slate-500 dark:text-slate-400"></i>
+                                <span x-text="
                                     activeFilter === 'all' ? 'Filter: Semua Pesanan' :
                                     (activeFilter === 'pending' ? 'Filter: Menunggu' :
                                     (activeFilter === 'paid' ? 'Filter: Baru Masuk' :
@@ -101,44 +94,40 @@
                                     (activeFilter === 'completed' ? 'Filter: Selesai' : 'Filter: Batal'))))
                                 ">Filter</span>
                             </div>
-                            <i class="bi bi-chevron-down text-secondary small"></i>
+                            <i class="ph-bold ph-caret-down text-slate-400"></i>
                         </button>
-                        <ul class="dropdown-menu w-100 border shadow-sm mt-2 p-2 rounded-4" style="background-color: var(--bs-body-bg); border-color: var(--bs-border-color-translucent) !important;">
+                        
+                        <div x-show="open" x-transition class="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 border border-border shadow-lg rounded-2xl p-2 z-20" style="display: none;">
                             @foreach($filters as $filter)
-                                <li>
-                                    <button type="button"
-                                            class="dropdown-item rounded-3 py-2.5 px-3 fw-medium d-flex justify-content-between align-items-center mb-1 transition-all"
-                                            @click="activeFilter = '{{ $filter['id'] }}'"
-                                            :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-primary bg-opacity-10 text-primary fw-bold' : 'text-body'">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-check2 text-primary fs-5" x-show="activeFilter === '{{ $filter['id'] }}'" x-cloak></i>
-                                            <i class="bi bi-circle text-secondary opacity-25" x-show="activeFilter !== '{{ $filter['id'] }}'" style="font-size: 0.6rem; margin-left: 0.3rem;" x-cloak></i>
-                                            <span :class="activeFilter === '{{ $filter['id'] }}' ? 'ms-1' : 'ms-2'">{{ $filter['label'] }}</span>
-                                        </div>
-                                        <span class="badge rounded-pill"
-                                              :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-primary text-white' : 'bg-secondary bg-opacity-25 text-secondary'"
-                                              style="font-size: 0.75rem;">
-                                            {{ $filter['count'] }}
-                                        </span>
-                                    </button>
-                                </li>
+                                <button type="button"
+                                        class="w-full text-left rounded-xl py-3 px-4 font-medium flex justify-between items-center mb-1 transition-all"
+                                        @click="activeFilter = '{{ $filter['id'] }}'; open = false"
+                                        :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-brand-accent/10 text-brand-accent font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'">
+                                    <div class="flex items-center gap-2">
+                                        <i class="ph-bold ph-check text-xl text-brand-accent" x-show="activeFilter === '{{ $filter['id'] }}'" x-cloak></i>
+                                        <div class="w-5 h-5" x-show="activeFilter !== '{{ $filter['id'] }}'" x-cloak></div>
+                                        <span>{{ $filter['label'] }}</span>
+                                    </div>
+                                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                                          :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-brand-accent text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'">
+                                        {{ $filter['count'] }}
+                                    </span>
+                                </button>
                             @endforeach
-                        </ul>
+                        </div>
                     </div>
 
                     {{-- Desktop Nav Pills Filter --}}
-                    <div class="filter-scroll-wrapper flex-grow-1 d-none d-lg-block" style="overflow-x: auto; scrollbar-width: none; min-width: 0;">
-                        <div class="d-flex gap-2 flex-nowrap pb-1">
+                    <div class="hidden lg:flex flex-1 overflow-x-auto overflow-y-hidden scrollbar-hide pb-2">
+                        <div class="flex gap-2 whitespace-nowrap min-w-max">
                             @foreach($filters as $filter)
                                 <button type="button"
                                         @click="activeFilter = '{{ $filter['id'] }}'"
-                                        class="btn rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 transition-all flex-shrink-0 border"
-                                        :class="activeFilter === '{{ $filter['id'] }}' ? 'btn-caramel-solid' : 'bg-body-tertiary text-secondary'"
-                                        style="font-size: 0.85rem; border-color: var(--bs-border-color-translucent) !important;">
+                                        class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-bold transition-all border shrink-0 text-sm"
+                                        :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-brand-accent border-brand-accent text-white shadow-sm' : 'bg-slate-50 dark:bg-slate-800/50 border-border text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'">
                                     {{ $filter['label'] }}
-                                    <span class="badge rounded-pill"
-                                          :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-white text-dark' : 'bg-secondary bg-opacity-25 text-secondary'"
-                                          style="font-size: 0.7rem;">
+                                    <span class="rounded-full px-2 py-0.5 text-[10px]"
+                                          :class="activeFilter === '{{ $filter['id'] }}' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'">
                                         {{ $filter['count'] }}
                                     </span>
                                 </button>
@@ -147,102 +136,98 @@
                     </div>
 
                     {{-- Search Bar --}}
-                    <div class="position-relative flex-shrink-0" style="min-width: 250px;">
-                        <i class="bi bi-search position-absolute text-secondary"
-                           style="top: 50%; left: 1rem; transform: translateY(-50%);"></i>
+                    <div class="relative shrink-0 lg:w-[300px]">
+                        <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
                         <input type="text"
-                               class="form-control rounded-pill ps-5 py-2 bg-body-tertiary border"
-                               style="border-color: var(--bs-border-color-translucent) !important;"
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border border-border text-slate-800 dark:text-slate-200 rounded-full pl-11 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent transition-all text-sm"
                                wire:model.live.debounce.300ms="search"
                                placeholder="Cari pesanan...">
                     </div>
                 </div>
 
-                <div class="card-body p-3 p-md-4 pt-0 bg-transparent border-0">
-                    <div class="order-cards-list position-relative mt-2">
+                <div class="p-4 md:p-6 pt-0 bg-transparent border-0 flex-1">
+                    <div class="relative mt-2">
 
                         {{-- Loading Overlay --}}
-                        <div wire:loading wire:target="statusFilter, search" class="position-absolute w-100 h-100 start-0 top-0 z-1" style="background: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(4px);">
-                            <div class="d-flex justify-content-center pt-5">
-                                <div class="spinner-border text-warning" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
+                        <div wire:loading wire:target="statusFilter, search" class="absolute inset-0 z-10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-xl">
+                            <div class="flex justify-center pt-20">
+                                <i class="ph-bold ph-spinner animate-spin text-brand-accent text-4xl"></i>
                             </div>
                         </div>
 
                         @if($orders->isEmpty())
-                            <div class="text-center py-5">
-                                <div class="rounded-circle d-inline-flex p-4 mb-3 text-secondary bg-body-tertiary border" style="border-color: var(--bs-border-color-translucent) !important;">
-                                    <i class="bi bi-receipt fs-1"></i>
+                            <div class="text-center py-16">
+                                <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 text-slate-400 bg-slate-50 dark:bg-slate-800/50 border border-border">
+                                    <i class="ph-fill ph-receipt text-4xl"></i>
                                 </div>
-                                <h6 class="fw-bold mb-1 text-body">Data Tidak Ditemukan</h6>
-                                <p class="text-secondary small mb-0">Belum ada transaksi masuk di filter ini.</p>
+                                <h6 class="font-bold mb-1 text-slate-800 dark:text-slate-200">Data Tidak Ditemukan</h6>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mb-0">Belum ada transaksi masuk di filter ini.</p>
                             </div>
                         @else
                             @foreach($orders as $order)
                                 @php
                                     $typeBadges = [
-                                        'dinein' => ['label' => 'Dine In', 'icon' => 'bi-cup-hot', 'class' => 'bg-primary bg-opacity-10 text-primary border-primary'],
-                                        'takeaway' => ['label' => 'Takeaway', 'icon' => 'bi-bag', 'class' => 'bg-warning bg-opacity-10 text-warning border-warning'],
-                                        'delivery' => ['label' => 'Delivery', 'icon' => 'bi-bicycle', 'class' => 'bg-info bg-opacity-10 text-info border-info']
+                                        'dinein' => ['label' => 'Dine In', 'icon' => 'ph-coffee', 'class' => 'bg-brand-accent/10 text-brand-accent border-brand-accent/20'],
+                                        'takeaway' => ['label' => 'Takeaway', 'icon' => 'ph-package', 'class' => 'bg-orange-500/10 text-orange-600 border-orange-500/20'],
+                                        'delivery' => ['label' => 'Delivery', 'icon' => 'ph-moped', 'class' => 'bg-blue-500/10 text-blue-600 border-blue-500/20']
                                     ];
-                                    $typeInfo = $typeBadges[$order->order_type] ?? ['label' => $order->order_type, 'icon' => 'bi-receipt', 'class' => 'bg-secondary bg-opacity-10 text-secondary border-secondary'];
+                                    $typeInfo = $typeBadges[$order->order_type] ?? ['label' => $order->order_type, 'icon' => 'ph-receipt', 'class' => 'bg-slate-500/10 text-slate-600 border-slate-500/20'];
                                 @endphp
 
-                                <div class="premium-order-card p-3 p-md-4 mb-3">
-                                    <div class="row align-items-md-center g-3">
+                                <div class="p-4 md:p-6 mb-4 rounded-2xl border border-border bg-white dark:bg-slate-800/50 hover:border-brand-accent/30 transition-colors shadow-sm">
+                                    <div class="flex flex-col md:flex-row md:items-center gap-4">
                                         {{-- Left Side: Avatar & Info --}}
-                                        <div class="col-12 col-md d-flex align-items-start gap-3">
-                                            <div class="rounded-circle text-white-fixed d-flex align-items-center justify-content-center fw-bolder shadow-sm bg-gradient-caramel flex-shrink-0 mt-1"
-                                                 style="width: 48px; height: 48px; font-size: 1.25rem; font-family: var(--font-serif), sans-serif;">
+                                        <div class="flex-1 flex items-start gap-4 min-w-0">
+                                            <div class="w-12 h-12 rounded-full text-white flex items-center justify-center font-bold shrink-0 mt-1"
+                                                 style="background: linear-gradient(135deg, #10B981, #059669); font-size: 1.25rem;">
                                                 {{ strtoupper(substr($order->customer_name, 0, 1)) }}
                                             </div>
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
-                                                    <h6 class="fw-bold mb-0 text-body text-truncate" style="max-width: 200px;">{{ $order->customer_name }}</h6>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center flex-wrap gap-2 mb-1.5">
+                                                    <h6 class="font-bold mb-0 text-slate-800 dark:text-slate-200 truncate max-w-[200px]">{{ $order->customer_name }}</h6>
                                                     @if($order->table_number)
-                                                        <span class="badge border bg-body-tertiary text-secondary rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.7rem;">
+                                                        <span class="border border-border bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full px-2.5 py-0.5 font-bold text-xs">
                                                             Meja {{ $order->table_number }}
                                                         </span>
                                                     @endif
                                                     @if($order->notes)
-                                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2 py-0.5 fw-bold text-truncate"
-                                                              style="font-size: 0.7rem; max-width: 150px;" title="Catatan: {{ $order->notes }}">
-                                                            <i class="bi bi-card-text me-1"></i>{{ $order->notes }}
+                                                        <span class="bg-orange-500/10 text-orange-600 border border-orange-500/20 rounded-full px-2.5 py-0.5 font-bold truncate text-xs max-w-[150px] flex items-center"
+                                                              title="Catatan: {{ $order->notes }}">
+                                                            <i class="ph-bold ph-note text-sm mr-1"></i>{{ $order->notes }}
                                                         </span>
                                                     @endif
                                                 </div>
 
-                                                <div class="text-secondary small fw-medium d-flex align-items-center flex-wrap gap-2 mb-2">
-                                                    <span class="fw-bold text-primary text-monospace px-2 py-1 rounded bg-primary bg-opacity-10" style="font-size: 0.8rem; letter-spacing: 0.5px;">#{{ $order->invoice_code }}</span>
-                                                    <span class="d-none d-sm-inline">&bull;</span>
+                                                <div class="text-slate-500 dark:text-slate-400 text-sm font-medium flex items-center flex-wrap gap-2 mb-2.5">
+                                                    <span class="font-bold text-brand-accent px-2 py-1 rounded-lg bg-brand-accent/10 text-xs tracking-wide">#{{ $order->invoice_code }}</span>
+                                                    <span class="hidden sm:inline">&bull;</span>
 
-                                                    <span class="badge border {{ $typeInfo['class'] }} border-opacity-25 rounded-pill px-2 py-0.5">
-                                                        <i class="bi {{ $typeInfo['icon'] }} me-1"></i>{{ $typeInfo['label'] }}
+                                                    <span class="border {{ $typeInfo['class'] }} rounded-full px-2.5 py-0.5 text-xs flex items-center font-bold">
+                                                        <i class="ph-bold {{ $typeInfo['icon'] }} mr-1 text-sm"></i>{{ $typeInfo['label'] }}
                                                     </span>
-                                                    <span class="d-none d-sm-inline">&bull;</span>
+                                                    <span class="hidden sm:inline">&bull;</span>
 
                                                     @if($order->is_online)
-                                                        <span class="text-success fw-bold"><i class="bi bi-globe2 me-1"></i>Online</span>
+                                                        <span class="text-emerald-500 font-bold flex items-center text-xs"><i class="ph-bold ph-globe mr-1 text-sm"></i>Online</span>
                                                     @else
-                                                        <span><i class="bi bi-pc-display me-1"></i>POS Kasir</span>
+                                                        <span class="flex items-center text-xs"><i class="ph-bold ph-desktop mr-1 text-sm"></i>POS Kasir</span>
                                                     @endif
-                                                    <span class="d-none d-sm-inline">&bull;</span>
+                                                    <span class="hidden sm:inline">&bull;</span>
 
                                                     @if($storeType === 'resto')
                                                         @if($order->kitchen_status === 'waiting')
-                                                            <span class="badge border bg-warning bg-opacity-10 text-warning border-warning border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-hourglass-split me-1"></i>Dapur: Nunggu</span>
+                                                            <span class="border bg-orange-500/10 text-orange-600 border-orange-500/20 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center"><i class="ph-bold ph-hourglass-high mr-1"></i>Dapur: Nunggu</span>
                                                         @elseif($order->kitchen_status === 'processing')
-                                                            <span class="badge border bg-primary bg-opacity-10 text-primary border-primary border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-fire me-1"></i>Dapur: Dimasak</span>
+                                                            <span class="border bg-brand-accent/10 text-brand-accent border-brand-accent/20 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center"><i class="ph-bold ph-fire mr-1"></i>Dapur: Dimasak</span>
                                                         @elseif($order->kitchen_status === 'ready')
-                                                            <span class="badge border bg-success bg-opacity-10 text-success border-success border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check2-circle me-1"></i>Dapur: Siap</span>
+                                                            <span class="border bg-emerald-500/10 text-emerald-600 border-emerald-500/20 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center"><i class="ph-bold ph-check-circle mr-1"></i>Dapur: Siap</span>
                                                         @elseif($order->kitchen_status === 'completed')
-                                                            <span class="badge border bg-secondary bg-opacity-10 text-secondary border-secondary border-opacity-25 rounded-pill px-2 py-0.5"><i class="bi bi-check-all me-1"></i>Dapur: Selesai</span>
+                                                            <span class="border bg-slate-500/10 text-slate-600 border-slate-500/20 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center"><i class="ph-bold ph-checks mr-1"></i>Dapur: Selesai</span>
                                                         @endif
-                                                        <span class="d-none d-sm-inline">&bull;</span>
+                                                        <span class="hidden sm:inline">&bull;</span>
                                                     @endif
 
-                                                    <span>{{ $order->created_at->format('d M, H:i') }}</span>
+                                                    <span class="text-xs">{{ $order->created_at->format('d M, H:i') }}</span>
                                                 </div>
 
                                                 @if($order->items->isNotEmpty())
@@ -251,8 +236,8 @@
                                                             return $item->product_name . ($item->variant_name ? ' (' . $item->variant_name . ')' : '') . ($item->quantity > 1 ? ' (x' . $item->quantity . ')' : '');
                                                         })->join(', ');
                                                     @endphp
-                                                    <div class="items-summary-box text-truncate" style="max-width: 100%;">
-                                                        <span class="fw-bold text-body">{{ $order->items->sum('quantity') }} Item:</span>
+                                                    <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5 text-sm text-slate-600 dark:text-slate-400 border border-border truncate max-w-full">
+                                                        <span class="font-bold text-slate-800 dark:text-slate-200 mr-1">{{ $order->items->sum('quantity') }} Item:</span>
                                                         {{ $summary }}
                                                     </div>
                                                 @endif
@@ -260,41 +245,41 @@
                                         </div>
 
                                         {{-- Right Side: Price & Actions --}}
-                                        <div class="col-12 col-md-auto border-top border-md-0 pt-3 pt-md-0">
-                                            <div class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between h-100 gap-3">
-                                                <div class="text-start text-md-end">
-                                                    <div class="fw-bold text-body" style="font-size: 1.25rem; font-family: var(--font-serif), sans-serif; letter-spacing: -0.5px;">
+                                        <div class="w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-border md:pl-4">
+                                            <div class="flex flex-row md:flex-col items-center md:items-end justify-between h-full gap-4">
+                                                <div class="text-left md:text-right">
+                                                    <div class="font-bold text-slate-800 dark:text-slate-200 text-xl tracking-tight">
                                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                                     </div>
-                                                    <div class="mt-1">
+                                                    <div class="mt-1.5">
                                                         @if($order->status == 'pending')
-                                                            <span class="badge-pill-glow badge-pill-warning">
-                                                                <span class="rounded-circle" style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Menunggu
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-500/10 text-orange-600 border border-orange-500/20">
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Menunggu
                                                             </span>
                                                         @elseif($order->status == 'paid')
-                                                            <span class="badge-pill-glow badge-pill-info" style="background-color: rgba(13, 202, 240, 0.1) !important; border-color: rgba(13, 202, 240, 0.2) !important; color: #0dcaf0 !important;">
-                                                                <span class="rounded-circle" style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Baru Masuk
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-500 border border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.2)]">
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Baru Masuk
                                                             </span>
                                                         @elseif($order->status == 'progress')
-                                                            <span class="badge-pill-glow badge-pill-primary" style="background-color: rgba(13, 110, 253, 0.1) !important; border-color: rgba(13, 110, 253, 0.2) !important; color: #0d6efd !important;">
-                                                                <i class="bi bi-arrow-repeat spin-slow me-1"></i> Diproses
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                                                                <i class="ph-bold ph-arrows-clockwise animate-spin"></i> Diproses
                                                             </span>
                                                         @elseif($order->status == 'completed')
-                                                            <span class="badge-pill-glow badge-pill-success">
-                                                                <span class="rounded-circle" style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Selesai
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai
                                                             </span>
                                                         @elseif($order->status == 'cancelled')
-                                                            <span class="badge-pill-glow badge-pill-danger">
-                                                                <span class="rounded-circle" style="width: 6px; height: 6px; background-color: currentColor; display: inline-block;"></span> Batal
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Batal
                                                             </span>
                                                         @endif
                                                     </div>
                                                 </div>
 
                                                 {{-- Actions --}}
-                                                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                                <div class="flex flex-wrap gap-2 justify-end">
                                                     <button wire:click="$dispatch('openModal', { orderId: {{ $order->id }} })"
-                                                            class="btn btn-sm btn-outline-secondary border bg-body text-secondary fw-bold rounded-pill px-3 shadow-sm hover-lift"
+                                                            class="bg-white dark:bg-slate-800 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-full px-4 py-1.5 shadow-sm transition-transform hover:-translate-y-0.5 text-sm"
                                                             title="Lihat Detail Pesanan">
                                                         Detail
                                                     </button>
@@ -302,21 +287,21 @@
                                                     @if($storeType !== 'resto')
                                                         @if($order->status == 'pending')
                                                             <button wire:click="$dispatch('trigger-payment-modal', { orderId: {{ $order->id }} })"
-                                                                    class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                    class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full px-4 py-1.5 shadow-sm transition-transform hover:-translate-y-0.5 text-sm">
                                                                 Bayar
                                                             </button>
                                                             <button @click="$dispatch('open-cancel-modal', { orderId: {{ $order->id }} })"
-                                                                    class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                    class="border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 font-bold rounded-full px-4 py-1.5 shadow-sm transition-transform hover:-translate-y-0.5 text-sm">
                                                                 Batal
                                                             </button>
                                                         @elseif($order->status == 'paid')
                                                             <button wire:click="updateStatus({{ $order->id }}, 'progress')"
-                                                                    class="btn btn-sm btn-primary text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full px-4 py-1.5 shadow-sm transition-transform hover:-translate-y-0.5 text-sm">
                                                                 Proses
                                                             </button>
                                                         @elseif($order->status == 'progress')
                                                             <button wire:click="updateStatus({{ $order->id }}, 'completed')"
-                                                                    class="btn btn-sm btn-success text-white fw-bold rounded-pill px-3 shadow-sm hover-lift">
+                                                                    class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full px-4 py-1.5 shadow-sm transition-transform hover:-translate-y-0.5 text-sm">
                                                                 Selesai
                                                             </button>
                                                         @endif
@@ -333,9 +318,9 @@
 
                 {{-- Infinite Scroll Bottom Loader --}}
                 @if($orders->hasMorePages())
-                    <div x-intersect.full="$wire.loadMore()" class="d-flex justify-content-center align-items-center py-4 border-top" style="border-color: var(--bs-border-color-translucent) !important;">
-                        <div class="spinner-border text-secondary spinner-border-sm me-2" role="status"></div>
-                        <span class="fw-bold text-secondary small">Memuat data selanjutnya...</span>
+                    <div x-intersect.full="$wire.loadMore()" class="flex justify-center items-center py-6 border-t border-border">
+                        <i class="ph-bold ph-spinner animate-spin text-slate-400 text-xl mr-2"></i>
+                        <span class="font-bold text-slate-500 dark:text-slate-400 text-sm">Memuat data selanjutnya...</span>
                     </div>
                 @endif
             </div>
@@ -346,80 +331,96 @@
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
 
     {{-- ===== PREMIUM TUTORIAL & HELP MODAL ===== --}}
-    <div class="modal fade" id="orderGuideModal" tabindex="-1" aria-hidden="true" wire:ignore>
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg"
-                 style="border-radius: 1.5rem; background-color: var(--bs-card-bg); overflow: hidden;">
-                 
+    <div x-show="showGuideModalState"
+         style="display: none;"
+         x-transition.opacity
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+         @keydown.escape.window="showGuideModalState = false">
+         
+         <div x-show="showGuideModalState"
+              x-transition:enter="transition ease-out duration-300"
+              x-transition:enter-start="opacity-0 scale-95"
+              x-transition:enter-end="opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-200"
+              x-transition:leave-start="opacity-100 scale-100"
+              x-transition:leave-end="opacity-0 scale-95"
+              class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative"
+              @click.outside="showGuideModalState = false">
+              
                  {{-- Top Hero Graphic Area --}}
-                 <div class="position-relative bg-body-tertiary" style="height: 160px; overflow: hidden;">
-                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.02));"></div>
+                 <div class="relative h-40 bg-slate-50 dark:bg-slate-800 overflow-hidden border-b border-border">
+                     <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-orange-500/5"></div>
                      <!-- Decorative circles -->
-                     <div class="position-absolute rounded-circle bg-warning bg-opacity-25" style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
-                     <div class="position-absolute rounded-circle bg-primary bg-opacity-10" style="width: 100px; height: 100px; bottom: -20px; left: 10%;"></div>
+                     <div class="absolute rounded-full bg-orange-400/20 w-48 h-48 -top-12 -right-12"></div>
+                     <div class="absolute rounded-full bg-brand-accent/10 w-24 h-24 -bottom-5 left-[10%]"></div>
                      
-                     <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
-                         <div class="d-inline-flex align-items-center justify-content-center bg-body border rounded-circle shadow-sm mb-2" style="width: 64px; height: 64px; border-color: var(--bs-border-color-translucent) !important;">
-                             <i class="bi bi-card-checklist text-warning fs-2"></i>
+                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-full z-10">
+                         <div class="inline-flex items-center justify-center bg-white dark:bg-slate-900 border border-border rounded-full shadow-sm mb-3 w-16 h-16">
+                             <i class="ph-fill ph-clipboard-text text-orange-500 text-3xl"></i>
                          </div>
-                         <h5 class="fw-bold mb-0 text-body" style="font-family: var(--font-serif), sans-serif;">Alur Transaksi</h5>
+                         <h5 class="font-bold mb-0 text-slate-800 dark:text-slate-200 font-serif text-lg">Alur Transaksi</h5>
                      </div>
-                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3 shadow-sm bg-body rounded-circle p-2 opacity-75 hover-opacity-100 transition-all" data-bs-dismiss="modal" aria-label="Close"></button>
+                     <button type="button" 
+                             @click="showGuideModalState = false"
+                             class="absolute top-4 right-4 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 rounded-full p-2 text-slate-500 hover:text-slate-800 transition-all z-20">
+                        <i class="ph-bold ph-x text-lg"></i>
+                     </button>
                  </div>
 
                  {{-- Body --}}
-                 <div class="modal-body p-4 p-md-5 pt-4 bg-body">
-                    <p class="text-secondary text-center small mb-4 pb-2 border-bottom" style="border-color: var(--bs-border-color-translucent) !important;">
+                 <div class="p-6 md:p-8 pt-6">
+                    <p class="text-slate-500 dark:text-slate-400 text-center text-sm mb-6 pb-4 border-b border-border">
                         Pahami alur status pesanan agar operasional toko Anda berjalan lancar dan pelanggan puas.
                     </p>
 
-                    <div class="position-relative">
+                    <div class="relative pl-6">
                         <!-- Connecting Line -->
-                        <div class="position-absolute bg-body-tertiary rounded-pill" style="width: 4px; top: 20px; bottom: 20px; left: 23px;"></div>
+                        <div class="absolute bg-slate-200 dark:bg-slate-700 w-1 rounded-full top-6 bottom-6 left-[21px]"></div>
 
                         <!-- Step 1 -->
-                        <div class="d-flex gap-3 position-relative mb-4 pb-2">
-                            <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center flex-shrink-0 z-1 border" style="width: 50px; height: 50px; border-width: 4px !important; border-color: var(--bs-body-bg) !important; box-shadow: 0 0 0 1px rgba(var(--bs-info-rgb), 0.2);">
-                                <i class="bi bi-bag-plus-fill fs-5"></i>
+                        <div class="flex gap-4 relative mb-6">
+                            <div class="w-10 h-10 rounded-full bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0 z-10 border-4 border-white dark:border-slate-900 shadow-[0_0_0_1px_rgba(14,165,233,0.2)] -ml-5">
+                                <i class="ph-fill ph-bag text-lg"></i>
                             </div>
                             <div class="pt-1">
-                                <h6 class="fw-bold mb-1 text-body">1. Baru Masuk (Lunas)</h6>
-                                <p class="text-secondary small mb-0 lh-sm" style="font-size: 0.8rem;">Pesanan baru saja dibayar. Segera klik <strong>"Proses"</strong> untuk mulai menyiapkan barang/makanan.</p>
+                                <h6 class="font-bold mb-1 text-slate-800 dark:text-slate-200">1. Baru Masuk (Lunas)</h6>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Pesanan baru saja dibayar. Segera klik <strong class="text-slate-700 dark:text-slate-300">"Proses"</strong> untuk mulai menyiapkan barang/makanan.</p>
                             </div>
                         </div>
 
                         <!-- Step 2 -->
-                        <div class="d-flex gap-3 position-relative mb-4 pb-2">
-                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0 z-1 border" style="width: 50px; height: 50px; border-width: 4px !important; border-color: var(--bs-body-bg) !important; box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.2);">
-                                <i class="bi bi-arrow-repeat fs-5 spin-slow"></i>
+                        <div class="flex gap-4 relative mb-6">
+                            <div class="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 z-10 border-4 border-white dark:border-slate-900 shadow-[0_0_0_1px_rgba(59,130,246,0.2)] -ml-5">
+                                <i class="ph-bold ph-arrows-clockwise animate-spin text-lg"></i>
                             </div>
                             <div class="pt-1">
-                                <h6 class="fw-bold mb-1 text-body">2. Sedang Diproses</h6>
-                                <p class="text-secondary small mb-0 lh-sm" style="font-size: 0.8rem;">Pesanan sedang disiapkan. Jika barang sudah siap diserahkan, klik <strong>"Selesai"</strong>.</p>
+                                <h6 class="font-bold mb-1 text-slate-800 dark:text-slate-200">2. Sedang Diproses</h6>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Pesanan sedang disiapkan. Jika barang sudah siap diserahkan, klik <strong class="text-slate-700 dark:text-slate-300">"Selesai"</strong>.</p>
                             </div>
                         </div>
 
                         <!-- Step 3 -->
-                        <div class="d-flex gap-3 position-relative">
-                            <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center flex-shrink-0 z-1 border" style="width: 50px; height: 50px; border-width: 4px !important; border-color: var(--bs-body-bg) !important; box-shadow: 0 0 0 1px rgba(var(--bs-success-rgb), 0.2);">
-                                <i class="bi bi-check2-circle fs-5"></i>
+                        <div class="flex gap-4 relative">
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 z-10 border-4 border-white dark:border-slate-900 shadow-[0_0_0_1px_rgba(16,185,129,0.2)] -ml-5">
+                                <i class="ph-fill ph-check-circle text-lg"></i>
                             </div>
                             <div class="pt-1">
-                                <h6 class="fw-bold mb-1 text-body">3. Selesai</h6>
-                                <p class="text-secondary small mb-0 lh-sm" style="font-size: 0.8rem;">Pesanan telah diserahkan. Transaksi sukses tercatat di sistem! 🎉</p>
+                                <h6 class="font-bold mb-1 text-slate-800 dark:text-slate-200">3. Selesai</h6>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Pesanan telah diserahkan. Transaksi sukses tercatat di sistem! 🎉</p>
                             </div>
                         </div>
                     </div>
                  </div>
 
                  {{-- Footer --}}
-                 <div class="modal-footer bg-body border-0 p-4 pt-0 justify-content-center">
-                     <button type="button" class="btn btn-warning text-white fw-bold rounded-pill px-5 py-2 shadow-sm w-100 hover-translate" data-bs-dismiss="modal">
+                 <div class="p-6 pt-0 border-t-0 flex justify-center">
+                     <button type="button" 
+                             @click="showGuideModalState = false"
+                             class="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full px-12 py-3 shadow-sm transition-transform hover:-translate-y-0.5 w-full">
                          Oke, Paham!
                      </button>
                  </div>
-            </div>
-        </div>
+         </div>
     </div>
 </div>
 

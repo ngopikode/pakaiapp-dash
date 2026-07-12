@@ -4,8 +4,7 @@ export default {
     content: [
         './resources/**/*.blade.php',
         './resources/**/*.js',
-        './resources/**/*.vue',
-        './app/Livewire/**/*.php' // Penting agar class di Livewire Volt terbaca!
+        './resources/**/*.vue'
     ],
     theme: {
         extend: {
@@ -14,6 +13,19 @@ export default {
                 heading: ['Plus Jakarta Sans', 'sans-serif'],
             },
             colors: {
+                brand: {
+                    accent: '#10B981',
+                    'accent-dark': '#059669',
+                    'accent-light': '#34D399',
+                    green: '#22C55E',
+                    red: '#EF4444',
+                    purple: '#A78BFA',
+                    sky: '#38BDF8',
+                    espresso: '#1E293B',
+                    caramel: '#10B981',
+                    mocha: '#64748B',
+                    latte: '#F8FAFC',
+                },
                 border: 'hsl(var(--border))',
                 input: 'hsl(var(--input))',
                 ring: 'hsl(var(--ring))',

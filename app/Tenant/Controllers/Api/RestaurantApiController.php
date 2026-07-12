@@ -3,11 +3,12 @@
 namespace App\Tenant\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Tenant\Models\Core\StoreSetting;
 use App\Shared\Traits\ApiResponserTrait;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class RestaurantApiController extends Controller
 {
@@ -17,9 +18,7 @@ class RestaurantApiController extends Controller
     {
         $setting = StoreSetting::first();
 
-        if (!$setting) {
-            return $this->errorResponse([], 'Store settings not found', 404);
-        }
+        if (!$setting) return $this->errorResponse(message: 'Store settings not found', code: ResponseAlias::HTTP_NOT_FOUND);
 
         $data = [
             'id' => tenant('id'),

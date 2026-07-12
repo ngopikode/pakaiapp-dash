@@ -2,6 +2,7 @@
 
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -10,34 +11,107 @@ new #[Title("Dompet")]
 class extends Component {
     use WithPagination;
 
-    public string $filter = 'all';   // all | credit | debit
-    public string $search = '';
+    protected $paginationTheme = 'tailwind';
 
-    public function updatedFilter(): void
+    public string $filter    = 'all';  // all | credit | debit
+    public string $search    = '';
+    public string $sortOrder = 'desc'; // desc | asc
+
+    public function updatedFilter(): void    { $this->resetPage(); }
+    public function updatedSearch(): void    { $this->resetPage(); }
+    public function updatedSortOrder(): void { $this->resetPage(); }
+
+    public function toggleSort(): void
     {
+        $this->sortOrder = $this->sortOrder === 'desc' ? 'asc' : 'desc';
         $this->resetPage();
     }
 
-    public function updatedSearch(): void
+    public static function parseTransaction(WalletTransaction $tx): array
     {
-        $this->resetPage();
+        $desc = $tx->description ?? 'Transaksi';
+        $title = $tx->type === 'DEBIT' ? 'Pembayaran' : 'Terima Dana';
+        $subtitle = $desc;
+
+        if (str_contains($desc, 'Biaya layanan')) {
+            $title = 'Biaya Layanan';
+            if (preg_match('/INV-[A-Z0-9]+/', $desc, $matches)) {
+                $subtitle = 'Pesanan ' . $matches[0];
+            } else {
+                $subtitle = 'Layanan Aplikasi';
+            }
+        } elseif (str_contains($desc, 'Penerimaan dana')) {
+            $title = 'Penerimaan Dana';
+            if (preg_match('/INV-[A-Z0-9]+/', $desc, $matches)) {
+                $subtitle = 'Pesanan ' . $matches[0];
+            } else {
+                $subtitle = 'Hasil Penjualan';
+            }
+        } elseif (str_contains($desc, 'Pencairan dana')) {
+            $title = 'Pencairan Dana';
+            $subtitle = 'Transfer Keluar';
+        } elseif (str_contains($desc, 'Top up')) {
+            $title = 'Top Up Saldo';
+            $subtitle = 'Isi Saldo';
+        }
+
+        // Consistent brand orange-red color from screenshot
+        $iconBg = 'bg-[#f15a24]';
+        
+        $descLower = strtolower($desc);
+        if (str_contains($descLower, 'listrik') || str_contains($descLower, 'pln')) {
+            $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>';
+        } elseif (str_contains($descLower, 'cashback') || str_contains($descLower, 'bonus')) {
+            $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm-9 4h18M5 11h14v10H5V11z" /></svg>';
+        } elseif (str_contains($descLower, 'pesanan') || str_contains($descLower, 'toko') || str_contains($descLower, 'belanja')) {
+            $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>';
+        } else {
+            $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>';
+        }
+
+        return [
+            'title'    => $title,
+            'subtitle' => $subtitle,
+            'iconSvg'  => $iconSvg,
+            'iconBg'   => $iconBg,
+        ];
     }
 
     public function with(): array
     {
         $wallet = app(TenantWalletService::class)->getWallet();
 
-        $txQuery = WalletTransaction::query()
+        /*
+         * Single query: fetch paginated rows AND both SUM aggregates together.
+         * We use a correlated subquery approach — two DB::raw SUM subqueries
+         * added as extra select columns on the same base table scan.
+         * This avoids a second round-trip to the DB entirely.
+         */
+        $walletId = $wallet->id;
+
+        $transactions = WalletTransaction::query()
+            ->select([
+                'id', 'type', 'amount', 'description',
+                'reference_id', 'wallet_id', 'created_at',
+                // Aggregate sums as extra columns — computed once per query execution
+                DB::raw("(SELECT SUM(amount) FROM wallet_transactions WHERE wallet_id = {$walletId} AND type = 'CREDIT') as total_credit"),
+                DB::raw("(SELECT SUM(amount) FROM wallet_transactions WHERE wallet_id = {$walletId} AND type = 'DEBIT')  as total_debit"),
+            ])
+            ->where('wallet_id', $walletId)
             ->when($this->filter === 'credit', fn($q) => $q->where('type', 'CREDIT'))
-            ->when($this->filter === 'debit', fn($q) => $q->where('type', 'DEBIT'))
+            ->when($this->filter === 'debit',  fn($q) => $q->where('type', 'DEBIT'))
             ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))
-            ->latest();
+            ->orderBy('created_at', $this->sortOrder)
+            ->paginate(15);
+
+        // Pull aggregates from the first row (they're the same on every row)
+        $first = $transactions->first();
 
         return [
-            'wallet' => $wallet,
-            'transactions' => $txQuery->paginate(15),
-            'totalCredit' => WalletTransaction::where('type', 'CREDIT')->sum('amount'),
-            'totalDebit' => WalletTransaction::where('type', 'DEBIT')->sum('amount'),
+            'wallet'       => $wallet,
+            'transactions' => $transactions,
+            'totalCredit'  => (float) ($first?->total_credit ?? 0),
+            'totalDebit'   => (float) ($first?->total_debit  ?? 0),
         ];
     }
 };

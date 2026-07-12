@@ -1,47 +1,55 @@
 {{-- ===== VARIANT MODAL (Shared between Resto & Retail) ===== --}}
-<div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg bg-body text-body"
-             style="border-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
-            <div class="modal-header border-bottom pb-3 pt-4 px-4 bg-body-tertiary"
-                 style="border-top-left-radius: 1.25rem; border-top-right-radius: 1.25rem; border-color: var(--bs-border-color-translucent) !important;">
+<div x-show="isVariantModalOpen" x-cloak class="fixed inset-0 z-[1050] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        {{-- Backdrop --}}
+        <div x-show="isVariantModalOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
+             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" 
+             @click="isVariantModalOpen = false" aria-hidden="true"></div>
+
+        {{-- Modal Dialog --}}
+        <div x-show="isVariantModalOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+             class="relative w-full max-w-lg transform overflow-hidden rounded-[1.5rem] border border-emerald-800/15 bg-white text-left shadow-xl transition-all dark:border-slate-700 dark:bg-slate-900 sm:my-8 flex flex-col">
+            <div class="flex items-center justify-between rounded-t-[1.5rem] border-b border-emerald-800/10 bg-white px-4 pb-3 pt-4 dark:border-slate-800 dark:bg-slate-900">
                 <div>
-                    <h4 class="fw-bold font-serif mb-1" style="color: var(--brand-caramel, #b45309);">Pilih Varian</h4>
-                    <p class="text-secondary small mb-0" x-text="selectedProduct ? selectedProduct.name : ''"></p>
+                    <h4 class="mb-1 font-black text-emerald-800 dark:text-emerald-400">Pilih Varian</h4>
+                    <p class="mb-0 text-sm font-semibold text-slate-500 dark:text-slate-400" x-text="selectedProduct ? selectedProduct.name : ''"></p>
                 </div>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" @click="isVariantModalOpen = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
-            <div class="modal-body p-4 bg-body"
-                 style="border-bottom-left-radius: 1.25rem; border-bottom-right-radius: 1.25rem;">
-                <div class="d-flex flex-column gap-2">
+            <div class="rounded-b-[1.5rem] bg-white p-4 dark:bg-slate-900">
+                <div class="flex flex-col gap-2">
                     <template x-if="selectedProduct">
                         <template x-for="variant in selectedProduct.variants" :key="variant.id">
                             <button type="button"
-                                    class="card flex-row justify-content-between align-items-center p-3 text-start w-100 border transition-all bg-body"
-                                    :class="{'opacity-50 bg-body-tertiary': variant.stock <= 0, 'border-primary shadow-sm': variant.stock > 0}"
+                                    class="flex w-full flex-row items-center justify-between rounded-2xl border bg-white p-3 text-start transition-all"
+                                    :class="variant.stock > 0 ? 'border-emerald-800/20 shadow-sm' : 'border-slate-200 bg-slate-50 opacity-50 dark:border-slate-800 dark:bg-slate-950'"
                                     :disabled="variant.stock <= 0"
                                     @click="if(variant.stock > 0) addVariantToCart(variant)"
-                                    style="border-radius: 1rem; border-color: var(--bs-border-color-translucent) !important;">
+                                    style="border-color: var(--bs-border-color-translucent) !important;">
                                 <div>
-                                    <h6 class="fw-bold text-body mb-1" x-text="variant.name"></h6>
+                                    <h6 class="mb-1 font-black text-slate-900 dark:text-white" x-text="variant.name"></h6>
                                     <template x-if="variant.sku">
-                                        <div class="text-secondary mb-2" style="font-size: 0.75rem;">
-                                            <i class="bi bi-upc-scan me-1"></i><span x-text="variant.sku"></span>
+                                        <div class="mb-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                            <i class="ph-bold ph-barcode me-1"></i><span x-text="variant.sku"></span>
                                         </div>
                                     </template>
-                                    <span class="small badge rounded-pill fw-medium"
-                                          :class="variant.stock > 0 ? 'bg-body-tertiary text-secondary border' : 'bg-danger text-white'"
+                                    <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-bold"
+                                          :class="variant.stock > 0 ? 'border-emerald-800/20 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400' : 'border-red-200 bg-red-50 text-red-600'"
                                           x-text="variant.stock > 0 ? 'Tersedia: ' + variant.stock : 'Stok Habis'"></span>
                                 </div>
                                 <div class="text-end">
                                     <template x-if="variant.active_discount_price && Number(variant.active_discount_price) > 0 && Number(variant.active_discount_price) < Number(variant.price)">
-                                        <div class="d-flex flex-column align-items-end">
-                                            <span class="text-decoration-line-through text-danger fw-semibold" style="font-size: 0.7rem;" x-text="'Rp ' + formatRupiah(variant.price)"></span>
-                                            <h5 class="fw-bold mb-0" style="color: var(--brand-caramel, #b45309);" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></h5>
+                                        <div class="flex flex-col items-end">
+                                            <span class="text-xs font-semibold text-red-500 line-through" x-text="'Rp ' + formatRupiah(variant.price)"></span>
+                                            <h5 class="mb-0 font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(variant.active_discount_price)"></h5>
                                         </div>
                                     </template>
                                     <template x-if="!variant.active_discount_price || Number(variant.active_discount_price) === 0 || Number(variant.active_discount_price) >= Number(variant.price)">
-                                        <h5 class="fw-bold mb-0" style="color: var(--brand-caramel, #b45309);" x-text="'Rp ' + formatRupiah(variant.price)"></h5>
+                                        <h5 class="mb-0 font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(variant.price)"></h5>
                                     </template>
                                 </div>
                             </button>

@@ -1,12 +1,9 @@
 import "@phosphor-icons/web/bold";
 import "@phosphor-icons/web/fill";
 import "@phosphor-icons/web/regular";
-// Import all of Bootstrap’s JS
-import * as bootstrap from 'bootstrap';
 import NProgress from 'nprogress';
 import Swal from 'sweetalert2';
 
-window.bootstrap = bootstrap;
 window.Swal = Swal;
 NProgress.configure({showSpinner: false});
 
@@ -27,49 +24,24 @@ document.addEventListener('livewire:navigated', () => {
     window.hideLoader();
 
     // Auto-close offcanvas mobile menu when navigation triggers
-    const mobileSidebarEl = document.getElementById('mobileSidebar');
-    if (mobileSidebarEl) {
-        const offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileSidebarEl);
-        if (offcanvasInstance) {
-            offcanvasInstance.hide();
-        }
-    }
+    window.dispatchEvent(new CustomEvent('close-mobile-sidebar'));
 });
 
 window.showLoader = function () {
     const loader = document.getElementById('global-loader');
     if (loader) {
-        loader.classList.add('active');
+        loader.classList.remove('opacity-0', 'pointer-events-none', 'hidden-loader');
     }
 };
 
 window.hideLoader = function () {
     const loader = document.getElementById('global-loader');
     if (loader) {
-        loader.classList.remove('active');
+        loader.classList.add('opacity-0', 'pointer-events-none');
     }
 };
 
-function initDesktopSidebarToggle() {
-    const sidebarToggle = document.getElementById('sidebarToggle');
 
-    const sidebarStatus = localStorage.getItem('sb|sidebar-toggle');
-    if (sidebarStatus === 'true') {
-        document.body.classList.add('sb-sidenav-toggled');
-    }
-
-    if (sidebarToggle) {
-        sidebarToggle.onclick = function (e) {
-            e.preventDefault();
-
-            const isToggled = document.body.classList.toggle('sb-sidenav-toggled');
-            localStorage.setItem('sb|sidebar-toggle', isToggled);
-        };
-    }
-}
-
-document.addEventListener('DOMContentLoaded', initDesktopSidebarToggle);
-document.addEventListener('livewire:navigated', initDesktopSidebarToggle);
 
 
 document.addEventListener('alpine:init', () => {
@@ -78,14 +50,14 @@ document.addEventListener('alpine:init', () => {
 
         init() {
             // Pasang tema secara otomatis ke tag <html> saat web dimuat
-            document.documentElement.setAttribute('data-bs-theme', this.theme);
+            document.documentElement.classList.toggle('dark', this.theme === 'dark');
         },
 
         toggleTheme() {
             // Ubah state, simpan ke local storage, dan terapkan ke <html>
             this.theme = this.theme === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', this.theme);
-            document.documentElement.setAttribute('data-bs-theme', this.theme);
+            document.documentElement.classList.toggle('dark', this.theme === 'dark');
         }
     }));
 });
@@ -93,7 +65,7 @@ document.addEventListener('alpine:init', () => {
 document.addEventListener('livewire:navigated', () => {
     // Persist theme across Livewire navigations
     const theme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-bs-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
 
     // Fungsi untuk membuat dan menampilkan toast ala "Island"
     // ==========================================
@@ -105,13 +77,13 @@ document.addEventListener('livewire:navigated', () => {
 
         let iconHtml;
         if (type === 'success') {
-            iconHtml = '<i class="bi bi-check-circle-fill text-success fs-5"></i>';
+            iconHtml = '<i class="ph-fill ph-check-circle text-green-500 text-xl"></i>';
         } else if (type === 'error' || type === 'danger') {
-            iconHtml = '<i class="bi bi-x-circle-fill text-danger fs-5"></i>';
+            iconHtml = '<i class="ph-fill ph-x-circle text-red-500 text-xl"></i>';
         } else if (type === 'warning') {
-            iconHtml = '<i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>';
+            iconHtml = '<i class="ph-fill ph-warning text-yellow-500 text-xl"></i>';
         } else {
-            iconHtml = '<i class="bi bi-info-circle-fill text-info fs-5"></i>';
+            iconHtml = '<i class="ph-fill ph-info text-blue-500 text-xl"></i>';
         }
 
         const toast = document.createElement('div');
@@ -203,9 +175,9 @@ let offlineBanner = null;
 function updateNetworkBanner(state) {
     // state = 'offline', 'slow', 'online', 'reconnecting'
     const messages = {
-        'offline': { text: 'Koneksi Terputus...', icon: 'bi-wifi-off', bg: 'rgba(220, 53, 69, 0.95)' },
-        'slow': { text: 'Koneksi Lambat...', icon: 'bi-reception-1', bg: 'rgba(249, 115, 22, 0.95)' },
-        'reconnecting': { text: 'Menghubungkan kembali...', icon: 'bi-arrow-repeat', bg: 'rgba(13, 110, 253, 0.95)' }
+        'offline': { text: 'Koneksi Terputus...', icon: 'ph-wifi-none', bg: 'rgba(239, 68, 68, 0.95)' },
+        'slow': { text: 'Koneksi Lambat...', icon: 'ph-wifi-low', bg: 'rgba(245, 158, 11, 0.95)' },
+        'reconnecting': { text: 'Menghubungkan kembali...', icon: 'ph-arrows-clockwise', bg: 'rgba(59, 130, 246, 0.95)' }
     };
 
     if (state === 'online') {
@@ -253,9 +225,9 @@ function updateNetworkBanner(state) {
     }
 
     offlineBanner.innerHTML = `
-        <div class="px-4 py-2 rounded-pill shadow-lg d-flex align-items-center fw-bold text-white border border-light border-opacity-25" 
+        <div class="px-4 py-2 rounded-full shadow-lg flex items-center font-bold text-white border border-white/25" 
              style="background: ${cfg.bg}; backdrop-filter: blur(10px); font-size: 0.85rem; letter-spacing: 0.5px; transition: background 0.4s ease;">
-            <i class="bi ${cfg.icon} fs-5 me-2 ${state === 'reconnecting' ? 'spin-icon' : ''}"></i> 
+            <i class="ph-bold ${cfg.icon} text-xl mr-2 ${state === 'reconnecting' ? 'spin-icon' : ''}"></i> 
             <span>${cfg.text}</span>
         </div>
         <style>

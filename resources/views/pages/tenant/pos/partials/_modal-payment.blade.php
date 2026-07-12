@@ -1,276 +1,229 @@
 {{-- ===== PAYMENT MODAL (Shared between Resto & Retail) ===== --}}
-<div class="modal fade modal-bottom-mobile" id="paymentModal" tabindex="-1" aria-hidden="true"
-     data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg d-flex flex-column bg-body text-body"
-             style="border-radius: 1.5rem; max-height: 95vh; border-color: var(--bs-border-color-translucent) !important;">
+<div x-show="isPaymentModalOpen" x-cloak class="fixed inset-0 z-[1050] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        {{-- Backdrop --}}
+        <div x-show="isPaymentModalOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
+             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" 
+             @click="isPaymentModalOpen = false" aria-hidden="true"></div>
 
-            {{-- Header (Sticky) --}}
-            <div class="modal-header border-bottom bg-body-tertiary px-4 py-3 flex-shrink-0"
-                 style="border-radius: 1.5rem 1.5rem 0 0; border-color: var(--bs-border-color-translucent) !important;">
-                <h5 class="fw-bold mb-0">Pembayaran</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+        {{-- Modal Dialog --}}
+        <div x-show="isPaymentModalOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+             class="relative w-full max-w-4xl transform overflow-hidden rounded-[1.5rem] border border-emerald-800/15 bg-white text-left shadow-xl transition-all dark:border-slate-700 dark:bg-slate-900 sm:my-8 flex flex-col"
+             style="max-height: 90vh;">
+
+            {{-- Header --}}
+            <div class="flex shrink-0 items-center justify-between rounded-t-[1.5rem] border-b border-emerald-800/10 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+                <h5 class="mb-0 font-black text-slate-900 dark:text-white">Pembayaran</h5>
+                <button type="button" @click="isPaymentModalOpen = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
 
-            {{-- Body (Scrollable only if content overflows) --}}
-            <div class="modal-body p-3 p-md-4 bg-body overflow-y-auto">
-                <div class="row g-3 g-md-4">
-
-                    <!-- Kolom Total & Metode -->
-                    <div class="col-md-5 border-end-md pe-md-4"
-                         style="border-color: var(--bs-border-color-translucent) !important;">
-                        <div class="p-3 bg-body-tertiary rounded-4 mb-3 text-center border"
-                             style="border-color: var(--bs-border-color-translucent) !important;">
-                            <h6 class="fw-bold text-muted mb-1 small">Total Tagihan</h6>
-                            <h2 class="fw-bolder mb-0 text-primary" x-text="'Rp ' + formatRupiah(payTotal)"></h2>
+            {{-- Body --}}
+            <div class="overflow-y-auto bg-white p-3 dark:bg-slate-900 md:p-4">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
+                    {{-- Left: Total & Payment Method --}}
+                    <div class="md:col-span-2 md:border-r md:border-emerald-800/10 md:pe-4 md:dark:border-slate-800">
+                        <div class="mb-3 rounded-2xl border border-emerald-800/15 bg-emerald-50/60 p-4 text-center dark:border-slate-800 dark:bg-slate-950">
+                            <h6 class="mb-1 text-xs font-bold text-slate-600 dark:text-slate-400">Total Tagihan</h6>
+                            <h2 class="mb-0 font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(payTotal)"></h2>
                         </div>
 
-                        <!-- Metode Pembayaran: Grid 3 kolom di HP, Stack vertikal di Desktop -->
-                        <div class="row g-2">
-                            <!-- Option 1: Cash -->
-                            <div class="col-4 col-md-12">
-                                <label
-                                    class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
-                                    :class="paymentMethod === 'cash' ? 'btn-primary shadow-sm text-white' : 'bg-body-tertiary'">
-                                    <input type="radio" x-model="paymentMethod" value="cash" class="d-none">
-                                    <i class="bi bi-cash-stack fs-5 fs-md-6"></i> <span
-                                        style="font-size: 0.8rem;">Tunai</span>
-                                </label>
-                            </div>
-                            <!-- Option 2: QRIS (statis/manual) -->
-                            <div class="col-4 col-md-12">
-                                <label
-                                    class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
-                                    :class="paymentMethod === 'qris' ? 'btn-primary shadow-sm text-white' : 'bg-body-tertiary'">
-                                    <input type="radio" x-model="paymentMethod" value="qris" class="d-none">
-                                    <i class="bi bi-qr-code-scan fs-5 fs-md-6"></i> <span style="font-size: 0.8rem;">QRIS</span>
-                                </label>
-                            </div>
-                            <!-- Option 3: Transfer manual -->
-                            <div class="col-4 col-md-12">
-                                <label
-                                    class="btn fw-bold w-100 h-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-start gap-1 gap-md-2 border text-body"
-                                    :class="paymentMethod === 'transfer' ? 'btn-primary shadow-sm text-white' : 'bg-body-tertiary'">
-                                    <input type="radio" x-model="paymentMethod" value="transfer" class="d-none">
-                                    <i class="bi bi-bank fs-5 fs-md-6"></i> <span
-                                        style="font-size: 0.8rem;">Transfer</span>
-                                </label>
-                            </div>
-                            <!-- Option 4: Duitku Digital Payment -->
+                        {{-- Payment Methods --}}
+                        <div class="flex flex-col gap-2">
+                            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border bg-white p-3 text-sm font-black transition"
+                                   :class="paymentMethod === 'cash' ? 'border-emerald-800 bg-emerald-50 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 dark:bg-slate-950'">
+                                <input type="radio" x-model="paymentMethod" value="cash" class="hidden">
+                                <i class="ph-bold ph-money text-lg" :class="paymentMethod === 'cash' ? 'text-emerald-800 dark:text-emerald-400' : 'text-slate-400'"></i>
+                                <span :class="paymentMethod === 'cash' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'">Tunai</span>
+                            </label>
+
+                            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border bg-white p-3 text-sm font-black transition"
+                                   :class="paymentMethod === 'qris' ? 'border-emerald-800 bg-emerald-50 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 dark:bg-slate-950'">
+                                <input type="radio" x-model="paymentMethod" value="qris" class="hidden">
+                                <i class="ph-bold ph-qr-code text-lg" :class="paymentMethod === 'qris' ? 'text-emerald-800 dark:text-emerald-400' : 'text-slate-400'"></i>
+                                <span :class="paymentMethod === 'qris' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'">QRIS</span>
+                            </label>
+
+                            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border bg-white p-3 text-sm font-black transition"
+                                   :class="paymentMethod === 'transfer' ? 'border-emerald-800 bg-emerald-50 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 dark:bg-slate-950'">
+                                <input type="radio" x-model="paymentMethod" value="transfer" class="hidden">
+                                <i class="ph-bold ph-bank text-lg" :class="paymentMethod === 'transfer' ? 'text-emerald-800 dark:text-emerald-400' : 'text-slate-400'"></i>
+                                <span :class="paymentMethod === 'transfer' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'">Transfer</span>
+                            </label>
+
                             @if(config('duitku.enabled'))
-                            <div class="col-12">
-                                <label
-                                    class="btn fw-bold w-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-row align-items-center justify-content-start gap-2 border text-body"
-                                    :class="paymentMethod === 'duitku' ? 'btn-warning shadow-sm text-dark' : 'bg-body-tertiary'">
-                                    <input type="radio" x-model="paymentMethod" value="duitku" class="d-none">
-                                    <i class="bi bi-lightning-charge-fill fs-6"></i>
-                                    <span style="font-size: 0.8rem;">Duitku
-                                        <span class="badge bg-warning text-dark ms-1 border border-dark border-opacity-10" style="font-size:0.6rem;">DIGITAL</span>
-                                    </span>
-                                </label>
-                            </div>
+                            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border bg-white p-3 text-sm font-black transition"
+                                   :class="paymentMethod === 'duitku' ? 'border-emerald-800 bg-emerald-50 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 dark:bg-slate-950'">
+                                <input type="radio" x-model="paymentMethod" value="duitku" class="hidden">
+                                <i class="ph-fill ph-lightning text-lg" :class="paymentMethod === 'duitku' ? 'text-amber-500' : 'text-slate-400'"></i>
+                                <span :class="paymentMethod === 'duitku' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'">
+                                    Duitku
+                                    <span class="ml-1 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">DIGITAL</span>
+                                </span>
+                            </label>
                             @endif
 
-                            <!-- Option 5: Midtrans Digital Payment -->
                             @if(config('midtrans.server_key'))
-                            <div class="col-12 mt-1">
-                                <label
-                                    class="btn fw-bold w-100 p-2 p-md-3 rounded-4 transition-all d-flex flex-row align-items-center justify-content-start gap-2 border text-body"
-                                    :class="paymentMethod === 'digital' ? 'btn-info shadow-sm text-dark' : 'bg-body-tertiary'">
-                                    <input type="radio" x-model="paymentMethod" value="digital" class="d-none">
-                                    <i class="bi bi-credit-card-2-front-fill fs-6 text-info"></i>
-                                    <span style="font-size: 0.8rem;">Midtrans
-                                        <span class="badge bg-info text-dark ms-1 border border-dark border-opacity-10" style="font-size:0.6rem;">DIGITAL</span>
-                                    </span>
-                                </label>
-                            </div>
+                            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border bg-white p-3 text-sm font-black transition"
+                                   :class="paymentMethod === 'digital' ? 'border-emerald-800 bg-emerald-50 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 dark:bg-slate-950'">
+                                <input type="radio" x-model="paymentMethod" value="digital" class="hidden">
+                                <i class="ph-fill ph-credit-card text-lg" :class="paymentMethod === 'digital' ? 'text-emerald-800 dark:text-emerald-400' : 'text-slate-400'"></i>
+                                <span :class="paymentMethod === 'digital' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'">
+                                    Midtrans
+                                    <span class="ml-1 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-extrabold text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400">DIGITAL</span>
+                                </span>
+                            </label>
                             @endif
                         </div>
-
                     </div>
 
-                    <!-- Kolom Aksi / Numpad -->
-                    <div class="col-md-7">
-
-                        <!-- Tampilan Duitku -->
+                    {{-- Right: Aksi / Numpad --}}
+                    <div class="md:col-span-3">
+                        {{-- Duitku --}}
                         <template x-if="paymentMethod === 'duitku'">
-                            <div class="d-flex flex-column h-100 py-2">
-
-                                <!-- Banner Info Duitku -->
-                                <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-3 mb-3 text-center text-sm-start d-flex flex-column flex-sm-row align-items-center gap-3">
-                                    <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center p-2.5 flex-shrink-0" style="width: 48px; height: 48px;">
-                                        <i class="bi bi-lightning-charge-fill fs-4 animate-pulse"></i>
+                            <div class="flex h-full flex-col py-2">
+                                <div class="mb-3 flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center dark:border-amber-500/30 dark:bg-amber-500/10 sm:flex-row sm:text-start">
+                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white shadow-sm">
+                                        <i class="ph-fill ph-lightning text-xl"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.9rem;">Generate Link Pembayaran</h6>
-                                        <p class="text-secondary mb-0 small" style="font-size: 0.75rem; line-height: 1.4;">
+                                        <h6 class="mb-1 text-sm font-black text-amber-900 dark:text-amber-300">Generate Link Pembayaran</h6>
+                                        <p class="mb-0 text-xs font-semibold text-amber-800/80 dark:text-amber-400/80">
                                             Generate link pembayaran, lalu kirimkan ke customer. Status akan update otomatis setelah customer bayar.
                                         </p>
                                     </div>
                                 </div>
 
                                 @if(config('duitku.sandbox'))
-                                <div class="alert alert-warning border-0 rounded-4 mb-3 p-3 d-flex gap-2 shadow-none align-items-start"
-                                     style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important; border-radius: 12px !important;">
-                                    <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0" style="margin-top: 1px;"></i>
+                                <div class="mb-3 flex items-start gap-2 rounded-2xl border-0 bg-amber-50 p-3 dark:bg-amber-500/10"
+                                     style="border-left: 4px solid #f59e0b !important;">
+                                    <i class="ph-fill ph-warning mt-0.5 shrink-0 text-amber-500"></i>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.8rem; color: #78350f;">Mode Uji Coba (Sandbox)</h6>
-                                        <p class="mb-0 text-muted" style="font-size: 0.7rem; line-height: 1.4; color: #92400e !important;">
+                                        <h6 class="mb-1 text-xs font-black text-amber-900 dark:text-amber-300">Mode Uji Coba (Sandbox)</h6>
+                                        <p class="mb-0 text-xs font-semibold text-amber-800/80 dark:text-amber-400/80">
                                             Website ini sedang dalam tahap uji coba pembayaran. Jangan gunakan kartu kredit atau rekening asli.
                                         </p>
                                     </div>
                                 </div>
                                 @endif
 
-                                <!-- Bagian 1: Pilih Metode Pembayaran (Grid Premium) -->
-                                <div class="mb-3 flex-grow-1">
-                                    <label class="form-label small fw-bold text-muted mb-2 text-uppercase tracking-wider" style="font-size: 0.65rem;">
-                                        1. Pilih Saluran Pembayaran Duitku <span class="text-danger">*</span>
+                                <div class="mb-3 flex-1">
+                                    <label class="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                                        1. Pilih Saluran Pembayaran Duitku <span class="text-red-500">*</span>
                                     </label>
-                                    
-                                    <!-- Dynamic Grid: 2 columns on mobile, 3 columns on desktop -->
-                                    <div class="row row-cols-2 row-cols-sm-3 g-2 overflow-y-auto" style="max-height: 240px; padding: 2px;">
+                                    <div class="grid grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3" style="max-height: 240px;">
                                         <template x-for="method in duitkuPaymentMethods" :key="method.paymentMethod">
-                                            <div class="col">
-                                                <button
-                                                    @click="duitkuMethod = method.paymentMethod"
-                                                    type="button"
-                                                    class="btn w-100 h-100 p-2 rounded-3 border d-flex flex-column align-items-center justify-content-center gap-1 transition-all text-center"
-                                                    :class="duitkuMethod === method.paymentMethod 
-                                                        ? 'bg-warning bg-opacity-10 border-warning text-dark shadow-sm fw-bold' 
-                                                        : 'bg-body-tertiary text-body border'"
-                                                    style="min-height: 72px;"
-                                                >
-                                                    <!-- Image Container -->
-                                                    <div class="bg-white rounded p-1 d-flex align-items-center justify-content-center border" style="width: 48px; height: 26px;">
-                                                        <img :src="method.paymentImage" class="img-fluid object-contain" :alt="method.paymentName" onerror="this.src='https://images.duitku.com/hotlink-ok/QRIS.PNG'">
+                                            <div>
+                                                <button @click="duitkuMethod = method.paymentMethod" type="button"
+                                                        class="flex h-full w-full flex-col items-center justify-center gap-1 rounded-2xl border bg-white p-2 text-center transition-all"
+                                                        :class="duitkuMethod === method.paymentMethod ? 'border-emerald-800 bg-emerald-50 text-slate-900 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/10 dark:text-white' : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300'"
+                                                        style="min-height: 72px;">
+                                                    <div class="flex h-7 w-12 items-center justify-center rounded border border-slate-100 bg-white p-1 dark:border-slate-800 dark:bg-slate-900">
+                                                        <img :src="method.paymentImage" class="max-h-full max-w-full object-contain" :alt="method.paymentName" onerror="this.src='https://images.duitku.com/hotlink-ok/QRIS.PNG'">
                                                     </div>
-                                                    <!-- Method Name -->
-                                                    <span x-text="method.paymentName" style="font-size: 0.68rem; line-height: 1.2;" class="text-truncate w-100"></span>
+                                                    <span x-text="method.paymentName" class="w-full truncate text-[11px] font-bold leading-tight"></span>
                                                 </button>
                                             </div>
                                         </template>
                                     </div>
                                 </div>
 
-                                <!-- Bagian 2: Form Email Pelanggan -->
-                                <div class="mt-3">
-                                    <label class="form-label small fw-bold text-muted mb-1.5 text-uppercase tracking-wider" style="font-size: 0.65rem;">
-                                        2. Kirim Tagihan ke Email Customer <span class="text-muted">(opsional)</span>
+                                <div class="mt-auto">
+                                    <label class="mb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                                        2. Kirim Tagihan ke Email Customer <span class="font-semibold text-slate-400">(opsional)</span>
                                     </label>
-                                    <div class="p-3 bg-body-tertiary rounded-4 border">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-body border border-end-0 text-muted"><i class="bi bi-envelope-fill"></i></span>
-                                            <input type="email"
-                                                   class="form-control bg-body border border-start-0 fw-bold py-2 text-body"
-                                                   placeholder="contoh: customer@email.com"
-                                                   x-model="duitkuCustomerEmail" 
-                                                   style="font-size: 0.85rem;" />
+                                    <div class="rounded-2xl border border-emerald-800/20 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-950">
+                                        <div class="flex overflow-hidden rounded-xl border border-emerald-800/20 dark:border-slate-700">
+                                            <span class="flex items-center border-r border-emerald-800/10 bg-slate-50 px-3 text-slate-500 dark:border-slate-800 dark:bg-slate-950">
+                                                <i class="ph-fill ph-envelope"></i>
+                                            </span>
+                                            <input type="email" class="w-full border-0 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none dark:bg-slate-900 dark:text-white"
+                                                   placeholder="contoh: customer@email.com" x-model="duitkuCustomerEmail">
                                         </div>
-                                        <div class="d-flex align-items-center gap-1 text-muted mt-2" style="font-size: 0.68rem;">
-                                            <i class="bi bi-info-circle-fill text-warning"></i>
-                                            <span>Kosongkan jika tidak ada — sistem akan pakai email toko secara otomatis.</span>
+                                        <div class="mt-2 flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                                            <i class="ph-fill ph-info text-amber-500"></i>
+                                            <span>Kosongkan jika tidak ada &mdash; sistem akan pakai email toko secara otomatis.</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </template>
 
-                        <!-- Tampilan QRIS / Transfer manual -->
+                        {{-- QRIS / Transfer --}}
                         <template x-if="paymentMethod !== 'cash' && paymentMethod !== 'duitku' && paymentMethod !== 'digital'">
-                            <div
-                                class="d-flex flex-column justify-content-center align-items-center h-100 py-4 py-md-5 text-center">
-                                <i class="bi text-primary mb-2"
-                                   :class="paymentMethod === 'qris' ? 'bi-qr-code-scan' : 'bi-bank'"
-                                   style="font-size: 4rem;"></i>
-                                <h5 class="fw-bold"
-                                    x-text="paymentMethod === 'qris' ? 'Pembayaran QRIS' : 'Transfer Bank'"></h5>
-                                <p class="text-secondary small px-2 opacity-75">Pastikan pelanggan sudah berhasil
-                                    transfer sebelum menekan tombol proses.</p>
+                            <div class="flex h-full flex-col items-center justify-center py-5 text-center">
+                                <i class="mb-3 text-5xl text-emerald-800 dark:text-emerald-400"
+                                   :class="paymentMethod === 'qris' ? 'ph-bold ph-qr-code' : 'ph-bold ph-bank'"></i>
+                                <h5 class="mb-1 font-black text-slate-900 dark:text-white" x-text="paymentMethod === 'qris' ? 'Pembayaran QRIS' : 'Transfer Bank'"></h5>
+                                <p class="text-sm font-semibold text-slate-500 opacity-70 dark:text-slate-400">Pastikan pelanggan sudah berhasil transfer sebelum menekan tombol proses.</p>
                             </div>
                         </template>
 
-                        <!-- Tampilan Midtrans -->
+                        {{-- Midtrans --}}
                         <template x-if="paymentMethod === 'digital'">
-                            <div class="d-flex flex-column justify-content-center align-items-center h-100 py-4 py-md-5 text-center">
-                                <i class="bi bi-phone-vibrate text-info mb-2" style="font-size: 4rem;"></i>
-                                <h5 class="fw-bold">Pembayaran Midtrans</h5>
-                                <p class="text-secondary small px-2 opacity-75">
+                            <div class="flex h-full flex-col items-center justify-center py-5 text-center">
+                                <i class="ph-bold ph-device-mobile-speaker mb-3 text-5xl text-emerald-800 dark:text-emerald-400"></i>
+                                <h5 class="mb-1 font-black text-slate-900 dark:text-white">Pembayaran Midtrans</h5>
+                                <p class="text-sm font-semibold text-slate-500 opacity-70 dark:text-slate-400">
                                     Pilih opsi ini untuk memunculkan QRIS Dinamis atau pop-up pembayaran di layar pelanggan/kasir.
                                 </p>
                             </div>
                         </template>
 
-
-                        <!-- Tampilan Numpad Cash -->
+                        {{-- Cash Numpad --}}
                         <template x-if="paymentMethod === 'cash'">
-                            <div class="d-flex flex-column h-100 justify-content-end">
-                                <!-- Input Uang -->
-                                <div class="form-floating mb-2">
-                                    <input type="text"
-                                           class="form-control fw-bold text-primary bg-body-tertiary border-0"
-                                           readonly :value="amountPaid ? 'Rp ' + formatRupiah(amountPaid) : 'Rp 0'"
-                                           style="border-radius: 1rem; font-size: 1.25rem;">
-                                    <label class="fw-bold text-muted small">Uang Diterima</label>
-                                </div>
-
-                                <!-- Quick Amounts -->
-                                <div class="row g-2 mb-2">
-                                    <div class="col-4">
-                                        <button @click="amountPaid = payTotal"
-                                                class="btn btn-outline-primary w-100 fw-bold py-1 py-md-2 rounded-3 small bg-body">
-                                            Pas
-                                        </button>
-                                    </div>
-                                    <div class="col-4">
-                                        <button @click="amountPaid = 50000"
-                                                class="btn btn-secondary border w-100 fw-bold py-1 py-md-2 rounded-3 small bg-body text-body">
-                                            50k
-                                        </button>
-                                    </div>
-                                    <div class="col-4">
-                                        <button @click="amountPaid = 100000"
-                                                class="btn btn-secondary border w-100 fw-bold py-1 py-md-2 rounded-3 small bg-body text-body">
-                                            100k
-                                        </button>
+                            <div class="flex h-full flex-col justify-end">
+                                <div class="mb-2">
+                                    <div class="rounded-2xl border border-emerald-800/20 bg-slate-50 px-4 py-3 text-center dark:border-slate-700 dark:bg-slate-950">
+                                        <label class="mb-1 text-xs font-bold text-slate-600 dark:text-slate-400">Uang Diterima</label>
+                                        <div class="text-xl font-black text-emerald-800 dark:text-emerald-400"
+                                             x-text="amountPaid ? 'Rp ' + formatRupiah(amountPaid) : 'Rp 0'"></div>
                                     </div>
                                 </div>
 
-                                <!-- Numpad Grid -->
-                                <div class="row g-2 mb-2">
+                                <div class="mb-2 grid grid-cols-3 gap-2">
+                                    <button @click="amountPaid = payTotal"
+                                            class="rounded-2xl border border-emerald-800/30 bg-white py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-emerald-500/30 dark:bg-slate-950 dark:text-emerald-400">
+                                        Pas
+                                    </button>
+                                    <button @click="amountPaid = 50000"
+                                            class="rounded-2xl border border-slate-200 bg-white py-2 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                                        50k
+                                    </button>
+                                    <button @click="amountPaid = 100000"
+                                            class="rounded-2xl border border-slate-200 bg-white py-2 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                                        100k
+                                    </button>
+                                </div>
+
+                                <div class="mb-2 grid grid-cols-3 gap-2">
                                     <template x-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="n">
-                                        <div class="col-4">
-                                            <button @click="appendNumber(n)"
-                                                    class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 bg-body text-body"
-                                                    x-text="n"></button>
-                                        </div>
+                                        <button @click="appendNumber(n)"
+                                                class="rounded-2xl border border-slate-200 bg-white py-3 text-lg font-black text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                                                x-text="n"></button>
                                     </template>
-                                    <div class="col-4">
-                                        <button @click="appendNumber('000')"
-                                                class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 bg-body text-body">
-                                            000
-                                        </button>
-                                    </div>
-                                    <div class="col-4">
-                                        <button @click="appendNumber('0')"
-                                                class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 bg-body text-body">
-                                            0
-                                        </button>
-                                    </div>
-                                    <div class="col-4">
-                                        <button @click="deleteNumber()"
-                                                class="btn btn-secondary border w-100 fs-5 fw-bold py-2 shadow-sm rounded-3 text-danger bg-body">
-                                            <i class="bi bi-backspace-fill"></i></button>
-                                    </div>
+                                    <button @click="appendNumber('000')"
+                                            class="rounded-2xl border border-slate-200 bg-white py-3 text-lg font-black text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                                        000
+                                    </button>
+                                    <button @click="appendNumber('0')"
+                                            class="rounded-2xl border border-slate-200 bg-white py-3 text-lg font-black text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                                        0
+                                    </button>
+                                    <button @click="deleteNumber()"
+                                            class="rounded-2xl border border-slate-200 bg-white py-3 text-lg font-black text-red-500 shadow-sm transition hover:bg-red-50 active:scale-95 dark:border-slate-700 dark:bg-slate-950">
+                                        <i class="ph-fill ph-backspace"></i>
+                                    </button>
                                 </div>
 
-                                <!-- Kembalian (Muncul HANYA jika ada kembalian) -->
+                                {{-- Kembalian --}}
                                 <template x-if="amountPaid && getChange >= 0">
-                                    <div
-                                        class="d-flex justify-content-between align-items-center p-2 px-3 bg-success bg-opacity-10 rounded-3 border border-success border-opacity-25 mt-1">
-                                        <span class="text-success fw-bold small">Kembalian:</span>
-                                        <h5 class="fw-bolder text-success mb-0"
-                                            x-text="'Rp ' + formatRupiah(getChange)"></h5>
+                                    <div class="mt-1 flex items-center justify-between rounded-2xl border border-emerald-800/20 bg-emerald-50 px-4 py-3 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                                        <span class="text-sm font-bold text-emerald-800 dark:text-emerald-400">Kembalian:</span>
+                                        <h5 class="mb-0 font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(getChange)"></h5>
                                     </div>
                                 </template>
                             </div>
@@ -279,24 +232,21 @@
                 </div>
             </div>
 
-            {{-- Footer (Sticky) --}}
-            <div class="modal-footer bg-body-tertiary border-top p-3 flex-shrink-0"
-                 style="border-radius: 0 0 1.5rem 1.5rem; border-color: var(--bs-border-color-translucent) !important;">
-                <div class="d-flex w-100 gap-2">
+            {{-- Footer --}}
+            <div class="shrink-0 rounded-b-[1.5rem] border-t border-emerald-800/10 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950">
+                <div class="flex w-full gap-2">
                     <button type="button"
-                            class="btn btn-secondary border fw-bold flex-shrink-0 rounded-pill shadow-none bg-body text-body"
-                            data-bs-dismiss="modal">Batal
-                    </button>
+                            class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                            @click="isPaymentModalOpen = false">Batal</button>
                     <button @click="submitPayment"
-                            class="btn btn-primary fw-bold flex-grow-1 rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 text-white"
-                            style="background: #F97316; border: none;"
+                            class="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.01] dark:from-emerald-500 dark:to-emerald-400 dark:text-slate-950"
+                            style="border: none;"
                             :disabled="isSubmitting
                                 || (paymentMethod === 'cash' && !amountPaid)
-                                || (paymentMethod === 'duitku' && !duitkuMethod)"
-                    >
-                        <span x-show="!isSubmitting" class="d-flex align-items-center gap-2">
+                                || (paymentMethod === 'duitku' && !duitkuMethod)">
+                        <span x-show="!isSubmitting" class="flex items-center gap-2">
                             <span x-show="paymentMethod !== 'duitku' && paymentMethod !== 'digital'">Selesaikan Transaksi</span>
-                            <span x-show="paymentMethod === 'duitku' || paymentMethod === 'digital'">⚡ Proses Pembayaran Online</span>
+                            <span x-show="paymentMethod === 'duitku' || paymentMethod === 'digital'">Proses Pembayaran Online</span>
                         </span>
                         <span x-show="isSubmitting" style="display: none;">Memproses...</span>
                     </button>

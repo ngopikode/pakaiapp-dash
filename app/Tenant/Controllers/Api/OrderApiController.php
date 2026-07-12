@@ -2,14 +2,14 @@
 
 namespace App\Tenant\Controllers\Api;
 
+use App\Central\Services\DuitkuService;
+use App\Central\Services\MidtransService;
 use App\Http\Controllers\Controller;
+use App\Shared\Traits\ApiResponserTrait;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\TenantUser;
-use App\Central\Services\DuitkuService;
-use App\Central\Services\MidtransService;
 use App\Tenant\Services\OrderService;
-use App\Shared\Traits\ApiResponserTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 use Throwable;
 
 class OrderApiController extends Controller
@@ -28,22 +29,28 @@ class OrderApiController extends Controller
     {
         $gateway = $this->determineGateway($request->input('payment_method', 'CASH'));
 
-        if ($error = $this->validateGateway($gateway)) {
-            return $this->failResponse([], 403, $error['message']);
-        }
+        if ($error = $this->validateGateway($gateway)) return $this->failResponse(
+            code: ResponseAlias::HTTP_FORBIDDEN,
+            message: $error['message']
+        );
 
         $this->validateOrderRequest($request, $gateway);
 
-        if ($error = $this->checkProductAvailability($request->items)) {
-            return $this->failResponse(['unavailable_ids' => $error['unavailable_ids']], 422, $error['message']);
-        }
+        if ($error = $this->checkProductAvailability($request->items)) return $this->failResponse(
+            errors: ['unavailable_ids' => $error['unavailable_ids']],
+            message: $error['message']
+        );
 
         try {
             $order = $this->createOrderInTransaction($request, $gateway);
             return $this->processPaymentGateway($order, $request, $gateway);
         } catch (Throwable $e) {
             Log::error('[OrderAPI] Failed to create order: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return $this->errorResponse($e, 'Failed to create order.', 500, $request);
+            return $this->errorResponse(
+                errors: $e,
+                message: 'Failed to create order.',
+                request: $request
+            );
         }
     }
 
@@ -166,7 +173,11 @@ class OrderApiController extends Controller
     private function processPaymentGateway(Order $order, Request $request, array $gateway): JsonResponse
     {
         if ($gateway['type'] === 'manual') {
-            return $this->successResponse($order, 'Order created successfully.', 201);
+            return $this->successResponse(
+                data: $order,
+                message: 'Order created successfully.',
+                code: ResponseAlias::HTTP_CREATED
+            );
         }
 
         $order->load('items');
@@ -186,7 +197,10 @@ class OrderApiController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return $this->errorResponse([], 'Gagal memproses pembayaran. Silakan coba lagi.', 502);
+            return $this->errorResponse(
+                message: 'Gagal memproses pembayaran. Silakan coba lagi.',
+                code: ResponseAlias::HTTP_BAD_GATEWAY
+            );
         }
     }
 
@@ -219,11 +233,15 @@ class OrderApiController extends Controller
 
         $order->update(['midtrans_snap_token' => $snapToken]);
 
-        return $this->successResponse([
-            'order_id' => $order->id,
-            'invoice_code' => $order->invoice_code,
-            'snap_token' => $snapToken,
-        ], 'Order berhasil dibuat.', 201);
+        return $this->successResponse(
+            data: [
+                'order_id' => $order->id,
+                'invoice_code' => $order->invoice_code,
+                'snap_token' => $snapToken,
+            ],
+            message: 'Order berhasil dibuat.',
+            code: ResponseAlias::HTTP_CREATED
+        );
     }
 
     /**
@@ -240,12 +258,16 @@ class OrderApiController extends Controller
             'duitku_va_number' => $result->vaNumber,
         ]);
 
-        return $this->successResponse([
-            'order_id' => $order->id,
-            'invoice_code' => $order->invoice_code,
-            'payment_url' => $result->paymentUrl,
-            'va_number' => $result->vaNumber,
-            'reference' => $result->reference,
-        ], 'Order berhasil dibuat.', 201);
+        return $this->successResponse(
+            data: [
+                'order_id' => $order->id,
+                'invoice_code' => $order->invoice_code,
+                'payment_url' => $result->paymentUrl,
+                'va_number' => $result->vaNumber,
+                'reference' => $result->reference,
+            ],
+            message: 'Order berhasil dibuat.',
+            code: ResponseAlias::HTTP_CREATED
+        );
     }
 }
