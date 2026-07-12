@@ -94,7 +94,7 @@ class extends Component {
         }
     }
 
-    #[On('echo:kitchen,KitchenUpdated')]
+    #[On('echo:kitchen,.KitchenUpdated')]
     public function refreshKitchen()
     {
         unset($this->kitchenBatches);

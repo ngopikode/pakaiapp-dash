@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\Tenant\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -33,5 +33,13 @@ class KitchenUpdated implements ShouldBroadcastNow
         return [
             new Channel('kitchen'),
         ];
+    }
+
+    /**
+     * The event's broadcast name.
+     */
+    public function broadcastAs(): string
+    {
+        return 'KitchenUpdated';
     }
 }
