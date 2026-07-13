@@ -114,10 +114,11 @@ log "🏪 Menjalankan migrasi semua tenant database (type=all)..."
 artisan tenants:migrate-type all --force
 
 # ==============================================================================
-# 9. RESTART QUEUE WORKER (agar pickup kode baru)
+# 9. RESTART QUEUE WORKER & REVERB (agar pickup kode baru)
 # ==============================================================================
-log "🔄 Merestart queue worker..."
+log "🔄 Merestart queue worker dan reverb..."
 artisan queue:restart
+artisan reverb:restart
 
 # ==============================================================================
 # 10. MATIKAN MAINTENANCE MODE
