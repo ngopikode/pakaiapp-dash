@@ -43,6 +43,8 @@ return [
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
+            ],
+            'client' => [
                 'key' => env('VITE_REVERB_APP_KEY'),
                 'port' => env('VITE_REVERB_PORT', 80),
                 'scheme' => env('VITE_REVERB_SCHEME', 'https'),
