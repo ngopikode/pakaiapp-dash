@@ -8,9 +8,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Reverb Dynamic Configurations -->
-    <meta name="reverb-app-key" content="{{ config('broadcasting.connections.reverb.key') }}">
-    <meta name="reverb-port" content="{{ config('broadcasting.connections.reverb.options.port') }}">
-    <meta name="reverb-scheme" content="{{ config('broadcasting.connections.reverb.options.scheme') }}">
+    <meta name="reverb-app-key" content="{{ config('broadcasting.connections.reverb.client_options.key') }}">
+    <meta name="reverb-port" content="{{ config('broadcasting.connections.reverb.client_options.port') }}">
+    <meta name="reverb-scheme" content="{{ config('broadcasting.connections.reverb.client_options.scheme') }}">
 
     <title>{{ isset($title) ? $title . ' - ' : '' }}{{ StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
 
