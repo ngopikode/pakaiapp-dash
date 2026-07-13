@@ -17,7 +17,12 @@ trait ApiResponserTrait
         array  $headers = []
     ): JsonResponse
     {
-        if (isset($data['wrapper-v2']) && isset($data['headers']) && is_array($data['headers'])) {
+        // Auto-convert objects (e.g. Spatie Data) to array to prevent "Cannot use object as array" error
+        if (is_object($data) && method_exists($data, 'toArray')) {
+            $data = $data->toArray();
+        }
+
+        if (is_array($data) && isset($data['wrapper-v2']) && isset($data['headers']) && is_array($data['headers'])) {
             $headers = array_merge($headers, $data['headers']);
             $data = $data['records'];
         }
