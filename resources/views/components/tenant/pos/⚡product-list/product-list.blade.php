@@ -21,7 +21,9 @@
                     <i class="ph-fill ph-x-circle text-lg"></i>
                 </button>
             @else
-                <i class="ph-bold ph-command absolute right-5 top-1/2 -translate-y-1/2 text-lg text-emerald-800 dark:text-emerald-400"></i>
+                <button type="button" @click="$dispatch('toggle-desktop-cart')" class="absolute right-5 top-1/2 -translate-y-1/2 text-emerald-800 hover:text-emerald-900 transition dark:text-emerald-400 dark:hover:text-emerald-300 focus:outline-none" title="Tampilkan/Sembunyikan Keranjang">
+                    <i class="ph-bold ph-command text-lg"></i>
+                </button>
             @endif
         </div>
     </div>
@@ -30,7 +32,7 @@
         <button
             type="button"
             wire:click="$set('categoryFilter', 'all')"
-            class="group relative flex h-28 min-w-[150px] shrink-0 flex-col justify-between overflow-hidden rounded-[1.5rem] border px-4 py-3 text-left shadow-sm transition {{ $categoryFilter === 'all' ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-900 hover:border-emerald-800/40 dark:border-slate-800 dark:bg-slate-900 dark:text-white' }}"
+            class="group relative flex h-20 min-w-[150px] shrink-0 flex-col justify-between overflow-hidden rounded-[1.5rem] border px-4 py-2.5 text-left shadow-sm transition {{ $categoryFilter === 'all' ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-900 hover:border-emerald-800/40 dark:border-slate-800 dark:bg-slate-900 dark:text-white' }}"
         >
             <span
                 class="w-fit rounded-full border px-2.5 py-0.5 text-[10px] font-bold {{ $categoryFilter === 'all' ? 'border-white/70 text-white dark:border-slate-950/40 dark:text-slate-950' : 'border-emerald-800 text-emerald-800 dark:border-emerald-400 dark:text-emerald-400' }}">Available</span>
@@ -45,7 +47,7 @@
             <button
                 type="button"
                 wire:click="$set('categoryFilter', 'promo')"
-                class="group relative flex h-28 min-w-[150px] shrink-0 flex-col justify-between overflow-hidden rounded-[1.5rem] border px-4 py-3 text-left shadow-sm transition {{ $categoryFilter === 'promo' ? 'border-red-500 bg-red-500 text-white' : 'border-slate-200 bg-white text-slate-900 hover:border-red-400 dark:border-slate-800 dark:bg-slate-900 dark:text-white' }}"
+                class="group relative flex h-20 min-w-[150px] shrink-0 flex-col justify-between overflow-hidden rounded-[1.5rem] border px-4 py-2.5 text-left shadow-sm transition {{ $categoryFilter === 'promo' ? 'border-red-500 bg-red-500 text-white' : 'border-slate-200 bg-white text-slate-900 hover:border-red-400 dark:border-slate-800 dark:bg-slate-900 dark:text-white' }}"
             >
                 <span
                     class="w-fit rounded-full border px-2.5 py-0.5 text-[10px] font-bold {{ $categoryFilter === 'promo' ? 'border-white/70 text-white' : 'border-red-300 bg-red-50 text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400' }}">Promo</span>
@@ -61,7 +63,7 @@
             <button
                 type="button"
                 wire:click="$set('categoryFilter', '{{ $category->id }}')"
-                class="group relative flex h-28 min-w-[150px] shrink-0 flex-col justify-between overflow-hidden rounded-[1.5rem] border px-4 py-3 text-left shadow-sm transition {{ $categoryFilter == $category->id ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-900 hover:border-emerald-800/40 dark:border-slate-800 dark:bg-slate-900 dark:text-white' }}"
+                class="group relative flex h-20 min-w-[150px] shrink-0 flex-col justify-between overflow-hidden rounded-[1.5rem] border px-4 py-2.5 text-left shadow-sm transition {{ $categoryFilter == $category->id ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-900 hover:border-emerald-800/40 dark:border-slate-800 dark:bg-slate-900 dark:text-white' }}"
             >
                 <span
                     class="w-fit rounded-full border px-2.5 py-0.5 text-[10px] font-bold {{ $categoryFilter == $category->id ? 'border-white/70 text-white dark:border-slate-950/40 dark:text-slate-950' : 'border-slate-300 text-slate-600 dark:border-slate-700 dark:text-slate-300' }}">Available</span>
@@ -77,7 +79,7 @@
     <div id="tour-product-grid"
          class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div wire:loading wire:target="search, categoryFilter" class="w-full">
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            <div class="pos-product-grid">
                 @for($i = 0; $i < 8; $i++)
                     <div
                         class="rounded-[1.5rem] border border-emerald-800/20 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
@@ -92,7 +94,7 @@
         </div>
 
         <div wire:loading.remove wire:target="search, categoryFilter" class="w-full">
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            <div class="pos-product-grid">
                 @forelse($products as $product)
                     <div class="tour-product-item h-full">
                         <div

@@ -18,6 +18,7 @@
     @keydown.window="handleKeydown($event)"
     @open-mobile-cart.window="isMobileCartOpen = true"
     @close-mobile-cart.window="isMobileCartOpen = false"
+    @toggle-desktop-cart.window="isDesktopCartOpen = !isDesktopCartOpen"
     @force-cashier-tab.window="currentTab = 'cashier'"
     @pos-change-tab.window="if($event.detail === 'cashier' && isEditingOrder) window.location.href='/cashier'; else currentTab = $event.detail"
     @open-payment-modal.window="openPayForOrder($event.detail)"
@@ -53,16 +54,19 @@
         </div>
 
         {{-- Desktop cart (sidebar) --}}
-        <div class="hidden min-h-0 h-full w-full shrink-0 cart-mobile-wrapper lg:block lg:w-[390px] xl:w-[430px]">
-            @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes, 'isSheet' => false])
+        <div class="hidden lg:block shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+             :class="isDesktopCartOpen ? 'w-[390px] xl:w-[430px] opacity-100 translate-x-0' : 'w-0 opacity-0 translate-x-8'">
+            <div class="min-h-0 h-full w-[390px] xl:w-[430px] cart-mobile-wrapper">
+                @include('pages.tenant.pos.partials._cart-resto', ['orderTypes' => $restoOrderTypes, 'isSheet' => false])
+            </div>
         </div>
 
         {{-- Mobile bottom sheet overlay --}}
-        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029] lg:hidden" x-transition.opacity>
+        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopCartOpen}" x-transition.opacity>
             <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileCartOpen = false"></div>
 
             <div
-                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900"
+                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[450px] lg:mx-auto lg:rounded-[2rem]"
                 x-show="isMobileCartOpen"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="translate-y-full"
@@ -103,7 +107,8 @@
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
     <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
         <button
-            class="floating-cart-btn fixed bottom-5 left-1/2 z-[1030] flex w-[90%] -translate-x-1/2 items-center justify-between rounded-2xl bg-emerald-800 p-4 text-sm font-black text-white shadow-xl lg:hidden"
+            class="floating-cart-btn fixed bottom-5 left-1/2 z-[1030] flex w-[90%] max-w-[400px] -translate-x-1/2 items-center justify-between rounded-2xl bg-emerald-800 p-4 text-sm font-black text-white shadow-xl transition-all"
+            :class="{'lg:hidden': isDesktopCartOpen}"
             @click="isMobileCartOpen = true">
             <span><i class="ph-bold ph-shopping-cart me-2"></i>Lihat Keranjang (<span
                     x-text="cart.length"></span>)</span>
@@ -131,6 +136,7 @@
 
             cart: [],
             isMobileCartOpen: false,
+            isDesktopCartOpen: true,
 
             currentTab: config.currentTab,
 
