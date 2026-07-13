@@ -10,6 +10,7 @@ use App\Central\Services\DuitkuService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -517,6 +518,7 @@ new class extends Component {
         // Dispatch sebagai window event agar cancel-modal component bisa dengar
         $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
         $this->js("window.showIslandToast('Pesanan berhasil dibatalkan.', 'success');");
+        $this->js("\$wire.\$island('queue').\$refresh();");
     }
 
     public function splitOrder($orderId, $itemsToSplitData)
@@ -642,7 +644,8 @@ new class extends Component {
 
             // For resto-cashier, we want to open the payment modal automatically for the new order
             $this->js("bootstrap.Modal.getInstance(document.getElementById('splitBillModal'))?.hide();");
-            $this->js("window.showIslandToast('Pesanan berhasil dipisah.', 'success');");
+            $this->js("window.showIslandToast('Pesanan #{$order->invoice_code} berhasil disimpan.', 'success');");
+            $this->js("\$wire.\$island('queue').\$refresh();");
 
             // To auto-open payment modal, we can dispatch to Alpine
             $orderData = json_encode([
@@ -724,6 +727,7 @@ new class extends Component {
             });
 
             $this->js("window.showIslandToast('Pesanan berhasil digabungkan.', 'success');");
+            $this->js("\$wire.\$island('queue').\$refresh();");
 
             // Refresh current order if it was the target
             if ($this->existingOrder && $this->existingOrder->id == $targetOrderId) {
@@ -740,18 +744,16 @@ new class extends Component {
         Order::where('invoice_code', $invoiceCode)->update(['customer_phone' => $phone]);
     }
 
-    public function with(): array
+    #[On('echo:kitchen,.KitchenUpdated')]
+    public function onKitchenUpdated()
     {
-        $storeSetting = StoreSetting::first();
-        $orderTypes = [];
+        $this->js("\$wire.\$island('queue').\$refresh();");
+    }
 
-        if ($storeSetting?->is_dinein_active) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
-        if ($storeSetting?->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
-        if ($storeSetting?->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
-        if (empty($orderTypes)) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
-
-        // Ambil pesanan pending hari ini atau yang sedang diproses tapi belum lunas
-        $pendingOrders = Order::with('items')
+    #[Computed]
+    public function pendingOrders()
+    {
+        return Order::with('items')
             ->whereDate('created_at', today())
             ->where(function ($query) {
                 $query->where('status', 'pending')
@@ -762,10 +764,20 @@ new class extends Component {
             })
             ->orderByDesc('created_at')
             ->get();
+    }
+
+    public function with(): array
+    {
+        $storeSetting = StoreSetting::first();
+        $orderTypes = [];
+
+        if ($storeSetting?->is_dinein_active) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
+        if ($storeSetting?->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
+        if ($storeSetting?->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
+        if (empty($orderTypes)) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
 
         return [
             'restoOrderTypes' => $orderTypes,
-            'pendingOrders' => $pendingOrders,
             'isTaxActive' => isset($storeSetting->is_tax_active) ? (bool)$storeSetting->is_tax_active : true,
             'taxRate' => isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00,
             'isServiceChargeActive' => isset($storeSetting->is_service_charge_active) ? (bool)$storeSetting->is_service_charge_active : true,

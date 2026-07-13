@@ -27,7 +27,7 @@
                     <label class="form-label font-black text-slate-900 dark:text-white">Pilih Pesanan Sumber</label>
                     <select class="form-select rounded-2xl border-emerald-800/20 bg-white text-sm font-bold text-slate-900 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-white" x-model="mergeSourceId">
                         <option value="">-- Pilih Pesanan --</option>
-                        @foreach($pendingOrders as $po)
+                        @foreach($this->pendingOrders as $po)
                             @if($po->amount_paid == 0)
                                 <option value="{{ $po->id }}" x-show="mergeTargetId != {{ $po->id }}">
                                     {{ $po->invoice_code }} - {{ $po->customer_name ?: 'Pelanggan' }} 

@@ -20,7 +20,7 @@
     @close-mobile-cart.window="isMobileCartOpen = false"
     @toggle-desktop-cart.window="isDesktopCartOpen = !isDesktopCartOpen"
     @force-cashier-tab.window="currentTab = 'cashier'"
-    @pos-change-tab.window="if($event.detail === 'cashier' && isEditingOrder) window.location.href='/cashier'; else currentTab = $event.detail"
+    @pos-change-tab.window="if($event.detail === 'cashier' && isEditingOrder) window.location.href='/cashier'; else { currentTab = $event.detail; if(currentTab === 'queue') { $wire.$island('queue').$refresh() } }"
     @open-payment-modal.window="openPayForOrder($event.detail)"
     @start-editing-order.window="isEditingOrder = true; editInvoiceCode = $event.detail.invoice_code; customerName = $event.detail.customer; tableNumber = $event.detail.table; orderType = $event.detail.type"
     x-cloak>
@@ -85,23 +85,28 @@
 
     <div x-show="currentTab === 'queue'" wire:loading.class="hidden" wire:target="changeTab"
          class="h-full overflow-y-auto" x-transition.opacity.duration.150ms>
-        <div
-            class="sticky top-0 z-10 mb-4 flex items-center justify-between rounded-3xl border border-emerald-800/15 bg-white/90 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
-            <div>
-                <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Pesanan Ditahan</h5>
-                <p class="mb-0 text-xs font-semibold text-slate-500 dark:text-slate-400">Open bill yang belum
-                    selesai</p>
+        @island(name: 'queue')
+        <div wire:poll.15s>
+            <div
+                class="sticky top-0 z-10 mb-4 flex items-center justify-between rounded-3xl border border-emerald-800/15 bg-white/90 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
+                <div>
+                    <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Pesanan Ditahan</h5>
+                    <p class="mb-0 text-xs font-semibold text-slate-500 dark:text-slate-400">Open bill yang belum
+                        selesai</p>
+                </div>
+                <button type="button" wire:click="$refresh" wire:island="queue"
+                        class="rounded-full border border-emerald-800/20 bg-white px-4 py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-950 dark:text-emerald-400 dark:hover:bg-slate-800">
+                    <i class="ph-bold ph-arrows-clockwise" wire:loading.class="spinner-border spinner-border-sm"
+                       wire:target="$refresh"></i>
+                    <span wire:loading.remove wire:target="$refresh">Refresh</span>
+                    <span wire:loading wire:target="$refresh">Memuat...</span>
+                </button>
             </div>
-            <button type="button" wire:click="$refresh"
-                    class="rounded-full border border-emerald-800/20 bg-white px-4 py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-950 dark:text-emerald-400 dark:hover:bg-slate-800">
-                <i class="ph-bold ph-arrows-clockwise" wire:loading.class="spinner-border spinner-border-sm"
-                   wire:target="$refresh"></i>
-                <span wire:loading.remove wire:target="$refresh">Refresh</span>
-                <span wire:loading wire:target="$refresh">Memuat...</span>
-            </button>
-        </div>
 
-        @include('pages.tenant.pos.partials._queue-resto')
+            @include('pages.tenant.pos.partials._queue-resto')
+            @include('pages.tenant.pos.partials._modal-merge-resto')
+        </div>
+        @endisland
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
@@ -123,7 +128,6 @@
 
     @include('pages.tenant.pos.partials._modal-option')
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
-    @include('pages.tenant.pos.partials._modal-merge-resto')
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
@@ -512,6 +516,7 @@
                     const result = await this.$wire.createOrder(this.cart, this.customerName, this.tableNumber, this.orderType, this.isTaxActive, this.isServiceActive);
                     if (result && result.success) {
                         showIslandToast(this.isEditingOrder ? `Tambahan disimpan ke ${result.invoice_code}!` : `Pesanan ${result.invoice_code} berhasil dibuat!`, 'success');
+                        this.$wire.$island('queue').$refresh();
                         this.clearCart();
                         this.customerName = '';
                         this.tableNumber = '';
@@ -742,6 +747,7 @@
                         this.lastOrder = result;
                         this.isPaymentModalOpen = false;
                         this.payingOrder = null;
+                        this.$wire.$island('queue').$refresh();
                         if (isDirect) {
                             this.clearCart();
                             this.customerName = '';
@@ -786,6 +792,9 @@
                 if (e.key === 'F8') {
                     e.preventDefault();
                     this.currentTab = this.currentTab === 'cashier' ? 'queue' : 'cashier';
+                    if (this.currentTab === 'queue') {
+                        this.$wire.$island('queue').$refresh();
+                    }
                     this.$wire.changeTab(this.currentTab);
                     return;
                 }
