@@ -12,7 +12,7 @@
             class="xl:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors"
             type="button"
             @click="$dispatch('open-mobile-sidebar')">
-            <i class="ph-bold ph-list text-2xl"></i>
+            <i class="ph-bold ph-squares-four text-2xl"></i>
         </button>
         <span
             class="lg:hidden font-sans font-extrabold text-slate-900 dark:text-white truncate max-w-[150px] text-lg tracking-tight"
@@ -23,7 +23,7 @@
         <button
             class="hidden xl:block p-2.5 -ml-3 text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800/50 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors"
             @click="showDesktopSidebar = !showDesktopSidebar">
-            <i class="ph-bold ph-list text-[22px]"></i>
+            <i class="ph-bold ph-squares-four text-[22px]"></i>
         </button>
         @if($isPosNavbar)
             <div class="hidden min-w-0 flex-col leading-tight lg:flex"
@@ -56,7 +56,7 @@
                 <button type="button" @click="change('queue')"
                         class="relative rounded-full px-3 py-2 text-xs font-black transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 lg:px-4 lg:text-sm"
                         :class="tab === 'queue' ? 'bg-white text-emerald-800 shadow-sm dark:bg-slate-800 dark:text-emerald-400' : 'text-slate-600 hover:text-emerald-800 dark:text-slate-300 dark:hover:text-emerald-400'">
-                    Open Bill
+                    Pesanan
                     @if($this->pendingOrdersCount > 0)
                         <span
                             class="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">{{ $this->pendingOrdersCount }}</span>
