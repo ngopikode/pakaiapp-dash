@@ -77,6 +77,13 @@ log "📥 Menarik kode terbaru dari git (master)..."
 git pull --ff-only origin master
 
 # ==============================================================================
+# 3b. PERBAIKI PERMISSION (antisipasi file baru dari git dengan owner berbeda)
+# ==============================================================================
+log "🔐 Memastikan permission storage & bootstrap/cache..."
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+# ==============================================================================
 # 4. COMPOSER INSTALL
 # ==============================================================================
 log "📦 Install/update Composer dependencies (no-dev)..."
@@ -121,10 +128,22 @@ artisan queue:restart
 artisan reverb:restart
 
 # ==============================================================================
+# 9b. PASTIKAN STORAGE SYMLINK ADA
+# ==============================================================================
+log "🔗 Memastikan storage symlink ada (public/storage → storage/app/public)..."
+artisan storage:link --relative 2>/dev/null || true
+
+# ==============================================================================
 # 10. MATIKAN MAINTENANCE MODE
 # ==============================================================================
 log "✅ Mematikan maintenance mode..."
 artisan up
+
+# ==============================================================================
+# 10b. RELOAD PHP-FPM — flush OPcache agar kode baru langsung aktif di memori
+# ==============================================================================
+log "⚡ Mereload PHP-FPM (flush OPcache)..."
+sudo systemctl reload php8.3-fpm || log "⚠️  PHP-FPM reload gagal. Coba manual: sudo systemctl reload php8.3-fpm"
 
 # ==============================================================================
 # 11. CEK DEPLOY CONFIGS (Reverb, Queue, Nginx)
