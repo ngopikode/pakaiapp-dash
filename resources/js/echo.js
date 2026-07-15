@@ -31,6 +31,7 @@ if (echoEnabled) {
     mockEcho.listen = () => mockEcho;
     mockEcho.stopListening = () => mockEcho;
     mockEcho.leave = () => mockEcho;
+    mockEcho.socketId = () => '';
 
     window.Echo = mockEcho;
 }
