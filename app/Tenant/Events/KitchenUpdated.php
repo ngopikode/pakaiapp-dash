@@ -42,4 +42,14 @@ class KitchenUpdated implements ShouldBroadcastNow
     {
         return 'KitchenUpdated';
     }
+
+    /**
+     * Determine if this event should broadcast.
+     *
+     * @return bool
+     */
+    public function broadcastWhen(): bool
+    {
+        return !app()->environment('local');
+    }
 }
