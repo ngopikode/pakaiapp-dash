@@ -57,11 +57,12 @@ class TenantWalletService
      */
     private function processTransaction(string $type, float|int $amount, Model $reference, ?string $description = null): WalletTransaction
     {
-        return DB::transaction(function () use ($type, $amount, $reference, $description) {
-            $walletId = $this->getWallet()->id;
+        try {
+            DB::beginTransaction();
 
+            $expectedWalletId = $this->getWallet()->id;
             // Menggunakan lockForUpdate untuk mencegah Race Condition (Double Spend / Dirty Read)
-            $wallet = Wallet::where('id', $walletId)->lockForUpdate()->firstOrFail();
+            $wallet = Wallet::where('id', $expectedWalletId)->lockForUpdate()->firstOrFail();
 
             $openingBalance = (float)$wallet->balance;
             $transactionAmount = (float)$amount;
@@ -84,7 +85,7 @@ class TenantWalletService
             $wallet->save();
 
             // Catat riwayat ledger/mutasi mutlak ke tabel wallet_transactions
-            return $wallet->transactions()->create([
+            $transaction = $wallet->transactions()->create([
                 'type' => $type,
                 'amount' => $transactionAmount,
                 'opening_balance' => $openingBalance,
@@ -94,6 +95,13 @@ class TenantWalletService
                 'description' => $description,
                 'created_by' => auth()->id(),
             ]);
-        });
+
+            DB::commit();
+
+            return $transaction;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

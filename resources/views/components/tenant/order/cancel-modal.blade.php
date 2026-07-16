@@ -1,25 +1,22 @@
-<div class="modal fade" :class="{ 'show d-block': isOpen }" x-show="isOpen" style="background-color: rgba(0,0,0,0.5);" id="cancelOrderModal" tabindex="-1" aria-hidden="true"
-     x-data="{
+<div x-data="{
          orderId: null,
          note: '',
          customMode: false,
          isSubmitting: false,
          isOpen: false,
          reasons: [
-             'Pelanggan tidak jadi / berubah pikiran',
-             'Uang pembayaran tidak cukup',
-             'Stok bahan baku/produk habis',
-             'Kesalahan input oleh kasir',
-             'Waktu tunggu pesanan terlalu lama'
+             'Pelanggan berubah pikiran',
+             'Pembayaran tidak cukup',
+             'Stok bahan/produk habis',
+             'Kesalahan input kasir',
+             'Waktu tunggu terlalu lama'
          ],
-
          init() {
              window.addEventListener('close-cancel-modal', () => {
                  this.isSubmitting = false;
                  this.isOpen = false;
              });
          },
-
          openModal(orderId) {
              this.orderId = orderId;
              this.note = '';
@@ -27,13 +24,12 @@
              this.isSubmitting = false;
              this.isOpen = true;
          },
-
          confirmCancel() {
              if (!this.note.trim()) {
                  if (typeof showIslandToast !== 'undefined') {
-                     showIslandToast('Silakan pilih atau isi alasan pembatalan!', 'warning');
+                     showIslandToast('Pilih atau ketik alasan pembatalan!', 'warning');
                  } else {
-                     alert('Silakan pilih atau isi alasan pembatalan!');
+                     alert('Pilih atau ketik alasan pembatalan!');
                  }
                  return;
              }
@@ -41,63 +37,112 @@
              this.$dispatch('cancel-confirmed', { orderId: this.orderId, note: this.note });
          }
      }"
-     @open-cancel-modal.window="openModal($event.detail.orderId)">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg bg-body text-body"
-             style="border-radius: 1.25rem; border: 1px solid var(--bs-border-color-translucent) !important;">
+     @open-cancel-modal.window="openModal($event.detail.orderId)"
+     x-show="isOpen"
+     style="display: none;"
+     class="relative z-[9999]"
+     aria-labelledby="modal-title"
+     role="dialog"
+     aria-modal="true">
 
-            {{-- Header Modal - Menggunakan merah transparan agar tetap terlihat alert di mode gelap --}}
-            <div class="modal-header border-bottom-0 p-4" style="background: rgba(220, 53, 69, 0.1);">
-                <h5 class="modal-title fw-bold text-danger">
-                    <i class="ph-fill ph-warning text-xl me-2"></i>Batalkan Pesanan
-                </h5>
-                <button type="button" class="btn-close shadow-none" @click="isOpen = false" aria-label="Close"></button>
-            </div>
+    <!-- Backdrop -->
+    <div x-show="isOpen"
+         x-transition:enter="ease-out duration-150"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-100"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-background/80 backdrop-blur-md transition-opacity"></div>
 
-            <div class="modal-body p-4 bg-body">
-                <p class="text-secondary small mb-4 fw-medium opacity-75">Silakan pilih alasan pembatalan pesanan ini.
-                    Aksi ini bersifat permanen dan stok akan dikembalikan ke inventaris.</p>
+    <!-- Modal Container -->
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            
+            <!-- Modal Panel -->
+            <div x-show="isOpen"
+                 x-transition:enter="ease-out duration-150"
+                 x-transition:enter-start="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-100"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+                 class="relative transform overflow-hidden rounded-[24px] bg-card border border-border shadow-2xl transition-all sm:my-8 w-full max-w-[420px] flex flex-col p-6 sm:p-8">
+                
+                <!-- Icon Header -->
+                <div class="mx-auto flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-destructive/10 ring-8 ring-destructive/5 mb-6">
+                    <i class="ph-fill ph-warning-circle text-3xl text-destructive"></i>
+                </div>
 
-                <div class="d-flex flex-column gap-2 mb-3">
+                <!-- Text Header -->
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-extrabold text-foreground tracking-tight mb-2" id="modal-title">Batalkan Pesanan?</h3>
+                    <p class="text-sm text-muted-foreground font-medium px-2">
+                        Aksi ini tidak dapat dikembalikan. Stok akan dipulihkan secara otomatis.
+                    </p>
+                </div>
+
+                <!-- Reasons Options -->
+                <div class="flex flex-col gap-2.5 mb-6">
                     <template x-for="reason in reasons" :key="reason">
-                        <button type="button" @click="note = reason; customMode = false"
-                                :class="note === reason && !customMode ? 'btn-danger shadow-sm text-white' : 'btn-outline-secondary bg-body-tertiary text-body'"
-                                class="btn text-start rounded-3 fw-medium px-3 py-2 transition-all border"
-                                style="border-color: var(--bs-border-color-translucent) !important;">
-                            <i class="ph-fill ph-check-circle text-lg me-2" x-show="note === reason && !customMode"></i>
-                            <i class="ph-bold ph-circle text-lg me-2" x-show="note !== reason || customMode"></i>
-                            <span x-text="reason"></span>
-                        </button>
+                        <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3.5 transition-all duration-200 group"
+                               :class="note === reason && !customMode ? 'border-destructive bg-destructive/5 shadow-sm' : 'border-transparent bg-secondary/60 hover:bg-secondary'">
+                            <input type="radio" name="cancel_reason" :value="reason" class="peer sr-only" @click="note = reason; customMode = false">
+                            
+                            <!-- Custom Radio Box -->
+                            <div class="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors"
+                                 :class="note === reason && !customMode ? 'border-destructive bg-destructive' : 'border-muted-foreground/30 bg-background group-hover:border-muted-foreground/50'">
+                                <i class="ph-bold ph-check text-xs text-white scale-0 transition-transform"
+                                   :class="note === reason && !customMode ? 'scale-100' : 'scale-0'"></i>
+                            </div>
+                            
+                            <span class="text-[14px] font-semibold transition-colors"
+                                  :class="note === reason && !customMode ? 'text-destructive' : 'text-foreground'">
+                                <span x-text="reason"></span>
+                            </span>
+                        </label>
                     </template>
 
-                    <button type="button" @click="customMode = true; note = ''"
-                            :class="customMode ? 'btn-danger shadow-sm text-white' : 'btn-outline-secondary bg-body-tertiary text-body'"
-                            class="btn text-start rounded-3 fw-medium px-3 py-2 transition-all border"
-                            style="border-color: var(--bs-border-color-translucent) !important;">
-                        <i class="ph-fill ph-pencil text-lg me-2" x-show="customMode"></i>
-                        <i class="ph-bold ph-circle text-lg me-2" x-show="!customMode"></i>
-                        Alasan Lainnya...
-                    </button>
+                    <!-- Custom Option -->
+                    <label class="relative flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3.5 transition-all duration-200 group"
+                           :class="customMode ? 'border-destructive bg-destructive/5 shadow-sm' : 'border-transparent bg-secondary/60 hover:bg-secondary'">
+                        <input type="radio" name="cancel_reason" value="custom" class="peer sr-only" @click="customMode = true; note = ''">
+                        
+                        <!-- Custom Radio Box -->
+                        <div class="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors"
+                             :class="customMode ? 'border-destructive bg-destructive' : 'border-muted-foreground/30 bg-background group-hover:border-muted-foreground/50'">
+                            <i class="ph-bold ph-check text-xs text-white scale-0 transition-transform"
+                               :class="customMode ? 'scale-100' : 'scale-0'"></i>
+                        </div>
+                        
+                        <span class="text-[14px] font-semibold transition-colors"
+                              :class="customMode ? 'text-destructive' : 'text-foreground'">
+                            Alasan Lainnya...
+                        </span>
+                    </label>
                 </div>
 
-                <div x-show="customMode" x-collapse x-cloak>
+                <!-- Custom Textarea (Animated) -->
+                <div x-show="customMode" x-collapse x-cloak class="mb-6">
                     <textarea x-model="note"
-                              class="form-control rounded-3 mt-2 border-danger border-opacity-25 shadow-sm bg-body-tertiary text-body"
+                              class="w-full rounded-2xl border-2 border-transparent bg-secondary/60 px-4 py-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 transition-all outline-none resize-none focus:border-destructive/30 focus:bg-background focus:ring-4 focus:ring-destructive/10"
                               rows="3"
-                              placeholder="Ketik alasan pembatalan di sini..."></textarea>
+                              placeholder="Ketik alasan pembatalan..."></textarea>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top"
-                     style="border-color: var(--bs-border-color-translucent) !important;">
-                    <button type="button" class="btn btn-secondary border bg-body text-body fw-bold px-4 rounded-3"
-                            @click="isOpen = false">Kembali
+                <!-- Action Buttons -->
+                <div class="flex gap-3 w-full">
+                    <button type="button" @click="isOpen = false"
+                            class="flex-1 rounded-2xl bg-secondary/50 px-4 py-3.5 text-[14px] font-bold text-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                        Batal
                     </button>
-                    <button type="button" @click="confirmCancel()"
-                            class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm d-flex align-items-center gap-2 text-white">
-                        <span x-show="!isSubmitting">Batalkan Sekarang</span>
-                        <span x-show="isSubmitting" class="spinner-border spinner-border-sm"></span>
+                    <button type="button" @click="confirmCancel()" :disabled="isSubmitting"
+                            class="flex-[2] flex items-center justify-center gap-2 rounded-2xl bg-destructive px-4 py-3.5 text-[14px] font-bold text-destructive-foreground shadow-lg shadow-destructive/20 transition-all hover:bg-destructive/90 active:scale-[0.98]">
+                        <span x-show="!isSubmitting">Batalkan Pesanan</span>
+                        <i x-show="isSubmitting" class="ph-bold ph-spinner animate-spin text-lg"></i>
                     </button>
                 </div>
+
             </div>
         </div>
     </div>

@@ -3,6 +3,7 @@
 namespace App\Central\Services;
 
 use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Services\SettingService;
 use App\Tenant\Services\TenantWalletService;
 use Illuminate\Support\Facades\DB;
@@ -11,12 +12,42 @@ use Throwable;
 
 class BillingService
 {
-    private TenantWalletService $walletService;
+    protected ?SettingService $settingService = null;
 
-    public function __construct(TenantWalletService $walletService)
+    public function __construct(protected readonly TenantWalletService $walletService)
     {
-        $this->walletService = $walletService;
     }
+
+    protected function settingService(): SettingService
+    {
+        return $this->settingService ??= app(SettingService::class);
+    }
+
+    /**
+     * Locks the wallet for update and resets monthly counters if the billing period has changed.
+     */
+    private function lockAndPrepareWallet(): Wallet
+    {
+        // Optimization: lock immediately during the first fetch to avoid 2 separate queries
+        $wallet = Wallet::lockForUpdate()->firstOrCreate(
+            ['id' => 1],
+            ['balance' => 0]
+        );
+
+        $currentMonth = date('Y-m');
+
+        if (
+            $wallet->current_billing_period !== $currentMonth
+        ) $wallet->fill([
+            'current_billing_period' => $currentMonth,
+            'monthly_transaction_count' => 0,
+            'monthly_fee_paid' => 0.0,
+            'monthly_void_count' => 0,
+        ]);
+
+        return $wallet;
+    }
+
 
     /**
      * Charge the transaction fee according to the Pay-As-You-Go capping logic.
@@ -26,75 +57,56 @@ class BillingService
      */
     public function chargeTransactionFee(Order $order): void
     {
-        // 1. Transaction value must be >= Rp 1.000 to count towards capping or fee.
-        if ($order->total_price < 1000) {
-            return;
-        }
+        $currentTenant = tenant();
 
-        DB::transaction(function () use ($order) {
-            $wallet = $this->walletService->getWallet();
-            $wallet = DB::table('wallets')->where('id', $wallet->id)->lockForUpdate()->first();
+        $settings = $this->settingService()->getMany([
+            'min_trx_amount' => 1000,
+            'trx_fee' => 300,
+            'fup_limit' => 5000,
+            'capping_limit' => 150000,
+        ], $currentTenant);
 
-            $currentMonth = date('Y-m');
+        // Transaction value must be >= minimum threshold to count towards capping or fee.
+        if ($order->total_price < $settings['min_trx_amount']) return;
 
-            $monthlyTransactionCount = $wallet->monthly_transaction_count;
-            $monthlyFeePaid = (float)$wallet->monthly_fee_paid;
-            $monthlyVoidCount = $wallet->monthly_void_count;
+        $trxFee = $settings['trx_fee'];
+        $fupLimit = $settings['fup_limit'];
+        $cappingLimit = $settings['capping_limit'];
 
-            // Reset counters if billing period changed
-            if ($wallet->current_billing_period !== $currentMonth) {
-                $monthlyTransactionCount = 0;
-                $monthlyFeePaid = 0.0;
-                $monthlyVoidCount = 0;
+        try {
+            DB::beginTransaction();
 
-                DB::table('wallets')->where('id', $wallet->id)->update([
-                    'current_billing_period' => $currentMonth,
-                    'monthly_transaction_count' => 0,
-                    'monthly_fee_paid' => 0,
-                    'monthly_void_count' => 0,
-                ]);
-            }
+            $wallet = $this->lockAndPrepareWallet();
 
-            $currentTenant = tenant();
-            $settingService = app(SettingService::class);
+            $isCapped = $wallet->monthly_fee_paid >= $cappingLimit;
+            $isUnderFup = $wallet->monthly_transaction_count < $fupLimit;
 
-            $trxFee = $settingService->get('trx_fee', $currentTenant, 300);
-            $fupLimit = $settingService->get('fup_limit', $currentTenant, 5000);
-            $cappingLimit = $settingService->get('capping_limit', $currentTenant, 150000);
+            $feeToCharge = ($isCapped && $isUnderFup) ? 0 : $trxFee;
 
-            $feeToCharge = $trxFee;
+            $updateData = ['monthly_transaction_count' => $wallet->monthly_transaction_count + 1];
 
-            // FUP limit check
-            if ($monthlyTransactionCount >= $fupLimit) {
-                $feeToCharge = $trxFee; // Charge small fee again after FUP
-            } else if ($monthlyFeePaid >= $cappingLimit) {
-                // Capping hit! Free transaction.
-                $feeToCharge = 0;
-            }
+            if ($feeToCharge > 0) $updateData['monthly_fee_paid'] = $wallet->monthly_fee_paid + $feeToCharge;
 
-            if ($feeToCharge > 0) {
-                $this->walletService->deductBalance(
-                    $feeToCharge,
-                    $order,
-                    "Biaya layanan pakaiapp untuk pesanan {$order->invoice_code}"
-                );
-                $monthlyFeePaid += $feeToCharge;
-            }
+            // Save counters FIRST before calling other services to prevent stale reads/deadlocks
+            $wallet->update($updateData);
 
-            $monthlyTransactionCount++;
+            if ($feeToCharge > 0) $this->walletService->deductBalance(
+                amount: $feeToCharge,
+                reference: $order,
+                description: "Biaya layanan pakaiapp untuk pesanan $order->invoice_code"
+            );
 
-            // Update the stats
-            DB::table('wallets')->where('id', $wallet->id)->update([
-                'monthly_transaction_count' => $monthlyTransactionCount,
-                'monthly_fee_paid' => $monthlyFeePaid,
-            ]);
-
-            Log::info("[BillingService] Charged fee for order {$order->invoice_code}", [
+            Log::info("[BillingService] Charged fee for order $order->invoice_code", [
                 'fee_charged' => $feeToCharge,
-                'monthly_fee_paid' => $monthlyFeePaid,
-                'monthly_tx_count' => $monthlyTransactionCount,
+                'monthly_fee_paid' => $wallet->monthly_fee_paid,
+                'monthly_tx_count' => $wallet->monthly_transaction_count,
             ]);
-        });
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -105,54 +117,48 @@ class BillingService
      */
     public function processVoidPenalty(Order $order): void
     {
-        DB::transaction(function () use ($order) {
-            $wallet = $this->walletService->getWallet();
-            $wallet = DB::table('wallets')->where('id', $wallet->id)->lockForUpdate()->first();
+        $currentTenant = tenant();
 
-            $currentMonth = date('Y-m');
-            $monthlyTransactionCount = $wallet->monthly_transaction_count;
-            $monthlyFeePaid = (float)$wallet->monthly_fee_paid;
-            $monthlyVoidCount = $wallet->monthly_void_count;
+        $settings = $this->settingService()->getMany([
+            'void_allowance_percentage' => 0.05,
+            'min_free_voids' => 10,
+            'void_penalty_fee' => 300,
+        ], $currentTenant);
 
-            if ($wallet->current_billing_period !== $currentMonth) {
-                // Ignore penalty if it's the first void of the month
-                DB::table('wallets')->where('id', $wallet->id)->update([
-                    'current_billing_period' => $currentMonth,
-                    'monthly_transaction_count' => 0,
-                    'monthly_fee_paid' => 0,
-                    'monthly_void_count' => 1,
-                ]);
-                return;
-            }
+        $voidAllowance = $settings['void_allowance_percentage'];
+        $minFreeVoids = $settings['min_free_voids'];
+        $voidPenaltyFee = $settings['void_penalty_fee'];
 
-            $monthlyVoidCount++;
+        try {
+            DB::beginTransaction();
 
-            $currentTenant = tenant();
-            $settingService = app(SettingService::class);
+            $wallet = $this->lockAndPrepareWallet();
 
-            $voidAllowance = $settingService->get('void_allowance_percentage', $currentTenant, 0.05);
-            $minFreeVoids = $settingService->get('min_free_voids', $currentTenant, 10);
-            $voidPenaltyFee = $settingService->get('void_penalty_fee', $currentTenant, 300);
+            // Save counters FIRST before calling other services
+            $wallet->update(['monthly_void_count' => $wallet->monthly_void_count + 1]);
 
             // Allow % voids, minimum of X free voids
-            $allowedVoids = max($minFreeVoids, $monthlyTransactionCount * $voidAllowance);
+            $allowedVoids = max($minFreeVoids, $wallet->monthly_transaction_count * $voidAllowance);
 
-            if ($monthlyVoidCount > $allowedVoids) {
-                $this->walletService->deductBalance(
-                    $voidPenaltyFee,
-                    $order,
-                    "Penalti void berlebih untuk pesanan {$order->invoice_code}"
+            if ($wallet->monthly_void_count > $allowedVoids) {
+                if (
+                    $voidPenaltyFee > 0
+                ) $this->walletService->deductBalance(
+                    amount: $voidPenaltyFee,
+                    reference: $order,
+                    description: "Penalti void berlebih untuk pesanan $order->invoice_code"
                 );
 
-                Log::info("[BillingService] Charged penalty for voided order {$order->invoice_code}", [
-                    'void_count' => $monthlyVoidCount,
+                Log::info("[BillingService] Charged penalty for voided order $order->invoice_code", [
+                    'void_count' => $wallet->monthly_void_count,
                     'allowed' => $allowedVoids
                 ]);
             }
 
-            DB::table('wallets')->where('id', $wallet->id)->update([
-                'monthly_void_count' => $monthlyVoidCount,
-            ]);
-        });
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

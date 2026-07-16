@@ -18,7 +18,7 @@
     @keydown.window="handleKeydown($event)"
     @open-mobile-cart.window="isMobileCartOpen = true"
     @close-mobile-cart.window="isMobileCartOpen = false"
-    @toggle-desktop-cart.window="isDesktopCartOpen = !isDesktopCartOpen"
+    @toggle-desktop-cart.window="isDesktopCartOpen = !isDesktopCartOpen; isDesktopQueueDetailOpen = isDesktopCartOpen"
     @force-cashier-tab.window="currentTab = 'cashier'"
     @pos-change-tab.window="if($event.detail === 'cashier' && isEditingOrder) window.location.href='/cashier'; else { currentTab = $event.detail; if(currentTab === 'queue') { $wire.$island('queue').$refresh() } }"
     @open-payment-modal.window="openPayForOrder($event.detail)"
@@ -35,18 +35,7 @@
         };
     </script>
 
-    <div wire:loading.flex wire:target="changeTab"
-         class="fixed inset-0 z-[9999] items-center justify-center bg-white/60 backdrop-blur-md dark:bg-slate-950/70">
-        <div
-            class="rounded-3xl border border-emerald-200 bg-white px-6 py-5 text-center shadow-xl dark:border-slate-800 dark:bg-slate-900">
-            <div
-                class="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-700 dark:border-slate-800 dark:border-t-emerald-400"></div>
-            <div class="text-sm font-black text-slate-900 dark:text-white">Sinkronisasi...</div>
-            <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Mengambil data terbaru</div>
-        </div>
-    </div>
-
-    <div x-show="currentTab === 'cashier'" wire:loading.class="hidden" wire:target="changeTab"
+    <div x-show="currentTab === 'cashier'"
          class="flex h-full min-h-0 flex-col gap-5 overflow-hidden lg:flex-row" x-transition.opacity.duration.150ms>
         {{-- Product list — always fills viewport --}}
         <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
@@ -62,7 +51,8 @@
         </div>
 
         {{-- Mobile bottom sheet overlay --}}
-        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopCartOpen}" x-transition.opacity>
+        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopCartOpen}"
+             x-transition.opacity>
             <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileCartOpen = false"></div>
 
             <div
@@ -83,30 +73,52 @@
         </div>
     </div>
 
-    <div x-show="currentTab === 'queue'" wire:loading.class="hidden" wire:target="changeTab"
-         class="h-full overflow-y-auto" x-transition.opacity.duration.150ms>
-        @island(name: 'queue')
-        <div wire:poll.15s>
-            <div
-                class="sticky top-0 z-10 mb-4 flex items-center justify-between rounded-3xl border border-emerald-800/15 bg-white/90 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
-                <div>
-                    <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Pesanan Ditahan</h5>
-                    <p class="mb-0 text-xs font-semibold text-slate-500 dark:text-slate-400">Open bill yang belum
-                        selesai</p>
+    <div x-show="currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden" x-transition.opacity.duration.150ms>
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden relative">
+            @island(name: 'queue')
+            <div x-data="{ activeFilter: 'all', searchQuery: '' }" class="h-full flex flex-col min-h-0 w-full">
+                @include('pages.tenant.pos.partials._queue-header-resto')
+                
+                <div class="flex flex-1 min-h-0 overflow-hidden gap-5 lg:flex-row">
+                    <div class="flex-1 overflow-y-auto min-h-0 relative pr-1">
+                        @include('pages.tenant.pos.partials._queue-resto')
+                    </div>
+                    
+                    {{-- Desktop queue detail (sidebar) --}}
+                    <div wire:ignore class="hidden lg:block shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+                         :class="isDesktopQueueDetailOpen && selectedQueueOrder ? 'w-[390px] xl:w-[430px] opacity-100 translate-x-0' : 'w-0 opacity-0 translate-x-8'">
+                        <div class="min-h-0 h-full w-[390px] xl:w-[430px] cart-mobile-wrapper pb-1">
+                            @include('pages.tenant.pos.partials._queue-detail-resto', ['isSheet' => false])
+                        </div>
+                    </div>
                 </div>
-                <button type="button" wire:click="$refresh" wire:island="queue"
-                        class="rounded-full border border-emerald-800/20 bg-white px-4 py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-950 dark:text-emerald-400 dark:hover:bg-slate-800">
-                    <i class="ph-bold ph-arrows-clockwise" wire:loading.class="spinner-border spinner-border-sm"
-                       wire:target="$refresh"></i>
-                    <span wire:loading.remove wire:target="$refresh">Refresh</span>
-                    <span wire:loading wire:target="$refresh">Memuat...</span>
-                </button>
-            </div>
 
-            @include('pages.tenant.pos.partials._queue-resto')
-            @include('pages.tenant.pos.partials._modal-merge-resto')
+                @include('pages.tenant.pos.partials._modal-merge-resto')
+            </div>
+            @endisland
         </div>
-        @endisland
+
+        {{-- Mobile queue detail bottom sheet --}}
+        <div x-show="isMobileQueueDetailOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopQueueDetailOpen}"
+             x-transition.opacity>
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileQueueDetailOpen = false"></div>
+
+            <div
+                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[450px] lg:mx-auto lg:rounded-[2rem]"
+                x-show="isMobileQueueDetailOpen"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="translate-y-full"
+                x-transition:enter-end="translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="translate-y-0"
+                x-transition:leave-end="translate-y-full">
+                {{-- Drag handle --}}
+                <div class="flex shrink-0 justify-center pt-3 pb-1">
+                    <div class="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                </div>
+                @include('pages.tenant.pos.partials._queue-detail-resto', ['isSheet' => true])
+            </div>
+        </div>
     </div>
 
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
@@ -130,7 +142,7 @@
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
 
     {{-- Cancel Modal Component --}}
-    <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
+    <div>
         <x-tenant.order.cancel-modal/>
     </div>
 
@@ -141,6 +153,9 @@
             cart: [],
             isMobileCartOpen: false,
             isDesktopCartOpen: true,
+            isMobileQueueDetailOpen: false,
+            isDesktopQueueDetailOpen: true,
+            selectedQueueOrder: null,
 
             currentTab: config.currentTab,
 
@@ -202,6 +217,15 @@
 
             init() {
                 this.$watch('cart', () => this.validateStock(), {deep: true});
+            },
+
+            openQueueDetail(order) {
+                this.selectedQueueOrder = order;
+                if (window.innerWidth < 1024) {
+                    this.isMobileQueueDetailOpen = true;
+                } else {
+                    this.isDesktopQueueDetailOpen = true;
+                }
             },
 
             splittingOrder: null,

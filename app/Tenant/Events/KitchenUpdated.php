@@ -4,8 +4,6 @@ namespace App\Tenant\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -50,6 +48,6 @@ class KitchenUpdated implements ShouldBroadcastNow
      */
     public function broadcastWhen(): bool
     {
-        return !app()->environment('local');
+        return config('broadcasting.connections.reverb.client.enabled');
     }
 }

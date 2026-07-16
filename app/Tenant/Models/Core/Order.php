@@ -5,7 +5,6 @@ namespace App\Tenant\Models\Core;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Tenant\Models\Core\ProductVariant;
 
 class Order extends Model
 {
@@ -99,7 +98,7 @@ class Order extends Model
 
     /**
      * Restore stock for all items in this order.
-     * Used when an order is cancelled, failed, or underpaid.
+     * Used when an order is canceled, failed, or underpaid.
      */
     public function restoreStock(): void
     {
@@ -115,7 +114,7 @@ class Order extends Model
             if (!empty($variantIds)) {
                 $variantsToRestore = ProductVariant::with('recipes.rawMaterial')->whereIn('id', $variantIds)->get();
                 $storeType = tenant('store_type');
-                
+
                 foreach ($variantsToRestore as $variantToRestore) {
                     $variantToRestore->increment('stock', $item->quantity);
 

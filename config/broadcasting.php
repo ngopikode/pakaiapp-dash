@@ -45,6 +45,7 @@ return [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
             ],
             'client' => [
+                'enabled' => env('VITE_REVERB_CLIENT_ENABLED', env('APP_ENV') == 'production'),
                 'key' => env('VITE_REVERB_APP_KEY'),
                 'port' => env('VITE_REVERB_PORT', 80),
                 'scheme' => env('VITE_REVERB_SCHEME', 'https'),

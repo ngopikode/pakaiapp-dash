@@ -36,8 +36,12 @@ new class extends Component {
     }
 
     #[On('cancel-confirmed')]
-    public function handleCancelConfirmed($orderId, $note): void
+    public function handleCancelConfirmed($orderId, $note = null): void
     {
+        if (is_array($orderId)) {
+            $note = $orderId['note'] ?? $note;
+            $orderId = $orderId['orderId'] ?? null;
+        }
         $this->updateStatus($orderId, 'cancelled', $note);
     }
 

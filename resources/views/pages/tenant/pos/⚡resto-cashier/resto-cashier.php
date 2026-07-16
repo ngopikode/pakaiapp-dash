@@ -1,15 +1,13 @@
 <?php
 
-use App\Tenant\Models\Core\Order;
-use App\Tenant\Models\Core\OrderItem;
-use App\Tenant\Models\Core\ProductVariant;
-use App\Tenant\Models\Core\StoreSetting;
-use App\Tenant\Services\TenantWalletService;
 use App\Central\Services\BillingService;
-use App\Central\Services\DuitkuService;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Tenant\Data\CheckoutData;
+use App\Tenant\Data\CreateOrderData;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\OrderService;
+use App\Tenant\Services\PaymentGatewayService;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -18,13 +16,34 @@ new class extends Component {
 
     public string $activeTab = 'cashier';
     public ?int $addToOrder = null;
-
     public ?Order $existingOrder = null;
 
-    // Tarif potong kredit per transaksi sukses
-    private int $feePerTransaction = 300;
+    protected ?OrderService $orderService = null;
+    protected ?PaymentGatewayService $paymentGatewayService = null;
+    protected ?BillingService $billingService = null;
 
-    public function changeTab($tab)
+    protected function orderService(): OrderService
+    {
+        return $this->orderService ??= app(OrderService::class);
+    }
+
+    protected function paymentGatewayService(): PaymentGatewayService
+    {
+        return $this->paymentGatewayService ??= app(PaymentGatewayService::class);
+    }
+
+    protected function billingService(): BillingService
+    {
+        return $this->billingService ??= app(BillingService::class);
+    }
+
+    private function isOrderEditable(Order $order): bool
+    {
+        return $order->status === 'pending' ||
+            ($order->status === 'progress' && $order->amount_paid < $order->total_price);
+    }
+
+    public function changeTab($tab): void
     {
         $this->activeTab = $tab;
     }
@@ -34,15 +53,9 @@ new class extends Component {
         $this->addToOrder = $addToOrder;
         if ($this->addToOrder) {
             $this->existingOrder = Order::find($this->addToOrder);
-            // Allow editing if it's pending OR if it's progress but not fully paid
-            if ($this->existingOrder) {
-                $isEditable = $this->existingOrder->status === 'pending' ||
-                             ($this->existingOrder->status === 'progress' && $this->existingOrder->amount_paid < $this->existingOrder->total_price);
-
-                if (!$isEditable) {
-                    $this->addToOrder = null;
-                    $this->existingOrder = null;
-                }
+            if ($this->existingOrder && !$this->isOrderEditable($this->existingOrder)) {
+                $this->addToOrder = null;
+                $this->existingOrder = null;
             }
         }
     }
@@ -52,25 +65,23 @@ new class extends Component {
         $this->addToOrder = $orderId;
         $this->existingOrder = Order::find($orderId);
 
-        if ($this->existingOrder) {
-            $isEditable = $this->existingOrder->status === 'pending' ||
-                         ($this->existingOrder->status === 'progress' && $this->existingOrder->amount_paid < $this->existingOrder->total_price);
-
-            if (!$isEditable) {
-                $this->addToOrder = null;
-                $this->existingOrder = null;
-                $this->js("window.showIslandToast('Pesanan tidak dapat diedit.', 'danger');");
-                return;
-            }
+        if ($this->existingOrder && !$this->isOrderEditable($this->existingOrder)) {
+            $this->addToOrder = null;
+            $this->existingOrder = null;
+            $this->js("window.showIslandToast('Pesanan tidak dapat diedit.', 'danger');");
+            return;
         }
 
         $this->activeTab = 'cashier';
-        $customer = addslashes($this->existingOrder->customer_name ?? '');
-        $table = addslashes($this->existingOrder->table_number ?? $this->existingOrder->notes ?? '');
-        $type = addslashes($this->existingOrder->order_type ?? '');
-        $invoice = addslashes($this->existingOrder->invoice_code ?? '');
 
-        $this->js("window.dispatchEvent(new CustomEvent('start-editing-order', { detail: { invoice_code: '{$invoice}', customer: '{$customer}', table: '{$table}', type: '{$type}' } }));");
+        $detailJson = json_encode([
+            'invoice_code' => $this->existingOrder->invoice_code ?? '',
+            'customer' => $this->existingOrder->customer_name ?? '',
+            'table' => $this->existingOrder->table_number ?? $this->existingOrder->notes ?? '',
+            'type' => $this->existingOrder->order_type ?? ''
+        ], JSON_THROW_ON_ERROR);
+
+        $this->js("window.dispatchEvent(new CustomEvent('start-editing-order', { detail: $detailJson }));");
     }
 
     public function cancelEditOrder(): void
@@ -82,591 +93,201 @@ new class extends Component {
     public function voidItem($orderItemId): void
     {
         try {
-            DB::transaction(function () use ($orderItemId) {
-                $item = OrderItem::with('order')->lockForUpdate()->find($orderItemId);
-                if (!$item) {
-                    throw new Exception("Item tidak ditemukan.");
-                }
+            $order = $this->orderService()->voidItem($orderItemId);
 
-                $order = $item->order;
-                if (!$order || in_array($order->status, ['completed', 'cancelled'])) {
-                    throw new Exception("Pesanan sudah selesai atau dibatalkan, tidak bisa void.");
-                }
+            if (
+                $this->existingOrder && $this->existingOrder->id === $order->id
+            ) $this->existingOrder->refresh();
 
-                if (in_array($item->kitchen_status, ['processing', 'ready', 'completed'])) {
-                    throw new Exception("Item sedang/sudah diproses oleh dapur dan tidak bisa dibatalkan.");
-                }
-
-                // Increment stock
-                if ($item->variant_id) {
-                    $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item->variant_id);
-                    if ($variant) {
-                        $variant->increment('stock', $item->quantity);
-
-                        if (tenant('store_type') === 'resto') {
-                            foreach ($variant->recipes as $recipe) {
-                                if ($recipe->rawMaterial) {
-                                    $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Delete item
-                $subtotalToDeduct = $item->subtotal;
-                $item->delete();
-
-                // Recalculate order totals
-                $taxRate = (float)$order->tax_percentage;
-                $serviceRate = (float)$order->service_charge_percentage;
-
-                $newSubtotal = max(0, $order->subtotal - $subtotalToDeduct);
-                $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
-                $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
-                $newTotalPrice = max(0, $newSubtotal + $newServiceCharge + $newTaxAmount - $order->discount);
-
-                $order->update([
-                    'subtotal' => $newSubtotal,
-                    'service_charge_amount' => $newServiceCharge,
-                    'tax_amount' => $newTaxAmount,
-                    'total_price' => $newTotalPrice,
-                ]);
-
-                // Refresh existing order
-                if ($this->existingOrder && $this->existingOrder->id === $order->id) {
-                    $this->existingOrder->refresh();
-                }
-
-                $this->js("window.showIslandToast('Item berhasil dibatalkan dan stok dikembalikan.', 'success');");
-            });
+            $this->js("window.showIslandToast('Item berhasil dibatalkan dan stok dikembalikan.', 'success');");
         } catch (Exception $e) {
-            $this->js("window.showIslandToast('Gagal membatalkan item: " . addslashes($e->getMessage()) . "', 'danger');");
+            $errorMsg = json_encode('Gagal membatalkan item: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
+            $this->js("window.showIslandToast($errorMsg, 'danger');");
         }
     }
 
-    /**
-     * Buat pesanan baru (status: pending, belum bayar).
-     * TIDAK ADA POTONGAN KREDIT DI SINI.
-     */
-    public function createOrder($cart, $customerName, $tableNumber, $orderType, $isTaxActive = true, $isServiceActive = true)
+    public function createOrder($cart, $customerName, $tableNumber, $orderType, $isTaxActive = true, $isServiceActive = true): array
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
         try {
-            return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $isTaxActive, $isServiceActive) {
-                $orderData = [
-                    'invoice_code' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
-                    'table_number' => $orderType === 'dinein' ? $tableNumber : null,
-                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
-                    'customer_name' => $customerName ?: 'Pelanggan Umum',
-                    'order_type' => $orderType,
-                    'payment_method' => 'cash',
-                    'status' => 'pending', // Belum bayar!
-                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                    'is_tax_active' => $isTaxActive,
-                    'is_service_active' => $isServiceActive,
-                ];
+            $dto = new CreateOrderData(
+                customerName: $customerName ?: 'Pelanggan Umum',
+                tableNumber: $tableNumber,
+                orderType: $orderType,
+                isTaxActive: $isTaxActive,
+                isServiceActive: $isServiceActive,
+            );
 
-                $existingOrder = null;
-                if ($this->addToOrder && $this->existingOrder) {
-                    $existingOrder = $this->existingOrder;
-                    // VALIDASI KEAMANAN: Pastikan pesanan belum selesai/dibatalkan saat tambah menu
-                    $isEditable = $existingOrder->status === 'pending' ||
-                                 ($existingOrder->status === 'progress' && $existingOrder->amount_paid < $existingOrder->total_price);
+            $orderData = [
+                'table_number' => $dto->orderType === 'dinein' ? $dto->tableNumber : null,
+                'notes' => $dto->orderType !== 'dinein' ? $dto->tableNumber : null,
+                'customer_name' => $dto->customerName,
+                'order_type' => $dto->orderType,
+                'payment_method' => 'cash',
+                'status' => 'pending',
+                'is_tax_active' => $dto->isTaxActive,
+                'is_service_active' => $dto->isServiceActive,
+            ];
 
-                    if (!$isEditable) {
-                        throw new Exception("Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.");
-                    }
-                }
+            if (
+                $this->existingOrder && !$this->isOrderEditable($this->existingOrder)
+            ) throw new Exception("Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.");
 
-                $orderService = app(\App\Tenant\Services\OrderService::class);
-                $order = $orderService->processOrder($orderData, $cart, $existingOrder);
+            $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
 
-                return ['success' => true, 'invoice_code' => $order->invoice_code];
-            });
+            return ['success' => true, 'invoice_code' => $order->invoice_code];
         } catch (Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
-    /**
-     * Checkout langsung bayar (gabungan create order + payment)
-     * POTONG KREDIT DI SINI.
-     */
-    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive = true, $isServiceActive = true)
+    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive = true, $isServiceActive = true): array
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
         try {
-            return DB::transaction(function () use ($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive, $isServiceActive) {
-                $orderData = [
-                    'invoice_code' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
-                    'table_number' => $orderType === 'dinein' ? $tableNumber : null,
-                    'notes' => $orderType !== 'dinein' ? $tableNumber : null,
-                    'customer_name' => $customerName ?: 'Pelanggan Umum',
-                    'order_type' => $orderType,
-                    'payment_method' => $paymentMethod,
-                    'global_discount' => (float)$discount,
-                    'status' => 'paid',
-                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                    'is_tax_active' => $isTaxActive,
-                    'is_service_active' => $isServiceActive,
-                ];
+            $dto = new CheckoutData(
+                customerName: $customerName ?: 'Pelanggan Umum',
+                tableNumber: $tableNumber,
+                orderType: $orderType,
+                paymentMethod: $paymentMethod,
+                discount: (float)$discount,
+                amountPaid: (float)$amountPaid,
+                isTaxActive: $isTaxActive,
+                isServiceActive: $isServiceActive,
+            );
 
-                $existingOrder = null;
-                if ($this->addToOrder && $this->existingOrder) {
-                    $existingOrder = $this->existingOrder;
-                }
+            $orderData = [
+                'table_number' => $dto->orderType === 'dinein' ? $dto->tableNumber : null,
+                'notes' => $dto->orderType !== 'dinein' ? $dto->tableNumber : null,
+                'customer_name' => $dto->customerName,
+                'order_type' => $dto->orderType,
+                'payment_method' => $dto->paymentMethod,
+                'global_discount' => $dto->discount,
+                'status' => 'paid',
+                'is_tax_active' => $dto->isTaxActive,
+                'is_service_active' => $dto->isServiceActive,
+            ];
 
-                $orderService = app(\App\Tenant\Services\OrderService::class);
-                $order = $orderService->processOrder($orderData, $cart, $existingOrder);
+            $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
 
-                $totalPrice = $order->total_price;
-                $paid = (float)$amountPaid ?: $totalPrice;
-                $change = max(0, $paid - $totalPrice);
+            // Directly charge and process payment completion since this is direct checkout
+            $totalPrice = $order->total_price;
+            $paid = $dto->amountPaid ?: $totalPrice;
+            $change = max(0, $paid - $totalPrice);
 
-                $order->update([
-                    'amount_paid' => $paid,
-                    'change_amount' => $change,
-                    'payment_method' => $paymentMethod,
-                    'status' => 'paid',
-                ]);
+            $order->update([
+                'amount_paid' => $paid,
+                'change_amount' => $change,
+                'payment_method' => $dto->paymentMethod,
+                'status' => 'paid',
+            ]);
 
-                // --- POTONG SALDO WALLET ---
-                app(\App\Central\Services\BillingService::class)->chargeTransactionFee($order);
+            $this->billingService()->chargeTransactionFee($order);
+            $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
 
-                $storeName = \App\Tenant\Models\Core\StoreSetting::first()?->name ?? 'Resto Kami';
-
-                return [
-                    'success' => true,
-                    'invoice_code' => $order->invoice_code,
-                    'customer_name' => $customerName ?: 'Pelanggan Umum',
-                    'table_number' => $tableNumber,
-                    'store_name' => $storeName,
-                    'total_price' => $totalPrice,
-                    'discount' => (float)$discount,
-                    'amount_paid' => $paid,
-                    'change_amount' => $change,
-                ];
-            });
+            return [
+                'success' => true,
+                'invoice_code' => $order->invoice_code,
+                'customer_name' => $dto->customerName,
+                'table_number' => $dto->tableNumber,
+                'store_name' => $storeName,
+                'total_price' => $totalPrice,
+                'discount' => $dto->discount,
+                'amount_paid' => $paid,
+                'change_amount' => $change,
+            ];
         } catch (Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
-    /**
-     * Proses pembayaran untuk pesanan yang sudah pending.
-     * POTONG KREDIT DI SINI.
-     */
-    public function processPayment($orderId, $paymentMethod, $discount, $amountPaid)
+    public function processPayment($orderId, $paymentMethod, $discount, $amountPaid): array
     {
         try {
-            // Gunakan DB Transaction karena kita update tabel Order DAN tabel Wallet bersamaan
-            return DB::transaction(function () use ($orderId, $paymentMethod, $discount, $amountPaid) {
+            $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float)$discount, (float)$amountPaid);
 
-                // lockForUpdate memastikan pesanan tidak dibayar 2 kali di waktu bersamaan
-                $order = Order::with('items')->lockForUpdate()->find($orderId);
+            $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
 
-                $isPayable = $order->status === 'pending' ||
-                             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
-
-                if (!$order || !$isPayable) {
-                    throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
-                }
-
-                $discountAmount = (float)$discount;
-                // Hitung ulang dari subtotal awal pesanan + service + tax agar diskon tidak terpotong dobel
-                // Tapi karena ini proses dinamis, kita asumsikan total_price saat ini adalah base
-                $baseTotal = isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal;
-
-                // Jika total_price masih sama dengan yang ada di DB, berarti diskon baru ditambahkan
-                // Tapi mari kita ambil aman: total yang harus dibayar adalah total akhir
-                $totalPrice = max(0, $baseTotal - $discountAmount);
-                $paid = (float)$amountPaid ?: $totalPrice;
-
-                $accumulatedPaid = $order->amount_paid + $paid;
-                $change = max(0, $accumulatedPaid - $totalPrice);
-
-                if ($accumulatedPaid >= $totalPrice) {
-                    $newStatus = ($order->kitchen_status === 'ready' || $order->kitchen_status === 'completed') ? 'completed' : 'paid';
-                } else {
-                    $newStatus = 'progress'; // Masih nyicil (Partial)
-                }
-
-                $order->update([
-                    'payment_method' => $paymentMethod,
-                    'discount' => $order->discount + $discountAmount, // Akumulasi diskon jika ada beberapa pembayaran dengan diskon
-                    'total_price' => $totalPrice,
-                    'amount_paid' => $accumulatedPaid,
-                    'change_amount' => $change,
-                    'status' => $newStatus,
-                ]);
-
-                // Beritahu dapur ada update status pembayaran
-                event(new \App\Tenant\Events\KitchenUpdated());
-
-                // --- POTONG SALDO WALLET ---
-                app(BillingService::class)->chargeTransactionFee($order);
-
-                $storeName = StoreSetting::first()->name ?? 'Resto Kami';
-
-                return [
-                    'success' => true,
-                    'invoice_code' => $order->invoice_code,
-                    'customer_name' => $order->customer_name,
-                    'customer_phone' => $order->customer_phone,
-                    'store_name' => $storeName,
-                    'total_price' => $totalPrice,
-                ];
-            });
+            return [
+                'success' => true,
+                'invoice_code' => $order->invoice_code,
+                'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'store_name' => $storeName,
+                'total_price' => $order->total_price,
+            ];
         } catch (Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
-    /**
-     * Generate payment link Duitku untuk antrean pending.
-     */
-    public function generateDuitkuPayment($orderId, $paymentMethod, $customerEmail)
+    public function generateDuitkuPayment($orderId, $paymentMethod, $customerEmail): array
     {
-        if (!config('duitku.enabled')) {
-            return ['success' => false, 'error' => 'Pembayaran digital Duitku sedang tidak aktif.'];
+        try {
+            $result = $this->paymentGatewayService()->generateDuitku($orderId, $paymentMethod, $customerEmail);
+            return array_merge(['success' => true], $result);
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
         }
+    }
 
-        // Email opsional di kasir — fallback ke email manager jika tidak diisi
-        $resolvedEmail = trim($customerEmail ?? '');
-        if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-            $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
-                ?? \App\Tenant\Models\Core\TenantUser::first();
-            $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
+    public function generateMidtransPayment($orderId, $customerEmail): array
+    {
+        try {
+            $result = $this->paymentGatewayService()->generateMidtrans($orderId, $customerEmail);
+            return array_merge(['success' => true], $result);
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    #[On('cancel-confirmed')]
+    public function cancelOrder($orderId, $note = null): void
+    {
+        if (is_array($orderId)) {
+            $note = $orderId['note'] ?? $note;
+            $orderId = $orderId['orderId'] ?? null;
         }
 
         try {
-            return DB::transaction(function () use ($orderId, $paymentMethod, $resolvedEmail) {
-                $order = Order::with('items')->lockForUpdate()->find($orderId);
+            $this->orderService()->cancelOrder($orderId, $note);
 
-                $isPayable = $order->status === 'pending' ||
-                             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
-
-                if (!$order || !$isPayable) {
-                    throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
-                }
-
-                $customerDetail = [
-                    'firstName' => $order->customer_name ?: 'Pelanggan',
-                    'lastName' => '',
-                    'email' => $resolvedEmail,
-                    'phoneNumber' => $order->customer_phone ?: '',
-                    'address' => 'Indonesia',
-                    'city' => 'Jakarta',
-                    'postalCode' => '00000',
-                ];
-
-                $duitkuService = new DuitkuService();
-                $tenantId = tenant()->getTenantKey();
-
-                $duitkuResult = $duitkuService->createInvoice(
-                    $order,
-                    $customerDetail,
-                    $paymentMethod,
-                    $tenantId
-                );
-
-                $order->update([
-                    'duitku_reference' => $duitkuResult['reference'],
-                    'duitku_payment_url' => $duitkuResult['payment_url'],
-                    'duitku_va_number' => $duitkuResult['va_number'],
-                    'duitku_payment_method' => $paymentMethod,
-                ]);
-
-                return [
-                    'success' => true,
-                    'payment_url' => $duitkuResult['payment_url'],
-                ];
-            });
-        } catch (Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    /**
-     * Generate Midtrans snap token untuk antrean pending.
-     */
-    public function generateMidtransPayment($orderId, $customerEmail)
-    {
-        if (!config('midtrans.server_key')) {
-            return ['success' => false, 'error' => 'Pembayaran digital Midtrans sedang tidak aktif.'];
-        }
-
-        $resolvedEmail = trim($customerEmail ?? '');
-        if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-            $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
-                ?? \App\Tenant\Models\Core\TenantUser::first();
-            $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
-        }
-
-        try {
-            return DB::transaction(function () use ($orderId, $resolvedEmail) {
-                $order = Order::with('items')->lockForUpdate()->find($orderId);
-
-                $isPayable = $order->status === 'pending' ||
-                             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
-
-                if (!$order || !$isPayable) {
-                    throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
-                }
-
-                $customerDetail = [
-                    'firstName' => $order->customer_name ?: 'Pelanggan',
-                    'lastName' => '',
-                    'email' => $resolvedEmail,
-                    'phoneNumber' => $order->customer_phone ?: '',
-                    'address' => 'Indonesia',
-                    'city' => 'Jakarta',
-                    'postalCode' => '00000',
-                ];
-
-                $midtransService = new \App\Central\Services\MidtransService();
-                $tenantId = tenant()->getTenantKey();
-
-                $snapToken = $midtransService->createSnapToken(
-                    $order,
-                    $customerDetail,
-                    $tenantId
-                );
-
-                $order->update([
-                    'midtrans_snap_token' => $snapToken,
-                    'payment_method' => 'transfer',
-                    'midtrans_payment_type' => 'snap',
-                ]);
-
-                return [
-                    'success' => true,
-                    'snap_token' => $snapToken,
-                ];
-            });
-        } catch (Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-
-    /**
-     * Batalkan pesanan pending (kembalikan stok).
-     * Dipanggil langsung dari blade via @cancel-confirmed.window
-     */
-    public function cancelOrder($data)
-    {
-        $orderId = $data['orderId'] ?? null;
-        $note = $data['note'] ?? null;
-
-        $order = Order::with('items.variant.recipes.rawMaterial')->find($orderId);
-        if (!$order) return;
-
-        if ($order->status === 'cancelled') {
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-            $this->js("window.showIslandToast('Pesanan sudah dibatalkan sebelumnya.', 'danger');");
-            return;
-        }
-
-        if ($order->status !== 'pending') {
-            if ($order->is_printed || \Carbon\Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
-                $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-                $this->js("window.showIslandToast('Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.', 'danger');");
-                return;
-            }
-        }
-
-        // --- VALIDASI FRAUD DAPUR ---
-        // Jangan izinkan cancel jika dapur sudah memproses (processing) atau sudah selesai (ready/completed)
-        $hasProcessedItems = $order->items()->whereIn('kitchen_status', ['processing', 'ready', 'completed'])->exists();
-        if ($hasProcessedItems) {
+            $this->js("window.showIslandToast('Pesanan berhasil dibatalkan.', 'success');");
+            $this->js("\$wire.\$island('queue').\$refresh();");
+        } catch (Exception $e) {
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-            $this->js("window.showIslandToast('Pesanan tidak dapat dibatalkan secara keseluruhan karena sebagian/seluruh item sudah diproses oleh dapur.', 'danger');");
-            return;
+            $errorMsg = json_encode($e->getMessage(), JSON_THROW_ON_ERROR);
+            $this->js("window.showIslandToast($errorMsg, 'danger');");
         }
-
-        DB::transaction(function () use ($order, $note) {
-            // Restore stock
-            foreach ($order->items as $item) {
-                if ($item->variant) {
-                    $item->variant->increment('stock', $item->quantity);
-
-                    if (tenant('store_type') === 'resto') {
-                        foreach ($item->variant->recipes as $recipe) {
-                            if ($recipe->rawMaterial) {
-                                $recipe->rawMaterial->increment('stock', $recipe->quantity_used * $item->quantity);
-                            }
-                        }
-                    }
-                }
-            }
-
-            $updateData = ['status' => 'cancelled'];
-            if ($note) {
-                $updateData['cancellation_note'] = $note;
-            }
-            $order->update($updateData);
-
-            if ($order->getOriginal('status') !== 'pending') {
-                app(BillingService::class)->processVoidPenalty($order);
-            }
-        });
-
-        // Dispatch sebagai window event agar cancel-modal component bisa dengar
-        $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-        $this->js("window.showIslandToast('Pesanan berhasil dibatalkan.', 'success');");
-        $this->js("\$wire.\$island('queue').\$refresh();");
     }
 
-    public function splitOrder($orderId, $itemsToSplitData)
+    public function splitOrder($orderId, $itemsToSplitData): void
     {
-        $order = Order::with('items')->find($orderId);
-
-        if (!$order || in_array($order->status, ['completed', 'cancelled', 'paid'])) {
-            $this->js("window.showIslandToast('Pesanan yang sudah lunas/selesai tidak bisa dipisah.', 'danger');");
-            return;
-        }
-
-        if ($order->amount_paid > 0) {
-            $this->js("window.showIslandToast('Pesanan yang sudah dicicil bayar tidak bisa dipisah per item.', 'danger');");
-            return;
-        }
-
-        if (empty($itemsToSplitData)) {
-            $this->js("window.showIslandToast('Pilih minimal 1 item untuk dipisah.', 'danger');");
-            return;
-        }
-
         try {
-            $newOrderId = DB::transaction(function () use ($order, $itemsToSplitData) {
-                // 1. Create New Order
-                $storeSetting = StoreSetting::first();
-                $taxRate = $order->tax_percentage ?? 10.00;
-                $serviceRate = $order->service_charge_percentage ?? 5.00;
+            $newOrder = $this->orderService()->splitOrder($orderId, $itemsToSplitData);
 
-                $newInvoiceCode = $order->invoice_code . '-' . strtoupper(Str::random(3));
-
-                $newOrder = Order::create([
-                    'invoice_code' => $newInvoiceCode,
-                    'table_number' => $order->table_number,
-                    'notes' => $order->notes,
-                    'customer_name' => $order->customer_name . ' (Split)',
-                    'order_type' => $order->order_type,
-                    'payment_method' => $order->payment_method,
-                    'subtotal' => 0,
-                    'tax_amount' => 0,
-                    'service_charge_amount' => 0,
-                    'tax_percentage' => $taxRate,
-                    'service_charge_percentage' => $serviceRate,
-                    'discount' => 0,
-                    'total_price' => 0,
-                    'amount_paid' => 0,
-                    'change_amount' => 0,
-                    'status' => 'pending',
-                    'kitchen_status' => $order->kitchen_status,
-                    'user_id' => Auth::id(),
-                ]);
-
-                $newSubtotal = 0;
-
-                // 2. Process Items
-                foreach ($itemsToSplitData as $splitData) {
-                    $itemId = $splitData['id'];
-                    $splitQty = (int) $splitData['qty'];
-
-                    if ($splitQty <= 0) continue;
-
-                    $item = $order->items->where('id', $itemId)->first();
-                    if (!$item) continue;
-
-                    if ($splitQty < $item->quantity) {
-                        $perItemSubtotal = $item->subtotal / $item->quantity;
-                        $newItemSubtotal = max(0, $perItemSubtotal * $splitQty);
-                        \App\Tenant\Models\Core\OrderItem::create([
-                            'order_id' => $newOrder->id,
-                            'product_id' => $item->product_id,
-                            'variant_id' => $item->variant_id,
-                            'product_name' => $item->product_name,
-                            'variant_name' => $item->variant_name,
-                            'quantity' => $splitQty,
-                            'price' => $item->price,
-                            'discount' => $item->discount,
-                            'subtotal' => $newItemSubtotal,
-                            'note' => $item->note,
-                            'kitchen_status' => $item->kitchen_status,
-                        ]);
-                        $newSubtotal += $newItemSubtotal;
-
-                        $remainQty = $item->quantity - $splitQty;
-                        $oldItemSubtotal = max(0, $perItemSubtotal * $remainQty);
-                        $item->update([
-                            'quantity' => $remainQty,
-                            'subtotal' => $oldItemSubtotal,
-                        ]);
-                    } else {
-                        $item->update(['order_id' => $newOrder->id]);
-                        $newSubtotal += $item->subtotal;
-                    }
-                }
-
-                // 3. Recalculate New Order Totals
-                $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
-                $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
-                $newOrder->update([
-                    'subtotal' => $newSubtotal,
-                    'service_charge_amount' => $newServiceCharge,
-                    'tax_amount' => $newTaxAmount,
-                    'total_price' => $newSubtotal + $newServiceCharge + $newTaxAmount
-                ]);
-
-                // 4. Recalculate Old Order Totals
-                $order->refresh();
-                $oldSubtotal = $order->items->sum('subtotal');
-
-                if ($oldSubtotal == 0 && $order->items->count() == 0) {
-                    $order->delete();
-                } else {
-                    $oldServiceCharge = round(($serviceRate / 100) * $oldSubtotal);
-                    $oldTaxAmount = round(($taxRate / 100) * ($oldSubtotal + $oldServiceCharge));
-                    $order->update([
-                        'subtotal' => $oldSubtotal,
-                        'service_charge_amount' => $oldServiceCharge,
-                        'tax_amount' => $oldTaxAmount,
-                        'total_price' => $oldSubtotal + $oldServiceCharge + $oldTaxAmount - $order->discount
-                    ]);
-                }
-
-                return $newOrder;
-            });
-
-            // For resto-cashier, we want to open the payment modal automatically for the new order
             $this->js("bootstrap.Modal.getInstance(document.getElementById('splitBillModal'))?.hide();");
-            $this->js("window.showIslandToast('Pesanan #{$order->invoice_code} berhasil disimpan.', 'success');");
+            $this->js("window.showIslandToast('Pesanan #$newOrder->invoice_code berhasil disimpan.', 'success');");
             $this->js("\$wire.\$island('queue').\$refresh();");
 
-            // To auto-open payment modal, we can dispatch to Alpine
             $orderData = json_encode([
-                'id' => $newOrderId->id,
-                'invoice_code' => $newOrderId->invoice_code,
-                'customer_name' => $newOrderId->customer_name,
-                'subtotal' => $newOrderId->subtotal,
-                'total_price' => $newOrderId->total_price,
+                'id' => $newOrder->id,
+                'invoice_code' => $newOrder->invoice_code,
+                'customer_name' => $newOrder->customer_name,
+                'subtotal' => $newOrder->subtotal,
+                'total_price' => $newOrder->total_price,
             ]);
             $this->js("window.dispatchEvent(new CustomEvent('open-payment-modal', { detail: $orderData }));");
-
-        } catch (\Exception $e) {
-            $this->js("window.showIslandToast('Gagal memisah pesanan: " . addslashes($e->getMessage()) . "', 'danger');");
+        } catch (Exception $e) {
+            $errorMsg = json_encode('Gagal memisah pesanan: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
+            $this->js("window.showIslandToast($errorMsg, 'danger');");
         }
     }
 
-    /**
-     * Gabung Struk (Merge Bill)
-     * Menggabungkan Order Source ke dalam Order Target.
-     */
-    public function mergeOrder($sourceOrderId, $targetOrderId)
+    public function mergeOrder($sourceOrderId, $targetOrderId): void
     {
         if ($sourceOrderId == $targetOrderId) {
             $this->js("window.showIslandToast('Pilih pesanan yang berbeda untuk digabungkan.', 'warning');");
@@ -674,68 +295,17 @@ new class extends Component {
         }
 
         try {
-            DB::transaction(function () use ($sourceOrderId, $targetOrderId) {
-                $sourceOrder = Order::with('items')->lockForUpdate()->find($sourceOrderId);
-                $targetOrder = Order::with('items')->lockForUpdate()->find($targetOrderId);
-
-                if (!$sourceOrder || !$targetOrder) {
-                    throw new \Exception("Pesanan tidak ditemukan.");
-                }
-
-                if (in_array($sourceOrder->status, ['completed', 'cancelled']) || in_array($targetOrder->status, ['completed', 'cancelled'])) {
-                    throw new \Exception("Tidak bisa menggabungkan pesanan yang sudah selesai atau dibatalkan.");
-                }
-
-                if ($sourceOrder->is_online !== $targetOrder->is_online) {
-                    throw new \Exception("Tidak bisa menggabungkan Pesanan Digital dengan Pesanan Kasir Manual.");
-                }
-
-                if ($sourceOrder->amount_paid > 0 || $targetOrder->amount_paid > 0) {
-                    throw new \Exception("Tidak bisa menggabungkan pesanan yang sudah dicicil/memiliki pembayaran masuk.");
-                }
-
-                // 1. Pindahkan semua OrderItem ke Target Order
-                foreach ($sourceOrder->items as $item) {
-                    $item->update(['order_id' => $targetOrder->id]);
-                }
-
-                // 2. Gabungkan catatan dan nama pelanggan
-                $newNotes = trim(($targetOrder->notes ? $targetOrder->notes . ' | ' : '') . ($sourceOrder->notes ?? ''));
-                $newCustomerName = trim(($targetOrder->customer_name ? $targetOrder->customer_name . ' & ' : '') . ($sourceOrder->customer_name ?? ''));
-
-                $targetOrder->notes = substr($newNotes, 0, 255);
-                $targetOrder->customer_name = substr($newCustomerName, 0, 100);
-
-                // 3. Kalkulasi ulang Target Order
-                $targetOrder->refresh();
-                $taxRate = (float)$targetOrder->tax_percentage;
-                $serviceRate = (float)$targetOrder->service_charge_percentage;
-
-                $newSubtotal = $targetOrder->items->sum('subtotal');
-                $newServiceCharge = round(($serviceRate / 100) * $newSubtotal);
-                $newTaxAmount = round(($taxRate / 100) * ($newSubtotal + $newServiceCharge));
-
-                $targetOrder->update([
-                    'subtotal' => $newSubtotal,
-                    'service_charge_amount' => $newServiceCharge,
-                    'tax_amount' => $newTaxAmount,
-                    'total_price' => $newSubtotal + $newServiceCharge + $newTaxAmount - $targetOrder->discount
-                ]);
-
-                // 4. Hapus Source Order
-                $sourceOrder->delete();
-            });
+            $this->orderService()->mergeOrder($sourceOrderId, $targetOrderId);
 
             $this->js("window.showIslandToast('Pesanan berhasil digabungkan.', 'success');");
             $this->js("\$wire.\$island('queue').\$refresh();");
 
-            // Refresh current order if it was the target
-            if ($this->existingOrder && $this->existingOrder->id == $targetOrderId) {
-                $this->existingOrder->refresh();
-            }
-
-        } catch (\Exception $e) {
-            $this->js("window.showIslandToast('Gagal menggabungkan pesanan: " . addslashes($e->getMessage()) . "', 'danger');");
+            if (
+                $this->existingOrder && $this->existingOrder->id == $targetOrderId
+            ) $this->existingOrder->refresh();
+        } catch (Exception $e) {
+            $errorMsg = json_encode('Gagal menggabungkan pesanan: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
+            $this->js("window.showIslandToast($errorMsg, 'danger');");
         }
     }
 
@@ -745,30 +315,116 @@ new class extends Component {
     }
 
     #[On('echo:kitchen,.KitchenUpdated')]
-    public function onKitchenUpdated()
+    public function onKitchenUpdated(): void
     {
         $this->js("\$wire.\$island('queue').\$refresh();");
     }
 
     #[Computed]
-    public function pendingOrders()
+    public function activeOrders(): Collection|array
     {
-        return Order::with('items')
-            ->whereDate('created_at', today())
+        return Order::select([
+            'id', 'invoice_code', 'customer_name', 'table_number', 'notes',
+            'order_type', 'created_at', 'total_price', 'subtotal', 'amount_paid',
+            'payment_method', 'status', 'kitchen_status', 'tax_amount',
+            'service_charge_amount', 'discount', 'updated_at'
+        ])
+            ->with(['items' => function ($query) {
+                $query->select([
+                    'id', 'order_id', 'product_name', 'variant_name',
+                    'quantity', 'subtotal', 'note', 'kitchen_status'
+                ]);
+            }])
+            ->where('created_at', '>=', now()->subHours(24))
+            ->where('status', '!=', 'cancelled')
             ->where(function ($query) {
-                $query->where('status', 'pending')
-                      ->orWhere(function ($q) {
-                          $q->where('status', 'progress')
-                            ->whereColumn('amount_paid', '<', 'total_price');
-                      });
+                $query->where('status', '!=', 'completed')
+                    ->orWhere('updated_at', '>=', now()->subHours(2));
             })
             ->orderByDesc('created_at')
             ->get();
     }
 
+    private function mapOrderForQueue(Order $order): Order
+    {
+        $kStatus = $order->status === 'completed' ? 'completed' : ($order->kitchen_status ?: 'waiting');
+
+        $statusConfig = match ($kStatus) {
+            'waiting' => ['label' => 'Pesanan Masuk', 'icon' => 'ph-clock', 'bg' => 'bg-amber-100', 'color' => 'text-amber-700', 'dot' => 'bg-amber-500'],
+            'processing' => ['label' => 'Diproses Dapur', 'icon' => 'ph-cooking-pot', 'bg' => 'bg-blue-100', 'color' => 'text-blue-700', 'dot' => 'bg-blue-500'],
+            'ready' => ['label' => 'Siap Disajikan', 'icon' => 'ph-bell-ringing', 'bg' => 'bg-green-100', 'color' => 'text-green-700', 'dot' => 'bg-green-500'],
+            'completed' => ['label' => 'Selesai', 'icon' => 'ph-check-circle', 'bg' => 'bg-emerald-100', 'color' => 'text-emerald-700', 'dot' => 'bg-emerald-500'],
+            default => ['label' => 'Unknown', 'icon' => 'ph-question', 'bg' => 'bg-gray-100', 'color' => 'text-gray-700', 'dot' => 'bg-gray-500'],
+        };
+
+        $orderTypeConfig = match ($order->order_type) {
+            'dinein' => ['label' => 'Dine In', 'icon' => 'ph-fork-knife', 'color' => 'text-indigo-600 bg-indigo-50'],
+            'takeaway' => ['label' => 'Takeaway', 'icon' => 'ph-bag', 'color' => 'text-orange-600 bg-orange-50'],
+            'delivery' => ['label' => 'Delivery', 'icon' => 'ph-moped', 'color' => 'text-sky-600 bg-sky-50'],
+            default => ['label' => 'Retail', 'icon' => 'ph-storefront', 'color' => 'text-gray-600 bg-gray-50'],
+        };
+
+        $order->statusConfig = $statusConfig;
+        $order->kStatus = $kStatus;
+        $order->kStatusLabel = $statusConfig['label'];
+        $order->kStatusIcon = $statusConfig['icon'];
+        $order->kStatusColor = $statusConfig['bg'] . ' ' . $statusConfig['color'];
+        $order->kStatusDot = $statusConfig['dot'];
+
+        $order->typeLabel = $orderTypeConfig['label'];
+        $order->typeIcon = $orderTypeConfig['icon'];
+        $order->typeColor = $orderTypeConfig['color'];
+
+        $order->orderData = $this->buildOrderViewData($order, $statusConfig);
+
+        return $order;
+    }
+
+    private function buildOrderViewData(Order $order, array $statusConfig): array
+    {
+        return [
+            'id' => $order->id,
+            'invoice_code' => $order->invoice_code,
+            'customer_name' => $order->customer_name,
+            'table_number' => $order->table_number,
+            'notes' => $order->notes,
+            'kStatus' => $order->kStatus,
+            'kStatusLabel' => $order->kStatusLabel,
+            'kStatusColor' => $order->kStatusColor,
+            'typeLabel' => $order->typeLabel,
+            'typeIcon' => $order->typeIcon,
+            'typeColor' => $order->typeColor,
+            'created_at' => $order->created_at->format('H:i'),
+            'created_at_human' => $order->created_at->diffForHumans(),
+            'total_price' => $order->total_price,
+            'subtotal' => $order->subtotal,
+            'amount_paid' => $order->amount_paid,
+            'payment_method' => $order->payment_method,
+            'status' => $order->status,
+            'kitchen_status' => $order->kitchen_status,
+            'can_cancel' => $order->status !== 'completed' && $order->status !== 'cancelled',
+            'status_config' => $statusConfig,
+            'tax_amount' => $order->tax_amount,
+            'service_charge_amount' => $order->service_charge_amount,
+            'discount' => $order->discount,
+            'items' => $order->items->map(fn($item) => [
+                'id' => $item->id,
+                'product_name' => $item->product_name,
+                'variant_name' => $item->variant_name,
+                'quantity' => $item->quantity,
+                'subtotal' => $item->subtotal,
+                'note' => $item->note,
+                'kitchen_status' => $item->kitchen_status,
+            ])
+        ];
+    }
+
     public function with(): array
     {
-        $storeSetting = StoreSetting::first();
+        $storeSetting = StoreSetting::select([
+            'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
+            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name'
+        ])->first();
         $orderTypes = [];
 
         if ($storeSetting?->is_dinein_active) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
@@ -776,12 +432,38 @@ new class extends Component {
         if ($storeSetting?->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
         if (empty($orderTypes)) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
 
+        $activeOrders = $this->activeOrders;
+
+        $queueOrders = $activeOrders->map(fn($order) => $this->mapOrderForQueue($order));
+
+        $kStatusCounts = $queueOrders->countBy('kStatus');
+
+        $counts = [
+            'all' => $queueOrders->count(),
+            'waiting' => $kStatusCounts->get('waiting', 0),
+            'processing' => $kStatusCounts->get('processing', 0),
+            'ready' => $kStatusCounts->get('ready', 0),
+            'completed' => $kStatusCounts->get('completed', 0),
+        ];
+
+        $filters = [
+            ['id' => 'all', 'label' => 'All'],
+            ['id' => 'waiting', 'label' => 'New'],
+            ['id' => 'processing', 'label' => 'Proses'],
+            ['id' => 'ready', 'label' => 'Siap'],
+            ['id' => 'completed', 'label' => 'Selesai'],
+        ];
+
         return [
+            'activeTab' => $this->activeTab,
             'restoOrderTypes' => $orderTypes,
-            'isTaxActive' => isset($storeSetting->is_tax_active) ? (bool)$storeSetting->is_tax_active : true,
-            'taxRate' => isset($storeSetting->tax_rate) ? (float)$storeSetting->tax_rate : 10.00,
-            'isServiceChargeActive' => isset($storeSetting->is_service_charge_active) ? (bool)$storeSetting->is_service_charge_active : true,
-            'serviceChargeRate' => isset($storeSetting->service_charge_rate) ? (float)$storeSetting->service_charge_rate : 5.00,
+            'isTaxActive' => $storeSetting?->is_tax_active ?? true,
+            'taxRate' => (float)($storeSetting?->tax_rate ?? 10.00),
+            'isServiceChargeActive' => $storeSetting?->is_service_charge_active ?? true,
+            'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
+            'counts' => $counts,
+            'filters' => $filters,
+            'queueOrders' => $queueOrders,
         ];
     }
 };
