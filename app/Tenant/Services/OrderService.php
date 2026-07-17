@@ -429,7 +429,70 @@ class OrderService
 
             $taxRate = $order->tax_percentage ?? 10.00;
             $serviceRate = $order->service_charge_percentage ?? 5.00;
-            $newInvoiceCode = $order->invoice_code . '-' . strtoupper(Str::random(3));
+            $originalSubtotal = (float)$order->items->sum('subtotal');
+            $sourceDiscount = (float)$order->discount;
+
+            $newOrderItemsData = [];
+            $itemsToMove = [];
+            $partialItemUpdates = [];
+            $now = now();
+            $newSubtotal = 0;
+
+            foreach ($itemsToSplitData as $splitData) {
+                $itemId = $splitData['id'] ?? null;
+                $splitQty = (int)($splitData['qty'] ?? 0);
+
+                if ($splitQty <= 0) continue;
+
+                $item = $order->items->where('id', $itemId)->first();
+                if (!$item) continue;
+
+                $splitQty = min($splitQty, (int)$item->quantity);
+                $perItemSubtotal = $item->quantity > 0 ? $item->subtotal / $item->quantity : 0;
+                $newItemSubtotal = max(0, $perItemSubtotal * $splitQty);
+                if ($newItemSubtotal <= 0) continue;
+
+                if ($splitQty < $item->quantity) {
+                    $newOrderItemsData[] = [
+                        'product_id' => $item->product_id,
+                        'variant_id' => $item->variant_id,
+                        'product_name' => $item->product_name,
+                        'variant_name' => $item->variant_name,
+                        'quantity' => $splitQty,
+                        'price' => $item->price,
+                        'cost' => $item->cost,
+                        'discount' => $item->discount,
+                        'subtotal' => $newItemSubtotal,
+                        'note' => $item->note,
+                        'kitchen_status' => $item->kitchen_status,
+                        'selected_variants' => $item->getRawOriginal('selected_variants'),
+                        'selected_extras' => $item->getRawOriginal('selected_extras'),
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+
+                    $remainQty = $item->quantity - $splitQty;
+                    $partialItemUpdates[] = [
+                        'item' => $item,
+                        'quantity' => $remainQty,
+                        'subtotal' => max(0, $perItemSubtotal * $remainQty),
+                    ];
+                } else {
+                    $itemsToMove[] = $item;
+                }
+
+                $newSubtotal += $newItemSubtotal;
+            }
+
+            if ($newSubtotal <= 0) throw new Exception("Tidak ada item valid yang bisa dipisah.");
+
+            do {
+                $newInvoiceCode = $order->invoice_code . '-' . strtoupper(Str::random(3));
+            } while (Order::where('invoice_code', $newInvoiceCode)->exists());
+
+            $discountRatio = $originalSubtotal > 0 ? $newSubtotal / $originalSubtotal : 0;
+            $splitDiscount = round(min($sourceDiscount, $sourceDiscount * $discountRatio), 2);
+            $remainingDiscount = max(0, $sourceDiscount - $splitDiscount);
 
             $newOrder = Order::create([
                 'invoice_code' => $newInvoiceCode,
@@ -452,62 +515,27 @@ class OrderService
                 'user_id' => Auth::id(),
             ]);
 
-            $newOrderItemsData = [];
-            $now = now();
-
-            $newSubtotal = 0;
-            foreach ($itemsToSplitData as $splitData) {
-                $itemId = $splitData['id'];
-                $splitQty = (int)$splitData['qty'];
-
-                if ($splitQty <= 0) continue;
-
-                $item = $order->items->where('id', $itemId)->first();
-                if (!$item) continue;
-
-                if ($splitQty < $item->quantity) {
-                    $perItemSubtotal = $item->subtotal / $item->quantity;
-                    $newItemSubtotal = max(0, $perItemSubtotal * $splitQty);
-
-                    $newOrderItemsData[] = [
-                        'order_id' => $newOrder->id,
-                        'product_id' => $item->product_id,
-                        'variant_id' => $item->variant_id,
-                        'product_name' => $item->product_name,
-                        'variant_name' => $item->variant_name,
-                        'quantity' => $splitQty,
-                        'price' => $item->price,
-                        'cost' => $item->cost,
-                        'discount' => $item->discount,
-                        'subtotal' => $newItemSubtotal,
-                        'note' => $item->note,
-                        'kitchen_status' => $item->kitchen_status,
-                        'selected_variants' => $item->getRawOriginal('selected_variants'),
-                        'selected_extras' => $item->getRawOriginal('selected_extras'),
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-                    $newSubtotal += $newItemSubtotal;
-
-                    $remainQty = $item->quantity - $splitQty;
-                    $oldItemSubtotal = max(0, $perItemSubtotal * $remainQty);
-                    $item->update([
-                        'quantity' => $remainQty,
-                        'subtotal' => $oldItemSubtotal,
-                    ]);
-                } else {
-                    $item->update(['order_id' => $newOrder->id]);
-                    $newSubtotal += $item->subtotal;
-                }
+            foreach ($newOrderItemsData as &$itemData) {
+                $itemData['order_id'] = $newOrder->id;
             }
-
-            if ($newSubtotal <= 0) throw new Exception("Tidak ada item valid yang bisa dipisah.");
+            unset($itemData);
 
             if (!empty($newOrderItemsData)) {
                 OrderItem::insert($newOrderItemsData);
             }
 
-            $newOrder->update($this->calculateTaxesAndTotal($newSubtotal, 0, $taxRate, $serviceRate));
+            foreach ($partialItemUpdates as $update) {
+                $update['item']->update([
+                    'quantity' => $update['quantity'],
+                    'subtotal' => $update['subtotal'],
+                ]);
+            }
+
+            foreach ($itemsToMove as $item) {
+                $item->update(['order_id' => $newOrder->id]);
+            }
+
+            $newOrder->update($this->calculateTaxesAndTotal($newSubtotal, $splitDiscount, $taxRate, $serviceRate));
 
             $order->refresh();
             $oldSubtotal = $order->items->sum('subtotal');
@@ -515,7 +543,7 @@ class OrderService
             if ($oldSubtotal == 0 && $order->items->count() == 0) {
                 $order->delete();
             } else {
-                $order->update($this->calculateTaxesAndTotal($oldSubtotal, (float)$order->discount, $taxRate, $serviceRate));
+                $order->update($this->calculateTaxesAndTotal($oldSubtotal, $remainingDiscount, $taxRate, $serviceRate));
             }
 
             DB::commit();
@@ -546,8 +574,8 @@ class OrderService
             if (!$sourceOrder || !$targetOrder) throw new Exception("Pesanan tidak ditemukan.");
 
             if (
-                in_array($sourceOrder->status, ['completed', 'cancelled']) || in_array($targetOrder->status, ['completed', 'cancelled'])
-            ) throw new Exception("Tidak bisa menggabungkan pesanan yang sudah selesai atau dibatalkan.");
+                in_array($sourceOrder->status, ['completed', 'cancelled', 'paid']) || in_array($targetOrder->status, ['completed', 'cancelled', 'paid'])
+            ) throw new Exception("Tidak bisa menggabungkan pesanan yang sudah selesai, dibatalkan, atau lunas.");
 
             if (
                 $sourceOrder->is_online !== $targetOrder->is_online
@@ -570,7 +598,8 @@ class OrderService
             $serviceRate = (float)$targetOrder->service_charge_percentage;
 
             $newSubtotal = $targetOrder->items->sum('subtotal');
-            $targetOrder->update($this->calculateTaxesAndTotal($newSubtotal, (float)$targetOrder->discount, $taxRate, $serviceRate));
+            $newDiscount = (float)$targetOrder->discount + (float)$sourceOrder->discount;
+            $targetOrder->update($this->calculateTaxesAndTotal($newSubtotal, $newDiscount, $taxRate, $serviceRate));
 
             $sourceOrder->delete();
 
