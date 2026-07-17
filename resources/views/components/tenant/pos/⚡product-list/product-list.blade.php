@@ -32,18 +32,20 @@
         <button
             type="button"
             wire:click="$set('categoryFilter', 'all')"
-            class="shrink-0 flex items-center justify-center rounded-full border px-5 py-2 text-sm font-bold shadow-sm transition {{ $categoryFilter === 'all' ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-800/40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300' }}"
+            class="shrink-0 flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold shadow-sm transition {{ $categoryFilter === 'all' ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-800/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300' }}"
         >
-            Semua
+            <i class="ph-fill ph-squares-four text-lg {{ $categoryFilter === 'all' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400' }}"></i>
+            <span class="font-bold">Semua</span>
         </button>
 
         @if($hasPromoItems)
             <button
                 type="button"
                 wire:click="$set('categoryFilter', 'promo')"
-                class="shrink-0 flex items-center justify-center gap-1.5 rounded-full border px-5 py-2 text-sm font-bold shadow-sm transition {{ $categoryFilter === 'promo' ? 'border-red-500 bg-red-500 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-red-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300' }}"
+                class="shrink-0 flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold shadow-sm transition {{ $categoryFilter === 'promo' ? 'border-red-500 bg-red-500 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-red-400 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300' }}"
             >
-                <i class="ph-bold ph-percent text-red-500 {{ $categoryFilter === 'promo' ? 'text-white' : '' }}"></i> Promo
+                <i class="ph-bold ph-percent text-lg {{ $categoryFilter === 'promo' ? 'text-white' : 'text-red-500' }}"></i>
+                <span class="font-bold">Promo</span>
             </button>
         @endif
 
@@ -51,9 +53,10 @@
             <button
                 type="button"
                 wire:click="$set('categoryFilter', '{{ $category->id }}')"
-                class="shrink-0 flex items-center justify-center rounded-full border px-5 py-2 text-sm font-bold shadow-sm transition {{ $categoryFilter == $category->id ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-800/40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300' }}"
+                class="shrink-0 flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold shadow-sm transition {{ $categoryFilter == $category->id ? 'border-emerald-800 bg-emerald-800 text-white dark:border-emerald-500 dark:bg-emerald-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-800/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300' }}"
             >
-                {{ $category->name }}
+                <i class="ph-fill ph-coffee text-lg {{ $categoryFilter == $category->id ? 'text-white' : 'text-emerald-600 dark:text-emerald-400' }}"></i>
+                <span class="font-bold truncate max-w-[80px]">{{ $category->name }}</span>
             </button>
         @endforeach
     </div>
