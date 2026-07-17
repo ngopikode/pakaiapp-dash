@@ -17,6 +17,8 @@ new class extends Component {
     public string $activeTab = 'cashier';
     public ?int $addToOrder = null;
     public ?Order $existingOrder = null;
+    public string $queueFilter = 'all';
+    public string $queueSearch = '';
 
     protected ?OrderService $orderService = null;
     protected ?PaymentGatewayService $paymentGatewayService = null;
@@ -269,7 +271,6 @@ new class extends Component {
         try {
             $newOrder = $this->orderService()->splitOrder($orderId, $itemsToSplitData);
 
-            $this->js("bootstrap.Modal.getInstance(document.getElementById('splitBillModal'))?.hide();");
             $this->js("window.showIslandToast('Pesanan #$newOrder->invoice_code berhasil disimpan.', 'success');");
             $this->js("\$wire.\$island('queue').\$refresh();");
 
@@ -419,6 +420,11 @@ new class extends Component {
         ];
     }
 
+    public function setQueueFilter(string $filter): void
+    {
+        $this->queueFilter = $filter;
+    }
+
     public function with(): array
     {
         $storeSetting = StoreSetting::select([
@@ -437,6 +443,16 @@ new class extends Component {
         $queueOrders = $activeOrders->map(fn($order) => $this->mapOrderForQueue($order));
 
         $kStatusCounts = $queueOrders->countBy('kStatus');
+
+        // Filter queueOrders based on Livewire state for rendering
+        $filteredQueueOrders = $queueOrders
+            ->when($this->queueFilter !== 'all', fn($collection) => $collection->where('kStatus', $this->queueFilter))
+            ->when($this->queueSearch !== '', fn($collection) => $collection->filter(function ($order) {
+                $search = strtolower($this->queueSearch);
+                return str_contains(strtolower($order->invoice_code), $search)
+                    || str_contains(strtolower($order->customer_name), $search)
+                    || str_contains(strtolower($order->table_number ?? $order->notes), $search);
+            }));
 
         $counts = [
             'all' => $queueOrders->count(),
@@ -463,7 +479,7 @@ new class extends Component {
             'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
             'counts' => $counts,
             'filters' => $filters,
-            'queueOrders' => $queueOrders,
+            'queueOrders' => $filteredQueueOrders, // Use filtered orders for the view
         ];
     }
 };

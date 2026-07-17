@@ -53,7 +53,7 @@
          x-transition:leave="ease-in duration-100"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="fixed inset-0 bg-background/80 backdrop-blur-md transition-opacity"></div>
+         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"></div>
 
     <!-- Modal Container -->
     <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -133,7 +133,7 @@
                 <!-- Action Buttons -->
                 <div class="flex gap-3 w-full">
                     <button type="button" @click="isOpen = false"
-                            class="flex-1 rounded-2xl bg-secondary/50 px-4 py-3.5 text-[14px] font-bold text-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                            class="flex-1 rounded-2xl border border-border bg-card px-4 py-3.5 text-[14px] font-bold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
                         Batal
                     </button>
                     <button type="button" @click="confirmCancel()" :disabled="isSubmitting"

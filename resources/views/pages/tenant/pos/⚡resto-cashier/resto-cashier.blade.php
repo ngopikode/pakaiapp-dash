@@ -51,19 +51,21 @@
         </div>
 
         {{-- Mobile bottom sheet overlay --}}
-        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopCartOpen}"
-             x-transition.opacity>
-            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileCartOpen = false"></div>
+        <div x-show="isMobileCartOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopCartOpen}">
+            <div class="absolute inset-0 bg-slate-900/45"
+                 x-show="isMobileCartOpen"
+                 x-transition:enter="transition-opacity ease-out duration-150"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 @click="isMobileCartOpen = false"></div>
 
             <div
-                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[768px] lg:mx-auto lg:rounded-[2rem]"
+                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[768px] lg:mx-auto lg:rounded-[2rem]"
                 x-show="isMobileCartOpen"
-                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter="transition-transform ease-out duration-200"
                 x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="translate-y-0"
-                x-transition:leave-end="translate-y-full">
+                x-transition:enter-end="translate-y-0">
+
                 {{-- Drag handle --}}
                 <div class="flex shrink-0 justify-center pt-3 pb-1">
                     <div class="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-700"></div>
@@ -76,7 +78,7 @@
     <div x-show="currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden" x-transition.opacity.duration.150ms>
         <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden relative">
             @island(name: 'queue')
-            <div x-data="{ activeFilter: 'all', searchQuery: '' }" class="h-full flex flex-col min-h-0 w-full">
+            <div class="h-full flex flex-col min-h-0 w-full">
                 @include('pages.tenant.pos.partials._queue-header-resto')
                 
                 <div class="flex flex-1 min-h-0 overflow-hidden gap-5 lg:flex-row">
@@ -99,19 +101,21 @@
         </div>
 
         {{-- Mobile queue detail bottom sheet --}}
-        <div x-show="isMobileQueueDetailOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopQueueDetailOpen}"
-             x-transition.opacity>
-            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileQueueDetailOpen = false"></div>
+        <div x-show="isMobileQueueDetailOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopQueueDetailOpen}">
+            <div class="absolute inset-0 bg-slate-900/45"
+                 x-show="isMobileQueueDetailOpen"
+                 x-transition:enter="transition-opacity ease-out duration-150"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 @click="isMobileQueueDetailOpen = false"></div>
 
             <div
-                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[450px] lg:mx-auto lg:rounded-[2rem]"
+                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[450px] lg:mx-auto lg:rounded-[2rem]"
                 x-show="isMobileQueueDetailOpen"
-                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter="transition-transform ease-out duration-200"
                 x-transition:enter-start="translate-y-full"
-                x-transition:enter-end="translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="translate-y-0"
-                x-transition:leave-end="translate-y-full">
+                x-transition:enter-end="translate-y-0">
+
                 {{-- Drag handle --}}
                 <div class="flex shrink-0 justify-center pt-3 pb-1">
                     <div class="h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-700"></div>
@@ -124,7 +128,7 @@
     {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
     <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
         <button
-            class="floating-cart-btn fixed bottom-5 left-1/2 z-[1030] flex w-[90%] max-w-[400px] -translate-x-1/2 items-center justify-between rounded-2xl bg-emerald-800 p-4 text-sm font-black text-white shadow-xl transition-all"
+            class="floating-cart-btn fixed bottom-5 left-1/2 z-[1030] flex w-[90%] max-w-[400px] -translate-x-1/2 items-center justify-between rounded-2xl bg-emerald-800 p-4 text-sm font-black text-white shadow-xl transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400"
             :class="{'lg:hidden': isDesktopCartOpen}"
             @click="isMobileCartOpen = true">
             <span><i class="ph-bold ph-shopping-cart me-2"></i>Lihat Keranjang (<span

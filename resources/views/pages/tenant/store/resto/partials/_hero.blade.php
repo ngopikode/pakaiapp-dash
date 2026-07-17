@@ -23,8 +23,8 @@
 
         {{-- Gradient overlay — Nyatu mulus di bawah, tapi tetep gelap pekat ke atas --}}
         <div
-            class="absolute inset-0 bg-gradient-to-t from-[var(--background)] from-0% via-white/75 via-15% to-black/75 to-100% dark:via-black/75 dark:via-15% dark:to-white/75 pointer-events-none"></div>
-
+            class="absolute inset-0 bg-gradient-to-t from-[var(--background)] from-0% to-100% pointer-events-none"></div>
+        
         {{-- TOP-LEFT: Promo badge (back to original position) --}}
         @if($setting->hero_promo_text)
             <div class="absolute top-4 left-4 z-20">
