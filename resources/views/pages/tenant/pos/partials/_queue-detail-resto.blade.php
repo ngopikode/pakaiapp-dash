@@ -69,7 +69,7 @@
                         <div class="flex items-start gap-3 shrink-0 ml-2">
                             <span class="font-bold text-foreground" x-text="'Rp ' + formatRupiah(item.subtotal)"></span>
                             <template x-if="selectedQueueOrder.amount_paid == 0 && !['processing', 'ready', 'completed'].includes(item.kitchen_status)">
-                                <button type="button" @click="if(confirm('Yakin ingin membatalkan item ini? Stok akan dikembalikan otomatis.')) $wire.voidItem(item.id)"
+                                <button type="button" @click="$dispatch('open-void-item-modal', { itemId: item.id })"
                                         class="flex h-5 w-5 items-center justify-center rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors cursor-pointer -mt-0.5"
                                         title="Batal (Void) Item">
                                     <i class="ph-bold ph-x text-[9px]"></i>

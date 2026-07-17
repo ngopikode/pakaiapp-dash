@@ -22,6 +22,7 @@
     @force-cashier-tab.window="currentTab = 'cashier'"
     @pos-change-tab.window="if($event.detail === 'cashier' && isEditingOrder) window.location.href='/cashier'; else { currentTab = $event.detail; if(currentTab === 'queue') { $wire.$island('queue').$refresh() } }"
     @open-payment-modal.window="openPayForOrder($event.detail)"
+    @open-void-item-modal.window="voidItemId = $event.detail.itemId; isVoidItemModalOpen = true"
     @start-editing-order.window="isEditingOrder = true; editInvoiceCode = $event.detail.invoice_code; customerName = $event.detail.customer; tableNumber = $event.detail.table; orderType = $event.detail.type"
     x-cloak>
 
@@ -150,6 +151,9 @@
         <x-tenant.order.cancel-modal/>
     </div>
 
+    @include('pages.tenant.pos.partials._modal-void-item')
+
+
     @script
     <script>
         Alpine.data('restoPos', (config) => ({
@@ -168,6 +172,8 @@
             isOptionModalOpen: false,
             showSplitModalState: false,
             isMergeModalOpen: false,
+            isVoidItemModalOpen: false,
+            voidItemId: null,
 
             optionProduct: null,
             optionSelected: [],

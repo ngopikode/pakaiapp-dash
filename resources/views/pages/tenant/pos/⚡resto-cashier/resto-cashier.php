@@ -102,6 +102,7 @@ new class extends Component {
             ) $this->existingOrder->refresh();
 
             $this->js("window.showIslandToast('Item berhasil dibatalkan dan stok dikembalikan.', 'success');");
+            $this->js("\$wire.\$island('queue').\$refresh();");
         } catch (Exception $e) {
             $errorMsg = json_encode('Gagal membatalkan item: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
             $this->js("window.showIslandToast($errorMsg, 'danger');");
