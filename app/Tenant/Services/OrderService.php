@@ -145,7 +145,9 @@ class OrderService
                     'product_id' => $product->id,
                     'variant_id' => $validVariantsObjects->first()?->id ?? null,
                     'product_name' => $item['name'] ?? $item['cartName'] ?? $product->name,
-                    'variant_name' => $item['variant_name'] ?? $validVariantsObjects->pluck('name')->join(', '),
+                    'variant_name' => !empty($item['variant_name']) 
+                        ? $item['variant_name'] 
+                        : ($product->has_variants ? $validVariantsObjects->pluck('name')->join(', ') : null),
                     'quantity' => $qty,
                     'price' => $itemOriginalPrice,
                     'cost' => $cost,
