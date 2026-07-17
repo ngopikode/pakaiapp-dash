@@ -5,13 +5,10 @@ namespace App\Central\Controllers;
 use App\Central\Data\GetPaymentMethodsInputData;
 use App\Central\Models\Tenant;
 use App\Central\Models\TenantRegistration;
-use App\Central\Services\BillingService;
 use App\Central\Services\DuitkuService;
-use App\Central\Services\TenantRegistrationService;
 use App\Http\Controllers\Controller;
 use App\Shared\Traits\ApiResponserTrait;
 use App\Tenant\Models\Core\Order;
-use App\Tenant\Services\TenantWalletService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,28 +32,9 @@ use Throwable;
 class DuitkuController extends Controller
 {
     use ApiResponserTrait;
-
-    protected ?TenantRegistrationService $tenantRegistrationService = null;
-    protected ?BillingService $billingService = null;
-    protected ?TenantWalletService $tenantWalletService = null;
-
+    
     public function __construct(protected readonly DuitkuService $duitkuService)
     {
-    }
-
-    protected function tenantRegistrationService(): TenantRegistrationService
-    {
-        return $this->tenantRegistrationService ??= app(TenantRegistrationService::class);
-    }
-
-    protected function billingService(): BillingService
-    {
-        return $this->billingService ??= app(BillingService::class);
-    }
-
-    protected function tenantWalletService(): TenantWalletService
-    {
-        return $this->tenantWalletService ??= app(TenantWalletService::class);
     }
 
     /**

@@ -4,8 +4,7 @@ export default {
     content: [
         './resources/**/*.blade.php',
         './resources/**/*.js',
-        './resources/**/*.vue',
-        './resources/views/pages/tenant/pos/⚡resto-cashier/resto-cashier.php'
+        './resources/**/*.vue'
     ],
     theme: {
         extend: {

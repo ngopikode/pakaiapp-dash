@@ -1,5 +1,5 @@
-<div class="overflow-y-auto hide-scrollbar pb-10 relative" style="min-h: 50vh;"
-     x-init="$nextTick(() => { 
+<div class="overflow-y-auto hide-scrollbar pb-10 relative" style="min-height: 50vh;"
+     x-init="$nextTick(() => {
         if (selectedQueueOrder) {
             let updatedOrders = @js($queueOrders->pluck('orderData')->values());
             let updated = updatedOrders.find(o => o.id === selectedQueueOrder.id);
@@ -62,9 +62,9 @@
 
             <div class="grid gap-4 xl:gap-5" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
                 @foreach($queueOrders as $order)
-                    <div x-show="(activeFilter === 'all' || activeFilter === @js($order->kStatus)) && 
-                                 (searchQuery === '' || @js(strtolower($order->invoice_code)).includes(searchQuery.toLowerCase()) || 
-                                 @js(strtolower($order->customer_name)).includes(searchQuery.toLowerCase()) || 
+                    <div x-show="(activeFilter === 'all' || activeFilter === @js($order->kStatus)) &&
+                                 (searchQuery === '' || @js(strtolower($order->invoice_code)).includes(searchQuery.toLowerCase()) ||
+                                 @js(strtolower($order->customer_name)).includes(searchQuery.toLowerCase()) ||
                                  @js(strtolower($order->table_number ?? $order->notes)).includes(searchQuery.toLowerCase()))"
                          @click="openQueueDetail({{ json_encode($order->orderData) }})"
                          class="dash-card flex flex-col h-full p-5 hover:-translate-y-1 hover:shadow-md cursor-pointer group">
@@ -81,14 +81,14 @@
                                 <i class="ph-bold ph-clock"></i>
                                 <span>{{ $order->created_at->diffForHumans() }}</span>
                             </div>
-                            
+
                             <div class="flex items-center gap-1.5">
                                 @if($order->order_type === 'dinein')
                                     <i class="ph-bold ph-hash"></i> Meja {{ $order->table_number ?? '-' }}
                                 @else
                                     <i class="ph-bold ph-bag"></i> Takeaway
                                 @endif
-                                
+
                                 @if($order->is_online)
                                     <div class="w-1 h-1 rounded-full bg-border ml-1"></div>
                                     <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
@@ -112,13 +112,13 @@
                                     <span class="font-bold text-foreground shrink-0 ml-2">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                                 </div>
                             @endforeach
-                            
+
                             @if($order->items->count() > 2)
                                 <button type="button" class="text-[12px] text-muted-foreground hover:text-primary text-left font-medium mt-1 transition-colors">
                                     + {{ $order->items->count() - 2 }} more items...
                                 </button>
                             @endif
-                            
+
                             @if($order->notes)
                                 <div class="mt-2 text-[11px] bg-accent text-accent-foreground p-2 rounded-lg italic flex gap-1.5 items-start">
                                     <i class="ph-bold ph-article mt-0.5"></i>
