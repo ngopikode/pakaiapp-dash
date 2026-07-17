@@ -390,6 +390,7 @@ new class extends Component {
             'customer_name' => $order->customer_name,
             'table_number' => $order->table_number,
             'notes' => $order->notes,
+            'order_type' => $order->order_type,
             'kStatus' => $order->kStatus,
             'kStatusLabel' => $order->kStatusLabel,
             'kStatusColor' => $order->kStatusColor,

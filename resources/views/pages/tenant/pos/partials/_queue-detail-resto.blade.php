@@ -38,7 +38,7 @@
                     selectedQueueOrder.order_type === 'dinein' ? 'Meja ' + (selectedQueueOrder.table_number || '-') :
                     selectedQueueOrder.order_type === 'takeaway' ? 'Bawa Pulang' :
                     selectedQueueOrder.order_type === 'delivery' ? 'Diantar' :
-                    'Retail'
+                    '-'
                 "></span>
             </div>
         </div>
@@ -68,10 +68,9 @@
                                         <i class="ph-bold ph-warning-circle"></i> <span x-text="item.notes"></span>
                                     </span>
                                 </template>
-                </div>
+                                </div>
 
-
-                        </div>
+                            </div>
                         
                         <div class="flex items-start gap-3 shrink-0 ml-2">
                             <span class="font-bold text-foreground" x-text="'Rp ' + formatRupiah(item.subtotal)"></span>
