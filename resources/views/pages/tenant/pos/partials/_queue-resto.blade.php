@@ -138,8 +138,9 @@
                         <!-- Footer Actions & Status Pill -->
                         <div class="mt-auto flex items-center justify-between gap-2 pt-2">
                             <!-- Status Pill -->
-                            <span class="inline-flex items-center justify-center rounded-full {{ $order->statusConfig['bg'] }} {{ $order->statusConfig['color'] }} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest shadow-sm">
-                                <i class="ph-bold {{ $order->statusConfig['icon'] }} me-1"></i>{{ $order->statusConfig['label'] }}
+                            <span class="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-widest shadow-sm"
+                                  :class="getStatusColor('{{ $order->kStatus }}')">
+                                <i class="ph-bold me-1" :class="getStatusIcon('{{ $order->kStatus }}')"></i><span x-text="getStatusLabel('{{ $order->kStatus }}')"></span>
                             </span>
                         </div>
                     </div>

@@ -12,9 +12,9 @@
             </div>
             
             <div class="flex items-center gap-1.5 rounded-full px-3 py-1 shrink-0 bg-opacity-20"
-                 :class="selectedQueueOrder.status_config.bg + ' ' + selectedQueueOrder.status_config.color">
-                <i class="ph-bold text-[11px]" :class="selectedQueueOrder.status_config.icon"></i>
-                <span class="font-bold text-[11px] uppercase tracking-wider" x-text="selectedQueueOrder.status_config.label"></span>
+                 :class="getStatusColor(selectedQueueOrder.kStatus)">
+                <i class="ph-bold text-[11px]" :class="getStatusIcon(selectedQueueOrder.kStatus)"></i>
+                <span class="font-bold text-[11px] uppercase tracking-wider" x-text="getStatusLabel(selectedQueueOrder.kStatus)"></span>
             </div>
         </div>
 
