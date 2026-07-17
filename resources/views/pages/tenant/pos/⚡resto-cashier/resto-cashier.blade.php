@@ -56,7 +56,7 @@
             <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="isMobileCartOpen = false"></div>
 
             <div
-                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[450px] lg:mx-auto lg:rounded-[2rem]"
+                class="absolute inset-x-0 bottom-0 z-[1030] flex max-h-[85dvh] flex-col rounded-t-[2rem] bg-white shadow-2xl dark:bg-slate-900 lg:bottom-1/2 lg:translate-y-1/2 lg:w-[768px] lg:mx-auto lg:rounded-[2rem]"
                 x-show="isMobileCartOpen"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="translate-y-full"
