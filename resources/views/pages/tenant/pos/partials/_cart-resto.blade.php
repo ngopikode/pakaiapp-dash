@@ -1,5 +1,5 @@
 @php($isSheet = $isSheet ?? false)
-<div class="flex h-full min-h-0 flex-col overflow-hidden {{ $isSheet ? 'bg-white dark:bg-slate-900' : 'rounded-[2rem] bg-white shadow-lg dark:bg-slate-900' }}">
+<div class="flex h-full min-h-0 flex-col overflow-hidden {{ $isSheet ? 'bg-white dark:bg-slate-900 lg:rounded-[2rem]' : 'rounded-[2rem] bg-white shadow-lg dark:bg-slate-900' }}">
     <div x-show="isEditingOrder" class="border-b border-emerald-800/10 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-emerald-800 dark:border-slate-800 dark:bg-emerald-500/10 dark:text-emerald-400" style="display: none;">
         Menambah ke <span x-text="editInvoiceCode"></span> (<span x-text="customerName || tableNumber"></span>)
         <button type="button" class="float-end text-slate-500" @click="isEditingOrder = false; @this.cancelEditOrder(); currentTab = 'queue';" title="Batal Edit">
