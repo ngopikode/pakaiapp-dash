@@ -661,160 +661,88 @@
                     let result;
                     let isDirect = !this.payingOrder;
 
-                    // Duitku & Midtrans: gunakan Livewire action jika payingOrder (menghindari duplikasi order),
-                    // atau gunakan OrderApiController via /api/orders jika pesanan baru
-                    if (this.paymentMethod === 'duitku' || this.paymentMethod === 'digital') {
-                        const custEmail = this.duitkuCustomerEmail ? this.duitkuCustomerEmail.trim() : '';
-                        if (this.payingOrder) {
-                            // Bayar pesanan yang ada (antrean) tanpa duplikasi
-                            if (this.paymentMethod === 'duitku') {
-                                result = await this.$wire.generateDuitkuPayment(
-                                    this.payingOrder.id, this.duitkuMethod, custEmail
-                                );
-                                if (result && result.success && result.payment_url) {
-                                    this.isPaymentModalOpen = false;
-                                    window.open(result.payment_url, '_blank');
-                                    showIslandToast(`Link Duitku dibuka! Invoice: ${this.payingOrder.invoice_code}`, 'success');
-                                    this.payingOrder = null;
-                                    this.duitkuMethod = null;
-                                    this.duitkuCustomerEmail = '';
-                                } else {
-                                    showIslandToast(result?.error || 'Gagal membuat invoice Duitku.', 'danger');
-                                }
-                                this.isSubmitting = false;
-                                return;
-                            } else if (this.paymentMethod === 'digital') {
-                                result = await this.$wire.generateMidtransPayment(
-                                    this.payingOrder.id, custEmail
-                                );
-                                if (result && result.success && result.snap_token) {
-                                    this.isPaymentModalOpen = false;
-                                    window.snap.pay(result.snap_token, {
-                                        onSuccess: () => {
-                                            showIslandToast(`Pembayaran berhasil!`, 'success');
-                                            this.payingOrder = null;
-                                        },
-                                        onPending: () => {
-                                            showIslandToast(`Menunggu pembayaran...`, 'warning');
-                                        },
-                                        onError: () => {
-                                            showIslandToast(`Pembayaran gagal.`, 'danger');
-                                        },
-                                        onClose: () => {
-                                            showIslandToast(`Popup ditutup sebelum pembayaran selesai.`, 'warning');
-                                        }
-                                    });
-                                } else {
-                                    showIslandToast(result?.error || 'Gagal membuat token Midtrans.', 'danger');
-                                }
-                                this.isSubmitting = false;
-                                return;
-                            }
-                        }
+                    const custEmail = this.duitkuCustomerEmail ? this.duitkuCustomerEmail.trim() : '';
 
-                        // Pesanan Baru (Direct)
-                        const cartItems = this.cart.map(i => ({
-                            product_id: i.id,
-                            variant_id: i.variant_id,
-                            name: i.name,
-                            variant_name: i.variant_name,
-                            quantity: i.quantity,
-                            price: parseFloat(i.price),
-                            note: i.note || ''
-                        }));
+                    if (this.payingOrder) {
+                        result = await this.$wire.processPayment(
+                            this.payingOrder.id,
+                            this.paymentMethod,
+                            this.payDiscount || 0,
+                            this.amountPaid,
+                            this.duitkuMethod,
+                            custEmail
+                        );
+                    } else {
+                        result = await this.$wire.processDirectCheckout(
+                            this.cart,
+                            this.customerName,
+                            this.tableNumber,
+                            this.orderType,
+                            this.paymentMethod,
+                            this.payDiscount || 0,
+                            this.amountPaid,
+                            this.isTaxActive,
+                            this.isServiceActive,
+                            this.duitkuMethod,
+                            custEmail
+                        );
+                    }
 
-                        const payload = {
-                            customer_name: (this.customerName || '').trim() || 'Pelanggan POS',
-                            customer_email: custEmail || 'noreply@pakaiapp.online',
-                            total_price: this.payTotal,
-                            payment_method: this.paymentMethod === 'digital' ? 'digital' : this.duitkuMethod,
-                            order_type: this.orderType || 'retail',
-                            items: cartItems
-                        };
+                    if (result && result.success) {
+                        this.isPaymentModalOpen = false;
+                        this.$wire.$island('queue').$refresh();
 
-                        const res = await fetch('/api/orders', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                            },
-                            body: JSON.stringify(payload)
-                        });
-                        const data = await res.json();
-
-                        if (res.ok && data.data?.payment_url) {
-                            this.isPaymentModalOpen = false;
-                            window.open(data.data.payment_url, '_blank');
-                            showIslandToast(`Link Duitku dibuka! Invoice: ${data.data.invoice_code}`, 'success');
+                        if (result.payment_url) {
+                            window.open(result.payment_url, '_blank');
+                            showIslandToast(`Link Duitku dibuka! Invoice: ${result.invoice_code || this.payingOrder?.invoice_code || ''}`, 'success');
+                            this.payingOrder = null;
+                            this.duitkuMethod = null;
+                            this.duitkuCustomerEmail = '';
                             if (isDirect) {
                                 this.clearCart();
                                 this.customerName = '';
                                 this.tableNumber = '';
                             }
-                            this.duitkuMethod = null;
-                            this.duitkuCustomerEmail = '';
-                        } else if (res.ok && data.data?.snap_token) {
-                            this.isPaymentModalOpen = false;
-                            window.snap.pay(data.data.snap_token, {
+                            Livewire.dispatch('stock-updated');
+                            return;
+                        }
+
+                        if (result.snap_token) {
+                            window.snap.pay(result.snap_token, {
                                 onSuccess: () => {
                                     showIslandToast(`Pembayaran berhasil!`, 'success');
+                                    this.payingOrder = null;
                                     if (isDirect) {
                                         this.clearCart();
                                         this.customerName = '';
                                         this.tableNumber = '';
                                     }
+                                    Livewire.dispatch('stock-updated');
                                 },
                                 onPending: () => {
                                     showIslandToast(`Menunggu pembayaran...`, 'warning');
+                                    this.payingOrder = null;
                                     if (isDirect) {
                                         this.clearCart();
                                         this.customerName = '';
                                         this.tableNumber = '';
                                     }
+                                    Livewire.dispatch('stock-updated');
                                 },
                                 onError: () => {
                                     showIslandToast(`Pembayaran gagal.`, 'danger');
                                 },
                                 onClose: () => {
                                     showIslandToast(`Popup ditutup sebelum pembayaran selesai.`, 'warning');
-                                    if (isDirect) {
-                                        this.clearCart();
-                                        this.customerName = '';
-                                        this.tableNumber = '';
-                                    }
                                 }
                             });
                             this.duitkuMethod = null;
                             this.duitkuCustomerEmail = '';
-                        } else {
-                            let errorMsg = data.message || 'Gagal membuat invoice online.';
-                            if (data.errors) {
-                                errorMsg = Object.values(data.errors).flat().join(', ');
-                            }
-                            showIslandToast(errorMsg, 'danger');
-                            console.error('API Order Error:', data);
+                            return;
                         }
-                        this.isSubmitting = false;
-                        return;
-                    }
 
-                    // Cash / QRIS manual / Transfer — flow Livewire seperti biasa
-                    if (this.payingOrder) {
-                        result = await this.$wire.processPayment(
-                            this.payingOrder.id, this.paymentMethod, this.payDiscount || 0, this.amountPaid
-                        );
-                    } else {
-                        result = await this.$wire.processDirectCheckout(
-                            this.cart, this.customerName, this.tableNumber, this.orderType, this.paymentMethod, this.payDiscount || 0, this.amountPaid, this.isTaxActive, this.isServiceActive
-                        );
-                    }
-
-                    if (result && result.success) {
                         this.lastOrder = result;
-                        this.isPaymentModalOpen = false;
                         this.payingOrder = null;
-                        this.$wire.$island('queue').$refresh();
                         if (isDirect) {
                             this.clearCart();
                             this.customerName = '';

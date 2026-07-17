@@ -24,6 +24,14 @@ class PaymentGatewayService
         return $this->midtransService ??= app(MidtransService::class);
     }
 
+    private function resolveDuitkuDbMethod(string $paymentMethod): string
+    {
+        $method = strtoupper($paymentMethod);
+        $isQris = in_array($method, ['QRIS', 'QRISC', 'NQ', 'SP', 'LQ', 'GQ'], true) || str_contains($method, 'QRIS');
+
+        return $isQris ? 'qris' : 'transfer';
+    }
+
     private function resolveEmail(?string $email): string
     {
         $email = trim($email ?? '');
@@ -89,6 +97,7 @@ class PaymentGatewayService
         $result = $this->duitkuService()->createInvoice($order, $customerDetail, $paymentMethod, tenant()->getTenantKey());
 
         $order->update([
+            'payment_method' => $this->resolveDuitkuDbMethod($paymentMethod),
             'duitku_reference' => $result['reference'],
             'duitku_payment_url' => $result['payment_url'],
             'duitku_va_number' => $result['va_number'],

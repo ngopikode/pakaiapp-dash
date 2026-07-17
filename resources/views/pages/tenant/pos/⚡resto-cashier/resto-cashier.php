@@ -145,7 +145,7 @@ new class extends Component {
         }
     }
 
-    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive = true, $isServiceActive = true): array
+    public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive = true, $isServiceActive = true, $duitkuMethod = null, $customerEmail = null): array
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
@@ -161,21 +161,46 @@ new class extends Component {
                 isServiceActive: $isServiceActive,
             );
 
+            $isDuitku = $paymentMethod === 'duitku';
+            $isMidtrans = $paymentMethod === 'digital';
+
             $orderData = [
                 'table_number' => $dto->orderType === 'dinein' ? $dto->tableNumber : null,
                 'notes' => $dto->orderType !== 'dinein' ? $dto->tableNumber : null,
                 'customer_name' => $dto->customerName,
                 'order_type' => $dto->orderType,
-                'payment_method' => $dto->paymentMethod,
+                'payment_method' => $isMidtrans ? 'transfer' : ($isDuitku ? $dto->paymentMethod : $dto->paymentMethod),
                 'global_discount' => $dto->discount,
-                'status' => 'paid',
+                'status' => ($isDuitku || $isMidtrans) ? 'pending' : 'paid',
                 'is_tax_active' => $dto->isTaxActive,
                 'is_service_active' => $dto->isServiceActive,
             ];
 
             $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
 
-            // Directly charge and process payment completion since this is direct checkout
+            if ($isDuitku) {
+                $result = $this->paymentGatewayService()->generateDuitku(
+                    $order->id, $duitkuMethod, $customerEmail
+                );
+                return [
+                    'success' => true,
+                    'invoice_code' => $order->invoice_code,
+                    'payment_url' => $result['payment_url'],
+                ];
+            }
+
+            if ($isMidtrans) {
+                $result = $this->paymentGatewayService()->generateMidtrans(
+                    $order->id, $customerEmail
+                );
+                return [
+                    'success' => true,
+                    'invoice_code' => $order->invoice_code,
+                    'snap_token' => $result['snap_token'],
+                ];
+            }
+
+            // Manual cash/transfer
             $totalPrice = $order->total_price;
             $paid = $dto->amountPaid ?: $totalPrice;
             $change = max(0, $paid - $totalPrice);
@@ -206,9 +231,32 @@ new class extends Component {
         }
     }
 
-    public function processPayment($orderId, $paymentMethod, $discount, $amountPaid): array
+    public function processPayment($orderId, $paymentMethod, $discount, $amountPaid, $duitkuMethod = null, $customerEmail = null): array
     {
         try {
+            $isDuitku = $paymentMethod === 'duitku';
+            $isMidtrans = $paymentMethod === 'digital';
+
+            if ($isDuitku) {
+                $result = $this->paymentGatewayService()->generateDuitku(
+                    $orderId, $duitkuMethod, $customerEmail
+                );
+                return [
+                    'success' => true,
+                    'payment_url' => $result['payment_url'],
+                ];
+            }
+
+            if ($isMidtrans) {
+                $result = $this->paymentGatewayService()->generateMidtrans(
+                    $orderId, $customerEmail
+                );
+                return [
+                    'success' => true,
+                    'snap_token' => $result['snap_token'],
+                ];
+            }
+
             $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float)$discount, (float)$amountPaid);
 
             $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
@@ -226,25 +274,6 @@ new class extends Component {
         }
     }
 
-    public function generateDuitkuPayment($orderId, $paymentMethod, $customerEmail): array
-    {
-        try {
-            $result = $this->paymentGatewayService()->generateDuitku($orderId, $paymentMethod, $customerEmail);
-            return array_merge(['success' => true], $result);
-        } catch (Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    public function generateMidtransPayment($orderId, $customerEmail): array
-    {
-        try {
-            $result = $this->paymentGatewayService()->generateMidtrans($orderId, $customerEmail);
-            return array_merge(['success' => true], $result);
-        } catch (Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
 
     #[On('cancel-confirmed')]
     public function cancelOrder($orderId, $note = null): void
