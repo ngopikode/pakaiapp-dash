@@ -350,18 +350,18 @@ new class extends Component {
         $kStatus = $order->status === 'completed' ? 'completed' : ($order->kitchen_status ?: 'waiting');
 
         $statusConfig = match ($kStatus) {
-            'waiting' => ['label' => 'Pesanan Masuk', 'icon' => 'ph-clock', 'bg' => 'bg-amber-100', 'color' => 'text-amber-700', 'dot' => 'bg-amber-500'],
-            'processing' => ['label' => 'Diproses Dapur', 'icon' => 'ph-cooking-pot', 'bg' => 'bg-blue-100', 'color' => 'text-blue-700', 'dot' => 'bg-blue-500'],
-            'ready' => ['label' => 'Siap Disajikan', 'icon' => 'ph-bell-ringing', 'bg' => 'bg-green-100', 'color' => 'text-green-700', 'dot' => 'bg-green-500'],
-            'completed' => ['label' => 'Selesai', 'icon' => 'ph-check-circle', 'bg' => 'bg-emerald-100', 'color' => 'text-emerald-700', 'dot' => 'bg-emerald-500'],
-            default => ['label' => 'Unknown', 'icon' => 'ph-question', 'bg' => 'bg-gray-100', 'color' => 'text-gray-700', 'dot' => 'bg-gray-500'],
+            'waiting' => ['label' => 'Pesanan Masuk', 'icon' => 'ph-clock', 'bg' => 'bg-amber-100 dark:bg-amber-500/20', 'color' => 'text-amber-700 dark:text-amber-400', 'dot' => 'bg-amber-500'],
+            'processing' => ['label' => 'Diproses Dapur', 'icon' => 'ph-cooking-pot', 'bg' => 'bg-blue-100 dark:bg-blue-500/20', 'color' => 'text-blue-700 dark:text-blue-400', 'dot' => 'bg-blue-500'],
+            'ready' => ['label' => 'Siap Disajikan', 'icon' => 'ph-bell-ringing', 'bg' => 'bg-green-100 dark:bg-green-500/20', 'color' => 'text-green-700 dark:text-green-400', 'dot' => 'bg-green-500'],
+            'completed' => ['label' => 'Selesai', 'icon' => 'ph-check-circle', 'bg' => 'bg-emerald-100 dark:bg-emerald-500/20', 'color' => 'text-emerald-700 dark:text-emerald-400', 'dot' => 'bg-emerald-500'],
+            default => ['label' => 'Unknown', 'icon' => 'ph-question', 'bg' => 'bg-gray-100 dark:bg-gray-500/20', 'color' => 'text-gray-700 dark:text-gray-400', 'dot' => 'bg-gray-500'],
         };
 
         $orderTypeConfig = match ($order->order_type) {
-            'dinein' => ['label' => 'Dine In', 'icon' => 'ph-fork-knife', 'color' => 'text-indigo-600 bg-indigo-50'],
-            'takeaway' => ['label' => 'Takeaway', 'icon' => 'ph-bag', 'color' => 'text-orange-600 bg-orange-50'],
-            'delivery' => ['label' => 'Delivery', 'icon' => 'ph-moped', 'color' => 'text-sky-600 bg-sky-50'],
-            default => ['label' => 'Retail', 'icon' => 'ph-storefront', 'color' => 'text-gray-600 bg-gray-50'],
+            'dinein' => ['label' => 'Dine In', 'icon' => 'ph-fork-knife', 'color' => 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-500/20'],
+            'takeaway' => ['label' => 'Takeaway', 'icon' => 'ph-bag', 'color' => 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-500/20'],
+            'delivery' => ['label' => 'Delivery', 'icon' => 'ph-moped', 'color' => 'text-sky-600 bg-sky-50 dark:text-sky-400 dark:bg-sky-500/20'],
+            default => ['label' => 'Retail', 'icon' => 'ph-storefront', 'color' => 'text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-500/20'],
         };
 
         $order->statusConfig = $statusConfig;
