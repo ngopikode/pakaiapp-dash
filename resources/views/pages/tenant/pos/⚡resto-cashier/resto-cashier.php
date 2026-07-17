@@ -179,6 +179,8 @@ new class extends Component {
             $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
 
             if ($isDuitku) {
+                if (!$duitkuMethod) throw new Exception('Metode pembayaran Duitku belum dipilih.');
+
                 $result = $this->paymentGatewayService()->generateDuitku(
                     $order->id, $duitkuMethod, $customerEmail
                 );
@@ -202,7 +204,8 @@ new class extends Component {
 
             // Manual cash/transfer
             $totalPrice = $order->total_price;
-            $paid = $dto->amountPaid ?: $totalPrice;
+            $paid = $dto->amountPaid > 0 ? $dto->amountPaid : $totalPrice;
+            if ($paid < $totalPrice) throw new Exception("Nominal pembayaran kurang dari total tagihan.");
             $change = max(0, $paid - $totalPrice);
 
             $order->update([
@@ -238,6 +241,8 @@ new class extends Component {
             $isMidtrans = $paymentMethod === 'digital';
 
             if ($isDuitku) {
+                if (!$duitkuMethod) throw new Exception('Metode pembayaran Duitku belum dipilih.');
+
                 $result = $this->paymentGatewayService()->generateDuitku(
                     $orderId, $duitkuMethod, $customerEmail
                 );

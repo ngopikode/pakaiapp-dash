@@ -373,7 +373,7 @@ class OrderService
 
             $baseTotal = isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal;
             $totalPrice = max(0, $baseTotal - $discount);
-            $paid = $amountPaid ?: $totalPrice;
+            $paid = (float)$amountPaid > 0 ? (float)$amountPaid : $totalPrice;
 
             $accumulatedPaid = $order->amount_paid + $paid;
             $change = max(0, $accumulatedPaid - $totalPrice);
@@ -500,6 +500,8 @@ class OrderService
                     $newSubtotal += $item->subtotal;
                 }
             }
+
+            if ($newSubtotal <= 0) throw new Exception("Tidak ada item valid yang bisa dipisah.");
 
             if (!empty($newOrderItemsData)) {
                 OrderItem::insert($newOrderItemsData);
@@ -641,11 +643,23 @@ class OrderService
     private function executeStockAdjustments(array $variantAdjustments, array $rawMaterialAdjustments, string $operation = self::OPERATION_DECREMENT): void
     {
         foreach ($variantAdjustments as $id => $qty) {
-            ProductVariant::where('id', $id)->$operation('stock', $qty);
+            if ($operation === self::OPERATION_DECREMENT) {
+                $updated = ProductVariant::where('id', $id)->where('stock', '>=', $qty)->decrement('stock', $qty);
+                if ($updated !== 1) throw new Exception('Stok varian tidak mencukupi.');
+                continue;
+            }
+
+            ProductVariant::where('id', $id)->increment('stock', $qty);
         }
 
         foreach ($rawMaterialAdjustments as $id => $qty) {
-            RawMaterial::where('id', $id)->$operation('stock', $qty);
+            if ($operation === self::OPERATION_DECREMENT) {
+                $updated = RawMaterial::where('id', $id)->where('stock', '>=', $qty)->decrement('stock', $qty);
+                if ($updated !== 1) throw new Exception('Stok bahan baku tidak mencukupi.');
+                continue;
+            }
+
+            RawMaterial::where('id', $id)->increment('stock', $qty);
         }
     }
 }
