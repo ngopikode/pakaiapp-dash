@@ -279,7 +279,7 @@
                     id: i.id,
                     name: i.product_name,
                     variant_name: i.variant_name,
-                    price: parseFloat(i.price),
+                    price: parseFloat(i.price || (i.subtotal / i.quantity) || 0),
                     maxQty: parseInt(i.quantity),
                     qtyToSplit: 0
                 }));
