@@ -17,7 +17,7 @@ new class extends Component {
     public string $activeTab = 'cashier';
     public ?int $addToOrder = null;
     public ?Order $existingOrder = null;
-    public string $queueFilter = 'all';
+    public string $queueFilter = 'waiting';
     public string $queueSearch = '';
 
     protected ?OrderService $orderService = null;

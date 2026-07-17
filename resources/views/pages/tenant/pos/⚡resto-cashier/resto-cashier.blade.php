@@ -76,19 +76,21 @@
         </div>
     </div>
 
-    <div x-show="currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden" x-transition.opacity.duration.150ms>
+    <div x-show="currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden"
+         x-transition.opacity.duration.150ms>
         <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden relative">
             @island(name: 'queue')
             <div class="h-full flex flex-col min-h-0 w-full">
                 @include('pages.tenant.pos.partials._queue-header-resto')
-                
+
                 <div class="flex flex-1 min-h-0 overflow-hidden gap-5 lg:flex-row">
                     <div class="flex-1 overflow-y-auto min-h-0 relative pr-1">
                         @include('pages.tenant.pos.partials._queue-resto')
                     </div>
-                    
+
                     {{-- Desktop queue detail (sidebar) --}}
-                    <div wire:ignore class="hidden lg:block shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+                    <div wire:ignore
+                         class="hidden lg:block shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
                          :class="isDesktopQueueDetailOpen && selectedQueueOrder ? 'w-[390px] xl:w-[430px] opacity-100 translate-x-0' : 'w-0 opacity-0 translate-x-8'">
                         <div class="min-h-0 h-full w-[390px] xl:w-[430px] cart-mobile-wrapper pb-1">
                             @include('pages.tenant.pos.partials._queue-detail-resto', ['isSheet' => false])
@@ -102,7 +104,8 @@
         </div>
 
         {{-- Mobile queue detail bottom sheet --}}
-        <div x-show="isMobileQueueDetailOpen" x-cloak class="fixed inset-0 z-[1029]" :class="{'lg:hidden': isDesktopQueueDetailOpen}">
+        <div x-show="isMobileQueueDetailOpen" x-cloak class="fixed inset-0 z-[1029]"
+             :class="{'lg:hidden': isDesktopQueueDetailOpen}">
             <div class="absolute inset-0 bg-slate-900/45"
                  x-show="isMobileQueueDetailOpen"
                  x-transition:enter="transition-opacity ease-out duration-150"
@@ -152,7 +155,6 @@
     </div>
 
     @include('pages.tenant.pos.partials._modal-void-item')
-
 
     @script
     <script>
