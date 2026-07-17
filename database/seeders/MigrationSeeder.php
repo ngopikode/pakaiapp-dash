@@ -8,6 +8,7 @@ use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -27,6 +28,11 @@ class MigrationSeeder extends Seeder
         if (!$tenant1) {
             $tenant1 = Tenant::create(['id' => $tenantId1]);
             $tenant1->domains()->create(['domain' => 'samarotikukus.pakaiapp.dep']);
+            Artisan::call('tenants:migrate', [
+                '--tenants' => [$tenantId1],
+                '--path' => database_path('migrations/tenant/core'),
+                '--realpath' => true,
+            ]);
         }
 
         $tenant1->run(function () use ($user1) {
@@ -116,6 +122,12 @@ class MigrationSeeder extends Seeder
         if (!$tenant2) {
             $tenant2 = Tenant::create(['id' => $tenantId2]);
             $tenant2->domains()->create(['domain' => 'martabakhening.pakaiapp.dep']);
+
+            Artisan::call('tenants:migrate', [
+                '--tenants' => [$tenantId2],
+                '--path' => database_path('migrations/tenant/core'),
+                '--realpath' => true,
+            ]);
         }
 
         $tenant2->run(function () use ($user2) {
