@@ -90,6 +90,13 @@ log "📦 Install/update Composer dependencies (no-dev)..."
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 # ==============================================================================
+# 4b. BUILD FRONTEND ASSETS
+# ==============================================================================
+log "🎨 Membangun frontend assets (Vite)..."
+npm install --no-audit --no-fund
+npm run build
+
+# ==============================================================================
 # 5. CLEAR CONFIG DULU sebelum cache — penting agar migrate pakai config terbaru
 # ==============================================================================
 log "🧹 Membersihkan semua cache lama..."
