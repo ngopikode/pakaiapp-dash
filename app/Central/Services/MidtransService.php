@@ -243,6 +243,7 @@ class MidtransService
                     'midtrans_payment_type' => $type,
                 ]);
                 $order->restoreStock();
+                event(new \App\Tenant\Events\KitchenUpdated());
                 tenancy()->end();
                 return;
             }
@@ -258,6 +259,8 @@ class MidtransService
             // POTONG SALDO WALLET (DYNAMIC PAYG CAPPING)
             $this->billingService->chargeTransactionFee($order);
 
+            event(new \App\Tenant\Events\KitchenUpdated());
+
         } else if ($status === 'cancelled') {
             $order->update([
                 'status' => 'cancelled',
@@ -266,6 +269,7 @@ class MidtransService
                 'midtrans_payment_type' => $type,
             ]);
             $order->restoreStock();
+            event(new \App\Tenant\Events\KitchenUpdated());
         }
 
         Log::info('[Midtrans] Order status updated', [

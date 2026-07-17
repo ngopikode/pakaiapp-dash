@@ -604,12 +604,13 @@ class DuitkuService
                         'amountPaid' => $amountPaid,
                         'expected' => $order->total_price,
                     ]);
-                    $order->update([
-                        'status' => 'cancelled',
-                        'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
-                    ]);
-                    $order->restoreStock();
-                    return;
+                $order->update([
+                    'status' => 'cancelled',
+                    'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
+                ]);
+                $order->restoreStock();
+                event(new \App\Tenant\Events\KitchenUpdated());
+                return;
                 }
 
                 $order->update([
@@ -622,6 +623,8 @@ class DuitkuService
                 $this->walletService->addBalance($amountPaid, $order, "Pendapatan Duitku masuk untuk pesanan $order->invoice_code");
                 $this->billingService->chargeTransactionFee($order);
 
+                event(new \App\Tenant\Events\KitchenUpdated());
+
                 Log::info('[Duitku Central] Pembayaran berhasil, wallet dikreditkan', [
                     'invoiceCode' => $invoiceCode,
                     'amountPaid' => $amountPaid,
@@ -633,6 +636,7 @@ class DuitkuService
                     'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
                 ]);
                 $order->restoreStock();
+                event(new \App\Tenant\Events\KitchenUpdated());
                 Log::info('[Duitku Central] Pembayaran gagal/dibatalkan, stok dikembalikan', ['invoiceCode' => $invoiceCode]);
             }
         });

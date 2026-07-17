@@ -104,6 +104,8 @@ class DuitkuCallbackController extends Controller
                     'amount_paid'      => (int) ($notif['amount'] ?? $order->total_price),
                 ]);
 
+                event(new \App\Tenant\Events\KitchenUpdated());
+
                 Log::info('[Duitku] Pembayaran berhasil', [
                     'invoice_code' => $merchantOrderId,
                     'result_code'  => $resultCode,
@@ -115,6 +117,8 @@ class DuitkuCallbackController extends Controller
                     'status'            => 'cancelled',
                     'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
                 ]);
+
+                event(new \App\Tenant\Events\KitchenUpdated());
 
                 Log::info('[Duitku] Pembayaran gagal', [
                     'invoice_code' => $merchantOrderId,
