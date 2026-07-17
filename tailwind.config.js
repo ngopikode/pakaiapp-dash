@@ -5,7 +5,7 @@ export default {
         './resources/**/*.blade.php',
         './resources/**/*.js',
         './resources/**/*.vue',
-        './resources/**/*.php'
+        './resources/views/pages/tenant/pos/⚡resto-cashier/resto-cashier.php'
     ],
     theme: {
         extend: {
