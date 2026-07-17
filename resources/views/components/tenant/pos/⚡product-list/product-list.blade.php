@@ -79,11 +79,11 @@
     <div id="tour-product-grid"
          class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div wire:loading wire:target="search, categoryFilter" class="w-full">
-            <div class="pos-product-grid">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
                 @for($i = 0; $i < 8; $i++)
                     <div
                         class="rounded-[1.5rem] border border-emerald-800/20 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
-                        <div class="skeleton-shimmer h-32 rounded-[1rem]"></div>
+                        <div class="skeleton-shimmer aspect-[4/3] w-full rounded-[1rem]"></div>
                         <div class="mt-4 space-y-2">
                             <div class="skeleton-shimmer h-4 w-3/4"></div>
                             <div class="skeleton-shimmer h-4 w-1/2"></div>
@@ -94,11 +94,11 @@
         </div>
 
         <div wire:loading.remove wire:target="search, categoryFilter" class="w-full">
-            <div class="pos-product-grid">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
                 @forelse($products as $product)
                     <div class="tour-product-item h-full">
                         <div
-                            class="relative flex h-[270px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border border-emerald-800 bg-white transition duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
+                            class="relative flex h-full cursor-pointer select-none flex-col overflow-hidden rounded-2xl border border-emerald-800 bg-white transition duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98] dark:border-slate-700 dark:bg-slate-900 {{ !$product['has_variants'] && $product['stock'] <= 0 ? 'opacity-50' : '' }}"
                             x-data
                             @click="$dispatch('add-product', { product: {{ json_encode($product) }} })"
                         >
@@ -119,11 +119,11 @@
 
                             @if($product['image_url'])
                                 <img src="{{ $product['image_url'] }}"
-                                     class="mx-2 mt-2 h-[190px] shrink-0 rounded-xl object-cover"
+                                     class="mx-2 mt-2 aspect-[4/3] w-[calc(100%-1rem)] shrink-0 rounded-xl object-cover"
                                      loading="lazy" alt="{{ $product['name'] }}">
                             @else
                                 <div
-                                    class="mx-2 mt-2 flex h-[190px] shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
+                                    class="mx-2 mt-2 flex aspect-[4/3] w-[calc(100%-1rem)] shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
                                     <i class="ph-bold ph-image text-4xl text-slate-300 dark:text-slate-600"></i>
                                 </div>
                             @endif

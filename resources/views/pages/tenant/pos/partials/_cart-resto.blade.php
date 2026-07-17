@@ -7,25 +7,25 @@
         </button>
     </div>
 
-        <div class="flex items-center justify-between px-4 py-3">
-            <button @click="isMobileCartOpen = false" class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-800 text-white shadow-sm dark:bg-emerald-500 dark:text-slate-950 lg:hidden">
-                <i class="ph-bold ph-caret-left text-xl"></i>
+        <div class="flex items-center justify-between px-4 py-2">
+            <button @click="isMobileCartOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-800 text-white shadow-sm dark:bg-emerald-500 dark:text-slate-950 lg:hidden">
+                <i class="ph-bold ph-caret-left text-lg"></i>
             </button>
-            <div class="hidden h-12 w-12 lg:block"></div>
+            <div class="hidden h-10 w-10 lg:block"></div>
             <div class="flex-1 text-center">
-                <h5 class="mb-0 text-lg font-black text-slate-950 dark:text-white">Purchase Receipt</h5>
-                <div class="text-sm font-bold text-slate-500">#<span x-text="editInvoiceCode || 'New Order'"></span></div>
+                <h5 class="mb-0 text-base font-black text-slate-950 dark:text-white">Purchase Receipt</h5>
+                <div class="text-xs font-bold text-slate-500">#<span x-text="editInvoiceCode || 'New Order'"></span></div>
             </div>
-            <button @click="clearCart" class="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" title="Bersihkan">
-                <i class="ph-bold ph-trash text-xl"></i>
+            <button @click="clearCart" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" title="Bersihkan">
+                <i class="ph-bold ph-trash text-lg"></i>
             </button>
         </div>
 
-    <div class="px-6 pb-3">
-        <div class="flex overflow-hidden rounded-full border border-emerald-800 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
+    <div class="px-4 pb-2">
+        <div class="flex overflow-hidden rounded-full border border-emerald-800 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900">
             @foreach($orderTypes as $type)
                 <button @click="orderType = '{{ $type['id'] }}'; if('{{ $type['id'] }}' !== 'dinein') tableNumber = ''"
-                        class="flex-1 rounded-full py-2 text-sm font-bold transition"
+                        class="flex-1 rounded-full py-1.5 text-xs font-bold transition"
                         :class="orderType === '{{ $type['id'] }}' ? 'bg-emerald-800 text-white shadow-sm dark:bg-emerald-500 dark:text-slate-950' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800'"
                         :disabled="isEditingOrder">
                     {{ $type['label'] }}
@@ -34,14 +34,14 @@
         </div>
     </div>
 
-    <div class="grid gap-3 px-4 pb-3" :class="orderType === 'dinein' ? 'grid-cols-2' : 'grid-cols-1'">
+    <div class="grid gap-2 px-4 pb-2" :class="orderType === 'dinein' ? 'grid-cols-2' : 'grid-cols-1'">
         <div>
-            <label class="mb-1 block text-xs font-bold text-slate-500">Customer name</label>
-            <input type="text" class="w-full rounded-2xl border border-emerald-800/50 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white" x-model="customerName" placeholder="Nama Pelanggan" :disabled="isEditingOrder">
+            <label class="mb-1 block text-[10px] font-bold text-slate-500">Customer name</label>
+            <input type="text" class="w-full rounded-2xl border border-emerald-800/50 bg-white px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white" x-model="customerName" placeholder="Nama Pelanggan" :disabled="isEditingOrder">
         </div>
         <div x-show="orderType === 'dinein'">
-            <label class="mb-1 block text-xs font-bold text-slate-500">Table</label>
-            <input type="text" class="w-full rounded-2xl border border-emerald-800/50 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white" x-model="tableNumber" placeholder="Meja" :disabled="isEditingOrder">
+            <label class="mb-1 block text-[10px] font-bold text-slate-500">Table</label>
+            <input type="text" class="w-full rounded-2xl border border-emerald-800/50 bg-white px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white" x-model="tableNumber" placeholder="Meja" :disabled="isEditingOrder">
         </div>
     </div>
 
@@ -87,16 +87,16 @@
                             </div>
                         </div>
                     </div>
-                    <input type="text" class="mt-3 w-full rounded-full border-0 bg-slate-50 px-4 py-2.5 text-[11px] font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-800/10 dark:bg-slate-950 dark:text-slate-200" x-model="item.note" placeholder="Catatan (opsional)...">
+                    <input type="text" class="mt-2 w-full rounded-full border-0 bg-slate-50 px-4 py-2 text-[11px] font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-800/10 dark:bg-slate-950 dark:text-slate-200" x-model="item.note" placeholder="Catatan (opsional)...">
                 </div>
             </template>
         </div>
     </div>
 
-    <div class="border-t border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+    <div class="border-t border-slate-100 bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
         <div x-show="stockError" class="mb-2 rounded-2xl bg-red-50 p-2 text-center text-[11px] font-black text-red-600 dark:bg-red-500/10 dark:text-red-400" x-text="stockError"></div>
 
-        <div class="mb-3 rounded-[1.5rem] bg-slate-50 p-2.5 dark:bg-slate-950">
+        <div class="mb-2 rounded-[1.5rem] bg-slate-50 p-2 dark:bg-slate-950">
             <div class="mb-1 flex justify-between text-xs">
                 <span class="font-semibold text-slate-500 dark:text-slate-400">Subtotal</span>
                 <span class="font-black text-slate-900 dark:text-white" x-text="'Rp ' + formatRupiah(subTotal)"></span>
@@ -117,10 +117,10 @@
         </div>
 
         <div class="grid gap-2" :class="isEditingOrder ? 'grid-cols-1' : 'grid-cols-2'">
-            <button id="tour-resto-save" @click="submitNewOrder" class="rounded-full bg-amber-400 px-4 py-2.5 text-sm font-black text-slate-950 shadow-sm transition hover:bg-amber-300" :disabled="cart.length === 0 || stockError !== '' || isSubmitting">
+            <button id="tour-resto-save" @click="submitNewOrder" class="rounded-full bg-amber-400 px-4 py-2 text-sm font-black text-slate-950 shadow-sm transition hover:bg-amber-300" :disabled="cart.length === 0 || stockError !== '' || isSubmitting">
                 <span x-text="isSubmitting ? 'Memproses...' : (isEditingOrder ? 'Simpan Tambahan' : 'Simpan Bill')"></span>
             </button>
-            <button id="tour-resto-pay" @click="openDirectPaymentModal" class="flex items-center justify-center gap-2 rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-emerald-700 dark:bg-emerald-500 dark:text-slate-950" x-show="!isEditingOrder" :disabled="cart.length === 0 || stockError !== '' || isSubmitting">
+            <button id="tour-resto-pay" @click="openDirectPaymentModal" class="flex items-center justify-center gap-2 rounded-full bg-emerald-800 px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-emerald-700 dark:bg-emerald-500 dark:text-slate-950" x-show="!isEditingOrder" :disabled="cart.length === 0 || stockError !== '' || isSubmitting">
                 <span>Place Order</span>
                 <i class="ph-fill ph-arrow-circle-right text-lg opacity-80"></i>
             </button>

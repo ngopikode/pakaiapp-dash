@@ -715,9 +715,12 @@
                         // Pesanan Baru (Direct)
                         const cartItems = this.cart.map(i => ({
                             product_id: i.id,
-                            name: i.name + (i.variant_name ? ` (${i.variant_name})` : ''),
+                            variant_id: i.variant_id,
+                            name: i.name,
+                            variant_name: i.variant_name,
                             quantity: i.quantity,
-                            price: parseFloat(i.price)
+                            price: parseFloat(i.price),
+                            note: i.note || ''
                         }));
 
                         const payload = {

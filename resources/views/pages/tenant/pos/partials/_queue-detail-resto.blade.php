@@ -2,7 +2,7 @@
     <div class="flex h-full flex-col {{ $isSheet ? 'pb-5' : 'rounded-2xl border border-border bg-card shadow-sm overflow-hidden' }}">
     
         <!-- Header: X, Title, Status Pill -->
-        <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-border/50">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-border/50">
             <div class="flex items-center gap-3 flex-1">
                 <button type="button" @click="{{ $isSheet ? 'isMobileQueueDetailOpen = false' : 'isDesktopQueueDetailOpen = false' }}"
                         class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-accent hover:text-foreground text-muted-foreground transition-colors shrink-0 cursor-pointer -ml-1">
@@ -19,38 +19,43 @@
         </div>
 
         <!-- Order Meta Details -->
-        <div class="px-3 sm:px-4 flex flex-col gap-2 mb-3 sm:mb-4">
-            <div class="flex justify-between items-center text-xs">
+        <div class="px-3 sm:px-3 flex flex-col gap-1.5 mb-2">
+            <div class="flex justify-between items-center text-[12px]">
                 <span class="text-muted-foreground font-medium">Nama Pelanggan</span>
                 <span class="font-bold text-foreground" x-text="selectedQueueOrder.customer_name"></span>
             </div>
-            <div class="flex justify-between items-center text-xs">
+            <div class="flex justify-between items-center text-[12px]">
                 <span class="text-muted-foreground font-medium">No. Pesanan</span>
                 <span class="font-bold text-foreground" x-text="'#' + selectedQueueOrder.invoice_code"></span>
             </div>
-            <div class="flex justify-between items-center text-xs">
+            <div class="flex justify-between items-center text-[12px]">
                 <span class="text-muted-foreground font-medium">Waktu Pesan</span>
                 <span class="font-bold text-foreground" x-text="selectedQueueOrder.created_at_human"></span>
             </div>
-            <div class="flex justify-between items-center text-xs">
+            <div class="flex justify-between items-center text-[12px]">
                 <span class="text-muted-foreground font-medium">Tipe Pesanan</span>
-                <span class="font-bold text-foreground" x-text="selectedQueueOrder.order_type === 'dinein' ? 'Makan di Tempat (Meja ' + (selectedQueueOrder.table_number || '-') + ')' : 'Bawa Pulang (Takeaway)'"></span>
+                <span class="font-bold text-foreground" x-text="
+                    selectedQueueOrder.order_type === 'dinein' ? 'Meja ' + (selectedQueueOrder.table_number || '-') :
+                    selectedQueueOrder.order_type === 'takeaway' ? 'Bawa Pulang' :
+                    selectedQueueOrder.order_type === 'delivery' ? 'Diantar' :
+                    'Retail'
+                "></span>
             </div>
         </div>
 
-        <div class="px-3 sm:px-4">
+        <div class="px-3">
             <div class="border-t border-dashed border-border/70"></div>
         </div>
 
         <!-- Items List -->
-        <div class="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar relative">
-            <h3 class="text-sm font-bold text-foreground mb-3">
+        <div class="flex-1 overflow-y-auto p-3 custom-scrollbar relative">
+            <h3 class="text-sm font-bold text-foreground mb-2">
                 Daftar Menu <span class="text-muted-foreground font-normal text-xs" x-text="'(' + selectedQueueOrder.items.length + ')'"></span>
             </h3>
 
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
                 <template x-for="item in selectedQueueOrder.items" :key="item.id">
-                    <div class="flex justify-between items-start text-[13px]">
+                    <div class="flex justify-between items-start text-[12px]">
                         <div class="flex gap-2">
                             <span class="font-bold text-primary" x-text="item.quantity + 'x'"></span>
                             <div class="flex flex-col">
@@ -63,7 +68,9 @@
                                         <i class="ph-bold ph-warning-circle"></i> <span x-text="item.notes"></span>
                                     </span>
                                 </template>
-                            </div>
+                </div>
+
+
                         </div>
                         
                         <div class="flex items-start gap-3 shrink-0 ml-2">
@@ -91,12 +98,12 @@
             </template>
         </div>
 
-        <div class="px-3 sm:px-4">
+        <div class="px-3">
             <div class="border-t border-dashed border-border/70"></div>
         </div>
 
         <!-- Payment Summary & Actions -->
-        <div class="p-3 sm:p-4 pt-3 bg-card {{ $isSheet ? '' : 'rounded-b-2xl' }} relative overflow-hidden">
+        <div class="p-3 bg-card {{ $isSheet ? '' : 'rounded-b-2xl' }} relative overflow-hidden">
             <!-- PAID Watermark (if paid) -->
             <template x-if="selectedQueueOrder.amount_paid >= selectedQueueOrder.total_price">
                 <div class="absolute right-2 top-2 -rotate-12 pointer-events-none opacity-20 z-0">
@@ -106,7 +113,7 @@
                 </div>
             </template>
 
-            <h3 class="text-sm font-bold text-foreground mb-3 relative z-10">Rincian Pembayaran</h3>
+            <h3 class="text-sm font-bold text-foreground mb-2 relative z-10">Rincian Pembayaran</h3>
             
             <div class="flex justify-between items-center text-xs mb-2 relative z-10">
                 <span class="text-muted-foreground font-medium">Subtotal</span>
@@ -119,7 +126,7 @@
                 </div>
             </template>
             
-            <div class="flex justify-between items-center mt-3 mb-4 relative z-10">
+            <div class="flex justify-between items-center mt-2 mb-3 relative z-10">
                 <span class="text-sm font-bold text-foreground">Total Tagihan</span>
                 <span class="text-base font-bold text-emerald-600 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(selectedQueueOrder.total_price)"></span>
             </div>
