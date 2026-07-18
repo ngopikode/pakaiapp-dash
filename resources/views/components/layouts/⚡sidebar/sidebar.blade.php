@@ -3,7 +3,7 @@
 
     @if($elementId !== 'mobile-sidebar-wrapper')
         <div class="px-5 py-4 flex items-center min-h-[72px]">
-            <h5 class="m-0 font-serif font-extrabold text-lg tracking-tight text-slate-800 dark:text-white flex items-center gap-2">
+                <h5 class="m-0 font-sans font-black text-lg tracking-tight text-slate-800 dark:text-white flex items-center gap-2">
                 <div
                     class="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 to-orange-400 flex items-center justify-center text-white shadow-sm shrink-0">
                     <i class="ph-bold ph-storefront text-[18px]"></i>

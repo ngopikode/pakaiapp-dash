@@ -77,7 +77,7 @@ $showSidebar = $accessibleMenus > 1;
     @if($showSidebar)
         {{-- HANYA DI-RENDER DI DESKTOP --}}
         <div
-            class="hidden xl:flex flex-col h-full shrink-0 border-r border-border bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out"
+            class="hidden xl:flex flex-col h-full shrink-0 border-r border-slate-200/60 dark:border-slate-800/60 bg-white/85 dark:bg-[#0B1120]/85 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out"
             :class="showDesktopSidebar ? 'w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'">
             <div class="w-64 flex flex-col h-full">
                 <livewire:layouts.sidebar elementId="sidebar-wrapper"/>
@@ -100,10 +100,10 @@ $showSidebar = $accessibleMenus > 1;
                  x-transition:leave="transition ease-in duration-200"
                  x-transition:leave-start="translate-x-0"
                  x-transition:leave-end="-translate-x-full"
-                 class="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-slate-900 z-50 xl:hidden shadow-2xl flex flex-col border-r border-border">
+                 class="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-[#0B1120] z-50 xl:hidden shadow-2xl flex flex-col border-r border-border">
                 <div
                     class="flex items-center justify-between px-6 py-5 border-b border-border bg-slate-50/50 dark:bg-slate-800/50">
-                    <h5 class="m-0 font-serif font-extrabold text-[17px] tracking-tight text-slate-800 dark:text-white flex items-center gap-2.5">
+                    <h5 class="m-0 font-sans font-black text-[17px] tracking-tight text-slate-800 dark:text-white flex items-center gap-2.5">
                         <div
                             class="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 to-orange-400 flex items-center justify-center text-white shadow-sm shrink-0">
                             <i class="ph-bold ph-storefront text-[18px]"></i>
