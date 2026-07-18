@@ -1,39 +1,39 @@
-<div class="min-h-screen bg-slate-50 dark:bg-[#0B1120] p-4 text-slate-800 dark:text-slate-200 md:p-6 lg:p-8" x-data="{ stats: @js($this->kitchenStats) }">
+<div class="min-h-screen bg-slate-50 dark:bg-[#0B1120] p-3 text-slate-800 dark:text-slate-200 md:p-4" x-data="{ stats: @js($this->kitchenStats) }">
 
     {{-- Header --}}
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h2 class="flex items-center gap-2 text-2xl font-black text-slate-900 dark:text-white">
-                <svg class="h-6 w-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h2 class="flex items-center gap-2 text-lg font-black text-slate-900 dark:text-white">
+                <svg class="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
                 Kitchen Queue
             </h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Real-time operations dashboard</p>
+            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Real-time operations dashboard</p>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 <span class="relative flex h-2 w-2">
                     <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
                 Dapur Buka
             </span>
-            <button wire:click="$refresh" wire:loading.attr="disabled" class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm" title="Refresh Data">
+            <button wire:click="$refresh" wire:loading.attr="disabled" class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm" title="Refresh Data">
                 <svg wire:loading.class="animate-spin" wire:target="$refresh" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
                 Refresh
             </button>
             @if(auth()->user()->role === 'kitchen')
-                <button wire:click="logout" class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-white">
+                <button wire:click="logout" class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-white">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                     </svg>
                     Keluar
                 </button>
             @else
-                <a href="{{ route('dashboard') }}" wire:navigate.hover class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm">
+                <a href="{{ route('dashboard') }}" wire:navigate.hover class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
@@ -44,13 +44,13 @@
     </div>
 
     {{-- Metrics Summary Cards --}}
-    <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div class="mb-3 grid grid-cols-2 gap-3 md:grid-cols-4">
         {{-- Active Orders --}}
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-4 shadow-sm">
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-3 shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-3xl font-black text-slate-900 dark:text-white">{{ $this->kitchenStats['active'] }}</span>
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-amber-500">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $this->kitchenStats['active'] }}</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-amber-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </span>
             </div>
             <div class="mt-2 flex items-center gap-2">
@@ -60,11 +60,11 @@
         </div>
 
         {{-- Avg Prep Time --}}
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-4 shadow-sm">
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-3 shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-3xl font-black text-slate-900 dark:text-white">{{ $this->kitchenStats['avg_prep'] }}m</span>
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-sky-500">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $this->kitchenStats['avg_prep'] }}m</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-sky-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </span>
             </div>
             <div class="mt-2 flex items-center gap-2">
@@ -74,11 +74,11 @@
         </div>
 
         {{-- Pending --}}
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-4 shadow-sm">
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-3 shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-3xl font-black text-red-500">{{ $this->kitchenStats['pending'] }}</span>
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-2xl font-black text-red-500">{{ $this->kitchenStats['pending'] }}</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </span>
             </div>
             <div class="mt-2 flex items-center gap-2">
@@ -88,11 +88,11 @@
         </div>
 
         {{-- Ready --}}
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-4 shadow-sm">
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-3 shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-3xl font-black text-emerald-500">{{ $this->kitchenStats['ready'] }}</span>
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                <span class="text-2xl font-black text-emerald-500">{{ $this->kitchenStats['ready'] }}</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                 </span>
             </div>
             <div class="mt-2 flex items-center gap-2">
@@ -103,7 +103,7 @@
     </div>
 
     {{-- Kanban Board --}}
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         @php
             $waitingBatches = collect($this->kitchenBatches)->where('status', 'waiting');
             $processingBatches = collect($this->kitchenBatches)->where('status', 'processing');
@@ -111,16 +111,16 @@
         @endphp
 
         {{-- Kolom Pending --}}
-        <div class="flex flex-col rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-4 shadow-sm">
-            <div class="mb-4 flex items-center justify-between">
-                <h3 class="flex items-center gap-2 text-lg font-black text-red-600 dark:text-red-400">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-red-500/10 dark:bg-red-500/20 text-sm">{{ $waitingBatches->count() }}</span>
+        <div class="flex flex-col rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm">
+            <div class="mb-3 flex items-center justify-between">
+                <h3 class="flex items-center gap-2 text-sm font-black text-red-600 dark:text-red-400">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/10 dark:bg-red-500/20 text-xs">{{ $waitingBatches->count() }}</span>
                     Pending
                 </h3>
-                <span class="text-xs font-bold uppercase tracking-wider text-red-500/70 dark:text-red-400/70">Menunggu</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-red-500/70 dark:text-red-400/70">Menunggu</span>
             </div>
 
-            <div class="flex flex-1 flex-col gap-4 overflow-y-auto">
+            <div class="flex flex-1 flex-col gap-3 overflow-y-auto max-h-[calc(100vh-230px)] pr-1">
                 @forelse($waitingBatches as $batch)
                     @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
                 @empty
@@ -133,16 +133,16 @@
         </div>
 
         {{-- Kolom Cooking --}}
-        <div class="flex flex-col rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-4 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10">
-            <div class="mb-4 flex items-center justify-between">
-                <h3 class="flex items-center gap-2 text-lg font-black text-amber-600 dark:text-amber-400">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-sm">{{ $processingBatches->count() }}</span>
+        <div class="flex flex-col rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10">
+            <div class="mb-3 flex items-center justify-between">
+                <h3 class="flex items-center gap-2 text-sm font-black text-amber-600 dark:text-amber-400">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-xs">{{ $processingBatches->count() }}</span>
                     Cooking
                 </h3>
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-500/70 dark:text-amber-400/70">Memasak</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500/70 dark:text-amber-400/70">Memasak</span>
             </div>
 
-            <div class="flex flex-1 flex-col gap-4 overflow-y-auto">
+            <div class="flex flex-1 flex-col gap-3 overflow-y-auto max-h-[calc(100vh-230px)] pr-1">
                 @forelse($processingBatches as $batch)
                     @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
                 @empty
@@ -155,16 +155,16 @@
         </div>
 
         {{-- Kolom Ready --}}
-        <div class="flex flex-col rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-4 shadow-sm">
-            <div class="mb-4 flex items-center justify-between">
-                <h3 class="flex items-center gap-2 text-lg font-black text-emerald-600 dark:text-emerald-400">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-sm">{{ $readyBatches->count() }}</span>
+        <div class="flex flex-col rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm">
+            <div class="mb-3 flex items-center justify-between">
+                <h3 class="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-xs">{{ $readyBatches->count() }}</span>
                     Ready
                 </h3>
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-500/70 dark:text-emerald-400/70">Selesai</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500/70 dark:text-emerald-400/70">Selesai</span>
             </div>
 
-            <div class="flex flex-1 flex-col gap-4 overflow-y-auto">
+            <div class="flex flex-1 flex-col gap-3 overflow-y-auto max-h-[calc(100vh-230px)] pr-1">
                 @forelse($readyBatches as $batch)
                     @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
                 @empty
