@@ -110,13 +110,61 @@ class extends Component {
     }
 
     #[Computed]
+    public function kitchenStats(): array
+    {
+        $today = today();
+        $orders = Order::select('id', 'kitchen_status', 'created_at', 'updated_at')
+            ->whereDate('created_at', $today)
+            ->get();
+
+        $waiting = 0;
+        $processing = 0;
+        $ready = 0;
+
+        foreach ($orders as $order) {
+            if ($order->kitchen_status === 'waiting') $waiting++;
+            elseif ($order->kitchen_status === 'processing') $processing++;
+            elseif ($order->kitchen_status === 'ready') $ready++;
+        }
+
+        // Avg prep time: processing to ready (calculated from items or default)
+        // ponytail: fallback static 18m if no prep data yet
+        $avgPrep = 18;
+        $completedItems = \App\Tenant\Models\Core\OrderItem::whereDate('created_at', $today)
+            ->where('kitchen_status', 'ready')
+            ->whereNotNull('updated_at')
+            ->get();
+        if ($completedItems->isNotEmpty()) {
+            $totalPrep = 0;
+            $count = 0;
+            foreach ($completedItems as $item) {
+                $diff = $item->updated_at->diffInMinutes($item->created_at);
+                if ($diff > 0 && $diff < 120) {
+                    $totalPrep += $diff;
+                    $count++;
+                }
+            }
+            if ($count > 0) {
+                $avgPrep = round($totalPrep / $count);
+            }
+        }
+
+        return [
+            'active' => $waiting + $processing,
+            'avg_prep' => $avgPrep,
+            'pending' => $waiting,
+            'ready' => $ready
+        ];
+    }
+
+    #[Computed]
     public function kitchenBatches(): array
     {
         // Performance Optimization: Select hanya kolom yang dibutuhkan untuk KDS
         $orders = Order::with(['items' => function($q) {
                 $q->select('id', 'order_id', 'product_name', 'variant_name', 'note', 'quantity', 'kitchen_status', 'created_at');
             }])
-            ->select('id', 'invoice_code', 'status', 'kitchen_status', 'order_type', 'table_number', 'notes', 'amount_paid', 'total_price', 'created_at', 'is_online')
+            ->select('id', 'invoice_code', 'status', 'kitchen_status', 'order_type', 'table_number', 'notes', 'amount_paid', 'total_price', 'created_at', 'updated_at', 'is_online')
             ->where(function ($query) {
                 // Tampilkan pesanan yang sudah dibayar/progress
                 $query->whereIn('status', ['paid', 'progress'])
@@ -126,7 +174,7 @@ class extends Component {
                             ->where('is_online', false);
                     });
             })
-            ->whereIn('kitchen_status', ['waiting', 'processing'])
+            ->whereIn('kitchen_status', ['waiting', 'processing', 'ready'])
             ->whereDate('created_at', today())
             ->get();
 
@@ -150,6 +198,17 @@ class extends Component {
                     'status' => 'processing',
                     'items' => $processingItems,
                     'created_at' => $processingItems->max('created_at')
+                ];
+            }
+
+            $readyItems = $order->items->where('kitchen_status', 'ready');
+            // Hanya tampilkan ready items jika diupdate < 15 menit yang lalu
+            if ($readyItems->isNotEmpty() && $order->updated_at && $order->updated_at->gte(now()->subMinutes(15))) {
+                $batches[] = [
+                    'order' => $order,
+                    'status' => 'ready',
+                    'items' => $readyItems,
+                    'created_at' => $readyItems->max('created_at')
                 ];
             }
         }
