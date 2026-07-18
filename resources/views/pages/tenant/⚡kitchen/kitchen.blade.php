@@ -102,8 +102,7 @@
         </div>
     </div>
 
-    {{-- Kanban Board --}}
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3 flex-1 min-h-0">
+    <div class="flex flex-1 min-h-0 gap-4">
         @php
             $waitingBatches = collect($this->kitchenBatches)->where('status', 'waiting');
             $processingBatches = collect($this->kitchenBatches)->where('status', 'processing');
@@ -111,8 +110,8 @@
         @endphp
 
         {{-- Kolom Pending --}}
-        <div class="flex flex-col rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm">
-            <div class="mb-3 flex items-center justify-between">
+        <div class="flex w-1/3 flex-col min-h-0 rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm">
+            <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-red-600 dark:text-red-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/10 dark:bg-red-500/20 text-xs">{{ $waitingBatches->count() }}</span>
                     Pending
@@ -120,7 +119,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-red-500/70 dark:text-red-400/70">Menunggu</span>
             </div>
 
-            <div class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto pr-1">
+            <div class="flex flex-col min-h-0 gap-3 overflow-y-auto flex-1 h-0 pr-1">
                 @forelse($waitingBatches as $batch)
                     @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
                 @empty
@@ -133,8 +132,8 @@
         </div>
 
         {{-- Kolom Cooking --}}
-        <div class="flex flex-col rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10">
-            <div class="mb-3 flex items-center justify-between">
+        <div class="flex w-1/3 flex-col min-h-0 rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10">
+            <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-amber-600 dark:text-amber-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-xs">{{ $processingBatches->count() }}</span>
                     Cooking
@@ -142,7 +141,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500/70 dark:text-amber-400/70">Memasak</span>
             </div>
 
-            <div class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto pr-1">
+            <div class="flex flex-col min-h-0 gap-3 overflow-y-auto flex-1 h-0 pr-1">
                 @forelse($processingBatches as $batch)
                     @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
                 @empty
@@ -155,8 +154,8 @@
         </div>
 
         {{-- Kolom Ready --}}
-        <div class="flex flex-col rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm">
-            <div class="mb-3 flex items-center justify-between">
+        <div class="flex w-1/3 flex-col min-h-0 rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm">
+            <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-xs">{{ $readyBatches->count() }}</span>
                     Ready
@@ -164,7 +163,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500/70 dark:text-emerald-400/70">Selesai</span>
             </div>
 
-            <div class="flex flex-col flex-1 min-h-0 gap-3 overflow-y-auto pr-1">
+            <div class="flex flex-col min-h-0 gap-3 overflow-y-auto flex-1 h-0 pr-1">
                 @forelse($readyBatches as $batch)
                     @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
                 @empty
