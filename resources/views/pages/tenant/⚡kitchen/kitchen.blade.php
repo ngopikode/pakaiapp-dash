@@ -1,4 +1,4 @@
-<div class="fixed inset-0 z-50 flex flex-col bg-slate-50 dark:bg-[#0B1120] p-3 text-slate-800 dark:text-slate-200 md:p-4 gap-3 overflow-hidden" x-data="{ stats: @js($this->kitchenStats) }">
+<div class="fixed inset-0 z-50 flex flex-col bg-slate-50 dark:bg-[#0B1120] p-3 text-slate-800 dark:text-slate-200 md:p-4 gap-3 overflow-hidden" x-data="{ stats: @js($this->kitchenStats), activeTab: 'waiting' }">
 
     {{-- Header --}}
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between shrink-0">
@@ -102,6 +102,33 @@
         </div>
     </div>
 
+    {{-- Mobile Tab Bar --}}
+    <div class="mb-3 flex gap-2 md:hidden">
+        <button type="button"
+                x-on:click="activeTab = 'waiting'"
+                :class="activeTab === 'waiting' ? 'border-red-500 bg-red-500/10 text-red-600 dark:text-red-500' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500'"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2 text-xs font-black transition-colors">
+            <span>Pending</span>
+            <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500/15 px-1.5 text-[10px] font-black text-red-600 dark:text-red-400">{{ collect($this->kitchenBatches)->where('status', 'waiting')->count() }}</span>
+        </button>
+
+        <button type="button"
+                x-on:click="activeTab = 'processing'"
+                :class="activeTab === 'processing' ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500'"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2 text-xs font-black transition-colors">
+            <span>Cooking</span>
+            <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500/15 px-1.5 text-[10px] font-black text-amber-600 dark:text-amber-400">{{ collect($this->kitchenBatches)->where('status', 'processing')->count() }}</span>
+        </button>
+
+        <button type="button"
+                x-on:click="activeTab = 'ready'"
+                :class="activeTab === 'ready' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500'"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2 text-xs font-black transition-colors">
+            <span>Ready</span>
+            <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500/15 px-1.5 text-[10px] font-black text-emerald-600 dark:text-emerald-400">{{ collect($this->kitchenBatches)->where('status', 'ready')->count() }}</span>
+        </button>
+    </div>
+
     {{-- Kanban Board --}}
     <div class="flex-1 min-h-0 flex gap-4">
         @php
@@ -111,7 +138,7 @@
         @endphp
 
         {{-- Kolom Pending --}}
-        <div class="flex w-1/3 min-h-0 flex-col rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm overflow-hidden">
+        <div :class="activeTab === 'waiting' ? 'flex' : 'hidden md:flex'" class="w-full md:w-1/3 min-h-0 flex-col rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm overflow-hidden">
             <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-red-600 dark:text-red-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/10 dark:bg-red-500/20 text-xs">{{ $waitingBatches->count() }}</span>
@@ -133,7 +160,7 @@
         </div>
 
         {{-- Kolom Cooking --}}
-        <div class="flex w-1/3 min-h-0 flex-col rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10 overflow-hidden">
+        <div :class="activeTab === 'processing' ? 'flex' : 'hidden md:flex'" class="w-full md:w-1/3 min-h-0 flex-col rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10 overflow-hidden">
             <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-amber-600 dark:text-amber-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-xs">{{ $processingBatches->count() }}</span>
@@ -155,7 +182,7 @@
         </div>
 
         {{-- Kolom Ready --}}
-        <div class="flex w-1/3 min-h-0 flex-col rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm overflow-hidden">
+        <div :class="activeTab === 'ready' ? 'flex' : 'hidden md:flex'" class="w-full md:w-1/3 min-h-0 flex-col rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm overflow-hidden">
             <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-xs">{{ $readyBatches->count() }}</span>

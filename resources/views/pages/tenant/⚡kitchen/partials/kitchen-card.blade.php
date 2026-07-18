@@ -14,7 +14,7 @@
     $badgeText = $isReady ? 'text-white' : ($isProcessing ? 'text-slate-900' : 'text-white');
 @endphp
 
-<div class="relative flex flex-col overflow-hidden rounded-xl border {{ $cardBorder }} bg-white dark:bg-slate-900 shadow-sm transition-all">
+<div class="relative flex flex-col shrink-0 overflow-hidden rounded-xl border {{ $cardBorder }} bg-white dark:bg-slate-900 shadow-sm transition-all">
     {{-- Card Header --}}
     <div class="flex items-center justify-between p-3 {{ $headerBg }} {{ $headerText }}">
         <div>

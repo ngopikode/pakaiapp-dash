@@ -4,6 +4,7 @@ use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 new #[Title("Tampilan Dapur")]
@@ -12,12 +13,8 @@ class extends Component {
     {
         $order = Order::find($orderId);
         if ($order && $order->status !== 'cancelled') {
-            // Update only waiting items
             $order->items()->where('kitchen_status', 'waiting')->update(['kitchen_status' => 'processing']);
-
-            // Re-evaluate order overall status
             $this->recalculateOrderStatus($order);
-
             $this->js("window.showIslandToast('Pesanan tambahan #{$order->invoice_code} mulai dimasak!', 'success');");
         } else {
             $this->js("window.showIslandToast('Pesanan sudah dibatalkan atau tidak ditemukan.', 'danger');");
@@ -28,12 +25,8 @@ class extends Component {
     {
         $order = Order::find($orderId);
         if ($order && $order->status !== 'cancelled') {
-            // Update only processing items
             $order->items()->where('kitchen_status', 'processing')->update(['kitchen_status' => 'ready']);
-
-            // Re-evaluate order overall status
             $this->recalculateOrderStatus($order);
-
             $this->js("window.showIslandToast('Kloter pesanan #{$order->invoice_code} siap disajikan!', 'success');");
         } else {
             $this->js("window.showIslandToast('Pesanan sudah dibatalkan atau tidak ditemukan.', 'danger');");
@@ -97,7 +90,7 @@ class extends Component {
     #[On('echo:kitchen,.KitchenUpdated')]
     public function refreshKitchen()
     {
-        unset($this->kitchenBatches);
+        // Kosong - memancing re-render DOM otomatis dari WebSocket event
     }
 
     public function logout(): void
