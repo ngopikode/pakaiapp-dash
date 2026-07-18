@@ -110,7 +110,7 @@
         @endphp
 
         {{-- Kolom Pending --}}
-        <div class="flex w-1/3 flex-col min-h-0 rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm">
+        <div class="flex w-1/3 flex-col rounded-2xl border border-red-500/10 bg-red-50/50 dark:border-red-500/20 dark:bg-red-950/10 p-3 shadow-sm h-full">
             <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-red-600 dark:text-red-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/10 dark:bg-red-500/20 text-xs">{{ $waitingBatches->count() }}</span>
@@ -119,20 +119,22 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-red-500/70 dark:text-red-400/70">Menunggu</span>
             </div>
 
-            <div class="flex flex-col min-h-0 gap-3 overflow-y-auto flex-1 h-0 pr-1">
-                @forelse($waitingBatches as $batch)
-                    @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
-                @empty
-                    <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
-                        <svg class="mb-3 h-10 w-10 text-red-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <p class="text-sm font-medium text-slate-400 dark:text-slate-500">Antrean kosong</p>
-                    </div>
-                @endforelse
+            <div class="relative flex-1">
+                <div class="absolute inset-0 flex flex-col gap-3 overflow-y-auto pr-1 pb-10">
+                    @forelse($waitingBatches as $batch)
+                        @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
+                    @empty
+                        <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
+                            <svg class="mb-3 h-10 w-10 text-red-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p class="text-sm font-medium text-slate-400 dark:text-slate-500">Antrean kosong</p>
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
 
         {{-- Kolom Cooking --}}
-        <div class="flex w-1/3 flex-col min-h-0 rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10">
+        <div class="flex w-1/3 flex-col rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-950/10 p-3 shadow-lg shadow-amber-500/5 dark:shadow-amber-500/10 h-full">
             <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-amber-600 dark:text-amber-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-xs">{{ $processingBatches->count() }}</span>
@@ -141,20 +143,22 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500/70 dark:text-amber-400/70">Memasak</span>
             </div>
 
-            <div class="flex flex-col min-h-0 gap-3 overflow-y-auto flex-1 h-0 pr-1">
-                @forelse($processingBatches as $batch)
-                    @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
-                @empty
-                    <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
-                        <svg class="mb-3 h-10 w-10 text-amber-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zM1.5 9a2.25 2.25 0 113 0 2.25 2.25 0 01-3 0z"></path></svg>
-                        <p class="text-sm font-medium text-slate-400 dark:text-slate-500">Tidak ada yang dimasak</p>
-                    </div>
-                @endforelse
+            <div class="relative flex-1">
+                <div class="absolute inset-0 flex flex-col gap-3 overflow-y-auto pr-1 pb-10">
+                    @forelse($processingBatches as $batch)
+                        @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
+                    @empty
+                        <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
+                            <svg class="mb-3 h-10 w-10 text-amber-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zM1.5 9a2.25 2.25 0 113 0 2.25 2.25 0 01-3 0z"></path></svg>
+                            <p class="text-sm font-medium text-slate-400 dark:text-slate-500">Tidak ada yang dimasak</p>
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
 
         {{-- Kolom Ready --}}
-        <div class="flex w-1/3 flex-col min-h-0 rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm">
+        <div class="flex w-1/3 flex-col rounded-2xl border border-emerald-500/10 bg-emerald-50/50 dark:border-emerald-500/20 dark:bg-emerald-950/10 p-3 shadow-sm h-full">
             <div class="mb-3 flex items-center justify-between shrink-0">
                 <h3 class="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-xs">{{ $readyBatches->count() }}</span>
@@ -163,15 +167,17 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500/70 dark:text-emerald-400/70">Selesai</span>
             </div>
 
-            <div class="flex flex-col min-h-0 gap-3 overflow-y-auto flex-1 h-0 pr-1">
-                @forelse($readyBatches as $batch)
-                    @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
-                @empty
-                    <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
-                        <svg class="mb-3 h-10 w-10 text-emerald-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"></path></svg>
-                        <p class="text-sm font-medium text-slate-400 dark:text-slate-500">Belum ada yang siap</p>
-                    </div>
-                @endforelse
+            <div class="relative flex-1">
+                <div class="absolute inset-0 flex flex-col gap-3 overflow-y-auto pr-1 pb-10">
+                    @forelse($readyBatches as $batch)
+                        @include('pages.tenant.⚡kitchen.partials.kitchen-card', ['batch' => $batch])
+                    @empty
+                        <div class="flex flex-1 flex-col items-center justify-center py-12 text-center">
+                            <svg class="mb-3 h-10 w-10 text-emerald-500/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"></path></svg>
+                            <p class="text-sm font-medium text-slate-400 dark:text-slate-500">Belum ada yang siap</p>
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
