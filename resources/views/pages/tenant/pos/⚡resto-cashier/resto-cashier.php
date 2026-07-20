@@ -1,6 +1,7 @@
 <?php
 
 use App\Central\Services\BillingService;
+use App\Shared\Traits\ShowsToast;
 use App\Tenant\Data\CheckoutData;
 use App\Tenant\Data\CreateOrderData;
 use App\Tenant\Models\Core\Order;
@@ -12,16 +13,24 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
+    use ShowsToast;
 
     public string $activeTab = 'cashier';
+
     public ?int $addToOrder = null;
+
     public ?Order $existingOrder = null;
+
     public string $queueFilter = 'waiting';
+
     public string $queueSearch = '';
 
     protected ?OrderService $orderService = null;
+
     protected ?PaymentGatewayService $paymentGatewayService = null;
+
     protected ?BillingService $billingService = null;
 
     protected function orderService(): OrderService
@@ -45,7 +54,15 @@ new class extends Component {
             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
     }
 
-    public function changeTab($tab): void
+    private function clearIfExistingOrderIsNotEditable(): void
+    {
+        if ($this->existingOrder && !$this->isOrderEditable($this->existingOrder)) {
+            $this->addToOrder = null;
+            $this->existingOrder = null;
+        }
+    }
+
+    public function changeTab(string $tab): void
     {
         $this->activeTab = $tab;
     }
@@ -53,13 +70,8 @@ new class extends Component {
     public function mount(?int $addToOrder = null): void
     {
         $this->addToOrder = $addToOrder;
-        if ($this->addToOrder) {
-            $this->existingOrder = Order::find($this->addToOrder);
-            if ($this->existingOrder && !$this->isOrderEditable($this->existingOrder)) {
-                $this->addToOrder = null;
-                $this->existingOrder = null;
-            }
-        }
+        if ($this->addToOrder) $this->existingOrder = Order::find($this->addToOrder);
+        $this->clearIfExistingOrderIsNotEditable();
     }
 
     public function setEditOrder($orderId): void
@@ -70,7 +82,8 @@ new class extends Component {
         if ($this->existingOrder && !$this->isOrderEditable($this->existingOrder)) {
             $this->addToOrder = null;
             $this->existingOrder = null;
-            $this->js("window.showIslandToast('Pesanan tidak dapat diedit.', 'danger');");
+            $this->toast('Pesanan tidak dapat diedit.', 'danger');
+
             return;
         }
 
@@ -80,7 +93,7 @@ new class extends Component {
             'invoice_code' => $this->existingOrder->invoice_code ?? '',
             'customer' => $this->existingOrder->customer_name ?? '',
             'table' => $this->existingOrder->table_number ?? $this->existingOrder->notes ?? '',
-            'type' => $this->existingOrder->order_type ?? ''
+            'type' => $this->existingOrder->order_type ?? '',
         ], JSON_THROW_ON_ERROR);
 
         $this->js("window.dispatchEvent(new CustomEvent('start-editing-order', { detail: $detailJson }));");
@@ -101,11 +114,10 @@ new class extends Component {
                 $this->existingOrder && $this->existingOrder->id === $order->id
             ) $this->existingOrder->refresh();
 
-            $this->js("window.showIslandToast('Item berhasil dibatalkan dan stok dikembalikan.', 'success');");
+            $this->toast('Item berhasil dibatalkan dan stok dikembalikan.');
             $this->js("\$wire.\$island('queue').\$refresh();");
         } catch (Exception $e) {
-            $errorMsg = json_encode('Gagal membatalkan item: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
-            $this->js("window.showIslandToast($errorMsg, 'danger');");
+            $this->toast('Gagal membatalkan item: ' . $e->getMessage(), 'danger');
         }
     }
 
@@ -135,7 +147,7 @@ new class extends Component {
 
             if (
                 $this->existingOrder && !$this->isOrderEditable($this->existingOrder)
-            ) throw new Exception("Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.");
+            ) throw new Exception(message: 'Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.');
 
             $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
 
@@ -155,8 +167,8 @@ new class extends Component {
                 tableNumber: $tableNumber,
                 orderType: $orderType,
                 paymentMethod: $paymentMethod,
-                discount: (float)$discount,
-                amountPaid: (float)$amountPaid,
+                discount: (float) $discount,
+                amountPaid: (float) $amountPaid,
                 isTaxActive: $isTaxActive,
                 isServiceActive: $isServiceActive,
             );
@@ -179,11 +191,12 @@ new class extends Component {
             $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
 
             if ($isDuitku) {
-                if (!$duitkuMethod) throw new Exception('Metode pembayaran Duitku belum dipilih.');
+                if (!$duitkuMethod) throw new Exception(message: 'Metode pembayaran Duitku belum dipilih.');
 
                 $result = $this->paymentGatewayService()->generateDuitku(
                     $order->id, $duitkuMethod, $customerEmail
                 );
+
                 return [
                     'success' => true,
                     'invoice_code' => $order->invoice_code,
@@ -195,6 +208,7 @@ new class extends Component {
                 $result = $this->paymentGatewayService()->generateMidtrans(
                     $order->id, $customerEmail
                 );
+
                 return [
                     'success' => true,
                     'invoice_code' => $order->invoice_code,
@@ -205,7 +219,7 @@ new class extends Component {
             // Manual cash/transfer
             $totalPrice = $order->total_price;
             $paid = $dto->amountPaid > 0 ? $dto->amountPaid : $totalPrice;
-            if ($paid < $totalPrice) throw new Exception("Nominal pembayaran kurang dari total tagihan.");
+            if ($paid < $totalPrice) throw new Exception(message: 'Nominal pembayaran kurang dari total tagihan.');
             $change = max(0, $paid - $totalPrice);
 
             $order->update([
@@ -241,11 +255,12 @@ new class extends Component {
             $isMidtrans = $paymentMethod === 'digital';
 
             if ($isDuitku) {
-                if (!$duitkuMethod) throw new Exception('Metode pembayaran Duitku belum dipilih.');
+                if (!$duitkuMethod) throw new Exception(message: 'Metode pembayaran Duitku belum dipilih.');
 
                 $result = $this->paymentGatewayService()->generateDuitku(
                     $orderId, $duitkuMethod, $customerEmail
                 );
+
                 return [
                     'success' => true,
                     'payment_url' => $result['payment_url'],
@@ -256,13 +271,14 @@ new class extends Component {
                 $result = $this->paymentGatewayService()->generateMidtrans(
                     $orderId, $customerEmail
                 );
+
                 return [
                     'success' => true,
                     'snap_token' => $result['snap_token'],
                 ];
             }
 
-            $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float)$discount, (float)$amountPaid);
+            $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float) $discount, (float) $amountPaid);
 
             $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
 
@@ -279,7 +295,6 @@ new class extends Component {
         }
     }
 
-
     #[On('cancel-confirmed')]
     public function cancelOrder($orderId, $note = null): void
     {
@@ -292,12 +307,11 @@ new class extends Component {
             $this->orderService()->cancelOrder($orderId, $note);
 
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-            $this->js("window.showIslandToast('Pesanan berhasil dibatalkan.', 'success');");
+            $this->toast('Pesanan berhasil dibatalkan.');
             $this->js("\$wire.\$island('queue').\$refresh();");
         } catch (Exception $e) {
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
-            $errorMsg = json_encode($e->getMessage(), JSON_THROW_ON_ERROR);
-            $this->js("window.showIslandToast($errorMsg, 'danger');");
+            $this->toast($e->getMessage(), 'danger');
         }
     }
 
@@ -306,7 +320,7 @@ new class extends Component {
         try {
             $newOrder = $this->orderService()->splitOrder($orderId, $itemsToSplitData);
 
-            $this->js("window.showIslandToast('Pesanan #$newOrder->invoice_code berhasil disimpan.', 'success');");
+            $this->toast("Pesanan #$newOrder->invoice_code berhasil disimpan.");
             $this->js("\$wire.\$island('queue').\$refresh();");
 
             $orderData = json_encode([
@@ -318,30 +332,29 @@ new class extends Component {
             ]);
             $this->js("window.dispatchEvent(new CustomEvent('open-payment-modal', { detail: $orderData }));");
         } catch (Exception $e) {
-            $errorMsg = json_encode('Gagal memisah pesanan: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
-            $this->js("window.showIslandToast($errorMsg, 'danger');");
+            $this->toast('Gagal memisah pesanan: ' . $e->getMessage(), 'danger');
         }
     }
 
     public function mergeOrder($sourceOrderId, $targetOrderId): void
     {
         if ($sourceOrderId == $targetOrderId) {
-            $this->js("window.showIslandToast('Pilih pesanan yang berbeda untuk digabungkan.', 'warning');");
+            $this->toast('Pilih pesanan yang berbeda untuk digabungkan.', 'warning');
+
             return;
         }
 
         try {
             $this->orderService()->mergeOrder($sourceOrderId, $targetOrderId);
 
-            $this->js("window.showIslandToast('Pesanan berhasil digabungkan.', 'success');");
+            $this->toast('Pesanan berhasil digabungkan.');
             $this->js("\$wire.\$island('queue').\$refresh();");
 
             if (
                 $this->existingOrder && $this->existingOrder->id == $targetOrderId
             ) $this->existingOrder->refresh();
         } catch (Exception $e) {
-            $errorMsg = json_encode('Gagal menggabungkan pesanan: ' . $e->getMessage(), JSON_THROW_ON_ERROR);
-            $this->js("window.showIslandToast($errorMsg, 'danger');");
+            $this->toast('Gagal menggabungkan pesanan: ' . $e->getMessage(), 'danger');
         }
     }
 
@@ -363,20 +376,16 @@ new class extends Component {
             'id', 'invoice_code', 'customer_name', 'table_number', 'notes',
             'order_type', 'created_at', 'total_price', 'subtotal', 'amount_paid',
             'payment_method', 'status', 'kitchen_status', 'tax_amount',
-            'service_charge_amount', 'discount', 'updated_at'
+            'service_charge_amount', 'discount', 'updated_at',
         ])
-            ->with(['items' => function ($query) {
-                $query->select([
-                    'id', 'order_id', 'product_name', 'variant_name',
-                    'quantity', 'subtotal', 'note', 'kitchen_status'
-                ]);
-            }])
+            ->with(['items' => fn ($query) => $query->select([
+                'id', 'order_id', 'product_name', 'variant_name',
+                'quantity', 'subtotal', 'note', 'kitchen_status',
+            ])])
             ->where('created_at', '>=', now()->subHours(24))
             ->where('status', '!=', 'cancelled')
-            ->where(function ($query) {
-                $query->where('status', '!=', 'completed')
-                    ->orWhere('updated_at', '>=', now()->subHours(2));
-            })
+            ->where(fn ($query) => $query->where('status', '!=', 'completed')
+                ->orWhere('updated_at', '>=', now()->subHours(2)))
             ->orderByDesc('created_at')
             ->get();
     }
@@ -444,7 +453,7 @@ new class extends Component {
             'tax_amount' => $order->tax_amount,
             'service_charge_amount' => $order->service_charge_amount,
             'discount' => $order->discount,
-            'items' => $order->items->map(fn($item) => [
+            'items' => $order->items->map(fn ($item) => [
                 'id' => $item->id,
                 'product_name' => $item->product_name,
                 'variant_name' => $item->variant_name,
@@ -452,7 +461,7 @@ new class extends Component {
                 'subtotal' => $item->subtotal,
                 'note' => $item->note,
                 'kitchen_status' => $item->kitchen_status,
-            ])
+            ]),
         ];
     }
 
@@ -465,7 +474,7 @@ new class extends Component {
     {
         $storeSetting = StoreSetting::select([
             'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
-            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name'
+            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name',
         ])->first();
         $orderTypes = [];
 
@@ -476,19 +485,17 @@ new class extends Component {
 
         $activeOrders = $this->activeOrders;
 
-        $queueOrders = $activeOrders->map(fn($order) => $this->mapOrderForQueue($order));
+        $queueOrders = $activeOrders->map(fn ($order) => $this->mapOrderForQueue($order));
 
         $kStatusCounts = $queueOrders->countBy('kStatus');
 
         // Filter queueOrders based on Livewire state for rendering
         $filteredQueueOrders = $queueOrders
-            ->when($this->queueFilter !== 'all', fn($collection) => $collection->where('kStatus', $this->queueFilter))
-            ->when($this->queueSearch !== '', fn($collection) => $collection->filter(function ($order) {
-                $search = strtolower($this->queueSearch);
-                return str_contains(strtolower($order->invoice_code), $search)
-                    || str_contains(strtolower($order->customer_name), $search)
-                    || str_contains(strtolower($order->table_number ?? $order->notes), $search);
-            }));
+            ->when($this->queueFilter !== 'all', fn ($collection) => $collection->where('kStatus', $this->queueFilter))
+            ->when($this->queueSearch !== '', fn ($collection) => $collection->filter(fn ($order) => str_contains(strtolower($order->invoice_code), strtolower($this->queueSearch))
+                || str_contains(strtolower($order->customer_name), strtolower($this->queueSearch))
+                || str_contains(strtolower($order->table_number ?? $order->notes), strtolower($this->queueSearch))
+            ));
 
         $counts = [
             'all' => $queueOrders->count(),
@@ -510,9 +517,9 @@ new class extends Component {
             'activeTab' => $this->activeTab,
             'restoOrderTypes' => $orderTypes,
             'isTaxActive' => $storeSetting?->is_tax_active ?? true,
-            'taxRate' => (float)($storeSetting?->tax_rate ?? 10.00),
+            'taxRate' => (float) ($storeSetting?->tax_rate ?? 10.00),
             'isServiceChargeActive' => $storeSetting?->is_service_charge_active ?? true,
-            'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
+            'serviceChargeRate' => (float) ($storeSetting?->service_charge_rate ?? 5.00),
             'counts' => $counts,
             'filters' => $filters,
             'queueOrders' => $filteredQueueOrders, // Use filtered orders for the view
