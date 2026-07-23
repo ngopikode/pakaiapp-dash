@@ -105,8 +105,10 @@ app/
 │   │       ├── MenuController.php
 │   │       └── TenantManifestController.php
 │   ├── Data/
+│   │   ├── CategoryData.php
 │   │   ├── CheckoutData.php
-│   │   └── CreateOrderData.php
+│   │   ├── CreateOrderData.php
+│   │   └── ProductFilterData.php
 │   ├── Events/
 │   │   └── KitchenUpdated.php
 │   ├── Models/
@@ -129,11 +131,13 @@ app/
 │   │       ├── RawMaterial.php
 │   │       └── VariantRecipe.php
 │   └── Services/
+│       ├── CategoryService.php
 │       ├── KitchenService.php
 │       ├── OpenAiMenuService.php
 │       ├── OpenAiSupportService.php
 │       ├── OrderService.php
 │       ├── PaymentGatewayService.php
+│       ├── ProductService.php
 │       ├── SettingService.php
 │       └── TenantWalletService.php
 │
@@ -299,11 +303,13 @@ Registrasi di `bootstrap/app.php`:
 
 | Service | Tanggung Jawab |
 |---|---|
+| `CategoryService` | CRUD & validasi kategori produk |
 | `KitchenService` | Logika status dapur (KDS) |
 | `OpenAiMenuService` | AI menu recommendation (OpenAI) |
 | `OpenAiSupportService` | AI chat support (OpenAI) |
 | `OrderService` | Pembuatan & manajemen order |
 | `PaymentGatewayService` | Abstraksi Duitku/Midtrans di tenant |
+| `ProductService` | Filter, sort, & bulk action produk |
 | `SettingService` | Ambil setting tenant dari cache/DB |
 | `TenantWalletService` | Manajemen saldo & transaksi wallet |
 
@@ -394,3 +400,17 @@ Didefinisikan di `AppServiceProvider::boot()`.
 | 4 | `User.php`, `TenantUser.php` | Docblock `@return array<string, string>` di atas `casts()` — redundant |
 | 5 | `routes/console.php` | Schedule tasks belum pakai `onOneServer()` — perlu jika multi-server |
 | 6 | `AppServiceProvider.php` | `Event::listen` manual — bisa diganti auto-discovery via `withEvents` di `bootstrap/app.php` |
+
+---
+
+## Architecture Decisions
+
+| Doc | Decision |
+|-----|----------|
+| [`decisions/001-service-dto-pattern.md`](decisions/001-service-dto-pattern.md) | Standarisasi Service + DTO untuk semua business logic baru |
+
+## Additional References
+
+| Doc | Description |
+|-----|-------------|
+| [`references/livewire4/alpine-morph-resolution.md`](references/livewire4/alpine-morph-resolution.md) | Solusi Alpine.js race condition dengan Livewire DOM morphing |

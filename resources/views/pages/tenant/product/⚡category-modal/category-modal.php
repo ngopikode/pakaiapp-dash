@@ -1,13 +1,16 @@
 <?php
 
+use App\Tenant\Data\CategoryData;
 use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\StoreSetting;
-use Illuminate\Support\Str;
+use App\Tenant\Services\CategoryService;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
+    protected ?CategoryService $categoryService = null;
+
     public ?int $categoryId = null;
 
     public string $name = '';
@@ -16,7 +19,11 @@ new class extends Component
 
     public bool $isEditing = false;
 
-    // Ambil tipe toko saat komponen dimuat
+    protected function categoryService(): CategoryService
+    {
+        return $this->categoryService ??= app(CategoryService::class);
+    }
+
     public function mount(): void
     {
         $setting = StoreSetting::first();
@@ -31,7 +38,6 @@ new class extends Component
         $this->resetValidation();
         $this->reset(['categoryId', 'name']);
 
-        // Pastikan tipe tetap ke-lock setiap kali modal dibuka
         $setting = StoreSetting::first();
         $this->type = $setting ? $setting->store_type : 'retail';
 
@@ -42,7 +48,6 @@ new class extends Component
             if ($category) {
                 $this->categoryId = $category->id;
                 $this->name = $category->name;
-                // $this->type sengaja tidak di-override dari kategori lama untuk keamanan
             }
         }
 
@@ -57,30 +62,16 @@ new class extends Component
             'name.required' => 'Nama kategori wajib diisi, Bro.',
         ]);
 
-        // Auto generate slug
-        $slug = Str::slug($this->name);
-
-        // Mencegah slug duplikat sederhana
-        if (!$this->isEditing && Category::where('slug', $slug)->exists()) {
-            $slug = $slug . '-' . time();
-        }
-
-        Category::updateOrCreate(
-            ['id' => $this->categoryId],
-            [
-                'name' => $this->name,
-                'slug' => $slug,
-                'type' => $this->type, // Otomatis pakai tipe toko yang di-lock
-            ]
+        $this->categoryService()->save(
+            new CategoryData(
+                name: $this->name,
+                type: $this->type,
+                id: $this->categoryId,
+            )
         );
 
-        // Tutup modal
         $this->dispatch('hide-category-modal');
-
-        // Beri tahu halaman Index untuk me-refresh data
         $this->dispatch('category-saved');
-
-        // Tampilkan notifikasi
         $this->dispatch('notify', [
             'type' => 'success',
             'message' => 'Kategori berhasil ' . ($this->isEditing ? 'diperbarui' : 'ditambahkan') . ' ☕',
