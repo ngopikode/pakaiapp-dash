@@ -33,7 +33,7 @@ new class extends Component {
     public function deleteCategory(Category $category): void
     {
         $category->loadCount('products');
-        
+
         if ($category->products_count > 0) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Gagal! Hapus semua produk di kategori ini dulu.']);
             return;
