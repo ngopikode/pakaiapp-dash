@@ -6,32 +6,31 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
+    #[Url]
+    public string $search = '';
 
-    #[Url] public string $search = '';
-    #[Url] public string $filterCategory = '';
-    #[Url] public string $filterStatus = '';
-    #[Url] public string $filterPrice = '';
-    #[Url] public string $sortField = 'newest'; // newest, price_asc, price_desc, stock_asc, stock_desc
-    
+    #[Url]
+    public string $filterCategory = '';
+
+    #[Url]
+    public string $filterStatus = '';
+
+    #[Url]
+    public string $filterPrice = '';
+
+    #[Url]
+    public string $sortField = 'newest'; // newest, price_asc, price_desc, stock_asc, stock_desc
+
     public int $perPage = 20;
-    public array $selected = [];
-    public bool $selectAll = false;
 
-    public function updatedSelectAll($value): void
+    public function updating($property): void
     {
-        if ($value) {
-            $this->selected = $this->getFilteredQuery()->pluck('products.id')->map(fn($id) => (string)$id)->toArray();
-        } else {
-            $this->selected = [];
+        if (in_array($property, ['search', 'filterCategory', 'filterStatus', 'filterPrice', 'sortField'])) {
+            $this->perPage = 20;
         }
     }
-
-    public function updatingSearch(): void { $this->perPage = 20; $this->selected = []; $this->selectAll = false; }
-    public function updatingFilterCategory(): void { $this->perPage = 20; $this->selected = []; $this->selectAll = false; }
-    public function updatingFilterStatus(): void { $this->perPage = 20; $this->selected = []; $this->selectAll = false; }
-    public function updatingFilterPrice(): void { $this->perPage = 20; $this->selected = []; $this->selectAll = false; }
-    public function updatingSortField(): void { $this->perPage = 20; $this->selected = []; $this->selectAll = false; }
 
     public function loadMore(): void
     {
@@ -47,24 +46,24 @@ new class extends Component {
     public function deleteProduct(Product $product): void
     {
         $product->delete();
-        $this->selected = array_diff($this->selected, [(string)$product->id]);
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Produk berhasil dihapus.']);
+        $this->dispatch('product-deleted', ['id' => $product->id]);
     }
 
-    public function bulkDelete(): void
+    public function bulkDelete(array $ids): void
     {
-        if (empty($this->selected)) return;
-        Product::whereIn('id', $this->selected)->delete();
-        $this->selected = [];
-        $this->selectAll = false;
-        $this->dispatch('notify', ['type' => 'success', 'message' => 'Produk terpilih berhasil dihapus.']);
+        if (empty($ids)) return;
+        Product::whereIn('id', $ids)->delete();
+        $this->dispatch('notify', ['type' => 'success', 'message' => count($ids) . ' Produk terpilih berhasil dihapus.']);
+        $this->dispatch('clear-selection');
     }
 
-    public function bulkToggleStatus(bool $status): void
+    public function bulkToggleStatus(array $ids, bool $status): void
     {
-        if (empty($this->selected)) return;
-        Product::whereIn('id', $this->selected)->update(['is_active' => $status]);
-        $this->dispatch('notify', ['type' => 'success', 'message' => 'Status produk terpilih berhasil diubah.']);
+        if (empty($ids)) return;
+        Product::whereIn('id', $ids)->update(['is_active' => $status]);
+        $this->dispatch('notify', ['type' => 'success', 'message' => count($ids) . ' Status produk terpilih berhasil diubah.']);
+        $this->dispatch('clear-selection');
     }
 
     public function deleteCategory(Category $category): void
@@ -72,6 +71,7 @@ new class extends Component {
         $category->loadCount('products');
         if ($category->products_count > 0) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Gagal! Hapus semua produk di kategori ini dulu.']);
+
             return;
         }
         $category->delete();
@@ -80,7 +80,10 @@ new class extends Component {
 
     #[On('category-saved')]
     #[On('product-saved')]
-    public function refreshTable(): void { $this->perPage = 20; }
+    public function refreshTable(): void
+    {
+        $this->perPage = 20;
+    }
 
     private function getFilteredQuery()
     {
@@ -102,9 +105,9 @@ new class extends Component {
         if ($this->filterPrice) {
             $range = explode('-', $this->filterPrice);
             if (count($range) === 2) {
-                $query->whereHas('variants', fn($q) => $q->whereBetween('price', [(int)$range[0], (int)$range[1]]));
+                $query->whereHas('variants', fn ($q) => $q->whereBetween('price', [(int) $range[0], (int) $range[1]]));
             } elseif ($this->filterPrice === 'above-100k') {
-                $query->whereHas('variants', fn($q) => $q->where('price', '>=', 100000));
+                $query->whereHas('variants', fn ($q) => $q->where('price', '>=', 100000));
             }
         }
 
@@ -112,19 +115,19 @@ new class extends Component {
         switch ($this->sortField) {
             case 'price_asc':
                 $query->selectRaw('(SELECT MIN(price) FROM product_variants WHERE product_variants.product_id = products.id) as min_price')
-                      ->orderBy('min_price', 'asc');
+                    ->orderBy('min_price', 'asc');
                 break;
             case 'price_desc':
                 $query->selectRaw('(SELECT MIN(price) FROM product_variants WHERE product_variants.product_id = products.id) as min_price')
-                      ->orderBy('min_price', 'desc');
+                    ->orderBy('min_price', 'desc');
                 break;
             case 'stock_asc':
                 $query->selectRaw('(SELECT SUM(stock) FROM product_variants WHERE product_variants.product_id = products.id) as total_stock')
-                      ->orderBy('total_stock', 'asc');
+                    ->orderBy('total_stock', 'asc');
                 break;
             case 'stock_desc':
                 $query->selectRaw('(SELECT SUM(stock) FROM product_variants WHERE product_variants.product_id = products.id) as total_stock')
-                      ->orderBy('total_stock', 'desc');
+                    ->orderBy('total_stock', 'desc');
                 break;
             case 'name_asc':
                 $query->orderBy('products.name', 'asc');
@@ -136,7 +139,7 @@ new class extends Component {
                 $query->orderByRaw('ISNULL(categories.order_column), categories.order_column ASC')->orderBy('products.id', 'desc');
                 break;
             default: // newest
-                $query->orderBy('products.id', 'desc');
+                $query->orderBy('products.id', 'asc');
                 break;
         }
 
