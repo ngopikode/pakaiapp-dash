@@ -2,6 +2,7 @@
 
 namespace App\Tenant\Models\Core;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Observers\ProductObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -10,24 +11,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 #[ObservedBy(ProductObserver::class)]
+#[Fillable([
+    'id',
+    'category_id',
+    'name',
+    'description',
+    'image',
+    'tax_included',
+    'has_variants',
+    'is_active',
+    'selection_type',
+    'max_selections',
+    'created_at',
+    'updated_at',
+])]
 class Product extends Model
 {
     use \App\Shared\Traits\ClearsAiMenuCache;
-
-    protected $fillable = [
-        'id',
-        'category_id',
-        'name',
-        'description',
-        'image',
-        'tax_included',
-        'has_variants',
-        'is_active',
-        'selection_type',
-        'max_selections',
-        'created_at',
-        'updated_at'
-    ];
 
     protected function casts(): array
     {

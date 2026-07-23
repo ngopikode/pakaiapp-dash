@@ -2,19 +2,20 @@
 
 namespace App\Tenant\Models\Core;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Fillable([
+    'id',
+    'balance',
+    'current_billing_period',
+    'monthly_transaction_count',
+    'monthly_fee_paid',
+    'monthly_void_count',
+])]
 class Wallet extends Model
 {
-    protected $fillable = [
-        'id',
-        'balance',
-        'current_billing_period',
-        'monthly_transaction_count',
-        'monthly_fee_paid',
-        'monthly_void_count',
-    ];
 
     protected function casts(): array
     {

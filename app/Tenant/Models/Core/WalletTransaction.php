@@ -2,23 +2,24 @@
 
 namespace App\Tenant\Models\Core;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+#[Fillable([
+    'wallet_id',
+    'type',
+    'amount',
+    'opening_balance',
+    'closing_balance',
+    'reference_id',
+    'reference_type',
+    'description',
+    'created_by',
+])]
 class WalletTransaction extends Model
 {
-    protected $fillable = [
-        'wallet_id',
-        'type',
-        'amount',
-        'opening_balance',
-        'closing_balance',
-        'reference_id',
-        'reference_type',
-        'description',
-        'created_by',
-    ];
 
     protected function casts(): array
     {

@@ -2,45 +2,19 @@
 
 namespace App\Central\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 
+#[Table(connection: 'mysql', key: 'key', incrementing: false, keyType: 'string')]
+#[Fillable([
+    'key',
+    'value',
+    'type',
+    'description',
+])]
 class GlobalSetting extends Model
 {
-    /**
-     * The database connection that should be used by the model.
-     *
-     * @var string
-     */
-    protected $connection = 'mysql';
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'key';
-
-    /**
-     * Indicates if the model's ID is auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * The data type of the auto-incrementing ID.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-
-    protected $fillable = [
-        'key',
-        'value',
-        'type',
-        'description',
-    ];
-
     /**
      * Helper to cast value based on its type.
      */

@@ -2,53 +2,48 @@
 
 namespace App\Tenant\Models\Core;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Fillable([
+    'id',
+    'invoice_code',
+    'table_number',
+    'notes',
+    'customer_name',
+    'customer_phone',
+    'customer_email',
+    'order_type',
+    'is_online',
+    'payment_method',
+    'subtotal',
+    'tax_amount',
+    'service_charge_amount',
+    'tax_percentage',
+    'service_charge_percentage',
+    'discount',
+    'total_price',
+    'amount_paid',
+    'change_amount',
+    'status',
+    'kitchen_status',
+    'user_id',
+    'cancellation_note',
+    'duitku_reference',
+    'duitku_payment_url',
+    'duitku_va_number',
+    'duitku_payment_method',
+    'midtrans_snap_token',
+    'midtrans_transaction_id',
+    'midtrans_payment_type',
+    'is_printed',
+    'created_at',
+    'updated_at',
+])]
 class Order extends Model
 {
-    protected $fillable = [
-        'id',
-        'invoice_code',
-        'table_number',
-        'notes',
-        'customer_name',
-        'customer_phone',
-        'customer_email',
-        'order_type',
-        'is_online',
-        'payment_method',
-        'subtotal',
-        'tax_amount',
-        'service_charge_amount',
-        'tax_percentage',
-        'service_charge_percentage',
-        'discount',
-        'total_price',
-        'amount_paid',
-        'change_amount',
-        'status',
-        'kitchen_status',
-        'user_id',
-        'cancellation_note',
-
-        // Duitku Payment Gateway fields
-        'duitku_reference',
-        'duitku_payment_url',
-        'duitku_va_number',
-        'duitku_payment_method',
-
-        // Midtrans Payment Gateway fields
-        'midtrans_snap_token',
-        'midtrans_transaction_id',
-        'midtrans_payment_type',
-
-        'is_printed',
-
-        'created_at',
-        'updated_at',
-    ];
 
     public function items(): HasMany
     {

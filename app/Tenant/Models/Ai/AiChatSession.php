@@ -2,18 +2,14 @@
 
 namespace App\Tenant\Models\Ai;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Prunable;
 
+#[Fillable(['table_number', 'session_token', 'turn_count'])]
 class AiChatSession extends Model
 {
-    protected $fillable = [
-        'table_number',
-        'session_token',
-        'turn_count',
-    ];
-
     use Prunable;
 
     /**

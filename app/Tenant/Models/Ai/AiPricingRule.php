@@ -2,25 +2,28 @@
 
 namespace App\Tenant\Models\Ai;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Tenant\Models\Core\ProductVariant;
 
+#[Fillable([
+    'rule_name',
+    'rule_type',
+    'start_time',
+    'end_time',
+    'active_days',
+    'is_active',
+])]
 class AiPricingRule extends Model
 {
-    protected $fillable = [
-        'rule_name',
-        'rule_type',
-        'start_time',
-        'end_time',
-        'active_days',
-        'is_active',
-    ];
-
-    protected $casts = [
-        'active_days' => 'array',
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'active_days' => 'array',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function productVariants(): BelongsToMany
     {

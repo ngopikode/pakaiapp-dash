@@ -2,19 +2,15 @@
 
 namespace App\Tenant\Models\Resto;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Tenant\Models\Core\ProductVariant;
 
+#[Fillable(['variant_id', 'raw_material_id', 'quantity_used'])]
 class VariantRecipe extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'variant_id',
-        'raw_material_id',
-        'quantity_used'
-    ];
 
     public function variant()
     {

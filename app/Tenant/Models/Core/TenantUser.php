@@ -2,30 +2,29 @@
 
 namespace App\Tenant\Models\Core;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+#[Table('users')]
 #[Hidden(['password', 'remember_token'])]
+#[Fillable([
+    'id',
+    'name',
+    'email',
+    'email_verified_at',
+    'password',
+    'role',
+    'remember_token',
+    'created_at',
+    'updated_at',
+])]
 class TenantUser extends Authenticatable
 {
     use Notifiable;
-
-    // Paksa model ini baca tabel 'users' (bukan 'tenant_users')
-    protected $table = 'users';
-
-    protected $fillable = [
-        'id',
-        'name',
-        'email',
-        'email_verified_at',
-        'password',
-        'role',
-        'remember_token',
-        'created_at',
-        'updated_at'
-    ];
 
     /**
      * Get the attributes that should be cast.
