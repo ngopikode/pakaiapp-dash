@@ -13,7 +13,7 @@ new class extends Component {
     {
         $this->orderId = $orderId;
         $this->dispatch('show-order-modal');
-        $this->dispatch('show-bootstrap-modal');
+        $this->dispatch('modal-shown');
     }
 
     public function with(): array

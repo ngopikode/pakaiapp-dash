@@ -6,10 +6,14 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public ?int $categoryId = null;
+
     public string $name = '';
+
     public string $type = 'retail';
+
     public bool $isEditing = false;
 
     // Ambil tipe toko saat komponen dimuat
@@ -79,7 +83,7 @@ new class extends Component {
         // Tampilkan notifikasi
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => 'Kategori berhasil ' . ($this->isEditing ? 'diperbarui' : 'ditambahkan') . ' ☕'
+            'message' => 'Kategori berhasil ' . ($this->isEditing ? 'diperbarui' : 'ditambahkan') . ' ☕',
         ]);
     }
 };

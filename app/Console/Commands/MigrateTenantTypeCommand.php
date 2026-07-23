@@ -21,7 +21,7 @@ class MigrateTenantTypeCommand extends Command
         $command = $rollback ? 'tenants:rollback' : 'tenants:migrate';
 
         if ($type === 'all') {
-            $this->info("🚀 Menjalankan migrasi berjenjang untuk SEMUA tipe tenant (retail & resto)...");
+            $this->info('🚀 Menjalankan migrasi berjenjang untuk SEMUA tipe tenant (retail & resto)...');
 
             if ($rollback) {
                 $this->call('tenants:migrate-type', ['type' => 'resto', '--force' => $force, '--rollback' => true]);
@@ -31,7 +31,8 @@ class MigrateTenantTypeCommand extends Command
                 $this->call('tenants:migrate-type', ['type' => 'resto', '--force' => $force]);
             }
 
-            $this->info("🌟 Migrasi ALL (Semua Tenant) Selesai!");
+            $this->info('🌟 Migrasi ALL (Semua Tenant) Selesai!');
+
             return;
         }
 
@@ -41,15 +42,16 @@ class MigrateTenantTypeCommand extends Command
 
         if ($tenants->isEmpty()) {
             $this->warn("Tidak ada tenant yang ditemukan dengan tipe '$type'.");
+
             return;
         }
 
         $tenantIds = $tenants->pluck('id')->toArray();
 
-        $this->info("Ditemukan " . count($tenantIds) . " tenant. Memulai migrasi khusus...");
+        $this->info('Ditemukan ' . count($tenantIds) . ' tenant. Memulai migrasi khusus...');
 
         if ($rollback) {
-            $this->warn(">>> Rollback mode aktif!");
+            $this->warn('>>> Rollback mode aktif!');
         }
 
         $options = [

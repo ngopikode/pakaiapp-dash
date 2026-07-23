@@ -163,7 +163,7 @@ document.addEventListener('livewire:navigated', () => {
     // Listener manual untuk dispatch modal dari Livewire
     window.addEventListener('openModal', () => window.showLoader());
     window.addEventListener('trigger-payment-modal', () => window.showLoader());
-    window.addEventListener('show-bootstrap-modal', () => window.hideLoader());
+    window.addEventListener('modal-shown', () => window.hideLoader());
 
 });
 

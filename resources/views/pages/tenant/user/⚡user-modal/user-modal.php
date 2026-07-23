@@ -35,7 +35,7 @@ new class extends Component {
         }
 
         $this->dispatch('show-user-modal');
-        $this->dispatch('show-bootstrap-modal');
+        $this->dispatch('modal-shown');
     }
 
     #[Computed]

@@ -335,7 +335,7 @@
             if (el) {
                 const modal = bootstrap.Modal.getOrCreateInstance(el);
                 modal.show();
-                $dispatch('show-bootstrap-modal');
+                $dispatch('modal-shown');
             }
         }, 200);
     });

@@ -39,6 +39,4 @@ use Illuminate\Database\Eloquent\Model;
     'created_at',
     'updated_at',
 ])]
-class StoreSetting extends Model
-{
-}
+class StoreSetting extends Model {}

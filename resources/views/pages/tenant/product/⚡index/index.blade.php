@@ -1,46 +1,75 @@
-@placeholder
-<div class="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] min-h-0 flex-1 flex-col bg-slate-50 dark:bg-[#0B1120] w-full mx-auto">
-    <div class="shrink-0 px-4 md:px-6 pt-6 pb-2 w-full mx-auto" style="max-width:1536px">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
-            <div class="flex items-center gap-3 w-full lg:w-auto">
-                <div class="hidden sm:flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm h-10 shrink-0">
-                    <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
-                    <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse ml-1"></div>
-                </div>
-                <div class="relative w-full lg:w-64 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <div class="w-24 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-                <div class="w-36 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-            </div>
-        </div>
+<div class="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] min-h-0 flex-1 flex-col bg-slate-50 dark:bg-[#0B1120] w-full mx-auto"
+     x-data="{
+         selected: [],
+         selectAll: false,
+         showMobileFilters: false,
+         statusDropdownOpen: false,
+         viewMode: localStorage.getItem('productViewMode') || 'list',
 
-        <div class="flex flex-wrap items-end gap-4 md:gap-6 mt-6 pb-2 border-b border-slate-200 dark:border-slate-800">
-            @foreach(range(1,3) as $i)
-                <div class="flex flex-col gap-1.5 min-w-[140px]">
-                    <div class="h-3 w-16 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-                    <div class="h-10 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-                </div>
-            @endforeach
-        </div>
-    </div>
+         setView(mode) {
+             this.viewMode = mode;
+             localStorage.setItem('productViewMode', mode);
+         },
 
-    <div class="flex-1 overflow-hidden px-4 md:px-6 pt-6 w-full mx-auto" style="max-width:1536px">
-        <div class="space-y-4">
-            @foreach(range(1, 5) as $i)
-                <div class="h-16 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-            @endforeach
-        </div>
-    </div>
-</div>
-@endplaceholder
+         toggleSort(field) {
+             if ($wire.sortField === field + '_asc') {
+                 $wire.sortField = field + '_desc';
+             } else {
+                 $wire.sortField = field + '_asc';
+             }
+         },
 
-<div class="flex h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] min-h-0 flex-1 flex-col bg-slate-50 dark:bg-[#0B1120] w-full mx-auto" x-data="productCatalog">
+         toggleSelect(id) {
+             id = String(id);
+             const idx = this.selected.indexOf(id);
+             if (idx > -1) {
+                 this.selected.splice(idx, 1);
+             } else {
+                 this.selected.push(id);
+             }
+         },
 
-    <div class="shrink-0 px-4 md:px-6 pt-3 md:pt-6 pb-2 w-full mx-auto" style="max-width:1536px">
+         toggleSelectAll() {
+             if (this.selectAll) {
+                 this.selected = [];
+                 this.selectAll = false;
+             } else {
+                 const ids = [...document.querySelectorAll('.product-row-checkbox')].map(el => el.value);
+                 this.selected = ids;
+                 this.selectAll = true;
+             }
+         },
+
+         clearSelection() {
+             this.selected = [];
+             this.selectAll = false;
+         },
+
+         init() {
+             this.$watch('viewMode', val => {
+                 if (val === 'list') {
+                     this.$nextTick(() => {
+                         if (window.livewireInitialized) Livewire.rescan?.();
+                     });
+                 }
+             });
+
+             this.$watch('selected', () => {
+                 const total = document.querySelectorAll('.product-row-checkbox').length;
+                 this.selectAll = total > 0 && this.selected.length === total;
+             });
+
+             $wire.on('clear-selection', () => {
+                 this.selected = [];
+                 this.selectAll = false;
+             });
+         }
+     }">
+
+    <div class="shrink-0 px-4 md:px-6 pt-1 md:pt-2 pb-0 w-full mx-auto" style="max-width:1536px">
 
         {{-- 1. Top Action Bar --}}
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 mb-2 md:mb-4">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-3 mb-1 md:mb-2">
 
             {{-- Bagian Kiri: Search & Toggle Filter Mobile --}}
             <div class="flex items-center gap-2 w-full md:w-auto min-w-0">
@@ -90,7 +119,7 @@
                 </div>
 
                 <div class="flex gap-2 w-full md:w-auto">
-                    <button wire:click="$dispatch('openModal', { type: 'category', mode: 'create' })"
+                    <button @click="window.dispatchEvent(new CustomEvent('open-category-modal'))"
                             class="flex-1 md:flex-none px-4 py-2.5 bg-white dark:bg-slate-900 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold rounded-full hover:bg-orange-50 dark:hover:bg-orange-500/10 transition flex items-center justify-center gap-2 text-sm shadow-sm h-10">
                         <i class="ph-bold ph-folders text-base"></i> <span class="hidden lg:inline">Categories</span>
                     </button>
@@ -103,15 +132,14 @@
         </div>
 
         {{-- 2. Secondary Filter Bar (Responsive Collapse) --}}
-        <div class="flex flex-col md:flex-row md:flex-wrap items-stretch md:items-end gap-3 md:gap-6 mt-2 md:mt-6 pb-2 border-b border-slate-200 dark:border-slate-800 relative z-20"
-             :class="showMobileFilters ? 'flex' : 'hidden md:flex'"
-             x-transition>
-            
-            {{-- Sort (Pindah ke sini di Mobile) --}}
-            <div class="flex lg:hidden flex-col gap-1.5 min-w-[140px] flex-1">
-                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Sort by</label>
+        <div :class="showMobileFilters ? '!flex' : ''"
+             class="hidden md:flex flex-col md:flex-row md:flex-wrap items-stretch md:items-end gap-2 md:gap-4 mt-0 md:mt-2 pb-1 border-b border-slate-200 dark:border-slate-800 relative z-20">
+
+            {{-- Sort (Mobile only) --}}
+            <div class="flex lg:hidden flex-col gap-1 min-w-[130px] flex-1">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400">Sort</label>
                 <div class="relative">
-                    <select wire:model.live="sortField" class="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 appearance-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer h-10">
+                    <select wire:model.live="sortField" class="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 appearance-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer h-9">
                         <option value="newest">Default</option>
                         <option value="name_asc">Name (A-Z)</option>
                         <option value="name_desc">Name (Z-A)</option>
@@ -119,67 +147,62 @@
                         <option value="price_desc">Price (High-Low)</option>
                         <option value="stock_desc">Highest Stock</option>
                     </select>
-                    <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                    <i class="ph-bold ph-caret-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
             </div>
 
-            <!-- Category -->
-            <div class="flex flex-col gap-1.5 min-w-[140px] flex-1 md:flex-none">
-                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Category</label>
+            <div class="flex flex-col gap-1 min-w-[130px] flex-1 md:flex-none">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400">Category</label>
                 <div class="relative">
-                    <select wire:model.live="filterCategory" class="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 appearance-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer h-10"
-                            @change="clearSelection()">
-                        <option value="">All Collection</option>
+                    <select wire:model.live="filterCategory" @change="clearSelection()" class="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 appearance-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer h-9">
+                        <option value="">All</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
                     </select>
-                    <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                    <i class="ph-bold ph-caret-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
             </div>
 
-            <!-- Price -->
-            <div class="flex flex-col gap-1.5 min-w-[140px] flex-1 md:flex-none">
-                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Price</label>
+            <div class="flex flex-col gap-1 min-w-[130px] flex-1 md:flex-none">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400">Price</label>
                 <div class="relative">
-                    <select wire:model.live="filterPrice" class="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 appearance-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer h-10"
-                            @change="clearSelection()">
-                        <option value="">All Prices</option>
+                    <select wire:model.live="filterPrice" @change="clearSelection()" class="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 appearance-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer h-9">
+                        <option value="">All</option>
                         <option value="0-50000">Under 50k</option>
-                        <option value="50000-100000">50k - 100k</option>
+                        <option value="50000-100000">50k-100k</option>
                         <option value="above-100k">Above 100k</option>
                     </select>
-                    <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                    <i class="ph-bold ph-caret-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
             </div>
 
-            <!-- Status (Floating Dropdown) -->
-            <div class="flex flex-col gap-1.5 min-w-[140px] flex-1 md:flex-none relative">
-                <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Status</label>
+            <div class="flex flex-col gap-1 min-w-[130px] flex-1 md:flex-none relative">
+                <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400">Status</label>
                 <button type="button" @click="statusDropdownOpen = !statusDropdownOpen"
-                        class="w-full flex items-center justify-between bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/30 rounded-xl px-4 py-2 text-sm font-bold text-orange-600 dark:text-orange-400 h-10 text-left transition-colors">
-                    <span>{{ $filterStatus === 'active' ? 'Active' : ($filterStatus === 'inactive' ? 'No Active' : 'All Status') }}</span>
-                    <i class="ph-bold ph-caret-down text-xs transition-transform" :class="statusDropdownOpen ? 'rotate-180' : ''"></i>
+                        class="w-full flex items-center justify-between bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/30 rounded-lg px-3 py-1.5 text-xs font-bold text-orange-600 dark:text-orange-400 h-9 text-left transition-colors">
+                    <span>{{ $filterStatus === 'active' ? 'Active' : ($filterStatus === 'inactive' ? 'Inactive' : 'All') }}</span>
+                    <i class="ph-bold ph-caret-down text-[10px] transition-transform shrink-0" :class="statusDropdownOpen ? 'rotate-180' : ''"></i>
                 </button>
 
                 <div x-show="statusDropdownOpen" @click.outside="statusDropdownOpen = false" style="display: none"
                      x-transition.opacity.duration.200ms
                      class="absolute top-[calc(100%+4px)] left-0 w-full md:w-[160px] bg-white dark:bg-slate-800 border border-orange-100 dark:border-orange-500/20 rounded-xl shadow-xl p-1.5 z-50">
-                    <button wire:click="$set('filterStatus', ''); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === '' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">All Status</button>
-                    <button wire:click="$set('filterStatus', 'active'); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === 'active' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">Active</button>
-                    <button wire:click="$set('filterStatus', 'inactive'); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === 'inactive' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">No Active</button>
+                    <button wire:click="$set('filterStatus', ''); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors" :class="$wire.filterStatus === '' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">All</button>
+                    <button wire:click="$set('filterStatus', 'active'); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors" :class="$wire.filterStatus === 'active' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">Active</button>
+                    <button wire:click="$set('filterStatus', 'inactive'); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors" :class="$wire.filterStatus === 'inactive' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">Inactive</button>
                 </div>
             </div>
-            
-            {{-- Mobile Only: Mode View Toggle --}}
-            <div class="flex sm:hidden items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm h-10 w-full mt-2">
+
+            {{-- Mobile View Toggle --}}
+            <div class="flex sm:hidden items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm h-9 w-full mt-1">
                 <button @click="setView('list')"
-                        class="flex-1 h-full flex items-center justify-center rounded-lg transition-colors text-xs font-bold"
+                        class="flex-1 h-full flex items-center justify-center rounded-md transition-colors text-[10px] font-bold"
                         :class="viewMode === 'list' ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'">
                     <i class="ph-bold ph-list mr-1"></i> List
                 </button>
                 <button @click="setView('grid')"
-                        class="flex-1 h-full flex items-center justify-center rounded-lg transition-colors text-xs font-bold"
+                        class="flex-1 h-full flex items-center justify-center rounded-md transition-colors text-[10px] font-bold"
                         :class="viewMode === 'grid' ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'">
                     <i class="ph-bold ph-grid-four mr-1"></i> Grid
                 </button>
@@ -191,7 +214,7 @@
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 -translate-y-2"
              x-transition:enter-end="opacity-100 translate-y-0"
-             class="flex items-center gap-2 md:gap-3 mt-3 p-2 md:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 overflow-x-auto [scrollbar-width:none]">
+             class="flex items-center gap-2 md:gap-3 mt-1 p-2 md:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 overflow-x-auto [scrollbar-width:none]">
             <span class="text-xs md:text-sm font-bold text-blue-800 dark:text-blue-400 px-2 whitespace-nowrap" x-text="selected.length + ' items selected'"></span>
             <div class="flex gap-1.5 md:gap-2">
                 <button @click="$wire.bulkToggleStatus(selected, true); clearSelection()" class="px-3 py-1.5 bg-white dark:bg-slate-800 text-emerald-600 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-50 whitespace-nowrap">Set Active</button>
@@ -222,13 +245,8 @@
         <div wire:loading.class="opacity-40 pointer-events-none" wire:loading.class.delay.longer="hidden" wire:target="search, filterCategory, filterStatus, filterPrice, sortField" style="transition: opacity .2s">
 
             {{-- LIST VIEW --}}
-            <div x-show="viewMode === 'list'"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 -translate-y-2"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
+            <div x-show="viewMode === 'list'" x-cloak
+                 x-transition.opacity.duration.200ms
                  class="w-full pb-10">
                 <table class="w-full text-sm text-left">
                     <thead class="sticky top-0 bg-slate-50/95 dark:bg-[#0B1120]/95 backdrop-blur z-10 border-b border-slate-200 dark:border-slate-800">
@@ -260,7 +278,7 @@
                                     <div class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center cursor-pointer hover:border-emerald-500 transition-colors"
                                          :class="selected.includes('{{ $product->id }}') ? 'bg-emerald-500 border-emerald-500' : 'bg-transparent'"
                                          @click="toggleSelect('{{ $product->id }}')">
-                                        <input type="checkbox" value="{{ $product->id }}" class="opacity-0 absolute w-5 h-5 cursor-pointer" :checked="selected.includes('{{ $product->id }}')" @click.stop="toggleSelect('{{ $product->id }}')">
+                                        <input type="checkbox" value="{{ $product->id }}" class="product-row-checkbox opacity-0 absolute w-5 h-5 cursor-pointer" :checked="selected.includes('{{ $product->id }}')" @click.stop="toggleSelect('{{ $product->id }}')">
                                         <i x-show="selected.includes('{{ $product->id }}')" class="ph-bold ph-check text-white text-[10px]"></i>
                                     </div>
                                 </td>
@@ -311,13 +329,8 @@
             </div>
 
             {{-- GRID VIEW --}}
-            <div x-show="viewMode === 'grid'"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 scale-95"
-                 x-transition:enter-end="opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0">
+            <div x-show="viewMode === 'grid'" x-cloak
+                 x-transition.opacity.duration.200ms>
                 @forelse($products->groupBy(fn($p) => $p->category?->name ?? 'Tanpa Kategori') as $categoryName => $categoryProducts)
                     <div class="mb-8" wire:key="cat-group-{{ str()->slug($categoryName) }}">
                         <div class="flex items-center justify-between mb-4 sticky top-0 bg-slate-50/95 dark:bg-[#0B1120]/95 backdrop-blur z-10 py-2">
@@ -335,7 +348,7 @@
                                         <div class="w-5 h-5 rounded-full border border-white/50 bg-black/20 backdrop-blur flex items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-500/80 transition-colors"
                                              :class="selected.includes('{{ $product->id }}') ? 'bg-emerald-500 border-emerald-500' : ''"
                                              @click="toggleSelect('{{ $product->id }}')">
-                                            <input type="checkbox" value="{{ $product->id }}" class="opacity-0 absolute w-5 h-5 cursor-pointer" :checked="selected.includes('{{ $product->id }}')" @click.stop="toggleSelect('{{ $product->id }}')">
+                                            <input type="checkbox" value="{{ $product->id }}" class="product-row-checkbox opacity-0 absolute w-5 h-5 cursor-pointer" :checked="selected.includes('{{ $product->id }}')" @click.stop="toggleSelect('{{ $product->id }}')">
                                             <i x-show="selected.includes('{{ $product->id }}')" class="ph-bold ph-check text-white text-[10px]"></i>
                                         </div>
                                     </div>
@@ -413,82 +426,3 @@
         </div>
     </div>
 </div>
-
-@script
-<script>
-    Alpine.data('productCatalog', () => ({
-        selected: [],
-        selectAll: false,
-        showMobileFilters: false,
-        statusDropdownOpen: false,
-        viewMode: localStorage.getItem('productViewMode') || 'list',
-
-        setView(mode) {
-            this.viewMode = mode;
-            localStorage.setItem('productViewMode', mode);
-        },
-
-        toggleSort(field) {
-            if ($wire.sortField === field + '_asc') {
-                $wire.sortField = field + '_desc';
-            } else {
-                $wire.sortField = field + '_asc';
-            }
-        },
-
-        toggleSelect(id) {
-            const idx = this.selected.indexOf(id);
-            if (idx > -1) {
-                this.selected.splice(idx, 1);
-            } else {
-                this.selected.push(id);
-            }
-            this.selectAll = this.selected.length === document.querySelectorAll('[wire\\:key^="row-"], [wire\\:key^="prod-"]').length;
-        },
-
-        toggleSelectAll() {
-            if (this.selectAll) {
-                this.selected = [];
-                this.selectAll = false;
-            } else {
-                const ids = [...document.querySelectorAll('[wire\\:key^="row-"]')].map(el => {
-                    return el.getAttribute('wire:key').replace('row-', '');
-                });
-                this.selected = ids;
-                this.selectAll = true;
-            }
-        },
-
-        clearSelection() {
-            this.selected = [];
-            this.selectAll = false;
-        },
-
-        init() {
-            this.$watch('viewMode', val => {
-                if (val === 'list') {
-                    this.$nextTick(() => {
-                        if (window.livewireInitialized) Livewire.rescan?.();
-                    });
-                }
-            });
-
-            this.$watch('selected', () => {
-                const totalRows = document.querySelectorAll('[wire\\:key^="row-"]').length;
-                if (totalRows > 0 && this.selected.length === totalRows) {
-                    this.selectAll = true;
-                } else if (this.selected.length === 0) {
-                    this.selectAll = false;
-                }
-            });
-
-            $wire.on('clear-selection', () => this.clearSelection());
-            Livewire.hook('commit', ({ component, respond, succeed }) => {
-                succeed(() => {
-                    this.clearSelection();
-                });
-            });
-        }
-    }));
-</script>
-@endscript
