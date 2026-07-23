@@ -154,20 +154,20 @@
             </div>
 
             <!-- Status (Floating Dropdown) -->
-            <div class="flex flex-col gap-1.5 min-w-[140px] flex-1 md:flex-none relative" x-data="{ open: false }">
+            <div class="flex flex-col gap-1.5 min-w-[140px] flex-1 md:flex-none relative">
                 <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Status</label>
-                <button type="button" @click="open = !open"
+                <button type="button" @click="statusDropdownOpen = !statusDropdownOpen"
                         class="w-full flex items-center justify-between bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/30 rounded-xl px-4 py-2 text-sm font-bold text-orange-600 dark:text-orange-400 h-10 text-left transition-colors">
                     <span>{{ $filterStatus === 'active' ? 'Active' : ($filterStatus === 'inactive' ? 'No Active' : 'All Status') }}</span>
-                    <i class="ph-bold ph-caret-down text-xs transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                    <i class="ph-bold ph-caret-down text-xs transition-transform" :class="statusDropdownOpen ? 'rotate-180' : ''"></i>
                 </button>
 
-                <div x-show="open" @click.outside="open = false" style="display: none"
+                <div x-show="statusDropdownOpen" @click.outside="statusDropdownOpen = false" style="display: none"
                      x-transition.opacity.duration.200ms
                      class="absolute top-[calc(100%+4px)] left-0 w-full md:w-[160px] bg-white dark:bg-slate-800 border border-orange-100 dark:border-orange-500/20 rounded-xl shadow-xl p-1.5 z-50">
-                    <button wire:click="$set('filterStatus', ''); open = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === '' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">All Status</button>
-                    <button wire:click="$set('filterStatus', 'active'); open = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === 'active' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">Active</button>
-                    <button wire:click="$set('filterStatus', 'inactive'); open = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === 'inactive' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">No Active</button>
+                    <button wire:click="$set('filterStatus', ''); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === '' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">All Status</button>
+                    <button wire:click="$set('filterStatus', 'active'); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === 'active' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">Active</button>
+                    <button wire:click="$set('filterStatus', 'inactive'); statusDropdownOpen = false" @click="clearSelection()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold transition-colors" :class="$wire.filterStatus === 'inactive' ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700'">No Active</button>
                 </div>
             </div>
             
@@ -420,6 +420,7 @@
         selected: [],
         selectAll: false,
         showMobileFilters: false,
+        statusDropdownOpen: false,
         viewMode: localStorage.getItem('productViewMode') || 'list',
 
         setView(mode) {
