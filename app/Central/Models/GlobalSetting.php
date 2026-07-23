@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 
 #[Connection('mysql')]
-#[Table(key: 'key', incrementing: false, keyType: 'string')]
+#[Table(key: 'key', keyType: 'string', incrementing: false)]
 #[Fillable([
     'key',
     'value',
