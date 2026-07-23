@@ -2,11 +2,13 @@
 
 namespace App\Central\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Connection;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 
-#[Table(connection: 'mysql', key: 'key', incrementing: false, keyType: 'string')]
+#[Connection('mysql')]
+#[Table(key: 'key', incrementing: false, keyType: 'string')]
 #[Fillable([
     'key',
     'value',
@@ -20,17 +22,12 @@ class GlobalSetting extends Model
      */
     public function getCastValueAttribute()
     {
-        switch ($this->type) {
-            case 'integer':
-                return (int) $this->value;
-            case 'float':
-                return (float) $this->value;
-            case 'boolean':
-                return filter_var($this->value, FILTER_VALIDATE_BOOLEAN);
-            case 'json':
-                return json_decode($this->value, true);
-            default:
-                return $this->value;
-        }
+        return match ($this->type) {
+            'integer' => (int)$this->value,
+            'float' => (float)$this->value,
+            'boolean' => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
+            'json' => json_decode($this->value, true),
+            default => $this->value,
+        };
     }
 }
