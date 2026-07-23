@@ -3,72 +3,62 @@
 use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 new class extends Component {
-    public ?int $activeCategoryId = null;
+    use WithPagination;
 
-    public function loadProducts($categoryId): void
-    {
-        if ($this->activeCategoryId == $categoryId) {
-            $this->activeCategoryId = null;
-        } else {
-            $this->activeCategoryId = $categoryId;
-        }
-    }
+    #[Url] public string $search = '';
+    #[Url] public string $filterCategory = '';
+    #[Url] public string $filterStatus = '';
 
-    public function toggleAvailability($productId): void
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingFilterCategory(): void { $this->resetPage(); }
+    public function updatingFilterStatus(): void { $this->resetPage(); }
+
+    public function toggleAvailability(Product $product): void
     {
-        $product = Product::findOrFail($productId);
         $product->update(['is_active' => !$product->is_active]);
-
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'message' => 'Status ' . $product->name . ' berhasil diubah.'
-        ]);
+        $this->dispatch('notify', ['type' => 'success', 'message' => "Status {$product->name} berhasil diubah."]);
     }
 
-    public function deleteProduct($productId): void
+    public function deleteProduct(Product $product): void
     {
-        Product::findOrFail($productId)->delete();
+        $product->delete();
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Produk berhasil dihapus.']);
     }
 
-    public function deleteCategory($categoryId): void
+    public function deleteCategory(Category $category): void
     {
-        $category = Category::withCount('products')->findOrFail($categoryId);
-
+        $category->loadCount('products');
+        
         if ($category->products_count > 0) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Gagal! Hapus semua produk di kategori ini dulu.']);
             return;
         }
 
         $category->delete();
-        $this->activeCategoryId = null;
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Kategori dihapus.']);
     }
 
     #[On('category-saved')]
-    public function refreshTable(): void
-    {
-    }
+    #[On('product-saved')]
+    public function refreshTable(): void { $this->resetPage(); }
 
     public function with(): array
     {
-        $categories = Category::withCount('products')
-            ->orderBy('order_column')
-            ->get();
+        $query = Product::with(['category', 'variants'])->orderBy('id', 'desc');
 
-        $loadedProducts = [];
-        if ($this->activeCategoryId) {
-            $loadedProducts = Product::with('variants')
-                ->where('category_id', $this->activeCategoryId)
-                ->get();
-        }
+        if ($this->search) $query->where(fn ($q) => $q->where('name', 'like', "%{$this->search}%")->orWhere('description', 'like', "%{$this->search}%"));
+        if ($this->filterCategory) $query->where('category_id', $this->filterCategory);
+        if ($this->filterStatus === 'active') $query->where('is_active', true);
+        if ($this->filterStatus === 'inactive') $query->where('is_active', false);
 
         return [
-            'categories' => $categories,
-            'loadedProducts' => $loadedProducts
+            'categories' => Category::orderBy('order_column')->get(),
+            'products' => $query->paginate(12),
         ];
     }
 };
