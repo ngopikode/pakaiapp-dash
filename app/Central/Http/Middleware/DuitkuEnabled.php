@@ -11,15 +11,16 @@ class DuitkuEnabled
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        if (!config('duitku.enabled')) {
-            abort(ResponseAlias::HTTP_FORBIDDEN, 'Duitku payment gateway is disabled.');
-        }
+        if (!config('duitku.enabled')) abort(
+            code: ResponseAlias::HTTP_FORBIDDEN,
+            message: 'Duitku payment gateway is disabled.'
+        );
 
         return $next($request);
     }
