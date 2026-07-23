@@ -2,6 +2,7 @@
 
 namespace App\Tenant\Models\Core;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,36 +60,40 @@ class Order extends Model
     /**
      * Get the formatted and user-friendly payment method name.
      */
-    public function getFormattedPaymentMethodAttribute(): string
+    protected function formattedPaymentMethod(): Attribute
     {
-        if ($this->duitku_payment_method) {
-            $code = strtoupper($this->duitku_payment_method);
-            $fallbackMethods = [
-                'BC' => 'BCA Virtual Account',
-                'M2' => 'Mandiri Virtual Account',
-                'I1' => 'BNI Virtual Account',
-                'BR' => 'BRI Virtual Account',
-                'BT' => 'Permata Virtual Account',
-                'B1' => 'CIMB Niaga Virtual Account',
-                'VA' => 'Maybank Virtual Account',
-                'DN' => 'Danamon Virtual Account',
-                'HN' => 'Hana Bank Virtual Account',
-                'NC' => 'Neo Commerce Virtual Account',
-                'SP' => 'ShopeePay',
-                'DA' => 'DANA',
-                'OV' => 'OVO',
-                'LA' => 'LinkAja',
-                'NQ' => 'QRIS (ShopeePay/DANA/OVO/LinkAja)',
-            ];
-            return $fallbackMethods[$code] ?? $this->duitku_payment_method;
-        }
+        return Attribute::make(
+            get: function () {
+                if ($this->duitku_payment_method) {
+                    $code = strtoupper($this->duitku_payment_method);
+                    $fallbackMethods = [
+                        'BC' => 'BCA Virtual Account',
+                        'M2' => 'Mandiri Virtual Account',
+                        'I1' => 'BNI Virtual Account',
+                        'BR' => 'BRI Virtual Account',
+                        'BT' => 'Permata Virtual Account',
+                        'B1' => 'CIMB Niaga Virtual Account',
+                        'VA' => 'Maybank Virtual Account',
+                        'DN' => 'Danamon Virtual Account',
+                        'HN' => 'Hana Bank Virtual Account',
+                        'NC' => 'Neo Commerce Virtual Account',
+                        'SP' => 'ShopeePay',
+                        'DA' => 'DANA',
+                        'OV' => 'OVO',
+                        'LA' => 'LinkAja',
+                        'NQ' => 'QRIS (ShopeePay/DANA/OVO/LinkAja)',
+                    ];
+                    return $fallbackMethods[$code] ?? $this->duitku_payment_method;
+                }
 
-        return match (strtolower($this->payment_method ?? '')) {
-            'cash' => 'Tunai',
-            'qris' => 'QRIS',
-            'transfer' => 'Transfer Bank',
-            default => $this->payment_method ?: '-',
-        };
+                return match (strtolower($this->payment_method ?? '')) {
+                    'cash' => 'Tunai',
+                    'qris' => 'QRIS',
+                    'transfer' => 'Transfer Bank',
+                    default => $this->payment_method ?: '-',
+                };
+            }
+        );
     }
 
     /**

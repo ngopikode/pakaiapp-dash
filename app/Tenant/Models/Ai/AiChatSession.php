@@ -5,12 +5,12 @@ namespace App\Tenant\Models\Ai;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\MassPrunable;
 
 #[Fillable(['table_number', 'session_token', 'turn_count'])]
 class AiChatSession extends Model
 {
-    use Prunable;
+    use MassPrunable;
 
     /**
      * Tentukan kriteria model yang akan dihapus secara otomatis.

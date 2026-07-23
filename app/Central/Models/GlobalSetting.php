@@ -5,6 +5,7 @@ namespace App\Central\Models;
 use Illuminate\Database\Eloquent\Attributes\Connection;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 #[Connection('mysql')]
@@ -20,14 +21,16 @@ class GlobalSetting extends Model
     /**
      * Helper to cast value based on its type.
      */
-    public function getCastValueAttribute()
+    protected function castValue(): Attribute
     {
-        return match ($this->type) {
-            'integer' => (int)$this->value,
-            'float' => (float)$this->value,
-            'boolean' => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
-            'json' => json_decode($this->value, true),
-            default => $this->value,
-        };
+        return Attribute::make(
+            get: fn () => match ($this->type) {
+                'integer' => (int)$this->value,
+                'float' => (float)$this->value,
+                'boolean' => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
+                'json' => json_decode($this->value, true),
+                default => $this->value,
+            },
+        );
     }
 }
