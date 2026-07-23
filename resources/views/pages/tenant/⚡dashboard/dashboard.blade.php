@@ -50,7 +50,7 @@
         ═══════════════════════════════════════════════════════════ --}}
         @if($stats['pending_orders'] > 0 || $outOfStockCount > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @if($stats['pending_orders'] > 0)
+                @if($stats['pending_orders'] > 0 && $this->kitchenActive)
                 <a href="{{ route('kitchen') }}"
                    class="group flex items-center justify-between rounded-3xl border border-emerald-200 bg-emerald-50 p-4 transition-colors hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20">
                     <div class="flex items-center gap-3">

@@ -155,6 +155,18 @@
                                                    wire:model="is_active">
                                         </div>
                                     </div>
+                                    @if($store_type === 'resto')
+                                        <div class="setting-switch pt-2">
+                                            <div>
+                                                <div class="fw-bold">Layar Dapur (KDS)</div>
+                                                <div class="small text-muted">Aktifkan tampilan kitchen display system</div>
+                                            </div>
+                                            <div class="form-check form-switch fs-4 mb-0">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                       wire:model="is_kitchen_active">
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 

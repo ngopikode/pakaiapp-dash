@@ -8,33 +8,29 @@ use Illuminate\Support\Facades\Artisan;
 
 class MigrateTenantTypeCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'tenants:migrate-type {type : Tipe toko tenant (misal: retail, resto, all)} {--force : Force the operation to run when in production}';
+    protected $signature = 'tenants:migrate-type {type : Tipe toko tenant (misal: retail, resto, all)} {--force : Force the operation to run when in production} {--rollback : Rollback 1 batch terakhir dari core + spesifik}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Menjalankan migrasi hanya untuk tenant dengan tipe tertentu (retail, resto, atau all)';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): void
     {
         $type = $this->argument('type');
-
         $force = $this->option('force');
+        $rollback = $this->option('rollback');
+
+        $command = $rollback ? 'tenants:rollback' : 'tenants:migrate';
 
         if ($type === 'all') {
             $this->info("🚀 Menjalankan migrasi berjenjang untuk SEMUA tipe tenant (retail & resto)...");
-            $this->call('tenants:migrate-type', ['type' => 'retail', '--force' => $force]);
-            $this->call('tenants:migrate-type', ['type' => 'resto', '--force' => $force]);
+
+            if ($rollback) {
+                $this->call('tenants:migrate-type', ['type' => 'resto', '--force' => $force, '--rollback' => true]);
+                $this->call('tenants:migrate-type', ['type' => 'retail', '--force' => $force, '--rollback' => true]);
+            } else {
+                $this->call('tenants:migrate-type', ['type' => 'retail', '--force' => $force]);
+                $this->call('tenants:migrate-type', ['type' => 'resto', '--force' => $force]);
+            }
+
             $this->info("🌟 Migrasi ALL (Semua Tenant) Selesai!");
             return;
         }
@@ -52,22 +48,40 @@ class MigrateTenantTypeCommand extends Command
 
         $this->info("Ditemukan " . count($tenantIds) . " tenant. Memulai migrasi khusus...");
 
+        if ($rollback) {
+            $this->warn(">>> Rollback mode aktif!");
+        }
+
         $options = [
             '--tenants' => $tenantIds,
             '--force' => $force,
+            '--step' => 1,
         ];
 
-        // 1. Jalankan migrasi core
-        $this->info(">>> Menjalankan migrasi CORE untuk tipe '$type'...");
-        $coreOptions = $options;
-        $coreOptions['--path'] = 'database/migrations/tenant/core';
-        Artisan::call('tenants:migrate', $coreOptions, $this->output);
+        if ($rollback) {
+            // Rollback spesifik dulu, baru core (urutan terbalik dari migrate)
+            $this->info(">>> Rollback SPESIFIK ($type)...");
+            $specificOptions = $options;
+            $specificOptions['--path'] = "database/migrations/tenant/$type";
+            Artisan::call($command, $specificOptions, $this->output);
 
-        // 2. Jalankan migrasi spesifik (retail/resto)
-        $this->info(">>> Menjalankan migrasi SPESIFIK ($type)...");
-        $specificOptions = $options;
-        $specificOptions['--path'] = "database/migrations/tenant/$type";
-        Artisan::call('tenants:migrate', $specificOptions, $this->output);
+            $this->info(">>> Rollback CORE untuk tipe '$type'...");
+            $coreOptions = $options;
+            $coreOptions['--path'] = 'database/migrations/tenant/core';
+            Artisan::call($command, $coreOptions, $this->output);
+        } else {
+            // 1. Jalankan migrasi core
+            $this->info(">>> Menjalankan migrasi CORE untuk tipe '$type'...");
+            $coreOptions = $options;
+            $coreOptions['--path'] = 'database/migrations/tenant/core';
+            Artisan::call($command, $coreOptions, $this->output);
+
+            // 2. Jalankan migrasi spesifik (retail/resto)
+            $this->info(">>> Menjalankan migrasi SPESIFIK ($type)...");
+            $specificOptions = $options;
+            $specificOptions['--path'] = "database/migrations/tenant/$type";
+            Artisan::call($command, $specificOptions, $this->output);
+        }
 
         $this->info("✅ Migrasi untuk tenant tipe '$type' selesai!");
     }

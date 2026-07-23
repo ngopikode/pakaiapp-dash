@@ -20,7 +20,9 @@ new class extends Component {
     public function getMenuSectionsProperty(): array
     {
         $user = Auth::user();
-        $storeType = StoreSetting::first()?->store_type ?? 'retail';
+        $storeSetting = StoreSetting::first();
+        $storeType = $storeSetting?->store_type ?? 'retail';
+        $isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
 
         $sections = [
             [
@@ -50,7 +52,7 @@ new class extends Component {
             ]
         ];
 
-        if ($storeType === 'resto') {
+        if ($storeType === 'resto' && $isKitchenActive) {
             // Add Kitchen Screen to Menu Utama
             $sections[0]['items'][] = ['route' => 'kitchen', 'icon' => 'ph-fill ph-monitor', 'label' => 'Layar Dapur (Kitchen)', 'roles' => ['manager', 'kitchen']];
 

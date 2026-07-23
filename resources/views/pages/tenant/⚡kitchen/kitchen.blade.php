@@ -1,3 +1,26 @@
+@if($this->kitchenDisabled)
+    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#0B1120] p-6 text-slate-800 dark:text-slate-200">
+        <div class="mx-auto max-w-md text-center">
+            <div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mx-auto">
+                <svg class="h-10 w-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Kitchen Display Tidak Aktif</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Fitur layar dapur (KDS) sedang dinonaktifkan. Aktifkan melalui Pengaturan Toko untuk mengelola pesanan dapur.</p>
+            @if(auth()->user()->role !== 'kitchen')
+                <a href="{{ route('store-setting') }}" wire:navigate.hover class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-amber-600">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Buka Pengaturan Toko
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-slate-700">
+                    Kembali ke Login
+                </a>
+            @endif
+        </div>
+    </div>
+@else
 <div class="fixed inset-0 z-50 flex flex-col bg-slate-50 dark:bg-[#0B1120] p-3 text-slate-800 dark:text-slate-200 md:p-4 gap-3 overflow-hidden" x-data="{ stats: @js($this->kitchenStats), activeTab: 'waiting' }">
 
     {{-- Header --}}
@@ -19,6 +42,13 @@
                 </span>
                 Dapur Buka
             </span>
+            <button x-data="{ theme: localStorage.getItem('theme') || 'light' }"
+                    @click="theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', theme); document.documentElement.classList.toggle('dark', theme === 'dark')"
+                    class="flex items-center justify-center p-1.5 rounded-lg bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm"
+                    title="Ganti Tema">
+                <i x-show="theme === 'dark'" class="ph-fill ph-sun text-[18px] text-orange-400" x-cloak></i>
+                <i x-show="theme === 'light'" class="ph-fill ph-moon text-[18px] text-slate-500" x-cloak></i>
+            </button>
             <button wire:click="$refresh" wire:loading.attr="disabled" class="flex items-center gap-2 rounded-lg bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white shadow-sm" title="Refresh Data">
                 <svg wire:loading.class="animate-spin" wire:target="$refresh" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -205,6 +235,8 @@
     </div>
 
 </div>
+
+@endif
 
 @script
 {{-- Audio System Notification --}}

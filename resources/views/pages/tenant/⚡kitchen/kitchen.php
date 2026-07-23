@@ -16,7 +16,17 @@ class extends Component
 {
     use ShowsToast;
 
+    public bool $kitchenDisabled = false;
+
     private ?KitchenService $kitchenService = null;
+
+    public function mount(): void
+    {
+        $setting = \App\Tenant\Models\Core\StoreSetting::first();
+        if ($setting && !$setting->is_kitchen_active) {
+            $this->kitchenDisabled = true;
+        }
+    }
 
     private function kitchenService(): KitchenService
     {

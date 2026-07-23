@@ -59,13 +59,15 @@
 
 <?php
 $userMenuRole = auth()->user()?->role ?? 'cashier';
-$storeType = StoreSetting::first()?->store_type ?? 'retail';
+$storeSetting = StoreSetting::first();
+$storeType = $storeSetting?->store_type ?? 'retail';
+$isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
 
 $allRoles = [
     ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
     ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
 ];
-if ($storeType === 'resto') {
+if ($storeType === 'resto' && $isKitchenActive) {
     $allRoles[] = ['manager', 'kitchen'];
 }
 

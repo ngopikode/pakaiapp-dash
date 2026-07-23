@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Model;
     'tax_rate',
     'is_service_charge_active',
     'service_charge_rate',
+    'is_kitchen_active',
     'created_at',
     'updated_at',
 ])]

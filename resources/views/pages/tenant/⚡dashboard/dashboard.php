@@ -21,6 +21,7 @@ class extends Component {
     public string $dateFilter = 'today';
     public string $customStartDate = '';
     public string $customEndDate = '';
+    public bool $kitchenActive = true;
 
     // Tarif per transaksi, disamakan dengan kasir
     private int $feePerTransaction = 300;
@@ -28,6 +29,7 @@ class extends Component {
     public function mount(): void
     {
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
+        $this->kitchenActive = (bool)(StoreSetting::first()?->is_kitchen_active ?? true);
     }
 
     public function setDateFilter($filter)
