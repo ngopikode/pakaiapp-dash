@@ -14,7 +14,7 @@
     $badgeText = $isReady ? 'text-white' : ($isProcessing ? 'text-slate-900' : 'text-white');
 @endphp
 
-<div class="relative flex flex-col shrink-0 overflow-hidden rounded-xl border {{ $cardBorder }} bg-white dark:bg-slate-900 shadow-sm transition-all">
+<div wire:key="batch-{{ $batch['status'] }}-{{ $order->id }}" class="relative flex flex-col shrink-0 overflow-hidden rounded-xl border {{ $cardBorder }} bg-white dark:bg-slate-900 shadow-sm transition-all">
     {{-- Card Header --}}
     <div class="flex items-center justify-between p-3 {{ $headerBg }} {{ $headerText }}">
         <div>
@@ -93,7 +93,7 @@
 
         <ul class="flex flex-col gap-1.5">
             @foreach($batch['items'] as $item)
-                <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 p-2">
+                <li wire:key="item-{{ $item->id }}" class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 p-2">
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-bold text-slate-900 dark:text-white leading-tight">{{ $item->product_name }}</div>
                         @if($item->variant_name)
@@ -113,11 +113,11 @@
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 text-sm font-black text-slate-900 dark:text-white">x{{ $item->quantity }}</span>
 
                         @if($isWaiting)
-                            <button wire:click="markItemAsProcessing({{ $item->id }})" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-500 text-white shadow-sm transition-transform hover:scale-105 hover:bg-red-600" title="Mulai Masak">
+                            <button type="button" wire:click="markItemAsProcessing({{ $item->id }})" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-500 text-white shadow-sm transition-transform hover:scale-105 hover:bg-red-600" title="Mulai Masak">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
                             </button>
                         @elseif($isProcessing)
-                            <button wire:click="markItemAsReady({{ $item->id }})" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-sm transition-transform hover:scale-105 hover:bg-emerald-600" title="Siap">
+                            <button type="button" wire:click="markItemAsReady({{ $item->id }})" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-sm transition-transform hover:scale-105 hover:bg-emerald-600" title="Siap">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                             </button>
                         @endif
@@ -131,12 +131,12 @@
     @if(!$isReady)
         <div class="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 p-3">
             @if($isWaiting)
-                <button wire:click="markAsProcessing({{ $order->id }})" class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-red-500/30 bg-red-50 dark:bg-red-500/10 py-2.5 text-sm font-bold text-red-600 dark:text-red-500 transition-colors hover:bg-red-500 hover:text-white">
+                <button type="button" wire:click="markAsProcessing({{ $order->id }})" class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-red-500/30 bg-red-50 dark:bg-red-500/10 py-2.5 text-sm font-bold text-red-600 dark:text-red-500 transition-colors hover:bg-red-500 hover:text-white">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     MULAI MASAK
                 </button>
             @elseif($isProcessing)
-                <button wire:click="markAsReady({{ $order->id }})" class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 py-2.5 text-sm font-bold text-emerald-600 dark:text-emerald-500 transition-colors hover:bg-emerald-500 hover:text-white">
+                <button type="button" wire:click="markAsReady({{ $order->id }})" class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 py-2.5 text-sm font-bold text-emerald-600 dark:text-emerald-500 transition-colors hover:bg-emerald-500 hover:text-white">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     SEMUA SIAP
                 </button>

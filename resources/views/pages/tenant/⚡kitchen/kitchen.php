@@ -3,6 +3,7 @@
 use App\Shared\Traits\ShowsToast;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\OrderItem;
+use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\KitchenService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +13,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 new #[Title('Tampilan Dapur')]
-class extends Component
-{
+class extends Component {
     use ShowsToast;
 
     public bool $kitchenDisabled = false;
@@ -22,7 +22,7 @@ class extends Component
 
     public function mount(): void
     {
-        $setting = \App\Tenant\Models\Core\StoreSetting::first();
+        $setting = StoreSetting::first();
         if ($setting && !$setting->is_kitchen_active) {
             $this->kitchenDisabled = true;
         }
@@ -38,7 +38,7 @@ class extends Component
         try {
             $this->kitchenService()->markAsProcessing($orderId);
             $this->toast('Pesanan mulai dimasak!');
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->toast($e->getMessage(), 'danger');
         }
     }
@@ -48,7 +48,7 @@ class extends Component
         try {
             $this->kitchenService()->markAsReady($orderId);
             $this->toast('Pesanan siap disajikan!');
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->toast($e->getMessage(), 'danger');
         }
     }
@@ -58,7 +58,7 @@ class extends Component
         try {
             $this->kitchenService()->markItemAsProcessing($itemId);
             $this->toast('Item mulai dimasak!');
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->toast($e->getMessage(), 'danger');
         }
     }
@@ -68,7 +68,7 @@ class extends Component
         try {
             $this->kitchenService()->markItemAsReady($itemId);
             $this->toast('Item siap disajikan!');
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->toast($e->getMessage(), 'danger');
         }
     }
@@ -76,7 +76,7 @@ class extends Component
     #[On('echo:kitchen,.KitchenUpdated')]
     public function refreshKitchen(): void
     {
-        // trigger re-render via WebSocket event
+        $this->dispatch('kitchen-updated', count: count($this->kitchenBatches));
     }
 
     public function logout(): void
@@ -105,20 +105,20 @@ class extends Component
             ->avg(DB::raw('TIMESTAMPDIFF(MINUTE, created_at, updated_at)')) ?? 18;
 
         return [
-            'active' => $statusCounts->waiting + $statusCounts->processing,
+            'active' => ($statusCounts->waiting ?? 0) + ($statusCounts->processing ?? 0),
             'avg_prep' => round($avgPrep),
-            'pending' => $statusCounts->waiting,
-            'ready' => $statusCounts->ready,
+            'pending' => ($statusCounts->waiting ?? 0),
+            'ready' => ($statusCounts->ready ?? 0),
         ];
     }
 
     #[Computed]
     public function kitchenBatches(): array
     {
-        $orders = Order::with(['items' => fn ($q) => $q->select('id', 'order_id', 'product_name', 'variant_name', 'note', 'quantity', 'kitchen_status', 'created_at')])
+        $orders = Order::with(['items' => fn($q) => $q->select('id', 'order_id', 'product_name', 'variant_name', 'note', 'quantity', 'kitchen_status', 'created_at')])
             ->select('id', 'invoice_code', 'status', 'kitchen_status', 'order_type', 'table_number', 'notes', 'amount_paid', 'total_price', 'created_at', 'updated_at', 'is_online')
-            ->where(fn ($query) => $query->whereIn('status', ['paid', 'progress'])
-                ->orWhere(fn ($q) => $q->where('status', 'pending')->where('is_online', false)))
+            ->where(fn($query) => $query->whereIn('status', ['paid', 'progress'])
+                ->orWhere(fn($q) => $q->where('status', 'pending')->where('is_online', false)))
             ->whereIn('kitchen_status', ['waiting', 'processing', 'ready'])
             ->whereDate('created_at', today())
             ->get();
@@ -150,7 +150,7 @@ class extends Component
             }
         }
 
-        usort($batches, fn ($a, $b) => $a['created_at'] <=> $b['created_at']);
+        usort($batches, fn($a, $b) => $a['created_at'] <=> $b['created_at']);
 
         return $batches;
     }

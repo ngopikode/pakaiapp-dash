@@ -58,10 +58,10 @@ class KitchenService
             $order->items()->where('kitchen_status', $fromStatus)->update(['kitchen_status' => $toStatus]);
             $this->recalculateOrderStatus($order);
 
-            event(new KitchenUpdated);
-
             DB::commit();
-        } catch (Exception $e) {
+
+            event(new KitchenUpdated);
+        } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
         }
@@ -90,10 +90,10 @@ class KitchenService
             $item->update(['kitchen_status' => $toStatus]);
             $this->recalculateOrderStatus($order);
 
-            event(new KitchenUpdated);
-
             DB::commit();
-        } catch (Exception $e) {
+
+            event(new KitchenUpdated);
+        } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
         }
@@ -111,8 +111,10 @@ class KitchenService
 
     private function determineKitchenStatus(Order $order): string
     {
-        if ($order->items()->where('kitchen_status', 'waiting')->exists()) return 'waiting';
-        if ($order->items()->where('kitchen_status', 'processing')->exists()) return 'processing';
+        $statuses = $order->items()->pluck('kitchen_status')->toArray();
+
+        if (in_array('waiting', $statuses)) return 'waiting';
+        if (in_array('processing', $statuses)) return 'processing';
 
         return 'ready';
     }
