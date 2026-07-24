@@ -45,7 +45,7 @@
                 <i class="bi bi-clock-history fs-6"></i>
                 <span class="d-none d-sm-inline">Riwayat Transaksi</span>
                 <span class="d-inline d-sm-none">Riwayat</span>
-                
+
                 @if($todayOrders->count() > 0)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.65rem;">
                         {{ $todayOrders->count() }}
@@ -106,7 +106,7 @@
 
     {{-- Cancel Modal Component --}}
     <div @cancel-confirmed.window="$wire.cancelOrder($event.detail)">
-        <x-tenant.order.cancel-modal/>
+        @include('pages.tenant.pos.partials.._cancel-modal')
     </div>
 
 </div>
