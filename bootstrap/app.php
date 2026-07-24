@@ -1,7 +1,6 @@
 <?php
 
 use App\Shared\Middleware\CheckRole;
-
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -10,13 +9,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        channels: __DIR__.'/../routes/channels.php',
         web: __DIR__ . '/../routes/web.php',
         commands: __DIR__ . '/../routes/console.php',
+        channels: __DIR__ . '/../routes/channels.php',
         health: '/up'
     )
     ->withEvents(discover: [
-        __DIR__.'/../app/Shared/Listeners',
+        __DIR__ . '/../app/Shared/Listeners',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectTo(
@@ -27,8 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => CheckRole::class,
         ]);
-        $middleware->web(append: [
-        ]);
+        $middleware->web();
         $middleware->preventRequestForgery(except: [
             'duitku/callback',
             'midtrans/notification',
@@ -40,6 +38,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $e, \Illuminate\Http\Request $request) {
-            throw new NotFoundHttpException('Halaman atau Toko yang Anda tuju tidak dapat ditemukan.');
+            throw new NotFoundHttpException(message: 'Halaman atau Toko yang Anda tuju tidak dapat ditemukan.');
         });
     })->create();
