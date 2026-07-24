@@ -101,17 +101,7 @@
                 pwaToast.classList.add('hidden');
                 localStorage.setItem('pwaDismissedTs', Date.now().toString());
                 
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Bisa Di-install Kapan Saja',
-                        text: 'Anda bisa menginstall aplikasi ini kapan saja lewat menu "Install App" di sidebar kiri, atau lewat menu browser (Add to Home screen).',
-                        confirmButtonColor: '#22c55e',
-                        timer: 5000
-                    });
-                } else {
-                    alert('Anda bisa menginstall aplikasi ini kapan saja lewat menu "Install App" di sidebar atau menu browser (Add to Home screen).');
-                }
+// ponytail: Alert/Swal dihilangkan saat dismiss, terlalu berlebihan.
             });
         }
     });
