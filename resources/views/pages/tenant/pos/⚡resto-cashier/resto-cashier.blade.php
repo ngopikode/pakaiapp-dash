@@ -151,7 +151,7 @@
 
     {{-- Cancel Modal Component --}}
     <div>
-        <x-tenant.order.cancel-modal/>
+        @include('pages.tenant.pos.partials.._cancel-modal')
     </div>
 
     @include('pages.tenant.pos.partials._modal-void-item')
