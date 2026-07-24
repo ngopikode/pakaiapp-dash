@@ -9,8 +9,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     protected ?ProductService $productService = null;
 
     protected ?CategoryService $categoryService = null;
@@ -44,9 +43,9 @@ new class extends Component
 
     public function updating($property): void
     {
-        if (in_array($property, ['search', 'filterCategory', 'filterStatus', 'filterPrice', 'sortField'])) {
-            $this->perPage = 20;
-        }
+        if (
+            in_array($property, ['search', 'filterCategory', 'filterStatus', 'filterPrice', 'sortField'])
+        ) $this->perPage = 20;
     }
 
     public function loadMore(): void
@@ -57,7 +56,7 @@ new class extends Component
     public function toggleAvailability(Product $product): void
     {
         $this->productService()->toggleAvailability($product);
-        $this->dispatch('notify', ['type' => 'success', 'message' => "Status {$product->name} berhasil diubah."]);
+        $this->dispatch('notify', ['type' => 'success', 'message' => "Status $product->name berhasil diubah."]);
     }
 
     public function deleteProduct(Product $product): void
