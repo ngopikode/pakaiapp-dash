@@ -65,13 +65,7 @@ if [ "$LOCAL" = "$REMOTE" ]; then
 fi
 
 # ==============================================================================
-# 2. AKTIFKAN MAINTENANCE MODE
-# ==============================================================================
-log "🚧 Mengaktifkan maintenance mode..."
-artisan down || true
-
-# ==============================================================================
-# 3. TARIK KODE TERBARU
+# 2. TARIK KODE TERBARU
 # ==============================================================================
 log "📥 Menarik kode terbaru dari git (master)..."
 git pull --ff-only origin master
@@ -116,8 +110,11 @@ artisan view:cache
 artisan event:cache
 
 # ==============================================================================
-# 7. MIGRASI DATABASE CENTRAL
+# 7. AKTIFKAN MAINTENANCE MODE & MIGRASI DATABASE CENTRAL
 # ==============================================================================
+log "🚧 Mengaktifkan maintenance mode sementara untuk migrasi..."
+artisan down || true
+
 log "🗄️  Menjalankan migrasi database central..."
 artisan migrate --force
 
