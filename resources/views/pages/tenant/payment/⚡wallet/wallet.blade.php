@@ -1,4 +1,4 @@
-<div class="space-y-8 pb-12">
+<div class="space-y-8 pb-12 m-4 md:m-6">
     
     {{-- BARIS 1: TOP ACTION AREA ─────────────────────────────────────────── --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
