@@ -5,10 +5,11 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new  #[Title("Profil")]
-class extends Component {
-
+new #[Title('Profil')]
+class extends Component
+{
     public ProfileForm $form;
+
     public bool $showSuccessMessage = false;
 
     public function mount(): void

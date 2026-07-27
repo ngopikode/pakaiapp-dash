@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public string $search = '';
+
     public string $categoryFilter = 'all';
+
     public int $limit = 12;
 
     #[On('stock-updated')]
@@ -42,7 +45,7 @@ new class extends Component {
         $this->search = $searchTerm;
 
         $matchedVariantId = null;
-        $product = $this->baseProductQuery()->whereHas('variants', fn($q) => $q->where('sku', $searchTerm))->first();
+        $product = $this->baseProductQuery()->whereHas('variants', fn ($q) => $q->where('sku', $searchTerm))->first();
 
         if ($product) {
             $matchedVariantId = $product->variants->firstWhere('sku', $searchTerm)?->id;
@@ -61,12 +64,12 @@ new class extends Component {
     public function with(): array
     {
         $query = $this->baseProductQuery()
-            ->when($this->categoryFilter === 'promo', fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price')))
-            ->when($this->search !== '', fn($q) => $this->applySearchFilter($q, $this->search))
-            ->when($this->categoryFilter !== 'all' && $this->categoryFilter !== 'promo' && $this->search === '', fn($q) => $q->where('category_id', $this->categoryFilter));
+            ->when($this->categoryFilter === 'promo', fn ($q) => $q->whereHas('variants', fn ($q2) => $q2->whereNotNull('active_discount_price')))
+            ->when($this->search !== '', fn ($q) => $this->applySearchFilter($q, $this->search))
+            ->when($this->categoryFilter !== 'all' && $this->categoryFilter !== 'promo' && $this->search === '', fn ($q) => $q->where('category_id', $this->categoryFilter));
 
         $totalCount = (clone $query)->count();
-        $products = $query->take($this->limit)->get()->map(fn($product) => $this->formatProduct($product));
+        $products = $query->take($this->limit)->get()->map(fn ($product) => $this->formatProduct($product));
 
         return [
             'categories' => $this->categories(),
@@ -92,7 +95,7 @@ new class extends Component {
         $relations = ['variants:id,product_id,sku,name,cost,price,stock,active_discount_price,active_discount_name'];
 
         if (tenant('store_type') === 'resto') {
-            $relations['extras'] = fn($q) => $q->where('is_active', true);
+            $relations['extras'] = fn ($q) => $q->where('is_active', true);
         }
 
         return $relations;
@@ -121,7 +124,7 @@ new class extends Component {
     {
         $query->where('name', 'like', '%' . $term . '%')
             ->orWhere('description', 'like', '%' . $term . '%')
-            ->orWhereHas('variants', fn($v) => $v->where('sku', 'like', '%' . $term . '%')
+            ->orWhereHas('variants', fn ($v) => $v->where('sku', 'like', '%' . $term . '%')
                 ->orWhere('name', 'like', '%' . $term . '%')
             );
     }
@@ -129,7 +132,7 @@ new class extends Component {
     private function singleSearchMatch(string $searchTerm): ?Product
     {
         $query = $this->baseProductQuery()
-            ->where(fn($q) => $this->applySearchFilter($q, $searchTerm));
+            ->where(fn ($q) => $this->applySearchFilter($q, $searchTerm));
 
         return $query->count() === 1 ? $query->first() : null;
     }
@@ -146,29 +149,29 @@ new class extends Component {
             'name' => $product->name,
             'category_id' => $product->category_id,
             'image_url' => $product->image ? Storage::url($product->image) : null,
-            'has_variants' => (bool)$product->has_variants,
+            'has_variants' => (bool) $product->has_variants,
             'selection_type' => $product->selection_type ?? 'single',
-            'max_selections' => (int)($product->max_selections ?? 1),
-            'price' => (float)$variants->min('price'),
-            'active_discount_price' => $activeDiscountPrice ? (float)$activeDiscountPrice : null,
+            'max_selections' => (int) ($product->max_selections ?? 1),
+            'price' => (float) $variants->min('price'),
+            'active_discount_price' => $activeDiscountPrice ? (float) $activeDiscountPrice : null,
             'active_discount_name' => $activeDiscountName,
-            'stock' => (int)$variants->sum('stock'),
-            'variants' => $variants->map(fn($variant) => [
+            'stock' => (int) $variants->sum('stock'),
+            'variants' => $variants->map(fn ($variant) => [
                 'id' => $variant->id,
                 'name' => $variant->name,
                 'sku' => $variant->sku,
-                'cost' => (float)$variant->cost,
-                'price' => (float)$variant->price,
-                'active_discount_price' => $variant->active_discount_price ? (float)$variant->active_discount_price : null,
+                'cost' => (float) $variant->cost,
+                'price' => (float) $variant->price,
+                'active_discount_price' => $variant->active_discount_price ? (float) $variant->active_discount_price : null,
                 'active_discount_name' => $variant->active_discount_name,
-                'stock' => (int)$variant->stock,
+                'stock' => (int) $variant->stock,
             ])->toArray(),
             'extras' => tenant('store_type') === 'resto'
-                ? $product->extras->map(fn($extra) => [
+                ? $product->extras->map(fn ($extra) => [
                     'id' => $extra->id,
                     'name' => $extra->name,
-                    'price' => (float)$extra->price,
-                    'is_active' => (bool)$extra->is_active,
+                    'price' => (float) $extra->price,
+                    'is_active' => (bool) $extra->is_active,
                 ])->toArray()
                 : [],
         ];
@@ -181,7 +184,7 @@ new class extends Component {
 
     private function hasPromoItems(): bool
     {
-        return Product::whereHas('variants', fn($q) => $q->whereNotNull('active_discount_price'))
+        return Product::whereHas('variants', fn ($q) => $q->whereNotNull('active_discount_price'))
             ->where('is_active', true)
             ->exists();
     }

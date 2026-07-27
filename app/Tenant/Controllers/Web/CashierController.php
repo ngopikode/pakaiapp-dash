@@ -12,6 +12,7 @@ class CashierController extends Controller
     public function __invoke(): View
     {
         if (tenant('store_type') === 'resto') return view('pages.tenant.pos.resto');
+
         return view('pages.tenant.pos.retail');
     }
 }

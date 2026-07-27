@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -29,15 +32,15 @@ class AppServiceProvider extends ServiceProvider
         if (!app()->runningInConsole()) {
 
             if (app()->environment('production')) {
-                \Illuminate\Support\Facades\URL::forceScheme('https');
+                URL::forceScheme('https');
             }
         }
 
         // Define rate limiter for order creation
-        \Illuminate\Support\Facades\RateLimiter::for('orders', function (\Illuminate\Http\Request $request) {
+        RateLimiter::for('orders', function (Request $request) {
             return $request->user()
-                ? \Illuminate\Cache\RateLimiting\Limit::none()
-                : \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
+                ? Limit::none()
+                : Limit::perMinute(5)->by($request->ip());
         });
 
     }
@@ -53,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn(): ?Password => app()->isProduction()
+        Password::defaults(fn (): ?Password => app()->isProduction()
             ? Password::min(8)
             //                ->mixedCase()
             //                ->letters()

@@ -2,24 +2,37 @@
 
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title("Dompet")]
-class extends Component {
+new #[Title('Dompet')]
+class extends Component
+{
     use WithPagination;
 
     protected $paginationTheme = 'tailwind';
 
-    public string $filter    = 'all';  // all | credit | debit
-    public string $search    = '';
+    public string $filter = 'all';  // all | credit | debit
+
+    public string $search = '';
+
     public string $sortOrder = 'desc'; // desc | asc
 
-    public function updatedFilter(): void    { $this->resetPage(); }
-    public function updatedSearch(): void    { $this->resetPage(); }
-    public function updatedSortOrder(): void { $this->resetPage(); }
+    public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSortOrder(): void
+    {
+        $this->resetPage();
+    }
 
     public function toggleSort(): void
     {
@@ -57,7 +70,7 @@ class extends Component {
 
         // Consistent brand orange-red color from screenshot
         $iconBg = 'bg-[#f15a24]';
-        
+
         $descLower = strtolower($desc);
         if (str_contains($descLower, 'listrik') || str_contains($descLower, 'pln')) {
             $iconSvg = '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>';
@@ -70,10 +83,10 @@ class extends Component {
         }
 
         return [
-            'title'    => $title,
+            'title' => $title,
             'subtitle' => $subtitle,
-            'iconSvg'  => $iconSvg,
-            'iconBg'   => $iconBg,
+            'iconSvg' => $iconSvg,
+            'iconBg' => $iconBg,
         ];
     }
 
@@ -91,8 +104,8 @@ class extends Component {
 
         $transactions = WalletTransaction::query()
             ->where('wallet_id', $walletId)
-            ->when(in_array($this->filter, ['credit', 'debit']), fn($q) => $q->where('type', strtoupper($this->filter)))
-            ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))
+            ->when(in_array($this->filter, ['credit', 'debit']), fn ($q) => $q->where('type', strtoupper($this->filter)))
+            ->when($this->search, fn ($q) => $q->where('description', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', $this->sortOrder)
             ->paginate(15);
 
@@ -104,10 +117,10 @@ class extends Component {
             ->first();
 
         return [
-            'wallet'       => $wallet,
+            'wallet' => $wallet,
             'transactions' => $transactions,
-            'totalCredit'  => (float) ($aggregates->total_credit ?? 0),
-            'totalDebit'   => (float) ($aggregates->total_debit ?? 0),
+            'totalCredit' => (float) ($aggregates->total_credit ?? 0),
+            'totalDebit' => (float) ($aggregates->total_debit ?? 0),
         ];
     }
 };

@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title("Beli Slot")]
-class extends Component {
+new #[Title('Beli Slot')]
+class extends Component
+{
     // Konfigurasi Harga & Jumlah Slot
     public int $additionalSlots = 50;
+
     public int $price = 10000; // Rp 10.000
 
     public function buySlot(): void
@@ -24,7 +26,7 @@ class extends Component {
                 $quota = Quota::where('type', 'PRODUCT_SLOT')->lockForUpdate()->first();
 
                 if (!$quota) {
-                    throw new Exception("Data kuota tidak ditemukan.");
+                    throw new Exception('Data kuota tidak ditemukan.');
                 }
 
                 // 2. Potong Saldo Pakaiapp
@@ -58,10 +60,10 @@ class extends Component {
                 ['type' => 'PRODUCT_SLOT'],
                 [
                     'total_slots' => app(SettingService::class)->get('product_slots', tenant(), 12),
-                    'used_slots' => 0
+                    'used_slots' => 0,
                 ]
             ),
-            'walletBalance' => app(TenantWalletService::class)->getWallet()->balance
+            'walletBalance' => app(TenantWalletService::class)->getWallet()->balance,
         ];
     }
 };

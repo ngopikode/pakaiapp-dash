@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Tenant\Models\Core\Order;
 use App\Central\Models\Tenant;
+use App\Tenant\Models\Core\Order;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -48,6 +48,7 @@ class TestDuitkuCallback extends Command
 
             if (empty($tenants)) {
                 $this->error('  Tidak ada tenant ditemukan di database. Buat tenant dulu!');
+
                 return self::FAILURE;
             }
 
@@ -57,6 +58,7 @@ class TestDuitkuCallback extends Command
         $tenant = Tenant::find($tenantId);
         if (!$tenant) {
             $this->error("  Tenant '{$tenantId}' tidak ditemukan.");
+
             return self::FAILURE;
         }
 
@@ -64,7 +66,7 @@ class TestDuitkuCallback extends Command
 
         // ── 2. Resolve Invoice Code ──────────────────────────────────────────
         $invoiceCode = $this->option('invoice');
-        $amount      = $this->option('amount');
+        $amount = $this->option('amount');
 
         $order = null;
 
@@ -85,13 +87,12 @@ class TestDuitkuCallback extends Command
                     $this->warn('  Tidak ada order pending di tenant ini. Mencari order terbaru...');
                     $order = Order::orderByDesc('created_at')->first();
                 } else {
-                    $choices = $pendingOrders->map(fn($o) =>
-                        "{$o->invoice_code}  (Rp " . number_format($o->total_price, 0, ',', '.') . ")"
+                    $choices = $pendingOrders->map(fn ($o) => "{$o->invoice_code}  (Rp " . number_format($o->total_price, 0, ',', '.') . ')'
                     )->toArray();
 
-                    $selected   = $this->choice('  Pilih order untuk di-test', $choices, 0);
+                    $selected = $this->choice('  Pilih order untuk di-test', $choices, 0);
                     $selectedIdx = array_search($selected, $choices);
-                    $order      = $pendingOrders[$selectedIdx];
+                    $order = $pendingOrders[$selectedIdx];
                 }
 
                 if ($order) {
@@ -106,6 +107,7 @@ class TestDuitkuCallback extends Command
 
         if (!$invoiceCode) {
             $this->error('  Tidak dapat menentukan invoice code. Gunakan --invoice=xxx');
+
             return self::FAILURE;
         }
 
@@ -114,36 +116,36 @@ class TestDuitkuCallback extends Command
         }
 
         $this->line("  <fg=green>✓</fg=green> Invoice  : <fg=yellow>{$invoiceCode}</fg=yellow>");
-        $this->line("  <fg=green>✓</fg=green> Amount   : <fg=yellow>Rp " . number_format((int)$amount, 0, ',', '.') . "</fg=yellow>");
+        $this->line('  <fg=green>✓</fg=green> Amount   : <fg=yellow>Rp ' . number_format((int) $amount, 0, ',', '.') . '</fg=yellow>');
 
         // ── 3. Build Merchant Order ID & Hitung Signature ───────────────────
-        $merchantCode    = config('duitku.merchant_code');
-        $merchantKey     = config('duitku.merchant_key');
-        $paymentMethod   = strtoupper($this->option('method') ?? 'NQ');
-        $resultCode      = $this->option('fail') ? '01' : '00';
-        $reference       = 'LOCAL-TEST-' . strtoupper(substr(md5(uniqid()), 0, 8));
+        $merchantCode = config('duitku.merchant_code');
+        $merchantKey = config('duitku.merchant_key');
+        $paymentMethod = strtoupper($this->option('method') ?? 'NQ');
+        $resultCode = $this->option('fail') ? '01' : '00';
+        $reference = 'LOCAL-TEST-' . strtoupper(substr(md5(uniqid()), 0, 8));
 
         $merchantOrderId = $tenantId . '~' . $invoiceCode;
         // Callback signature: merchantCode + amount + merchantOrderId
-        $stringToSign    = $merchantCode . $amount . $merchantOrderId;
-        $signature       = hash_hmac('sha256', $stringToSign, $merchantKey);
+        $stringToSign = $merchantCode . $amount . $merchantOrderId;
+        $signature = hash_hmac('sha256', $stringToSign, $merchantKey);
 
         // ── 4. Build Payload ─────────────────────────────────────────────────
         $payload = [
-            'merchantCode'     => $merchantCode,
-            'amount'           => $amount,
-            'merchantOrderId'  => $merchantOrderId,
-            'productDetail'    => 'Pembayaran ' . $invoiceCode,
-            'additionalParam'  => $tenantId,
-            'paymentCode'      => $paymentMethod,
-            'resultCode'       => $resultCode,
-            'merchantUserId'   => $tenantId,
-            'reference'        => $reference,
+            'merchantCode' => $merchantCode,
+            'amount' => $amount,
+            'merchantOrderId' => $merchantOrderId,
+            'productDetail' => 'Pembayaran ' . $invoiceCode,
+            'additionalParam' => $tenantId,
+            'paymentCode' => $paymentMethod,
+            'resultCode' => $resultCode,
+            'merchantUserId' => $tenantId,
+            'reference' => $reference,
             'publisherOrderId' => '',
-            'spUserHash'       => '',
-            'settlementDate'   => now()->format('Y-m-d H:i:s'),
-            'issuerCode'       => '',
-            'signature'        => $signature,
+            'spUserHash' => '',
+            'settlementDate' => now()->format('Y-m-d H:i:s'),
+            'issuerCode' => '',
+            'signature' => $signature,
         ];
 
         // ── 5. Tampilkan Info ────────────────────────────────────────────────
@@ -151,7 +153,7 @@ class TestDuitkuCallback extends Command
         $this->line('  <fg=cyan;options=bold>📦 Payload yang akan dikirim:</fg=cyan;options=bold>');
         $this->table(
             ['Field', 'Value'],
-            collect($payload)->map(fn($v, $k) => [$k, $k === 'signature' ? substr($v, 0, 20) . '...' : $v])->values()->toArray()
+            collect($payload)->map(fn ($v, $k) => [$k, $k === 'signature' ? substr($v, 0, 20) . '...' : $v])->values()->toArray()
         );
 
         $statusLabel = $resultCode === '00'
@@ -170,6 +172,7 @@ class TestDuitkuCallback extends Command
             $this->newLine();
             $this->line('  <fg=cyan>String yang di-sign:</fg=cyan>');
             $this->line("  <fg=white>{$stringToSign}</fg=white>");
+
             return self::SUCCESS;
         }
 
@@ -183,6 +186,7 @@ class TestDuitkuCallback extends Command
 
         if (!$this->confirm('  Kirim request sekarang?', true)) {
             $this->line('  Dibatalkan.');
+
             return self::SUCCESS;
         }
 
@@ -195,24 +199,25 @@ class TestDuitkuCallback extends Command
                 ->post($callbackUrl, $payload);
 
             $statusCode = $response->status();
-            $body       = trim($response->body());
+            $body = trim($response->body());
 
             if ($response->successful() && $body === 'OK') {
-                $this->line("  <fg=green;options=bold>✅ Callback berhasil!</fg=green;options=bold>");
+                $this->line('  <fg=green;options=bold>✅ Callback berhasil!</fg=green;options=bold>');
                 $this->line("  HTTP {$statusCode} → <fg=green>{$body}</fg=green>");
             } else {
-                $this->line("  <fg=yellow>⚠️  Response tidak seperti expected:</fg=yellow>");
+                $this->line('  <fg=yellow>⚠️  Response tidak seperti expected:</fg=yellow>');
                 $this->line("  HTTP {$statusCode} → <fg=yellow>{$body}</fg=yellow>");
             }
 
         } catch (\Throwable $e) {
             $this->newLine();
-            $this->error("  ❌ Request gagal: " . $e->getMessage());
+            $this->error('  ❌ Request gagal: ' . $e->getMessage());
             $this->newLine();
             $this->line('  <fg=yellow>💡 Tips:</fg=yellow>');
             $this->line('  • Pastikan domain <fg=cyan>api.pakaiapp.test</fg=cyan> ada di /etc/hosts → 127.0.0.1');
             $this->line('  • Atau gunakan: <fg=cyan>--url=http://localhost</fg=cyan>');
             $this->line('  • Cek apakah Laravel dev server sedang running.');
+
             return self::FAILURE;
         }
 
@@ -228,10 +233,10 @@ class TestDuitkuCallback extends Command
         });
 
         if ($finalOrder) {
-            $statusColor = match($finalOrder->status) {
-                'paid'      => 'green',
+            $statusColor = match ($finalOrder->status) {
+                'paid' => 'green',
                 'cancelled' => 'red',
-                default     => 'yellow',
+                default => 'yellow',
             };
 
             $this->table(

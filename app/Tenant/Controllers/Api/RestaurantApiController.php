@@ -5,12 +5,11 @@ namespace App\Tenant\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Shared\Traits\ApiResponserTrait;
 use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
-
-use App\Tenant\Services\SettingService;
 
 class RestaurantApiController extends Controller
 {
@@ -36,11 +35,11 @@ class RestaurantApiController extends Controller
             'theme_color' => $setting->theme_color,
             'whatsapp_number' => $setting->whatsapp_number,
             'address' => $setting->address,
-            'is_tax_active' => (bool)$setting->is_tax_active,
-            'tax_rate' => (float)$setting->tax_rate,
-            'is_service_charge_active' => (bool)$setting->is_service_charge_active,
-            'service_charge_rate' => (float)$setting->service_charge_rate,
-            'is_application_fee_passed' => (bool)($setting->is_application_fee_passed ?? false),
+            'is_tax_active' => (bool) $setting->is_tax_active,
+            'tax_rate' => (float) $setting->tax_rate,
+            'is_service_charge_active' => (bool) $setting->is_service_charge_active,
+            'service_charge_rate' => (float) $setting->service_charge_rate,
+            'is_application_fee_passed' => (bool) ($setting->is_application_fee_passed ?? false),
             'application_fee_amount' => (float) $this->settingService()->get('default_trx_fee', tenant(), 300),
             'hero' => [
                 'promo_text' => $setting->hero_promo_text,
@@ -60,12 +59,12 @@ class RestaurantApiController extends Controller
                 'keywords' => $setting->seo_keywords,
                 'og_title' => $setting->og_title,
                 'og_description' => $setting->og_description,
-                'og_image' => $setting->og_image ? Storage::url($setting->og_image) : null
+                'og_image' => $setting->og_image ? Storage::url($setting->og_image) : null,
             ],
             'operating_hours' => $setting->operating_hours,
-            'use_same_hours'  => (bool) $setting->use_same_hours,
-            'is_open_now'     => $setting->isOpenNow(),
-            'today_hours'     => $setting->getTodayHours(),
+            'use_same_hours' => (bool) $setting->use_same_hours,
+            'is_open_now' => $setting->isOpenNow(),
+            'today_hours' => $setting->getTodayHours(),
         ];
 
         return $this->successResponse($data);

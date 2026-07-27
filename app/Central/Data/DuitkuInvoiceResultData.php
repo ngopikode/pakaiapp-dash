@@ -10,6 +10,5 @@ class DuitkuInvoiceResultData extends Data
         public string $paymentUrl,
         public string $reference,
         public ?string $vaNumber = null,
-    ) {
-    }
+    ) {}
 }

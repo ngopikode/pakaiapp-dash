@@ -1,4 +1,10 @@
-<div class="relative flex flex-col h-full" x-data="{ tab: 'general' }">
+<div class="relative flex flex-col h-full" x-data="{ 
+    tab: 'general',
+    variants: $wire.entangle('variants'),
+    baseRecipes: $wire.entangle('baseRecipes'),
+    extras: $wire.entangle('extras'),
+    hasVariants: $wire.entangle('hasVariants')
+}">
     <div class="shrink-0 px-4 md:px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
         <div>
             <h2 class="text-base font-black text-slate-900 dark:text-white">
@@ -37,7 +43,6 @@
                 :class="tab === 'pricing' ? 'bg-white dark:bg-slate-800 text-orange-500 shadow-sm border border-slate-200 dark:border-slate-700' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'">
             <i class="ph-bold ph-tag me-1"></i> Harga & Varian
         </button>
-        @if(tenant('store_type') === 'resto')
         <button type="button" @click="tab = 'recipe'"
                 class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap"
                 :class="tab === 'recipe' ? 'bg-white dark:bg-slate-800 text-orange-500 shadow-sm border border-slate-200 dark:border-slate-700' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'">
@@ -48,7 +53,6 @@
                 :class="tab === 'extras' ? 'bg-white dark:bg-slate-800 text-orange-500 shadow-sm border border-slate-200 dark:border-slate-700' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'">
             <i class="ph-bold ph-plus-circle me-1"></i> Add-ons
         </button>
-        @endif
     </div>
 
     {{-- Scrollable Body --}}
@@ -88,7 +92,7 @@
                                 <input type="checkbox" class="sr-only peer" wire:model="isActive">
                                 <div class="w-5 h-5 bg-white rounded-full peer peer-checked:translate-x-[20px] transition-transform shadow-sm absolute left-[2px] peer-checked:bg-emerald-500 border border-slate-300 peer-checked:border-emerald-600"></div>
                             </label>
-                            <span class="text-xs text-slate-500 dark:text-slate-400 ms-2">{{ $isActive ? 'Aktif' : 'Tidak aktif' }}</span>
+                            <span x-text="$wire.isActive ? 'Aktif' : 'Tidak aktif'" class="text-xs text-slate-500 dark:text-slate-400 ms-2"></span>
                         </div>
                     </div>
                     <div>
@@ -126,24 +130,24 @@
                         <p class="text-[10px] text-slate-500 dark:text-slate-400">Ukuran (S/M/L), Rasa, dll.</p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer h-6 w-11 rounded-full bg-slate-200 dark:bg-slate-700 transition-colors">
-                        <input type="checkbox" class="sr-only peer" x-model="$wire.hasVariants" wire:model="hasVariants">
+                        <input type="checkbox" class="sr-only peer" x-model="hasVariants">
                         <div class="w-5 h-5 bg-white rounded-full peer peer-checked:translate-x-[20px] transition-transform shadow-sm absolute left-[2px] peer-checked:bg-orange-500 border border-slate-300 peer-checked:border-orange-600"></div>
                     </label>
                 </div>
 
-                @if($hasVariants && $selectedCategoryType === 'resto')
+                <div x-show="$wire.hasVariants" x-cloak>
                     <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 mb-4">
                         <p class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2"><i class="ph-bold ph-check-square me-1"></i>Aturan Pilihan Pelanggan</p>
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-500 mb-1 block">Tipe Seleksi</label>
-                                <select wire:model="selectionType"
-                                        class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none">
-                                    <option value="single">Pilih 1 (Radio)</option>
-                                    <option value="multiple">Pilih Banyak</option>
-                                </select>
-                            </div>
-                            <div x-show="$wire.selectionType === 'multiple'">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 mb-1 block">Tipe Seleksi</label>
+                                    <select x-model="$wire.selectionType" wire:model="selectionType"
+                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                        <option value="single">Pilih 1 (Radio)</option>
+                                        <option value="multiple">Pilih Banyak</option>
+                                    </select>
+                                </div>
+                                <div x-show="$wire.selectionType === 'multiple'">
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-500 mb-1 block">Maks Pilihan</label>
                                     <input type="number" wire:model="maxSelections" min="1" max="20"
@@ -152,19 +156,11 @@
                             </div>
                         </div>
                     </div>
-                @endif
+                </div>
 
                 {{-- No Variants: Simple Fields --}}
-                @if(!$hasVariants)
+                <div x-show="!$wire.hasVariants" x-cloak>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-                        @if($selectedCategoryType === 'retail')
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-500 mb-1 block">SKU / Barcode</label>
-                                <input type="text" wire:model="baseSku"
-                                       class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
-                                       placeholder="BRG-001">
-                            </div>
-                        @endif
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 mb-1 block">Modal / HPP</label>
                             <input type="number" wire:model="baseCost"
@@ -190,81 +186,71 @@
                                    placeholder="0">
                         </div>
                     </div>
-                @endif
+                </div>
 
                 {{-- Has Variants: Card List --}}
-                @if($hasVariants)
+                <div x-show="hasVariants" x-cloak>
                     <div class="hidden md:grid grid-cols-12 gap-2 text-[10px] font-bold text-slate-500 mb-2 px-1">
-                        <div class="col-span-3">Nama Varian</div>
-                        @if($selectedCategoryType === 'retail') <div class="col-span-2">SKU</div> @endif
-                        <div class="col-span-2">Modal</div>
+                        <div class="col-span-4">Nama Varian</div>
+                        <div class="col-span-3">Modal</div>
                         <div class="col-span-2">Harga</div>
                         <div class="col-span-2">Stok</div>
                         <div class="col-span-1 text-center"><i class="ph-bold ph-gear"></i></div>
                     </div>
                     <div class="space-y-2 mb-3">
-                        @foreach($variants as $index => $variant)
+                        <template x-for="(variant, index) in variants" :key="index">
                             <div class="grid grid-cols-2 md:grid-cols-12 gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 items-center">
-                                <div class="col-span-2 md:col-span-3">
+                                <div class="col-span-2 md:col-span-4">
                                     <label class="md:hidden text-[10px] font-bold text-slate-500 mb-1 block">Nama</label>
-                                    <input type="text" wire:model="variants.{{ $index }}.name"
+                                    <input type="text" x-model="variant.name"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
                                            placeholder="Large">
                                 </div>
-                                @if($selectedCategoryType === 'retail')
-                                    <div class="col-span-2">
-                                        <label class="md:hidden text-[10px] font-bold text-slate-500 mb-1 block">SKU</label>
-                                        <input type="text" wire:model="variants.{{ $index }}.sku"
-                                               class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
-                                               placeholder="SKU">
-                                    </div>
-                                @endif
-                                <div>
+                                <div class="md:col-span-3">
                                     <label class="md:hidden text-[10px] font-bold text-slate-500 mb-1 block">Modal</label>
-                                    <input type="number" wire:model="variants.{{ $index }}.cost"
+                                    <input type="number" x-model="variant.cost"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
                                            placeholder="0">
                                 </div>
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="md:hidden text-[10px] font-bold text-red-500 mb-1 block">Harga</label>
-                                    <input type="number" wire:model="variants.{{ $index }}.price"
+                                    <input type="number" x-model="variant.price"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none font-bold"
                                            placeholder="0">
                                 </div>
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="md:hidden text-[10px] font-bold text-slate-500 mb-1 block">Stok</label>
-                                    <input type="number" wire:model="variants.{{ $index }}.stock"
+                                    <input type="number" x-model="variant.stock"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
                                            placeholder="0">
                                 </div>
-                                <div class="text-center">
-                                    @if(count($variants) > 1)
-                                        <button type="button" wire:click="removeVariant({{ $index }})"
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
-                                            <i class="ph-bold ph-trash text-sm"></i>
-                                        </button>
-                                    @endif
+                                <div class="md:col-span-1 text-center">
+                                    <button type="button" x-show="variants.length > 1"
+                                            @click="variants.splice(index, 1)"
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
+                                        <i class="ph-bold ph-trash text-sm"></i>
+                                    </button>
                                 </div>
                             </div>
-                        @endforeach
+                        </template>
                     </div>
-                    <button type="button" wire:click="addVariant"
+                    <button type="button"
+                            @click="variants.push({ id: null, name: '', cost: '', price: '', stock: '', minStock: '', recipes: [] })"
                             class="w-full py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-500 hover:text-orange-500 hover:border-orange-500/50 transition-colors">
                         <i class="ph-bold ph-plus me-1"></i> Tambah Varian
                     </button>
-                @endif
+                </div>
             </div>
 
-            @if($selectedCategoryType === 'resto')
-                {{-- TAB: RECIPE (BOM) --}}
+            {{-- TAB: RECIPE (BOM) --}}
                 <div x-show="tab === 'recipe'" x-transition.opacity.duration.200ms x-cloak>
-                    @if(!$hasVariants)
+                    <div x-show="!hasVariants" x-cloak>
                         <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 mb-4">
                             <p class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-3">Bahan Baku untuk Produk Ini</p>
-                            @foreach($baseRecipes as $rIndex => $recipe)
+                            <template x-for="(recipe, rIndex) in baseRecipes" :key="rIndex">
                                 <div class="grid grid-cols-12 gap-2 items-center mb-2">
                                     <div class="col-span-6">
-                                        <select wire:model="baseRecipes.{{ $rIndex }}.raw_material_id"
+                                        <select x-model="recipe.raw_material_id"
                                                 class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none">
                                             <option value="">-- Pilih --</option>
                                             @foreach($rawMaterials as $rm)
@@ -273,62 +259,63 @@
                                         </select>
                                     </div>
                                     <div class="col-span-4">
-                                        <input type="number" step="0.01" wire:model="baseRecipes.{{ $rIndex }}.quantity_used"
+                                        <input type="number" step="0.01" x-model="recipe.quantity_used"
                                                class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
                                                placeholder="Takaran">
                                     </div>
-                                    <div class="col-span-2 text-center">
-                                        <button type="button" wire:click="removeBaseRecipe({{ $rIndex }})"
-                                                class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 transition-colors text-xs">
-                                            <i class="ph-bold ph-trash"></i>
-                                        </button>
+                                        <div class="col-span-2 text-center">
+                                            <button type="button" @click="baseRecipes.splice(rIndex, 1)"
+                                                    class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 transition-colors text-xs">
+                                                <i class="ph-bold ph-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
-                            <button type="button" wire:click="addBaseRecipe"
+                                </template>
+                                <button type="button"
+                                        @click="baseRecipes.push({ id: null, raw_material_id: '', quantity_used: '' })"
                                     class="mt-2 text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors">
                                 <i class="ph-bold ph-plus me-1"></i> Tambah Bahan
                             </button>
                         </div>
-                    @else
-                        @foreach($variants as $vIndex => $variant)
+                    </div>
+                    <div x-show="hasVariants" x-cloak>
+                        <template x-for="(variant, vIndex) in variants" :key="vIndex">
                             <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 mb-4">
                                 <p class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-3">
-                                    Bahan Baku: <span class="text-orange-500">{{ $variant['name'] ?: 'Varian '.($vIndex+1) }}</span>
+                                    Bahan Baku: <span class="text-orange-500" x-text="variant.name || 'Varian ' + (vIndex + 1)"></span>
                                 </p>
-                                @if(isset($variant['recipes']))
-                                    @foreach($variant['recipes'] as $rIndex => $recipe)
-                                        <div class="grid grid-cols-12 gap-2 items-center mb-2">
-                                            <div class="col-span-6">
-                                                <select wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.raw_material_id"
-                                                        class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none">
-                                                    <option value="">-- Pilih --</option>
-                                                    @foreach($rawMaterials as $rm)
-                                                        <option value="{{ $rm['id'] }}">{{ $rm['name'] }} ({{ $rm['unit'] }})</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-span-4">
-                                                <input type="number" step="0.01" wire:model="variants.{{ $vIndex }}.recipes.{{ $rIndex }}.quantity_used"
-                                                       class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
-                                                       placeholder="Takaran">
-                                            </div>
-                                            <div class="col-span-2 text-center">
-                                                <button type="button" wire:click="removeVariantRecipe({{ $vIndex }}, {{ $rIndex }})"
-                                                        class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 transition-colors text-xs">
-                                                    <i class="ph-bold ph-trash"></i>
-                                                </button>
-                                            </div>
+                                <template x-for="(recipe, rIndex) in variant.recipes" :key="rIndex">
+                                    <div class="grid grid-cols-12 gap-2 items-center mb-2">
+                                        <div class="col-span-6">
+                                            <select x-model="recipe.raw_material_id"
+                                                    class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                                <option value="">-- Pilih --</option>
+                                                @foreach($rawMaterials as $rm)
+                                                    <option value="{{ $rm['id'] }}">{{ $rm['name'] }} ({{ $rm['unit'] }})</option>
+                                                @endforeach
+                                            </select>
                                         </div>
-                                    @endforeach
-                                @endif
-                                <button type="button" wire:click="addVariantRecipe({{ $vIndex }})"
+                                        <div class="col-span-4">
+                                            <input type="number" step="0.01" x-model="recipe.quantity_used"
+                                                   class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
+                                                   placeholder="Takaran">
+                                        </div>
+                                        <div class="col-span-2 text-center">
+                                            <button type="button" @click="variant.recipes.splice(rIndex, 1)"
+                                                    class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 transition-colors text-xs">
+                                                <i class="ph-bold ph-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                                <button type="button"
+                                        @click="if(!variant.recipes) variant.recipes = []; variant.recipes.push({ id: null, raw_material_id: '', quantity_used: '' })"
                                         class="mt-2 text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors">
                                     <i class="ph-bold ph-plus me-1"></i> Tambah Bahan
                                 </button>
                             </div>
-                        @endforeach
-                    @endif
+                        </template>
+                    </div>
                 </div>
 
                 {{-- TAB: EXTRAS / ADD-ONS --}}
@@ -340,41 +327,41 @@
                         <div class="col-span-1 text-center"><i class="ph-bold ph-gear"></i></div>
                     </div>
                     <div class="space-y-2 mb-3">
-                        @foreach($extras as $index => $extra)
+                        <template x-for="(extra, index) in extras" :key="index">
                             <div class="grid grid-cols-2 md:grid-cols-12 gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 items-center">
                                 <div class="col-span-2 md:col-span-5">
                                     <label class="md:hidden text-[10px] font-bold text-slate-500 mb-1 block">Nama</label>
-                                    <input type="text" wire:model="extras.{{ $index }}.name"
+                                    <input type="text" x-model="extra.name"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
                                            placeholder="Ekstra Keju">
                                 </div>
-                                <div>
+                                <div class="md:col-span-3">
                                     <label class="md:hidden text-[10px] font-bold text-slate-500 mb-1 block">Modal</label>
-                                    <input type="number" wire:model="extras.{{ $index }}.cost"
+                                    <input type="number" x-model="extra.cost"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none"
                                            placeholder="0">
                                 </div>
-                                <div>
+                                <div class="md:col-span-3">
                                     <label class="md:hidden text-[10px] font-bold text-red-500 mb-1 block">Harga</label>
-                                    <input type="number" wire:model="extras.{{ $index }}.price"
+                                    <input type="number" x-model="extra.price"
                                            class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500/20 outline-none font-bold"
                                            placeholder="0">
                                 </div>
-                                <div class="text-center">
-                                    <button type="button" wire:click="removeExtra({{ $index }})"
+                                <div class="md:col-span-1 text-center">
+                                    <button type="button" @click="extras.splice(index, 1)"
                                             class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
                                         <i class="ph-bold ph-trash text-sm"></i>
                                     </button>
                                 </div>
                             </div>
-                        @endforeach
+                        </template>
                     </div>
-                    <button type="button" wire:click="addExtra"
+                    <button type="button"
+                            @click="extras.push({ id: null, name: '', cost: '', price: '' })"
                             class="w-full py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-500 hover:text-orange-500 hover:border-orange-500/50 transition-colors">
                         <i class="ph-bold ph-plus me-1"></i> Tambah Add-on
                     </button>
                 </div>
-            @endif
         </form>
     </div>
 
@@ -393,27 +380,18 @@
                     class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition-colors">
                 Lanjut <i class="ph-bold ph-caret-right"></i>
             </button>
-            @if($selectedCategoryType === 'resto')
-                <button type="button"
-                        x-show="tab === 'pricing'"
-                        @click="tab = 'recipe'"
-                        class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition-colors">
-                    Lanjut <i class="ph-bold ph-caret-right"></i>
-                </button>
-                <button type="button"
-                        x-show="tab === 'recipe'"
-                        @click="tab = 'extras'"
-                        class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition-colors">
-                    Lanjut <i class="ph-bold ph-caret-right"></i>
-                </button>
-            @else
-                <button type="button"
-                        x-show="tab === 'pricing'"
-                        @click="tab = 'extras'"
-                        class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition-colors">
-                    Lanjut <i class="ph-bold ph-caret-right"></i>
-                </button>
-            @endif
+            <button type="button"
+                    x-show="tab === 'pricing'"
+                    @click="tab = 'recipe'"
+                    class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition-colors">
+                Lanjut <i class="ph-bold ph-caret-right"></i>
+            </button>
+            <button type="button"
+                    x-show="tab === 'recipe'"
+                    @click="tab = 'extras'"
+                    class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition-colors">
+                Lanjut <i class="ph-bold ph-caret-right"></i>
+            </button>
             <button type="submit" form="product-form"
                     x-show="tab === 'extras'"
                     :class="$wire.$dirty() ? 'bg-orange-500 ring-4 ring-orange-500/30 hover:bg-orange-600' : 'bg-emerald-600 hover:bg-emerald-700'"

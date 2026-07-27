@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Tenant\Data;
 
 use Spatie\LaravelData\Data;

@@ -13,7 +13,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 new #[Title('Tampilan Dapur')]
-class extends Component {
+class extends Component
+{
     use ShowsToast;
 
     public bool $kitchenDisabled = false;
@@ -115,10 +116,10 @@ class extends Component {
     #[Computed]
     public function kitchenBatches(): array
     {
-        $orders = Order::with(['items' => fn($q) => $q->select('id', 'order_id', 'product_name', 'variant_name', 'note', 'quantity', 'kitchen_status', 'created_at')])
+        $orders = Order::with(['items' => fn ($q) => $q->select('id', 'order_id', 'product_name', 'variant_name', 'note', 'quantity', 'kitchen_status', 'created_at')])
             ->select('id', 'invoice_code', 'status', 'kitchen_status', 'order_type', 'table_number', 'notes', 'amount_paid', 'total_price', 'created_at', 'updated_at', 'is_online')
-            ->where(fn($query) => $query->whereIn('status', ['paid', 'progress'])
-                ->orWhere(fn($q) => $q->where('status', 'pending')->where('is_online', false)))
+            ->where(fn ($query) => $query->whereIn('status', ['paid', 'progress'])
+                ->orWhere(fn ($q) => $q->where('status', 'pending')->where('is_online', false)))
             ->whereIn('kitchen_status', ['waiting', 'processing', 'ready'])
             ->whereDate('created_at', today())
             ->get();
@@ -150,7 +151,7 @@ class extends Component {
             }
         }
 
-        usort($batches, fn($a, $b) => $a['created_at'] <=> $b['created_at']);
+        usort($batches, fn ($a, $b) => $a['created_at'] <=> $b['created_at']);
 
         return $batches;
     }

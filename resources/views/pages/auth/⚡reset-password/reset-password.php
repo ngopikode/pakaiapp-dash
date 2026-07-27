@@ -9,12 +9,18 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 new #[Layout('layouts::guest', ['title' => 'Atur Ulang Password - Pakaiapp'])]
-class extends Component {
+class extends Component
+{
     public string $token = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $statusMessage = '';
+
     public bool $isSuccess = false;
 
     public function mount(): void
@@ -40,6 +46,7 @@ class extends Component {
 
         if (!$record) {
             $this->addError('email', 'Permintaan atur ulang kata sandi tidak ditemukan atau email tidak valid.');
+
             return;
         }
 
@@ -47,12 +54,14 @@ class extends Component {
         $hashedInputToken = hash('sha256', $this->token);
         if ($record->token !== $hashedInputToken) {
             $this->addError('email', 'Tautan pemulihan kata sandi tidak valid.');
+
             return;
         }
 
         // 3. Expiration window gate (OWASP: expires after 15 minutes)
         if (now()->parse($record->created_at)->addMinutes(15)->isPast()) {
             $this->addError('email', 'Tautan pemulihan kata sandi sudah kedaluwarsa. Silakan ajukan permintaan baru.');
+
             return;
         }
 
@@ -60,6 +69,7 @@ class extends Component {
         $user = User::where('email', $normalizedEmail)->first();
         if (!$user) {
             $this->addError('email', 'Pengguna tidak ditemukan.');
+
             return;
         }
 
@@ -75,7 +85,7 @@ class extends Component {
         session()->regenerate();
 
         $this->isSuccess = true;
-        $this->statusMessage = "Kata sandi Anda berhasil diperbarui! Silakan kembali ke halaman login untuk masuk ke aplikasi.";
+        $this->statusMessage = 'Kata sandi Anda berhasil diperbarui! Silakan kembali ke halaman login untuk masuk ke aplikasi.';
     }
 
     #[Computed]

@@ -112,6 +112,7 @@ class TenancyServiceProvider extends ServiceProvider
 
         Livewire::setUpdateRoute(function ($handle, $path) {
             $path = substr($path, 9);
+
             return Route::post("/sys$path", $handle)
                 ->middleware([
                     'web',
@@ -123,6 +124,7 @@ class TenancyServiceProvider extends ServiceProvider
 
         Livewire::setScriptRoute(function ($handle, $path) {
             $path = substr($path, 9);
+
             return Route::get("/sys/js$path", $handle);
         });
 
@@ -159,7 +161,7 @@ class TenancyServiceProvider extends ServiceProvider
             // Even higher priority than the initialization middleware
             Middleware\PreventAccessFromCentralDomains::class,
 
-            Middleware\InitializeTenancyByDomain::class,
+            InitializeTenancyByDomain::class,
             Middleware\InitializeTenancyBySubdomain::class,
             Middleware\InitializeTenancyByDomainOrSubdomain::class,
             Middleware\InitializeTenancyByPath::class,

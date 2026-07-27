@@ -5,6 +5,7 @@ use App\Shared\Middleware\CheckStoreOpen;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -25,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('universal', []);
         $middleware->trustProxies(at: '*');
         $middleware->alias([
-            'role'       => CheckRole::class,
+            'role' => CheckRole::class,
             'store.open' => CheckStoreOpen::class,
         ]);
         $middleware->web();
@@ -39,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             TenantCouldNotBeIdentifiedOnDomainException::class,
         ]);
 
-        $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $e, \Illuminate\Http\Request $request) {
+        $exceptions->render(function (TenantCouldNotBeIdentifiedOnDomainException $e, Request $request) {
             throw new NotFoundHttpException(message: 'Halaman atau Toko yang Anda tuju tidak dapat ditemukan.');
         });
     })->create();

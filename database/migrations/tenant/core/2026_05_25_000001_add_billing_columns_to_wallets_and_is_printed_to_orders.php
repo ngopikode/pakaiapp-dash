@@ -33,7 +33,7 @@ return new class extends Migration
                 'current_billing_period',
                 'monthly_transaction_count',
                 'monthly_fee_paid',
-                'monthly_void_count'
+                'monthly_void_count',
             ]);
         });
 

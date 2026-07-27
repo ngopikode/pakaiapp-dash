@@ -3,11 +3,10 @@
 namespace App\Tenant\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Shared\Traits\ApiResponserTrait;
 use App\Tenant\Models\Core\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Shared\Traits\ApiResponserTrait;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class OrderHistoryApiController extends Controller
 {
@@ -16,7 +15,7 @@ class OrderHistoryApiController extends Controller
     public function index(Request $request): JsonResponse
     {
         $invoiceCodes = $request->input('invoices', []);
-        
+
         if (empty($invoiceCodes) || !is_array($invoiceCodes)) {
             // Attempt to parse if sent as JSON string in GET
             if (is_string($request->input('invoices'))) {
@@ -26,7 +25,7 @@ class OrderHistoryApiController extends Controller
                 }
             }
         }
-        
+
         if (!is_array($invoiceCodes) || empty($invoiceCodes)) {
             return $this->successResponse(data: []);
         }
@@ -50,7 +49,7 @@ class OrderHistoryApiController extends Controller
                 return [
                     'invoiceCode' => $order->invoice_code,
                     'date' => $order->created_at->toIso8601String(),
-                    'totalRaw' => (float)$order->total_price,
+                    'totalRaw' => (float) $order->total_price,
                     'orderType' => $order->order_type,
                     'status' => $order->status,
                     'paymentMethod' => $order->payment_method,
@@ -59,7 +58,7 @@ class OrderHistoryApiController extends Controller
                         return [
                             'name' => $item->product_name,
                             'qty' => $item->quantity,
-                            'price' => (float)$item->price,
+                            'price' => (float) $item->price,
                         ];
                     }),
                 ];

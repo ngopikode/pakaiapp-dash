@@ -1,6 +1,3 @@
-@php
-    $appFeeAmount = app(\App\Tenant\Services\SettingService::class)->get('default_trx_fee', tenant(), 300);
-@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-no-progress-bar>
 @include('pages.tenant.store.resto.partials._product-head')

@@ -24,6 +24,4 @@ use Illuminate\Database\Eloquent\Model;
     'duitku_reference',
 ])]
 #[Hidden(['password'])]
-class TenantRegistration extends Model
-{
-}
+class TenantRegistration extends Model {}

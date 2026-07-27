@@ -1,20 +1,23 @@
 <?php
 
 use App\Central\Models\User;
+use App\Shared\Mail\SystemEmail;
 use App\Tenant\Models\Core\StoreSetting;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Shared\Mail\SystemEmail;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 new #[Layout('layouts::guest', ['title' => 'Lupa Password - Pakaiapp'])]
-class extends Component {
+class extends Component
+{
     public string $email = '';
+
     public string $statusMessage = '';
+
     public bool $isSuccess = false;
 
     public function sendResetLink(): void
@@ -33,6 +36,7 @@ class extends Component {
         if ($existingToken && now()->parse($existingToken->created_at)->addMinutes(2)->isFuture()) {
             $secondsRemaining = now()->parse($existingToken->created_at)->addMinutes(2)->diffInSeconds(now());
             $this->addError('email', "Silakan tunggu {$secondsRemaining} detik sebelum mengirim ulang email pemulihan.");
+
             return;
         }
 
@@ -68,16 +72,17 @@ class extends Component {
                 Mail::to($normalizedEmail)->send(
                     new SystemEmail($emailTitle, $emailBody, 'Atur Ulang Password', $resetUrl)
                 );
-            } catch (\Exception $e) {
-                Log::error("Failed to send password reset email: " . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('Failed to send password reset email: ' . $e->getMessage());
                 $this->addError('email', 'Gagal mengirim email pemulihan. Silakan hubungi admin.');
+
                 return;
             }
         }
 
         // 4. User Enumeration Defense: Always show a success message!
         $this->isSuccess = true;
-        $this->statusMessage = "Tautan pemulihan kata sandi telah dikirimkan ke email Anda. Silakan cek kotak masuk atau folder spam email Anda.";
+        $this->statusMessage = 'Tautan pemulihan kata sandi telah dikirimkan ke email Anda. Silakan cek kotak masuk atau folder spam email Anda.';
     }
 
     #[Computed]

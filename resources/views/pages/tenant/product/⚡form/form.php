@@ -3,7 +3,6 @@
 use App\Tenant\Data\ProductFormData;
 use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
-use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Models\Resto\RawMaterial;
 use App\Tenant\Services\ProductService;
 use Livewire\Attributes\On;
@@ -23,8 +22,6 @@ class extends Component
     public array $categories = [];
 
     public array $rawMaterials = [];
-
-    public string $selectedCategoryType = 'retail';
 
     public string $name = '';
 
@@ -51,8 +48,6 @@ class extends Component
     public int $baseStock = 0;
 
     public int $baseMinStock = 0;
-
-    public string $baseSku = '';
 
     public array $baseRecipes = [];
 
@@ -82,16 +77,13 @@ class extends Component
     {
         if (!empty($this->categories)) return;
 
-        $this->selectedCategoryType = StoreSetting::cached()?->store_type ?? 'retail';
         $this->categories = Category::select('id', 'name', 'type')->orderBy('name')->get()->toArray();
-        if ($this->selectedCategoryType === 'resto') {
-            $this->rawMaterials = RawMaterial::select('id', 'name', 'unit')->orderBy('name')->get()->toArray();
-        }
+        $this->rawMaterials = RawMaterial::select('id', 'name', 'unit')->orderBy('name')->get()->toArray();
     }
 
     private function emptyVariant(): array
     {
-        return ['id' => null, 'name' => '', 'sku' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => '', 'recipes' => []];
+        return ['id' => null, 'name' => '', 'cost' => '', 'price' => '', 'stock' => '', 'minStock' => '', 'recipes' => []];
     }
 
     private function emptyExtra(): array
@@ -121,19 +113,16 @@ class extends Component
         if ($this->hasVariants) {
             foreach ($product->variants as $variant) {
                 $variantRecipes = [];
-                if (tenant('store_type') === 'resto') {
-                    foreach ($variant->recipes as $recipe) {
-                        $variantRecipes[] = [
-                            'id' => $recipe->id,
-                            'raw_material_id' => $recipe->raw_material_id,
-                            'quantity_used' => (float) $recipe->quantity_used,
-                        ];
-                    }
+                foreach ($variant->recipes as $recipe) {
+                    $variantRecipes[] = [
+                        'id' => $recipe->id,
+                        'raw_material_id' => $recipe->raw_material_id,
+                        'quantity_used' => (float) $recipe->quantity_used,
+                    ];
                 }
                 $this->variants[] = [
                     'id' => $variant->id,
                     'name' => $variant->name,
-                    'sku' => $variant->sku ?? '',
                     'cost' => (float) $variant->cost,
                     'price' => (float) $variant->price,
                     'stock' => $variant->stock,
@@ -148,30 +137,25 @@ class extends Component
                 $this->basePrice = (float) $defaultVariant->price;
                 $this->baseStock = $defaultVariant->stock;
                 $this->baseMinStock = $defaultVariant->min_stock;
-                $this->baseSku = $defaultVariant->sku ?? '';
-                if (tenant('store_type') === 'resto') {
-                    foreach ($defaultVariant->recipes as $recipe) {
-                        $this->baseRecipes[] = [
-                            'id' => $recipe->id,
-                            'raw_material_id' => $recipe->raw_material_id,
-                            'quantity_used' => (float) $recipe->quantity_used,
-                        ];
-                    }
+                foreach ($defaultVariant->recipes as $recipe) {
+                    $this->baseRecipes[] = [
+                        'id' => $recipe->id,
+                        'raw_material_id' => $recipe->raw_material_id,
+                        'quantity_used' => (float) $recipe->quantity_used,
+                    ];
                 }
             }
             $this->variants = [$this->emptyVariant()];
         }
 
         $this->extras = [];
-        if (tenant('store_type') === 'resto') {
-            foreach ($product->extras as $extra) {
-                $this->extras[] = [
-                    'id' => $extra->id,
-                    'name' => $extra->name,
-                    'cost' => (float) $extra->cost,
-                    'price' => (float) $extra->price,
-                ];
-            }
+        foreach ($product->extras as $extra) {
+            $this->extras[] = [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'cost' => (float) $extra->cost,
+                'price' => (float) $extra->price,
+            ];
         }
         if (empty($this->extras)) {
             $this->extras = [$this->emptyExtra()];
@@ -197,57 +181,12 @@ class extends Component
         $this->basePrice = 0;
         $this->baseStock = 0;
         $this->baseMinStock = 0;
-        $this->baseSku = '';
         $this->baseRecipes = [];
         $this->variants = [$this->emptyVariant()];
         $this->extras = [$this->emptyExtra()];
 
         $this->loadCategoriesOnce();
         $this->dispatch('form-initialized');
-    }
-
-    public function addVariant(): void
-    {
-        $this->variants[] = $this->emptyVariant();
-    }
-
-    public function removeVariant(int $index): void
-    {
-        unset($this->variants[$index]);
-        $this->variants = array_values($this->variants);
-    }
-
-    public function addExtra(): void
-    {
-        $this->extras[] = $this->emptyExtra();
-    }
-
-    public function removeExtra(int $index): void
-    {
-        unset($this->extras[$index]);
-        $this->extras = array_values($this->extras);
-    }
-
-    public function addBaseRecipe(): void
-    {
-        $this->baseRecipes[] = ['id' => null, 'raw_material_id' => '', 'quantity_used' => ''];
-    }
-
-    public function removeBaseRecipe(int $index): void
-    {
-        unset($this->baseRecipes[$index]);
-        $this->baseRecipes = array_values($this->baseRecipes);
-    }
-
-    public function addVariantRecipe(int $variantIndex): void
-    {
-        $this->variants[$variantIndex]['recipes'][] = ['id' => null, 'raw_material_id' => '', 'quantity_used' => ''];
-    }
-
-    public function removeVariantRecipe(int $variantIndex, int $recipeIndex): void
-    {
-        unset($this->variants[$variantIndex]['recipes'][$recipeIndex]);
-        $this->variants[$variantIndex]['recipes'] = array_values($this->variants[$variantIndex]['recipes']);
     }
 
     public function save(): void
@@ -273,7 +212,6 @@ class extends Component
             basePrice: $this->basePrice,
             baseStock: $this->baseStock,
             baseMinStock: $this->baseMinStock,
-            baseSku: $this->baseSku,
             variants: $this->variants,
             extras: $this->extras,
             baseRecipes: $this->baseRecipes,

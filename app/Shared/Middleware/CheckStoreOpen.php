@@ -12,12 +12,12 @@ class CheckStoreOpen
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         // Hanya berlaku untuk tenant
-        if (! tenant()) {
+        if (!tenant()) {
             return $next($request);
         }
 
@@ -25,7 +25,7 @@ class CheckStoreOpen
 
         // Jika operating_hours null, anggap selalu buka
         // Jika setting->is_active false, anggap tutup (di-handle juga oleh logic isOpenNow atau kita tambah sini)
-        if ($setting && $setting->operating_hours && ! $setting->isOpenNow()) {
+        if ($setting && $setting->operating_hours && !$setting->isOpenNow()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Toko sedang tutup. Silakan order kembali saat jam operasional.',

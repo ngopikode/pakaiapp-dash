@@ -12,7 +12,7 @@ class RegistrationAbuseGuardService
         'sharklasers.com', 'guerrillamail.com', 'dispostable.com', 'getairmail.com',
         'maildrop.cc', 'temp-mail.org', 'fakeinbox.com', 'throwawaymail.com',
         'mailnesia.com', 'mailcatch.com', 'yopmail.fr', 'yopmail.net',
-        'cool.fr.nf', 'jetable.org', 'boun.cr', 'trbvm.com'
+        'cool.fr.nf', 'jetable.org', 'boun.cr', 'trbvm.com',
     ];
 
     /**
@@ -25,6 +25,7 @@ class RegistrationAbuseGuardService
         $rateKey = 'free_registration_limit_' . $ip;
         if (RateLimiter::tooManyAttempts($rateKey, 2)) {
             $seconds = RateLimiter::availableIn($rateKey);
+
             return 'Batas pendaftaran toko gratis terlampaui untuk perangkat Anda. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.';
         }
 
@@ -34,7 +35,7 @@ class RegistrationAbuseGuardService
         }
 
         // Layer 3: Disposable / Temporary Email Blocker
-        $emailDomain = strtolower(substr(strrchr($email, "@"), 1));
+        $emailDomain = strtolower(substr(strrchr($email, '@'), 1));
         if (in_array($emailDomain, self::DISPOSABLE_EMAIL_DOMAINS)) {
             return 'Pendaftaran Toko Gratis dibatasi. Silakan gunakan alamat email utama/resmi Anda (seperti Gmail, Yahoo, Outlook, atau domain instansi).';
         }
@@ -80,8 +81,10 @@ class RegistrationAbuseGuardService
             [$username, $domain] = explode('@', $email);
             $username = explode('+', $username)[0]; // Remove Gmail alias (+something)
             $username = str_replace('.', '', $username); // Remove Gmail dots
+
             return $username . '@gmail.com';
         }
+
         return $email;
     }
 }

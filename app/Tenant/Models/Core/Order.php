@@ -2,8 +2,8 @@
 
 namespace App\Tenant\Models\Core;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -46,7 +46,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Order extends Model
 {
-
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
@@ -84,6 +83,7 @@ class Order extends Model
                         'LA' => 'LinkAja',
                         'NQ' => 'QRIS (ShopeePay/DANA/OVO/LinkAja)',
                     ];
+
                     return $fallbackMethods[$code] ?? $this->duitku_payment_method;
                 }
 

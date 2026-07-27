@@ -6,9 +6,10 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 new #[Layout('layouts::print')]
-class extends Component {
-
+class extends Component
+{
     public Order $order;
+
     public $store;
 
     public function mount($code): void
@@ -19,7 +20,7 @@ class extends Component {
 
     public function markAsPrinted(): void
     {
-        if (! $this->order->is_printed) {
+        if (!$this->order->is_printed) {
             $this->order->update(['is_printed' => true]);
         }
     }
@@ -27,6 +28,7 @@ class extends Component {
     public function title(): string
     {
         $storeName = $this->store->name ?? 'Toko';
+
         return "Receipt {$this->order->invoice_code} - {$storeName}";
     }
 };

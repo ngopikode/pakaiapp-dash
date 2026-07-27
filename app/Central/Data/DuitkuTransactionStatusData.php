@@ -9,6 +9,5 @@ class DuitkuTransactionStatusData extends Data
     public function __construct(
         public ?string $statusCode,
         public ?string $statusMessage,
-    ) {
-    }
+    ) {}
 }

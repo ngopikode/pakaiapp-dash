@@ -1,11 +1,15 @@
 <?php
 
+use App\Central\Services\BillingService;
 use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\ProductVariant;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component {
-
+new class extends Component
+{
     public ?int $orderId = null;
 
     #[On('openModal')]
@@ -19,7 +23,7 @@ new class extends Component {
     public function with(): array
     {
         return [
-            'order' => Order::with('items')->find($this->orderId)
+            'order' => Order::with('items')->find($this->orderId),
         ];
     }
 
@@ -41,13 +45,15 @@ new class extends Component {
         if ($newStatus === 'cancelled' && $order->status === 'cancelled') {
             $this->dispatch('notify', message: 'Pesanan sudah dibatalkan sebelumnya.', type: 'error');
             $this->dispatch('hide-order-modal');
+
             return;
         }
 
         if ($newStatus === 'cancelled' && $order->status !== 'pending') {
-            if ($order->is_printed || \Carbon\Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
+            if ($order->is_printed || Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
                 $this->dispatch('notify', message: 'Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.', type: 'error');
                 $this->dispatch('hide-order-modal');
+
                 return;
             }
         }
@@ -56,6 +62,7 @@ new class extends Component {
         if ($newStatus === 'cancelled' && in_array($order->kitchen_status, ['processing', 'ready', 'completed'])) {
             $this->dispatch('notify', message: 'Pesanan tidak dapat dibatalkan karena sedang/sudah diproses oleh dapur.', type: 'error');
             $this->dispatch('hide-order-modal');
+
             return;
         }
 
@@ -68,19 +75,19 @@ new class extends Component {
             $updateData['kitchen_status'] = 'completed';
         }
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $updateData, $newStatus) {
+        DB::transaction(function () use ($order, $updateData, $newStatus) {
             $order->update($updateData);
 
             // Kembalikan stok saat cancel
             if ($newStatus === 'cancelled') {
                 foreach ($order->items as $item) {
                     if ($item->variant_id) {
-                        \App\Tenant\Models\Core\ProductVariant::where('id', $item->variant_id)
+                        ProductVariant::where('id', $item->variant_id)
                             ->increment('stock', $item->quantity);
                     }
                 }
                 if ($order->getOriginal('status') !== 'pending') {
-                    app(\App\Central\Services\BillingService::class)->processVoidPenalty($order);
+                    app(BillingService::class)->processVoidPenalty($order);
                 }
             }
         });

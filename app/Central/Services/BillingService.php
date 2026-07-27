@@ -14,9 +14,7 @@ class BillingService
 {
     protected ?SettingService $settingService = null;
 
-    public function __construct(protected readonly TenantWalletService $walletService)
-    {
-    }
+    public function __construct(protected readonly TenantWalletService $walletService) {}
 
     protected function settingService(): SettingService
     {
@@ -48,11 +46,9 @@ class BillingService
         return $wallet;
     }
 
-
     /**
      * Charge the transaction fee according to the Pay-As-You-Go capping logic.
-     * @param Order $order
-     * @return void
+     *
      * @throws Throwable
      */
     public function chargeTransactionFee(Order $order): void
@@ -111,8 +107,7 @@ class BillingService
 
     /**
      * Process penalty for excessive voided orders.
-     * @param Order $order
-     * @return void
+     *
      * @throws Throwable
      */
     public function processVoidPenalty(Order $order): void
@@ -151,7 +146,7 @@ class BillingService
 
                 Log::info("[BillingService] Charged penalty for voided order $order->invoice_code", [
                     'void_count' => $wallet->monthly_void_count,
-                    'allowed' => $allowedVoids
+                    'allowed' => $allowedVoids,
                 ]);
             }
 

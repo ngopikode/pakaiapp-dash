@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Wallet extends Model
 {
-
     protected function casts(): array
     {
         return [

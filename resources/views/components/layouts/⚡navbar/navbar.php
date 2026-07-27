@@ -1,11 +1,12 @@
 <?php
 
-use Livewire\Component;
 use App\Tenant\Models\Core\Order;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public string|array|null $header = 'Dashboard Overview';
 
     public function logout(): void
@@ -28,7 +29,7 @@ new class extends Component {
     {
         try {
             return Order::where('status', 'pending')->count();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return 0; // Fallback for when tenant DB is not fully resolved yet during global requests
         }
     }

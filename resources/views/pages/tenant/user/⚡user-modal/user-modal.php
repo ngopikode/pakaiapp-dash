@@ -1,15 +1,21 @@
 <?php
 
+use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Models\Core\TenantUser;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public ?int $userId = null;
+
     public string $name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $role = 'cashier';
 
     public bool $isEditing = false;
@@ -41,7 +47,7 @@ new class extends Component {
     #[Computed]
     public function storeType()
     {
-        return \App\Tenant\Models\Core\StoreSetting::first()?->store_type ?? 'retail';
+        return StoreSetting::first()?->store_type ?? 'retail';
     }
 
     public function save(): void
@@ -65,7 +71,7 @@ new class extends Component {
                 $this->role = 'cashier';
             }
         }
-        
+
         if (!$this->isEditing || !empty($this->password)) {
             $rules['password'] = 'required|min:6';
         }

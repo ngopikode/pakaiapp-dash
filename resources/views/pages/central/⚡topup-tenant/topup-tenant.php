@@ -9,11 +9,14 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 new #[Layout('layouts::central', ['title' => 'Top Up Kredit Tenant'])]
-class extends Component {
-
+class extends Component
+{
     public string $tenantId = '';
+
     public $amount;
+
     public string $description = 'Top Up Saldo dari Admin Pusat';
+
     public string $pin = '';
 
     protected ?TenantWalletService $walletService = null;
@@ -38,6 +41,7 @@ class extends Component {
         // Gatekeeper PIN
         if ($this->pin !== config('auth.central_admin_pin')) {
             $this->addError('pin', 'PIN Otoritas salah! Hubungi Admin.');
+
             return;
         }
 
@@ -60,9 +64,8 @@ class extends Component {
                 );
             });
 
-
             // Beri notifikasi sukses ke frontend
-            session()->flash('success', "Top up sebesar Rp " . number_format($this->amount, 0, ',', '.') . " berhasil dikirim ke tenant {$tenant->id}!");
+            session()->flash('success', 'Top up sebesar Rp ' . number_format($this->amount, 0, ',', '.') . " berhasil dikirim ke tenant {$tenant->id}!");
 
             // Reset field setelah sukses
             $this->reset(['tenantId', 'amount', 'pin']);

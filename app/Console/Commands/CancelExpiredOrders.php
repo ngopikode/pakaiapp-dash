@@ -38,15 +38,16 @@ class CancelExpiredOrders extends Command
                 ->where(function ($query) {
                     $query->where(function ($q) {
                         $q->whereNotIn('payment_method', ['cash', 'manual'])
-                          ->where('created_at', '<', now()->subMinutes(30));
+                            ->where('created_at', '<', now()->subMinutes(30));
                     })->orWhere(function ($q) {
                         $q->whereIn('payment_method', ['cash', 'manual', null])
-                          ->where('created_at', '<', now()->subHours(2));
+                            ->where('created_at', '<', now()->subHours(2));
                     });
                 })->get();
 
             if ($expired->isEmpty()) {
                 tenancy()->end();
+
                 continue;
             }
 
@@ -66,7 +67,7 @@ class CancelExpiredOrders extends Command
             }
 
             try {
-                event(new KitchenUpdated());
+                event(new KitchenUpdated);
             } catch (\Exception $e) {
                 // Broadcast failed, not critical
             }

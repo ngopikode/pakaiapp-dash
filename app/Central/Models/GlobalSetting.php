@@ -25,8 +25,8 @@ class GlobalSetting extends Model
     {
         return Attribute::make(
             get: fn () => match ($this->type) {
-                'integer' => (int)$this->value,
-                'float' => (float)$this->value,
+                'integer' => (int) $this->value,
+                'float' => (float) $this->value,
                 'boolean' => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
                 'json' => json_decode($this->value, true),
                 default => $this->value,

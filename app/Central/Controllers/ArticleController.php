@@ -2,15 +2,14 @@
 
 namespace App\Central\Controllers;
 
+use App\Central\Models\Article;
 use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
     public function index()
     {
-        $articles = \App\Central\Models\Article::whereNotNull('published_at')
+        $articles = Article::whereNotNull('published_at')
             ->orderBy('published_at', 'desc')
             ->paginate(12);
 
@@ -19,7 +18,7 @@ class ArticleController extends Controller
 
     public function show($slug)
     {
-        $article = \App\Central\Models\Article::where('slug', $slug)
+        $article = Article::where('slug', $slug)
             ->whereNotNull('published_at')
             ->firstOrFail();
 

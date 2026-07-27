@@ -1,11 +1,11 @@
 <?php
 
 use App\Tenant\Models\Core\StoreSetting;
-use Illuminate\Http\RedirectResponse;
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public string $elementId = 'sidebar-wrapper';
 
     public function logout(): void
@@ -22,7 +22,7 @@ new class extends Component {
         $user = Auth::user();
         $storeSetting = StoreSetting::first();
         $storeType = $storeSetting?->store_type ?? 'retail';
-        $isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
+        $isKitchenActive = (bool) ($storeSetting?->is_kitchen_active ?? true);
 
         $sections = [
             [
@@ -31,14 +31,14 @@ new class extends Component {
                     ['route' => 'dashboard', 'icon' => 'ph-fill ph-squares-four', 'label' => 'Dashboard', 'roles' => ['manager']],
                     ['route' => 'cashier', 'icon' => 'ph-fill ph-cash-register', 'label' => 'Kasir / POS', 'roles' => ['manager', 'cashier']],
                     ['route' => 'order', 'icon' => 'ph-fill ph-receipt', 'label' => $storeType === 'resto' ? 'Pesanan & Riwayat' : 'Riwayat Transaksi', 'roles' => ['manager', 'cashier']],
-                ]
+                ],
             ],
             [
                 'title' => 'Katalog & Inventaris',
                 'items' => [
-                    ['route' => 'product', 'icon' => 'ph-fill ph-book-open', 'label' => 'Katalog Produk', 'roles' => ['manager']],
+                    ['route' => 'products', 'icon' => 'ph-fill ph-book-open', 'label' => 'Katalog Produk', 'roles' => ['manager']],
                     ['route' => 'product-slot.buy', 'icon' => 'ph-fill ph-shopping-cart-simple', 'label' => 'Beli Slot Produk', 'roles' => ['manager']],
-                ]
+                ],
             ],
             [
                 'title' => 'Sistem & Pengaturan',
@@ -48,8 +48,8 @@ new class extends Component {
                     ['route' => 'user', 'icon' => 'ph-fill ph-users', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
                     ['route' => 'profile', 'icon' => 'ph-fill ph-user-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
                     ['route' => 'ai-engine', 'icon' => 'ph-fill ph-sparkle', 'label' => 'AI Menu Engine', 'roles' => ['manager']],
-                ]
-            ]
+                ],
+            ],
         ];
 
         if ($storeType === 'resto' && $isKitchenActive) {
@@ -68,6 +68,6 @@ new class extends Component {
             })->toArray();
 
             return $section;
-        })->filter(fn($section) => count($section['items']) > 0)->toArray();
+        })->filter(fn ($section) => count($section['items']) > 0)->toArray();
     }
 };

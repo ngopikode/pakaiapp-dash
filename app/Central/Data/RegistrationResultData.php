@@ -2,14 +2,14 @@
 
 namespace App\Central\Data;
 
-use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Hidden;
+use Spatie\LaravelData\Data;
 
 class RegistrationResultData extends Data
 {
     public function __construct(
         public string $type,
-        
+
         #[Hidden] // Don't serialize message in 'data' response, we pass it to parent response
         public string $message,
 

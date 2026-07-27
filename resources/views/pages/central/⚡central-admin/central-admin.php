@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Central;
 
-use App\Tenant\Models\Core\StoreSetting;
 use App\Central\Models\Tenant;
+use App\Central\Models\TenantRegistration;
 use App\Central\Models\User;
+use App\Shared\Mail\SystemEmail;
+use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\TenantWalletService;
 use Exception;
 use Illuminate\Support\Facades\Artisan;
@@ -14,28 +16,36 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use App\Central\Models\TenantRegistration;
-use App\Shared\Mail\SystemEmail;
 
 new #[Layout('layouts::central', ['title' => 'Gatekeeper | Pakaiapp'])]
-class extends Component {
-
+class extends Component
+{
     public bool $isAuthenticated = false;
+
     public string $authPin = '';
+
     public string $activeTab = 'create_tenant';
 
     // Form: Create Tenant
     public ?string $userName = '';
+
     public ?string $userEmail = '';
+
     public ?string $password = '';
+
     public ?string $storeName = '';
+
     public string $storeType = 'resto';
+
     public ?string $tenantId = '';
+
     public string $subscriptionPlan = 'free';
 
     // Form: Topup
     public string $selectedTenant = '';
+
     public $topupAmount;
+
     public string $topupDescription = 'Top Up Saldo via Central';
 
     public function mount()
@@ -97,6 +107,7 @@ class extends Component {
 
         if ($exitCode !== 0) {
             $this->dispatch('swal:error', message: 'Gagal meracik database tenant.');
+
             return;
         }
 
@@ -138,7 +149,7 @@ class extends Component {
                 $walletService->addBalance($this->topupAmount, $walletService->getWallet(), $this->topupDescription);
             });
 
-            $this->dispatch('swal:success', title: 'Top Up Sukses!', message: "Saldo Rp " . number_format($this->topupAmount, 0, ',', '.') . " masuk ke {$this->selectedTenant}.");
+            $this->dispatch('swal:success', title: 'Top Up Sukses!', message: 'Saldo Rp ' . number_format($this->topupAmount, 0, ',', '.') . " masuk ke {$this->selectedTenant}.");
             $this->reset(['selectedTenant', 'topupAmount']);
         } catch (Exception $e) {
             $this->dispatch('swal:error', message: $e->getMessage());
@@ -151,6 +162,7 @@ class extends Component {
 
         if ($registration->status !== 'paid' && !($registration->status === 'pending' && $registration->payment_method === 'manual')) {
             $this->dispatch('swal:error', message: 'Hanya pendaftaran PAID (Gagal Setup) atau MANUAL yang bisa diproses.');
+
             return;
         }
 
@@ -180,7 +192,7 @@ class extends Component {
                     [
                         'name' => $registration->owner_name,
                         'password' => $plainPassword, // Laravel handles the hashing automatically
-                        'role' => 'manager'
+                        'role' => 'manager',
                     ]
                 );
                 // Update StoreSetting brand text
@@ -193,11 +205,11 @@ class extends Component {
             // 3. Securely hash the password inside the central DB
             $registration->update([
                 'status' => 'created',
-                'password' => Hash::make($plainPassword)
+                'password' => Hash::make($plainPassword),
             ]);
 
             // 4. Send Welcome Email
-            $emailTitle = "Toko " . $registration->store_name . " Siap Digunakan!";
+            $emailTitle = 'Toko ' . $registration->store_name . ' Siap Digunakan!';
             $emailBody = "Halo $registration->owner_name,\n\nTerima kasih atas pembayaran Anda! Sistem kasir toko Anda ($registration->store_name) telah selesai disiapkan dengan Paket " . ucfirst($registration->plan) . ".\n\nBerikut adalah detail akses Anda:\nURL Dashboard: https://$domainUrl/auth/login\nEmail: $registration->email\nPassword: $plainPassword\n\nSilakan login untuk mulai mengatur menu dan memantau pesanan Anda.\n\nSalam sukses,\nTim Pakaiapp";
 
             Mail::to($registration->email)->send(
@@ -206,7 +218,7 @@ class extends Component {
 
             $this->dispatch('swal:success', title: 'Aktivasi Berhasil!', message: "Toko {$registration->store_name} berhasil dibuat dan diaktifkan secara manual di {$domainUrl}. Email rincian akses telah dikirimkan ke pemilik.");
         } catch (Exception $e) {
-            Log::error("Manual activation retry failed: " . $e->getMessage());
+            Log::error('Manual activation retry failed: ' . $e->getMessage());
             $this->dispatch('swal:error', message: 'Gagal mengaktivasi toko: ' . $e->getMessage());
         }
     }
@@ -216,13 +228,13 @@ class extends Component {
         return [
             'tenants' => $this->isAuthenticated ? Tenant::orderBy('id')->get() : [],
             'pendingRegistrations' => $this->isAuthenticated
-                ? TenantRegistration::where(function($q) {
+                ? TenantRegistration::where(function ($q) {
                     $q->where('status', 'paid')
-                      ->orWhere(function($q2) {
-                          $q2->where('status', 'pending')->where('payment_method', 'manual');
-                      });
-                  })->orderBy('created_at', 'desc')->get()
-                : []
+                        ->orWhere(function ($q2) {
+                            $q2->where('status', 'pending')->where('payment_method', 'manual');
+                        });
+                })->orderBy('created_at', 'desc')->get()
+                : [],
         ];
     }
 };

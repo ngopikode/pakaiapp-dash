@@ -3,82 +3,82 @@
 namespace App\Tenant\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-
 use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\SettingService;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MenuController extends Controller
 {
-    public function show(Product $product)
+    protected ?SettingService $settingService = null;
+
+    protected function settingService(): SettingService
+    {
+        return $this->settingService ??= app(SettingService::class);
+    }
+
+    public function show(Product $product): View|Factory|\Illuminate\View\View|RedirectResponse
     {
         $setting = StoreSetting::cached();
 
         // Redirect jika store tidak active atau sedang tutup
-        if (!$setting || !$setting->is_active) {
-            return redirect()->route('store.home');
-        }
+        if (!$setting || !$setting->is_active) return redirect()->route('index');
 
-        if ($setting->operating_hours && !$setting->isOpenNow()) {
-            return redirect()->route('store.home');
-        }
+        if ($setting->operating_hours && !$setting->isOpenNow()) return redirect()->route('index');
 
         $product->load(['variants', 'extras']);
 
-        $waNumber   = '';
-        $orderTypes = [['id' => 'takeaway', 'label' => 'Takeaway']];
+        $orderTypes = [];
 
-        if ($setting) {
-            $waNumber = preg_replace('/\D/', '', $setting->whatsapp_number ?: '6281234567890');
-            if (str_starts_with($waNumber, '0')) $waNumber = '62' . substr($waNumber, 1);
-            $storeType  = $setting->store_type ?: 'resto';
-            $orderTypes = [];
-            if ($storeType === 'resto') {
-                if ($setting->is_dinein_active)   $orderTypes[] = ['id' => 'dinein',   'label' => 'Makan Sini'];
-                if ($setting->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
-            } else {
-                if ($setting->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Ambil Sendiri'];
-            }
-            if ($setting->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
-            if (empty($orderTypes))           $orderTypes[] = ['id' => 'takeaway', 'label' => 'Takeaway'];
-        }
+        $waNumber = preg_replace('/\D/', '', $setting->whatsapp_number ?: '6281234567890');
+        if (str_starts_with($waNumber, '0')) $waNumber = '62' . substr($waNumber, 1);
+        if ($setting->is_dinein_active) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
+        if ($setting->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
+        if ($setting->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
+        if (empty($orderTypes)) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Takeaway'];
 
         // --- SEO & META OPTIMIZATION ---
-        $storeName    = $setting?->name ?? 'Menu Digital';
-        $themeColor   = $setting?->theme_color ?? '#f59e0b';
+        $storeName = $setting->name ?? 'Menu Digital';
+        $themeColor = $setting->theme_color ?? '#f59e0b';
         $canonicalUrl = url()->current();
 
-        $pageTitle = "{$product->name} di {$storeName}";
+        $pageTitle = "$product->name di $storeName";
 
         $hooks = ['Cuma', 'Hanya', 'Spesial', 'Nikmati seharga', 'Dapatkan cuma', 'Pesan sekarang'];
         $randomHook = $hooks[array_rand($hooks)];
         $priceString = 'Rp ' . number_format($product->price, 0, ',', '.');
-        $rawDesc = $product->description ? trim($product->description) : "Menu favorit dari {$storeName}.";
+        $rawDesc = $product->description ? trim($product->description) : "Menu favorit dari $storeName.";
 
-        $fullDesc = "{$randomHook} {$priceString}! {$rawDesc}";
-        $ogDesc = Str::limit($fullDesc, 155, '...');
+        $fullDesc = "$randomHook $priceString! $rawDesc";
+        $ogDesc = Str::limit($fullDesc, 155);
         $imageVersion = $product->updated_at ? $product->updated_at->timestamp : time();
 
+        $appFeeAmount = $this->settingService()->get('default_trx_fee', tenant(), 300);
+
         return view('pages.tenant.store.resto.product', [
-            'product'      => $product,
-            'productData'  => $product->toFrontendArray(),
-            'setting'      => $setting,
-            'waNumber'     => $waNumber,
-            'orderTypes'   => $orderTypes,
-            'storeName'    => $storeName,
-            'themeColor'   => $themeColor,
+            'product' => $product,
+            'productData' => $product->toFrontendArray(),
+            'setting' => $setting,
+            'waNumber' => $waNumber,
+            'orderTypes' => $orderTypes,
+            'storeName' => $storeName,
+            'themeColor' => $themeColor,
             'canonicalUrl' => $canonicalUrl,
-            'pageTitle'    => $pageTitle,
-            'ogDesc'       => $ogDesc,
+            'pageTitle' => $pageTitle,
+            'ogDesc' => $ogDesc,
             'imageVersion' => $imageVersion,
+            'appFeeAmount' => $appFeeAmount,
         ]);
     }
 
-    public function shareAsStory(Product $product)
+    public function shareAsStory(Product $product): View|Factory|\Illuminate\View\View
     {
         $restaurant = StoreSetting::cached() ?? new StoreSetting(['name' => 'Resto']);
-        $productUrl = route('product.show', $product);
+        $productUrl = route('menu.show', $product);
 
         return view('pages.tenant.store.story-preview', [
             'restaurant' => $restaurant,
@@ -86,7 +86,7 @@ class MenuController extends Controller
             'image_url' => $product->image ? Storage::url($product->image) : null,
             'product_url' => $productUrl,
             'share_text' => $this->generateShareText($product, $restaurant, $productUrl),
-            'share_title' => "$product->name - $restaurant->name"
+            'share_title' => "$product->name - $restaurant->name",
         ]);
     }
 
@@ -98,7 +98,7 @@ class MenuController extends Controller
             '📍 Jangan sampai kelewat nikmatnya',
             '🍃 Pilihan pas buat nemenin harimu:',
             '🤍 Rekomendasi spesial untukmu:',
-            '💡 Wajib cobain menu andalan ini:'
+            '💡 Wajib cobain menu andalan ini:',
         ];
 
         $randomHook = $generalHooks[array_rand($generalHooks)];
@@ -115,5 +115,4 @@ class MenuController extends Controller
 
         return $shareText;
     }
-
 }

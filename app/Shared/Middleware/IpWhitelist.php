@@ -12,8 +12,6 @@ class IpWhitelist
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -28,7 +26,7 @@ class IpWhitelist
         $duitkuIps = config('duitku.sandbox', true)
             ? ['182.23.85.11', '182.23.85.12', '103.177.101.187', '103.177.101.188']
             : ['182.23.85.8', '182.23.85.9', '182.23.85.10', '182.23.85.13', '182.23.85.14',
-               '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
+                '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
 
         $midtransIps = [
             // --- NEW IP ADDRESSES (PRODUCTION) ---
@@ -65,12 +63,12 @@ class IpWhitelist
             Log::warning('[IpWhitelist] Diblokir: Request webhook dari IP yang tidak diizinkan', [
                 'ip' => $clientIp,
                 'user_agent' => $request->userAgent(),
-                'path' => $request->path()
+                'path' => $request->path(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Forbidden. IP Address not whitelisted.'
+                'message' => 'Forbidden. IP Address not whitelisted.',
             ], 403);
         }
 

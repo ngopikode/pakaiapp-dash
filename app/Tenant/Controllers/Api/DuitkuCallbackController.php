@@ -2,9 +2,10 @@
 
 namespace App\Tenant\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Tenant\Models\Core\Order;
 use App\Central\Services\DuitkuService;
+use App\Http\Controllers\Controller;
+use App\Tenant\Events\KitchenUpdated;
+use App\Tenant\Models\Core\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,7 +38,7 @@ class DuitkuCallbackController extends Controller
     {
         Log::info('[Duitku] Callback diterima', [
             'merchantOrderId' => $request->input('merchantOrderId'),
-            'resultCode'      => $request->input('resultCode'),
+            'resultCode' => $request->input('resultCode'),
             // Jangan log amount atau data sensitif lainnya
         ]);
 
@@ -47,25 +48,27 @@ class DuitkuCallbackController extends Controller
             $allowedIps = config('duitku.sandbox', true)
                 ? ['182.23.85.11', '182.23.85.12', '103.177.101.187', '103.177.101.188']
                 : ['182.23.85.8', '182.23.85.9', '182.23.85.10', '182.23.85.13', '182.23.85.14',
-                   '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
+                    '103.177.101.184', '103.177.101.185', '103.177.101.186', '103.177.101.189', '103.177.101.190'];
 
-            if (! in_array($clientIp, $allowedIps, true)) {
+            if (!in_array($clientIp, $allowedIps, true)) {
                 Log::warning('[Duitku] IP callback tidak terdaftar', [
                     'ip' => $clientIp,
                 ]);
+
                 return response('INVALID_IP', 403);
             }
         }
 
         try {
-            $duitkuService = new DuitkuService();
-            $notif         = $duitkuService->handleCallback();
+            $duitkuService = new DuitkuService;
+            $notif = $duitkuService->handleCallback();
 
             $merchantOrderId = $notif['merchantOrderId'] ?? null;
-            $resultCode      = $notif['resultCode'] ?? null;
+            $resultCode = $notif['resultCode'] ?? null;
 
             if (empty($merchantOrderId)) {
                 Log::warning('[Duitku] Callback: merchantOrderId kosong');
+
                 return response('INVALID', 400);
             }
 
@@ -78,19 +81,21 @@ class DuitkuCallbackController extends Controller
 
             // Cari order berdasarkan invoice_code (bukan id, sesuai yang kita kirim ke Duitku)
             // Validasi format untuk mencegah injection — invoice code hanya alfanumerik + dash
-            if (! preg_match('/^[A-Za-z0-9\-]+$/', $realInvoiceCode)) {
+            if (!preg_match('/^[A-Za-z0-9\-]+$/', $realInvoiceCode)) {
                 Log::warning('[Duitku] Callback: format realInvoiceCode tidak valid', [
                     'realInvoiceCode' => substr($realInvoiceCode, 0, 50),
                 ]);
+
                 return response('INVALID', 400);
             }
 
             $order = Order::where('invoice_code', $realInvoiceCode)->first();
 
-            if (! $order) {
+            if (!$order) {
                 Log::warning('[Duitku] Callback: order tidak ditemukan', [
                     'merchantOrderId' => $merchantOrderId,
                 ]);
+
                 // Tetap return 200 ke Duitku agar tidak retry terus
                 return response('OK', 200);
             }
@@ -98,36 +103,36 @@ class DuitkuCallbackController extends Controller
             if ($resultCode === '00') {
                 // Pembayaran berhasil
                 $order->update([
-                    'status'           => 'paid',
-                    'payment_method'   => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
+                    'status' => 'paid',
+                    'payment_method' => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
                     'duitku_reference' => $notif['reference'] ?? $order->duitku_reference,
-                    'amount_paid'      => (int) ($notif['amount'] ?? $order->total_price),
+                    'amount_paid' => (int) ($notif['amount'] ?? $order->total_price),
                 ]);
 
-                event(new \App\Tenant\Events\KitchenUpdated());
+                event(new KitchenUpdated);
 
                 Log::info('[Duitku] Pembayaran berhasil', [
                     'invoice_code' => $merchantOrderId,
-                    'result_code'  => $resultCode,
+                    'result_code' => $resultCode,
                 ]);
 
             } elseif ($resultCode === '01') {
                 // Pembayaran gagal
                 $order->update([
-                    'status'            => 'cancelled',
+                    'status' => 'cancelled',
                     'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
                 ]);
 
-                event(new \App\Tenant\Events\KitchenUpdated());
+                event(new KitchenUpdated);
 
                 Log::info('[Duitku] Pembayaran gagal', [
                     'invoice_code' => $merchantOrderId,
-                    'result_code'  => $resultCode,
+                    'result_code' => $resultCode,
                 ]);
             } else {
                 Log::warning('[Duitku] Callback: resultCode tidak dikenal', [
                     'invoice_code' => $merchantOrderId,
-                    'result_code'  => $resultCode,
+                    'result_code' => $resultCode,
                 ]);
             }
 
@@ -157,13 +162,13 @@ class DuitkuCallbackController extends Controller
         $merchantOrderId = $request->query('merchantOrderId', '');
 
         // Validasi format — hanya izinkan alfanumerik + dash
-        if (! preg_match('/^[A-Za-z0-9\-]*$/', $merchantOrderId)) {
+        if (!preg_match('/^[A-Za-z0-9\-]*$/', $merchantOrderId)) {
             abort(400, 'Invalid order ID format.');
         }
 
         $order = null;
 
-        if (! empty($merchantOrderId)) {
+        if (!empty($merchantOrderId)) {
             $order = Order::where('invoice_code', $merchantOrderId)->first();
         }
 
@@ -178,42 +183,42 @@ class DuitkuCallbackController extends Controller
      *
      * Diproteksi oleh middleware auth agar hanya user yang login bisa cek status.
      *
-     * @param  string $invoiceCode  Invoice code order
+     * @param  string  $invoiceCode  Invoice code order
      */
     public function status(string $invoiceCode): JsonResponse
     {
         // Validasi format invoice code — hanya izinkan alfanumerik + dash
-        if (! preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
+        if (!preg_match('/^[A-Za-z0-9\-]+$/', $invoiceCode)) {
             return response()->json(['message' => 'Format invoice code tidak valid.'], 400);
         }
 
         $order = Order::where('invoice_code', $invoiceCode)->first();
 
-        if (! $order) {
+        if (!$order) {
             return response()->json(['message' => 'Order tidak ditemukan.'], 404);
         }
 
         // Jika order sudah paid/cancelled, return dari DB saja tanpa hit Duitku API
         if (in_array($order->status, ['paid', 'cancelled'])) {
             return response()->json([
-                'status'       => $order->status,
+                'status' => $order->status,
                 'invoice_code' => $order->invoice_code,
-                'payment_url'  => $order->duitku_payment_url,
+                'payment_url' => $order->duitku_payment_url,
             ]);
         }
 
         // Jika masih pending dan ada duitku reference, cek ke Duitku API
         if ($order->duitku_reference) {
             try {
-                $duitkuService = new DuitkuService();
-                $statusData    = $duitkuService->checkTransactionStatus($order->invoice_code);
+                $duitkuService = new DuitkuService;
+                $statusData = $duitkuService->checkTransactionStatus($order->invoice_code);
 
                 return response()->json([
-                    'status'       => $order->status,
+                    'status' => $order->status,
                     'invoice_code' => $order->invoice_code,
-                    'payment_url'  => $order->duitku_payment_url,
-                    'duitku'       => [
-                        'statusCode'    => $statusData['statusCode'] ?? null,
+                    'payment_url' => $order->duitku_payment_url,
+                    'duitku' => [
+                        'statusCode' => $statusData['statusCode'] ?? null,
                         'statusMessage' => $statusData['statusMessage'] ?? null,
                     ],
                 ]);
@@ -221,15 +226,15 @@ class DuitkuCallbackController extends Controller
             } catch (Throwable $e) {
                 Log::error('[Duitku] checkTransactionStatus error', [
                     'invoice_code' => $invoiceCode,
-                    'error'        => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         return response()->json([
-            'status'       => $order->status,
+            'status' => $order->status,
             'invoice_code' => $order->invoice_code,
-            'payment_url'  => $order->duitku_payment_url,
+            'payment_url' => $order->duitku_payment_url,
         ]);
     }
 
@@ -243,12 +248,12 @@ class DuitkuCallbackController extends Controller
         ]);
 
         try {
-            $duitkuService = new DuitkuService();
-            $methods       = $duitkuService->getPaymentMethods((int) $request->amount);
+            $duitkuService = new DuitkuService;
+            $methods = $duitkuService->getPaymentMethods((int) $request->amount);
 
             return response()->json([
                 'success' => true,
-                'data'    => $methods,
+                'data' => $methods,
             ]);
 
         } catch (Throwable $e) {

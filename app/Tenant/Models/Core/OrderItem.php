@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class OrderItem extends Model
 {
-
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

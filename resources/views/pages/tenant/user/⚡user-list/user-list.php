@@ -1,15 +1,17 @@
 <?php
 
-use App\Tenant\Models\Core\TenantUser;
 use App\Central\Models\User;
+use App\Tenant\Models\Core\TenantUser;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new class extends Component {
+new class extends Component
+{
     use WithPagination;
 
     public string $search = '';
+
     public int $perPage = 10;
 
     #[On('user-saved')]
@@ -36,6 +38,7 @@ new class extends Component {
         // Mencegah user menghapus dirinya sendiri (asumsi auth login)
         if (auth()->id() === $user->id) {
             $this->dispatch('notify', message: 'Anda tidak bisa menghapus akun Anda sendiri!', type: 'error');
+
             return;
         }
 
@@ -49,7 +52,7 @@ new class extends Component {
     {
         $users = TenantUser::query()
             ->when($this->search)->where(
-                fn($query) => $query->where('name', 'like', '%' . $this->search . '%')
+                fn ($query) => $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%'))
             ->latest()
             ->paginate($this->perPage);
@@ -61,5 +64,4 @@ new class extends Component {
             'cashierCount' => User::where('role', 'cashier')->count(),
         ];
     }
-
 };

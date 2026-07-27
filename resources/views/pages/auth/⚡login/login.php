@@ -6,7 +6,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 new #[Layout('layouts::guest', ['title' => 'Posts Dashboard'])]
-class extends Component {
+class extends Component
+{
     public array $form = [
         'email' => '',
         'password' => '',

@@ -15,7 +15,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
@@ -24,6 +23,27 @@ use Throwable;
 class OrderApiController extends Controller
 {
     use ApiResponserTrait;
+
+    protected ?OrderService $orderService = null;
+
+    protected function orderService(): OrderService
+    {
+        return $this->orderService ??= app(OrderService::class);
+    }
+
+    protected ?MidtransService $midtransService = null;
+
+    protected function midtransService(): MidtransService
+    {
+        return $this->midtransService ??= app(MidtransService::class);
+    }
+
+    protected ?DuitkuService $duitkuService = null;
+
+    protected function duitkuService(): DuitkuService
+    {
+        return $this->duitkuService ??= app(DuitkuService::class);
+    }
 
     public function store(Request $request): JsonResponse
     {
@@ -42,10 +62,12 @@ class OrderApiController extends Controller
         );
 
         try {
-            $order = $this->createOrderInTransaction($request, $gateway);
+            $order = $this->createOrder($request, $gateway);
+
             return $this->processPaymentGateway($order, $request, $gateway);
         } catch (Throwable $e) {
             Log::error('[OrderAPI] Failed to create order: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             return $this->errorResponse(
                 errors: $e,
                 message: 'Failed to create order.',
@@ -84,13 +106,9 @@ class OrderApiController extends Controller
 
     private function validateGateway(array $gateway): ?array
     {
-        if ($gateway['type'] === 'midtrans' && !config('midtrans.server_key')) {
-            return ['success' => false, 'message' => 'Pembayaran digital Midtrans sedang tidak aktif.'];
-        }
+        if ($gateway['type'] === 'midtrans' && !config('midtrans.server_key')) return ['success' => false, 'message' => 'Pembayaran digital Midtrans sedang tidak aktif.'];
 
-        if ($gateway['type'] === 'duitku' && !config('duitku.enabled')) {
-            return ['success' => false, 'message' => 'Pembayaran digital Duitku sedang tidak aktif.'];
-        }
+        if ($gateway['type'] === 'duitku' && !config('duitku.enabled')) return ['success' => false, 'message' => 'Pembayaran digital Duitku sedang tidak aktif.'];
 
         return null;
     }
@@ -100,23 +118,23 @@ class OrderApiController extends Controller
         $requiresEmail = $gateway['type'] !== 'manual';
 
         $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => $requiresEmail ? 'required|email|max:255' : 'nullable|email|max:255',
-            'customer_phone' => 'nullable|string|max:20',
-            'order_type' => 'nullable|string',
-            'order_info' => 'nullable|string|max:100',
-            'total_price' => 'required|numeric|min:1',
-            'payment_method' => 'nullable|string|max:20',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer',
-            'items.*.variant_id' => 'nullable|integer',
-            'items.*.variant_ids' => 'nullable|array',
-            'items.*.variant_ids.*' => 'integer',
-            'items.*.extra_ids' => 'nullable|array',
-            'items.*.extra_ids.*' => 'integer',
-            'items.*.name' => 'required|string|max:255',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.price' => 'required|numeric|min:0',
+            'customer_name' => ['required', 'string', 'max:255'],
+            'customer_email' => $requiresEmail ? ['required', 'email', 'max:255'] : ['nullable', 'email', 'max:255'],
+            'customer_phone' => ['nullable', 'string', 'max:20'],
+            'order_type' => ['nullable', 'string'],
+            'order_info' => ['nullable', 'string', 'max:100'],
+            'total_price' => ['required', 'numeric', 'min:1'],
+            'payment_method' => ['nullable', 'string', 'max:20'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer'],
+            'items.*.variant_id' => ['nullable', 'integer'],
+            'items.*.variant_ids' => ['nullable', 'array'],
+            'items.*.variant_ids.*' => ['integer'],
+            'items.*.extra_ids' => ['nullable', 'array'],
+            'items.*.extra_ids.*' => ['integer'],
+            'items.*.name' => ['required', 'string', 'max:255'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
     }
 
@@ -126,67 +144,55 @@ class OrderApiController extends Controller
         $activeIds = Product::whereIn('id', $productIds)->where('is_active', true)->pluck('id');
         $unavailableIds = $productIds->diff($activeIds)->values();
 
-        if ($unavailableIds->isNotEmpty()) {
-            return [
-                'success' => false,
-                'message' => 'Beberapa produk dalam pesanan sudah tidak tersedia atau habis.',
-                'unavailable_ids' => $unavailableIds,
-            ];
-        }
+        if ($unavailableIds->isNotEmpty()) return [
+            'success' => false,
+            'message' => 'Beberapa produk dalam pesanan sudah tidak tersedia atau habis.',
+            'unavailable_ids' => $unavailableIds,
+        ];
 
         return null;
     }
 
     /**
-     * @param Request $request
-     * @param array $gateway
-     * @return Order
      * @throws Throwable
      */
-    private function createOrderInTransaction(Request $request, array $gateway): Order
+    private function createOrder(Request $request, array $gateway): Order
     {
-        return DB::transaction(function () use ($request, $gateway) {
-            $invoiceCode = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-            $mappedOrderType = in_array($request->order_type, ['retail', 'dinein', 'takeaway', 'online', 'delivery'])
-                ? $request->order_type : 'retail';
+        $invoiceCode = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $mappedOrderType = in_array($request->order_type, ['dinein', 'takeaway', 'delivery'])
+            ? $request->order_type : 'takeaway';
 
-            $orderData = [
-                'invoice_code' => $invoiceCode,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'customer_email' => $request->customer_email,
-                'order_type' => $mappedOrderType,
-                'is_online' => true,
-                'table_number' => $mappedOrderType === 'dinein' ? $request->order_info : null,
-                'notes' => $mappedOrderType !== 'dinein' ? $request->order_info : null,
-                'payment_method' => $gateway['db_method'],
-                'duitku_payment_method' => $gateway['duitku_method'],
-                'status' => 'pending',
-                'user_id' => Auth::id() ?? null,
-            ];
+        $orderData = [
+            'invoice_code' => $invoiceCode,
+            'customer_name' => $request->customer_name,
+            'customer_phone' => $request->customer_phone,
+            'customer_email' => $request->customer_email,
+            'order_type' => $mappedOrderType,
+            'is_online' => true,
+            'table_number' => $mappedOrderType === 'dinein' ? $request->order_info : null,
+            'notes' => $mappedOrderType !== 'dinein' ? $request->order_info : null,
+            'payment_method' => $gateway['db_method'],
+            'duitku_payment_method' => $gateway['duitku_method'],
+            'status' => 'pending',
+            'user_id' => Auth::id() ?? null,
+        ];
 
-            $orderService = app(OrderService::class);
-            return $orderService->processOrder($orderData, $request->items);
-        });
+        return $this->orderService()->processOrder($orderData, $request->items);
     }
 
     private function processPaymentGateway(Order $order, Request $request, array $gateway): JsonResponse
     {
-        if ($gateway['type'] === 'manual') {
-            return $this->successResponse(
-                data: $order,
-                message: 'Order created successfully.',
-                code: ResponseAlias::HTTP_CREATED
-            );
-        }
+        if ($gateway['type'] === 'manual') return $this->successResponse(
+            data: $order,
+            message: 'Order created successfully.',
+            code: ResponseAlias::HTTP_CREATED
+        );
 
         $order->load('items');
         $customerDetail = $this->buildCustomerDetail($request);
 
         try {
-            if ($gateway['type'] === 'midtrans') {
-                return $this->processMidtrans($order, $customerDetail);
-            }
+            if ($gateway['type'] === 'midtrans') return $this->processMidtrans($order, $customerDetail);
 
             return $this->processDuitku($order, $customerDetail, $gateway['duitku_method']);
 
@@ -194,7 +200,7 @@ class OrderApiController extends Controller
             $order->update(['status' => 'cancelled', 'cancellation_note' => ucfirst($gateway['type']) . ' payment initialization failed.']);
             Log::error("[{$gateway['type']}] Payment init failed", [
                 'invoice' => $order->invoice_code,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return $this->errorResponse(
@@ -228,8 +234,7 @@ class OrderApiController extends Controller
      */
     private function processMidtrans(Order $order, array $customerDetail): JsonResponse
     {
-        $service = new MidtransService();
-        $snapToken = $service->createSnapToken($order, $customerDetail, tenant()->getTenantKey());
+        $snapToken = $this->midtransService()->createSnapToken($order, $customerDetail, tenant()->getTenantKey());
 
         $order->update(['midtrans_snap_token' => $snapToken]);
 
@@ -249,8 +254,7 @@ class OrderApiController extends Controller
      */
     private function processDuitku(Order $order, array $customerDetail, string $method): JsonResponse
     {
-        $service = app(DuitkuService::class);
-        $result = $service->createInvoice($order, $customerDetail, $method, tenant()->getTenantKey());
+        $result = $this->duitkuService()->createInvoice($order, $customerDetail, $method, tenant()->getTenantKey());
 
         $order->update([
             'duitku_reference' => $result->reference,

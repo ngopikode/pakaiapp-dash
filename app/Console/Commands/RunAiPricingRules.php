@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Central\Models\Tenant;
 use App\Tenant\Models\Ai\AiPricingRule;
 use App\Tenant\Models\Core\ProductVariant;
-use App\Central\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById;
@@ -26,7 +26,6 @@ class RunAiPricingRules extends Command
     protected $description = 'Evaluate and execute dynamic AI pricing rules across all active tenants';
 
     /**
-     * @return void
      * @throws TenantCouldNotBeIdentifiedById
      */
     public function handle(): void

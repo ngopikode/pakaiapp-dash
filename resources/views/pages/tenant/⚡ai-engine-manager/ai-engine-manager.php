@@ -1,24 +1,33 @@
 <?php
 
-use App\Tenant\Models\Core\Product;
-use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Ai\AiPricingRule;
+use App\Tenant\Models\Core\Product;
+use App\Tenant\Services\OpenAiMenuService;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title("AI - Hidup Jok**")]
-class extends Component {
+new #[Title('AI - Hidup Jok**')]
+class extends Component
+{
     // Mode Auto-Pilot Global Toggle
     public bool $isEngineActive = false;
 
     // Form inputs
     public $aiPrompt = '';
+
     public $ruleName = '';
+
     public $ruleType = 'percentage';
+
     public $discountValue = '';
+
     public $startTime = '';
+
     public $endTime = '';
+
     public $activeDays = [];
+
     public $selectedVariants = [];
 
     protected function rules()
@@ -50,7 +59,7 @@ class extends Component {
         ];
     }
 
-    #[\Livewire\Attributes\Computed]
+    #[Computed]
     public function products()
     {
         return Product::where('is_active', true)
@@ -59,7 +68,7 @@ class extends Component {
             }])->get();
     }
 
-    #[\Livewire\Attributes\Computed]
+    #[Computed]
     public function savedRules()
     {
         return AiPricingRule::with('productVariants')->orderBy('created_at', 'desc')->get();
@@ -91,7 +100,7 @@ class extends Component {
         }
     }
 
-    public function generateAiSuggestion(\App\Tenant\Services\OpenAiMenuService $aiService)
+    public function generateAiSuggestion(OpenAiMenuService $aiService)
     {
         $this->validate(['aiPrompt' => 'required|string|min:3']);
 

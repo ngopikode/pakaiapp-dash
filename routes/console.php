@@ -15,5 +15,5 @@ Schedule::command('orders:cancel-expired')->everyMinute()->withoutOverlapping()-
 // Bersihkan data sampah (Garbage Collection): Hapus histori chat AI yang sudah kadaluarsa (di atas 24 jam)
 Schedule::command('tenants:run', [
     'model:prune',
-    '--option' => 'model=' . AiChatSession::class
+    '--option' => 'model=' . AiChatSession::class,
 ])->daily()->onOneServer();

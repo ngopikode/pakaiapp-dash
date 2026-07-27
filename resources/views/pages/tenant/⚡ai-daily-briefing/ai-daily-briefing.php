@@ -7,9 +7,12 @@ use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
 new #[Lazy]
-class extends Component {
+class extends Component
+{
     public array $stats = [];
+
     public Collection $topProducts;
+
     public Collection $slowMovingProducts;
 
     public string $insightText = '';
@@ -35,7 +38,7 @@ class extends Component {
         $dashboardData = [
             'stats' => $this->stats,
             'top_products' => $this->topProducts,
-            'slow_moving_products' => $this->slowMovingProducts
+            'slow_moving_products' => $this->slowMovingProducts,
         ];
 
         // Cache insight per pengguna (tenant) selama 3 jam (180 menit)

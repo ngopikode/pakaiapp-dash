@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class RawMaterial extends Model
 {
-
     public function recipes(): HasMany
     {
         return $this->hasMany(VariantRecipe::class);

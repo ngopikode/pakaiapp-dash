@@ -7,9 +7,9 @@ use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\StoreSetting;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
 
 class OpenAiMenuService
 {
@@ -23,9 +23,6 @@ class OpenAiMenuService
     /**
      * Generate response from OpenAI API
      *
-     * @param AiChatSession $session
-     * @param string $userMessage
-     * @return string
      * @throws ConnectionException
      */
     public function generateResponse(AiChatSession $session, string $userMessage): string
@@ -122,7 +119,7 @@ Berikut adalah daftar menu aktif hari ini dalam format JSON:
 
         // 4. Bangun history chat
         $messages = [
-            ['role' => 'system', 'content' => $systemPrompt]
+            ['role' => 'system', 'content' => $systemPrompt],
         ];
 
         // Ambil histori 10 pesan terakhir agar token tidak membengkak
@@ -170,9 +167,6 @@ Berikut adalah daftar menu aktif hari ini dalam format JSON:
     /**
      * Generate an AI pricing strategy based on merchant's goal
      *
-     * @param string $goal
-     * @param array $menuData
-     * @return array
      * @throws ConnectionException
      */
     public function generateMerchantStrategy(string $goal, array $menuData): array
@@ -199,13 +193,14 @@ Here is the available menu:
                     'response_format' => ['type' => 'json_object'],
                     'messages' => [
                         ['role' => 'system', 'content' => $systemPrompt],
-                        ['role' => 'user', 'content' => "My goal: " . $goal]
+                        ['role' => 'user', 'content' => 'My goal: ' . $goal],
                     ],
                     'temperature' => 0.7,
                 ]);
 
             if ($response->successful()) {
                 $content = $response->json('choices.0.message.content');
+
                 return json_decode($content, true) ?? [];
             }
         } catch (ConnectionException) {
@@ -220,9 +215,6 @@ Here is the available menu:
 
     /**
      * Generate an AI Daily Briefing for the merchant's dashboard.
-     *
-     * @param array $dashboardData
-     * @return string
      */
     public function generateDashboardInsight(array $dashboardData): string
     {
@@ -248,7 +240,7 @@ Aturan ketat penulisan:
                     'model' => 'gpt-5.4-mini',
                     'messages' => [
                         ['role' => 'system', 'content' => $systemPrompt],
-                        ['role' => 'user', 'content' => 'Berikan insight singkat untuk hari ini berdasarkan data tersebut.']
+                        ['role' => 'user', 'content' => 'Berikan insight singkat untuk hari ini berdasarkan data tersebut.'],
                     ],
                     'temperature' => 0.6,
                 ]);

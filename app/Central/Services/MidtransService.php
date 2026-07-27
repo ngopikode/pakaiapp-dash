@@ -2,13 +2,13 @@
 
 namespace App\Central\Services;
 
-use App\Tenant\Models\Core\Order;
 use App\Central\Models\TenantRegistration;
-use App\Central\Services\BillingService;
-use App\Central\Services\TenantRegistrationService;
+use App\Tenant\Events\KitchenUpdated;
+use App\Tenant\Models\Core\Order;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
+use Midtrans\Notification;
 use Midtrans\Snap;
 
 class MidtransService
@@ -27,10 +27,8 @@ class MidtransService
     /**
      * Membuat transaksi Snap Token untuk pemesanan.
      *
-     * @param Order $order
-     * @param array $customerDetail
-     * @param string $tenantId
      * @return string $snapToken
+     *
      * @throws Exception
      */
     public function createSnapToken(Order $order, array $customerDetail, string $tenantId): string
@@ -41,7 +39,7 @@ class MidtransService
         $params = [
             'transaction_details' => [
                 'order_id' => $merchantOrderId,
-                'gross_amount' => (int)$order->total_price,
+                'gross_amount' => (int) $order->total_price,
             ],
             'customer_details' => [
                 'first_name' => $customerDetail['firstName'] ?? '',
@@ -52,18 +50,18 @@ class MidtransService
             'item_details' => $order->items->map(function ($item) {
                 return [
                     'id' => $item->product_id,
-                    'price' => (int)$item->price,
-                    'quantity' => (int)$item->quantity,
+                    'price' => (int) $item->price,
+                    'quantity' => (int) $item->quantity,
                     'name' => mb_strimwidth($item->product_name, 0, 50, '...'), // max 50 chars for Midtrans
                 ];
-            })->toArray()
+            })->toArray(),
         ];
 
         // Tambah Service Charge sebagai item_detail (jika ada)
         if ($order->service_charge_amount > 0) {
             $params['item_details'][] = [
                 'id' => 'SERVICE_CHARGE',
-                'price' => (int)$order->service_charge_amount,
+                'price' => (int) $order->service_charge_amount,
                 'quantity' => 1,
                 'name' => 'Biaya Layanan Restoran',
             ];
@@ -73,7 +71,7 @@ class MidtransService
         if ($order->application_fee > 0) {
             $params['item_details'][] = [
                 'id' => 'APP_FEE',
-                'price' => (int)$order->application_fee,
+                'price' => (int) $order->application_fee,
                 'quantity' => 1,
                 'name' => 'Biaya Aplikasi PakaiApp',
             ];
@@ -83,7 +81,7 @@ class MidtransService
         if ($order->tax_amount > 0) {
             $params['item_details'][] = [
                 'id' => 'TAX_PB1',
-                'price' => (int)$order->tax_amount,
+                'price' => (int) $order->tax_amount,
                 'quantity' => 1,
                 'name' => 'Pajak Restoran (PB1)',
             ];
@@ -94,7 +92,7 @@ class MidtransService
         } catch (Exception $e) {
             Log::error('[Midtrans] Gagal membuat Snap Token', [
                 'order_id' => $merchantOrderId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -103,8 +101,8 @@ class MidtransService
     /**
      * Membuat transaksi Snap Token khusus untuk pendaftaran/registrasi tenant di Central.
      *
-     * @param TenantRegistration $registration
      * @return string $snapToken
+     *
      * @throws Exception
      */
     public function createRegistrationSnapToken(TenantRegistration $registration): string
@@ -114,7 +112,7 @@ class MidtransService
         $params = [
             'transaction_details' => [
                 'order_id' => $merchantOrderId,
-                'gross_amount' => (int)$registration->amount,
+                'gross_amount' => (int) $registration->amount,
             ],
             'customer_details' => [
                 'first_name' => mb_strimwidth($registration->owner_name, 0, 50, ''),
@@ -124,10 +122,10 @@ class MidtransService
             'item_details' => [
                 [
                     'id' => 'PLAN_' . strtoupper($registration->plan),
-                    'price' => (int)$registration->amount,
+                    'price' => (int) $registration->amount,
                     'quantity' => 1,
                     'name' => 'Pendaftaran Pakaiapp - Paket ' . ucfirst($registration->plan),
-                ]
+                ],
             ],
             'callbacks' => [
                 'finish' => 'https://api.pakaiapp.online/register/status/' . $registration->invoice_code,
@@ -139,12 +137,12 @@ class MidtransService
         } catch (Exception $e) {
             Log::error('[Midtrans] Gagal membuat Snap Token Registrasi', [
                 'order_id' => $merchantOrderId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
     }
-    
+
     /**
      * Handle notification/webhook dari Midtrans.
      * Endpoint ini diletakkan di central domain.
@@ -153,7 +151,7 @@ class MidtransService
     {
         // $payload can be ignored if we just use Notification object, but Notification reads from input stream.
         // It's better to let Notification initialize itself as it reads raw input.
-        $notif = new \Midtrans\Notification();
+        $notif = new Notification;
 
         $transaction = $notif->transaction_status;
         $type = $notif->payment_type;
@@ -176,6 +174,7 @@ class MidtransService
         if (str_starts_with($order_id, 'INV-REG-')) {
             $registration = TenantRegistration::where('invoice_code', $order_id)->first();
             $this->handleRegistrationWebhook($registration, $order_id, $transaction, $tenantRegService);
+
             return;
         }
 
@@ -193,6 +192,7 @@ class MidtransService
             $registrationId = explode('~', $parts[1])[0] ?? null;
             $registration = TenantRegistration::find($registrationId);
             $this->handleRegistrationWebhook($registration, $order_id, $transaction, $tenantRegService);
+
             return;
         }
 
@@ -220,6 +220,7 @@ class MidtransService
                 'invoice_code' => $invoiceCode,
             ]);
             tenancy()->end();
+
             return; // Controller will return 200 OK so midtrans stops retry
         }
 
@@ -227,9 +228,10 @@ class MidtransService
         if (in_array($order->status, ['paid', 'completed', 'cancelled'])) {
             Log::info('[Midtrans] Webhook diabaikan karena status order sudah final', [
                 'invoice_code' => $invoiceCode,
-                'current_status' => $order->status
+                'current_status' => $order->status,
             ]);
             tenancy()->end();
+
             return;
         }
 
@@ -237,7 +239,7 @@ class MidtransService
         $paymentMethodDb = in_array(strtolower($type), ['gopay', 'shopeepay', 'qris']) ? 'qris' : 'transfer';
 
         if ($status === 'paid') {
-            $amountPaid = (int)$notif->gross_amount;
+            $amountPaid = (int) $notif->gross_amount;
 
             // MITIGASI FRAUD: Cek apakah nominal bayar sesuai
             if ($amountPaid < $order->total_price) {
@@ -253,8 +255,9 @@ class MidtransService
                     'midtrans_payment_type' => $type,
                 ]);
                 $order->restoreStock();
-                event(new \App\Tenant\Events\KitchenUpdated());
+                event(new KitchenUpdated);
                 tenancy()->end();
+
                 return;
             }
 
@@ -269,9 +272,9 @@ class MidtransService
             // POTONG SALDO WALLET (DYNAMIC PAYG CAPPING)
             $this->billingService->chargeTransactionFee($order);
 
-            event(new \App\Tenant\Events\KitchenUpdated());
+            event(new KitchenUpdated);
 
-        } else if ($status === 'cancelled') {
+        } elseif ($status === 'cancelled') {
             $order->update([
                 'status' => 'cancelled',
                 'cancellation_note' => 'Dibatalkan oleh sistem pembayaran Midtrans',
@@ -279,13 +282,13 @@ class MidtransService
                 'midtrans_payment_type' => $type,
             ]);
             $order->restoreStock();
-            event(new \App\Tenant\Events\KitchenUpdated());
+            event(new KitchenUpdated);
         }
 
         Log::info('[Midtrans] Order status updated', [
             'invoice_code' => $invoiceCode,
             'status' => $status,
-            'transaction_status' => $transaction
+            'transaction_status' => $transaction,
         ]);
 
         tenancy()->end();
@@ -307,7 +310,7 @@ class MidtransService
         if ($status === 'paid') {
             $registration->update(['status' => 'paid']);
             $this->tenantRegService->completeRegistration($registration);
-        } else if ($status === 'failed') {
+        } elseif ($status === 'failed') {
             $registration->update(['status' => 'failed']);
         }
     }
@@ -320,6 +323,7 @@ class MidtransService
         if (in_array($transaction, ['deny', 'expire', 'cancel'])) {
             return 'failed';
         }
+
         return 'pending';
     }
 
@@ -329,12 +333,13 @@ class MidtransService
             if ($type == 'credit_card') {
                 return ($fraud == 'challenge') ? 'pending' : 'paid';
             }
+
             return 'paid'; // Default capture is paid if not credit_card or no challenge
         }
-        
+
         if ($transaction == 'settlement') return 'paid';
         if (in_array($transaction, ['deny', 'expire', 'cancel'])) return 'cancelled';
-        
+
         return 'pending';
     }
 }

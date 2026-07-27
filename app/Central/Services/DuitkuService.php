@@ -2,15 +2,14 @@
 
 namespace App\Central\Services;
 
-use App\Central\Models\Tenant;
-use App\Central\Models\TenantRegistration;
-use App\Central\Services\BillingService;
-use App\Central\Services\TenantRegistrationService;
-use App\Tenant\Models\Core\Order;
-use App\Tenant\Services\TenantWalletService;
 use App\Central\Data\DuitkuInvoiceResultData;
 use App\Central\Data\DuitkuPaymentMethodData;
 use App\Central\Data\DuitkuTransactionStatusData;
+use App\Central\Models\Tenant;
+use App\Central\Models\TenantRegistration;
+use App\Tenant\Events\KitchenUpdated;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Services\TenantWalletService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -33,18 +32,19 @@ use Throwable;
 class DuitkuService
 {
     private string $merchantKey;
+
     private string $merchantCode;
+
     private bool $sandbox;
 
     public function __construct(
         protected readonly TenantRegistrationService $tenantRegService,
-        protected readonly TenantWalletService       $walletService,
-        protected readonly BillingService            $billingService
-    )
-    {
+        protected readonly TenantWalletService $walletService,
+        protected readonly BillingService $billingService
+    ) {
         $this->merchantKey = config('duitku.merchant_key') ?? '';
         $this->merchantCode = config('duitku.merchant_code') ?? '';
-        $this->sandbox = (bool)config('duitku.sandbox', true);
+        $this->sandbox = (bool) config('duitku.sandbox', true);
 
         // TODO(security): Di production, pastikan key tidak kosong. Fail-close jika tidak ada.
         if (empty($this->merchantKey) || empty($this->merchantCode)) {
@@ -65,11 +65,10 @@ class DuitkuService
     /**
      * Buat invoice pembayaran ke Duitku.
      *
-     * @param Order $order Order yang sudah tersimpan (status: pending)
-     * @param array $customerDetail Data customer: firstName, lastName, email, phoneNumber
-     * @param string $paymentMethod Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
-     * @param string $tenantId ID tenant — digunakan untuk embed di merchantOrderId
-     * @return DuitkuInvoiceResultData
+     * @param  Order  $order  Order yang sudah tersimpan (status: pending)
+     * @param  array  $customerDetail  Data customer: firstName, lastName, email, phoneNumber
+     * @param  string  $paymentMethod  Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
+     * @param  string  $tenantId  ID tenant — digunakan untuk embed di merchantOrderId
      *
      * @throws RuntimeException|ConnectionException jika Duitku API error
      */
@@ -80,7 +79,7 @@ class DuitkuService
             throw new RuntimeException('Format tenantId tidak valid.');
         }
 
-        $expiryPeriod = (int)config('duitku.expiry_period', 60);
+        $expiryPeriod = (int) config('duitku.expiry_period', 60);
         $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');
 
         // Central URLs — TIDAK menggunakan route() tenant karena butuh URL statis
@@ -101,7 +100,6 @@ class DuitkuService
         $email = filter_var($customerDetail['email'] ?? '', FILTER_VALIDATE_EMAIL)
             ? $customerDetail['email']
             : 'noreply@pakaiapp.online';
-
 
         $address = [
             'firstName' => $firstName,
@@ -128,11 +126,11 @@ class DuitkuService
         // Mengirimkan detail per item dapat menyebabkan ketidakcocokan jumlah total (Error 409).
         $itemDetails = [[
             'name' => substr(strip_tags('Pembayaran ' . $order->invoice_code), 0, 255),
-            'price' => (int)$order->total_price,
+            'price' => (int) $order->total_price,
             'quantity' => 1,
         ]];
 
-        $paymentAmount = (int)$order->total_price;
+        $paymentAmount = (int) $order->total_price;
         $stringToSign = $this->merchantCode . $merchantOrderId . $paymentAmount;
         $signature = hash_hmac('sha256', $stringToSign, $this->merchantKey);
 
@@ -206,15 +204,15 @@ class DuitkuService
     /**
      * Buat invoice pembayaran ke Duitku untuk Registrasi Tenant.
      *
-     * @param TenantRegistration $registration Registration entry
-     * @param string $paymentMethod Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
+     * @param  TenantRegistration  $registration  Registration entry
+     * @param  string  $paymentMethod  Kode metode pembayaran Duitku (QRIS, BT, BV, dll)
      * @return array { payment_url, reference, va_number }
      *
      * @throws RuntimeException|ConnectionException jika Duitku API error
      */
     public function createRegistrationInvoice(TenantRegistration $registration, string $paymentMethod): DuitkuInvoiceResultData
     {
-        $expiryPeriod = (int)config('duitku.expiry_period', 60);
+        $expiryPeriod = (int) config('duitku.expiry_period', 60);
         $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');
 
         // Central URLs
@@ -250,11 +248,11 @@ class DuitkuService
 
         $itemDetails = [[
             'name' => 'Registrasi Pakaiapp Paket ' . ucfirst($registration->plan),
-            'price' => (int)$registration->amount,
+            'price' => (int) $registration->amount,
             'quantity' => 1,
         ]];
 
-        $paymentAmount = (int)$registration->amount;
+        $paymentAmount = (int) $registration->amount;
         $stringToSign = $this->merchantCode . $merchantOrderId . $paymentAmount;
         $signature = hash_hmac('sha256', $stringToSign, $this->merchantKey);
 
@@ -328,7 +326,8 @@ class DuitkuService
     /**
      * Cek status transaksi ke Duitku.
      *
-     * @param string $merchantOrderId Format: "{tenantId}~{invoiceCode}"
+     * @param  string  $merchantOrderId  Format: "{tenantId}~{invoiceCode}"
+     *
      * @throws RuntimeException|ConnectionException
      */
     public function checkTransactionStatus(string $merchantOrderId): DuitkuTransactionStatusData
@@ -377,6 +376,7 @@ class DuitkuService
      * Proses callback dari Duitku — validasi signature via HMAC-SHA256.
      *
      * @return array Data callback yang sudah divalidasi
+     *
      * @throws RuntimeException jika signature tidak valid
      */
     public function handleCallback(): array
@@ -409,7 +409,8 @@ class DuitkuService
     /**
      * Ambil daftar metode pembayaran yang tersedia dari Duitku.
      *
-     * @param int $amount Jumlah yang akan dibayar (dalam Rupiah)
+     * @param  int  $amount  Jumlah yang akan dibayar (dalam Rupiah)
+     *
      * @throws ConnectionException
      */
     /**
@@ -438,6 +439,7 @@ class DuitkuService
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
+
             return [];
         }
 
@@ -445,12 +447,13 @@ class DuitkuService
 
         if (empty($data) || !is_array($data) || ($data['responseCode'] ?? '') !== '00') {
             Log::error('[Duitku] getPaymentMethods error response', ['response' => $data]);
+
             return [];
         }
 
         $paymentMethods = [];
         $methodsArray = $data['paymentFee'] ?? [];
-        
+
         foreach ($methodsArray as $method) {
             $paymentMethods[] = new DuitkuPaymentMethodData(
                 paymentMethod: $method['paymentMethod'],
@@ -466,7 +469,7 @@ class DuitkuService
     /**
      * Parse merchantOrderId format "{tenantId}~{invoiceCode}" atau "{tenantId}__{invoiceCode}".
      *
-     * @return array{0: string|null, 1: string|null}  [tenantId, invoiceCode]
+     * @return array{0: string|null, 1: string|null} [tenantId, invoiceCode]
      */
     public function parseMerchantOrderId(string $merchantOrderId): array
     {
@@ -506,8 +509,6 @@ class DuitkuService
     }
 
     /**
-     * @param string $rawMerchantOrderId
-     * @return void
      * @throws Throwable
      */
     public function handleWebhook(string $rawMerchantOrderId): void
@@ -554,6 +555,7 @@ class DuitkuService
         $tenant = Tenant::find($tenantId);
         if (!$tenant) {
             Log::warning('[Duitku Central] Tenant tidak ditemukan', ['tenantId' => $tenantId]);
+
             return; // Controller will return 200 to prevent retry
         }
 
@@ -563,8 +565,6 @@ class DuitkuService
     }
 
     /**
-     * @param string $invoiceCode
-     * @return void
      * @throws Throwable
      */
     private function processOrderCallback(string $invoiceCode): void
@@ -573,6 +573,7 @@ class DuitkuService
             Log::warning('[Duitku Central] invoiceCode tidak valid di processCallback', [
                 'invoiceCode' => substr($invoiceCode, 0, 50),
             ]);
+
             return;
         }
 
@@ -584,6 +585,7 @@ class DuitkuService
 
             if (!$order) {
                 Log::warning('[Duitku Central] Order tidak ditemukan di tenant DB', ['invoiceCode' => $invoiceCode]);
+
                 return;
             }
 
@@ -592,11 +594,12 @@ class DuitkuService
                     'invoiceCode' => $invoiceCode,
                     'currentStatus' => $order->status,
                 ]);
+
                 return;
             }
 
             if ($resultCode === '00') {
-                $amountPaid = (int)($notif['amount'] ?? $order->total_price);
+                $amountPaid = (int) ($notif['amount'] ?? $order->total_price);
 
                 if ($amountPaid < $order->total_price) {
                     Log::warning('[Duitku Central] Fraud detected: Underpaid', [
@@ -604,13 +607,14 @@ class DuitkuService
                         'amountPaid' => $amountPaid,
                         'expected' => $order->total_price,
                     ]);
-                $order->update([
-                    'status' => 'cancelled',
-                    'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
-                ]);
-                $order->restoreStock();
-                event(new \App\Tenant\Events\KitchenUpdated());
-                return;
+                    $order->update([
+                        'status' => 'cancelled',
+                        'cancellation_note' => 'Pembayaran otomatis dibatalkan karena nominal kurang dari tagihan (Underpaid).',
+                    ]);
+                    $order->restoreStock();
+                    event(new KitchenUpdated);
+
+                    return;
                 }
 
                 $order->update([
@@ -623,7 +627,7 @@ class DuitkuService
                 $this->walletService->addBalance($amountPaid, $order, "Pendapatan Duitku masuk untuk pesanan $order->invoice_code");
                 $this->billingService->chargeTransactionFee($order);
 
-                event(new \App\Tenant\Events\KitchenUpdated());
+                event(new KitchenUpdated);
 
                 Log::info('[Duitku Central] Pembayaran berhasil, wallet dikreditkan', [
                     'invoiceCode' => $invoiceCode,
@@ -636,7 +640,7 @@ class DuitkuService
                     'cancellation_note' => 'Pembayaran Duitku gagal (resultCode: 01)',
                 ]);
                 $order->restoreStock();
-                event(new \App\Tenant\Events\KitchenUpdated());
+                event(new KitchenUpdated);
                 Log::info('[Duitku Central] Pembayaran gagal/dibatalkan, stok dikembalikan', ['invoiceCode' => $invoiceCode]);
             }
         });

@@ -1,10 +1,12 @@
 <?php
 
-use Livewire\Component;
 use App\Tenant\Services\OpenAiSupportService;
+use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public $messages = [];
+
     public $userInput = '';
 
     protected ?OpenAiSupportService $aiSupportService = null;

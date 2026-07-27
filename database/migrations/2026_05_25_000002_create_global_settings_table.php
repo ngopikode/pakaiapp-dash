@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -28,7 +28,7 @@ return new class extends Migration
                 'type' => 'integer',
                 'description' => 'Biaya per transaksi sukses',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'default_capping_limit',
@@ -36,7 +36,7 @@ return new class extends Migration
                 'type' => 'integer',
                 'description' => 'Batas maksimal tagihan bulanan (Gratis setelah limit tercapai)',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'default_fup_limit',
@@ -44,7 +44,7 @@ return new class extends Migration
                 'type' => 'integer',
                 'description' => 'Batas jumlah pesanan (FUP) sebelum dicharge kembali',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'default_void_penalty_fee',
@@ -52,7 +52,7 @@ return new class extends Migration
                 'type' => 'integer',
                 'description' => 'Denda biaya per void berlebih',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'default_void_allowance_percentage',
@@ -60,7 +60,7 @@ return new class extends Migration
                 'type' => 'float',
                 'description' => 'Persentase maksimal void bulanan dari total order (contoh: 0.05 = 5%)',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'default_min_free_voids',
@@ -68,7 +68,7 @@ return new class extends Migration
                 'type' => 'integer',
                 'description' => 'Batas jumlah aman void per bulan meskipun kurang dari persentase allowance',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'default_product_slots',
@@ -76,7 +76,7 @@ return new class extends Migration
                 'type' => 'integer',
                 'description' => 'Jumlah default slot produk (menu) untuk pengguna baru',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
         ]);
     }

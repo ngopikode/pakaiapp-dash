@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Central\Models\Article;
 use Illuminate\Database\Seeder;
 
 class ArticleSeeder extends Seeder
@@ -42,9 +42,9 @@ class ArticleSeeder extends Seeder
                 'published_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         ];
 
-        \App\Central\Models\Article::insert($articles);
+        Article::insert($articles);
     }
 }

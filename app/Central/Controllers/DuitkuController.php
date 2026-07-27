@@ -32,10 +32,8 @@ use Throwable;
 class DuitkuController extends Controller
 {
     use ApiResponserTrait;
-    
-    public function __construct(protected readonly DuitkuService $duitkuService)
-    {
-    }
+
+    public function __construct(protected readonly DuitkuService $duitkuService) {}
 
     /**
      * Handle callback (notifikasi server-to-server dari Duitku).
@@ -52,7 +50,7 @@ class DuitkuController extends Controller
 
         try {
             // Ambil merchantOrderId dari POST body
-            $rawMerchantOrderId = (string)$request->input('merchantOrderId', '');
+            $rawMerchantOrderId = (string) $request->input('merchantOrderId', '');
 
             $this->duitkuService->handleWebhook($rawMerchantOrderId);
 
@@ -183,10 +181,12 @@ class DuitkuController extends Controller
     public function getPaymentMethods(GetPaymentMethodsInputData $input): JsonResponse
     {
         try {
-            $methods = $this->duitkuService->getPaymentMethods((int)$input->amount);
+            $methods = $this->duitkuService->getPaymentMethods((int) $input->amount);
+
             return $this->successResponse(data: $methods);
         } catch (Throwable $e) {
             Log::error('[Duitku Central] getPaymentMethods error', ['error' => $e->getMessage()]);
+
             return $this->errorResponse(message: 'Gagal mengambil metode pembayaran.');
         }
     }

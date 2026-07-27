@@ -37,7 +37,6 @@ class CreateTenant extends Command
     }
 
     /**
-     * @return int
      * @throws Throwable
      */
     public function handle(): int
@@ -49,6 +48,7 @@ class CreateTenant extends Command
 
         if (!in_array($type, ['resto', 'retail'])) {
             $this->error("Invalid tenant type. Must be 'resto' or 'retail'.");
+
             return self::FAILURE;
         }
 
@@ -58,6 +58,7 @@ class CreateTenant extends Command
 
         if (Tenant::find($tenantId)) {
             $this->error("Tenant '$tenantId' already exists.");
+
             return self::FAILURE;
         }
 
@@ -86,7 +87,7 @@ class CreateTenant extends Command
 
         $tenant->domains()->create(['domain' => $domain]);
 
-        $this->info("Tenant created. Running core migrations...");
+        $this->info('Tenant created. Running core migrations...');
 
         // 1. Paksa pakai absolute path dan --realpath
         Artisan::call('tenants:migrate', [
@@ -96,7 +97,7 @@ class CreateTenant extends Command
         ]);
 
         // Cek outputnya kalau mau liat di log Laravel (storage/logs/laravel.log)
-        Log::info("Migrate Core Output: " . Artisan::output());
+        Log::info('Migrate Core Output: ' . Artisan::output());
 
         $this->info("Running $type specific migrations...");
 
@@ -107,7 +108,7 @@ class CreateTenant extends Command
             '--realpath' => true,
         ]);
 
-        Log::info("Migrate Type Output: " . Artisan::output());
+        Log::info('Migrate Type Output: ' . Artisan::output());
 
         // 3. Clear cache koneksi (TETAP WAJIB ADA)
         DB::purge('tenant');
@@ -135,14 +136,14 @@ class CreateTenant extends Command
                 $walletService->addBalance(
                     amount: $initialBalance,
                     reference: $wallet,
-                    description: "Saldo awal pendaftaran Paket " . ucfirst($plan)
+                    description: 'Saldo awal pendaftaran Paket ' . ucfirst($plan)
                 );
             } catch (Exception $e) {
-                Log::error("Failed to initialize wallet balance for tenant: " . $e->getMessage());
+                Log::error('Failed to initialize wallet balance for tenant: ' . $e->getMessage());
             }
         });
 
-        $this->info("Default StoreSetting initialized.");
+        $this->info('Default StoreSetting initialized.');
         $this->info("Tenant $name setup complete! Domain: $domain");
 
         return self::SUCCESS;

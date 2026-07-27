@@ -11,12 +11,11 @@ use Throwable;
 trait ApiResponserTrait
 {
     protected function successResponse(
-        mixed  $data = [],
+        mixed $data = [],
         string $message = 'Data fetched successfully',
-        int    $code = ResponseAlias::HTTP_OK,
-        array  $headers = []
-    ): JsonResponse
-    {
+        int $code = ResponseAlias::HTTP_OK,
+        array $headers = []
+    ): JsonResponse {
         // Auto-convert objects (e.g. Spatie Data) to array to prevent "Cannot use object as array" error
         if (is_object($data) && method_exists($data, 'toArray')) $data = $data->toArray();
 
@@ -34,26 +33,24 @@ trait ApiResponserTrait
     }
 
     protected function failResponse(
-        mixed   $errors = [],
-        int     $code = ResponseAlias::HTTP_UNPROCESSABLE_ENTITY,
+        mixed $errors = [],
+        int $code = ResponseAlias::HTTP_UNPROCESSABLE_ENTITY,
         ?string $message = null
-    ): JsonResponse
-    {
+    ): JsonResponse {
         return response()->json([
             'success' => false,
             'status' => 'error',
             'message' => $message ?? 'Unprocessable Entity',
-            'errors' => $errors
+            'errors' => $errors,
         ], $code);
     }
 
     protected function errorResponse(
-        mixed   $errors = [],
-        string  $message = "Internal Server Error",
-        int     $code = ResponseAlias::HTTP_INTERNAL_SERVER_ERROR,
-        Request $request = null
-    ): JsonResponse
-    {
+        mixed $errors = [],
+        string $message = 'Internal Server Error',
+        int $code = ResponseAlias::HTTP_INTERNAL_SERVER_ERROR,
+        ?Request $request = null
+    ): JsonResponse {
         $logContext = [
             'code' => $code,
         ];

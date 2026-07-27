@@ -70,15 +70,15 @@ return [
     |
     */
     'active_methods' => [
-        'NQ'    => 'QRIS Nobu',
-        'SP'    => 'QRIS ShopeePay',
-        'BT'    => 'Permata VA',
-        'I1'    => 'BNI VA',
-        'BR'    => 'BRI VA',
-        'BC'    => 'BCA VA',
-        'BV'    => 'BSI VA',
-        'DA'    => 'DANA',
-        'OV'    => 'OVO',
+        'NQ' => 'QRIS Nobu',
+        'SP' => 'QRIS ShopeePay',
+        'BT' => 'Permata VA',
+        'I1' => 'BNI VA',
+        'BR' => 'BRI VA',
+        'BC' => 'BCA VA',
+        'BV' => 'BSI VA',
+        'DA' => 'DANA',
+        'OV' => 'OVO',
     ],
 
     // Whitelist IP server Duitku callback (opsional, nonaktif secara default)

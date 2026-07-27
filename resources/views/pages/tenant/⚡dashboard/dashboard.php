@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\TenantWalletService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Lazy;
@@ -16,11 +19,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 new #[Title('Dashboard Overview')]
 #[Lazy]
-class extends Component {
+class extends Component
+{
     public int $lastCheckedOrderId = 0;
+
     public string $dateFilter = 'today';
+
     public string $customStartDate = '';
+
     public string $customEndDate = '';
+
     public bool $kitchenActive = true;
 
     protected ?TenantWalletService $walletService = null;
@@ -36,7 +44,7 @@ class extends Component {
     public function mount(): void
     {
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
-        $this->kitchenActive = (bool)(StoreSetting::first()?->is_kitchen_active ?? true);
+        $this->kitchenActive = (bool) (StoreSetting::first()?->is_kitchen_active ?? true);
     }
 
     public function setDateFilter($filter)
@@ -48,14 +56,16 @@ class extends Component {
     {
         if (!$this->customStartDate || !$this->customEndDate) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Tanggal mulai dan tanggal akhir wajib diisi.']);
+
             return;
         }
 
-        $startDate = \Carbon\Carbon::parse($this->customStartDate);
-        $endDate = \Carbon\Carbon::parse($this->customEndDate);
+        $startDate = Carbon::parse($this->customStartDate);
+        $endDate = Carbon::parse($this->customEndDate);
 
         if ($startDate->gt($endDate)) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir.']);
+
             return;
         }
 
@@ -131,6 +141,7 @@ class extends Component {
         $store = StoreSetting::first();
         if (!$store) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Toko belum di-setup!']);
+
             return null;
         }
 
@@ -139,7 +150,7 @@ class extends Component {
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $filename = "Laporan_Penjualan_" . Str::slug($store->name) . "_" . date('Y_m') . ".csv";
+        $filename = 'Laporan_Penjualan_' . Str::slug($store->name) . '_' . date('Y_m') . '.csv';
 
         $csvData = "Tanggal,No. Invoice,Nama Pelanggan,Tipe Pesanan,Total Belanja (Rp)\n";
         foreach ($orders as $order) {
@@ -187,8 +198,8 @@ class extends Component {
             } elseif ($this->dateFilter === '30days') {
                 $startDate = today()->subDays(29)->startOfDay();
             } elseif ($this->dateFilter === 'custom' && $this->customStartDate && $this->customEndDate) {
-                $startDate = \Carbon\Carbon::parse($this->customStartDate)->startOfDay();
-                $endDate = \Carbon\Carbon::parse($this->customEndDate)->endOfDay();
+                $startDate = Carbon::parse($this->customStartDate)->startOfDay();
+                $endDate = Carbon::parse($this->customEndDate)->endOfDay();
             } elseif ($this->dateFilter === 'custom') {
                 $this->dateFilter = 'today';
             }
@@ -261,17 +272,18 @@ class extends Component {
                         ->select(DB::raw('HOUR(created_at) as hour_string'), DB::raw('SUM(total_price) as total_revenue'))
                         ->groupBy('hour_string')
                         ->pluck('total_revenue', 'hour_string');
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
 
                 $chartData = collect(range(0, 23))->map(function ($hour) use ($hourlyRevenues) {
                     return [
                         'date' => sprintf('%02d:00', $hour),
-                        'revenue' => $hourlyRevenues->get($hour, 0)
+                        'revenue' => $hourlyRevenues->get($hour, 0),
                     ];
                 });
             } else {
                 $diffInDays = $startDate->diffInDays($endDate);
-                
+
                 if ($diffInDays <= 31) {
                     $pointsCount = $diffInDays;
                     $chartStartDate = $startDate->copy()->startOfDay();
@@ -284,14 +296,15 @@ class extends Component {
 
                     $chartData = collect(range(0, $pointsCount))->map(function ($dayOffset) use ($dailyRevenues, $chartStartDate) {
                         $date = $chartStartDate->copy()->addDays($dayOffset);
+
                         return [
                             'date' => $date->translatedFormat('d M'),
-                            'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0)
+                            'revenue' => $dailyRevenues->get($date->format('Y-m-d'), 0),
                         ];
                     });
                 } else {
                     $chartStartDate = $startDate->copy()->startOfDay();
-                    
+
                     $monthlyRevenues = Order::whereBetween('created_at', [$chartStartDate, $endDate])
                         ->whereIn('status', ['paid', 'completed'])
                         ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month_string'), DB::raw('SUM(total_price) as total_revenue'))
@@ -303,9 +316,10 @@ class extends Component {
 
                     $chartData = collect(range(0, $diffInMonths))->map(function ($monthOffset) use ($monthlyRevenues, $chartStartMonth) {
                         $date = $chartStartMonth->copy()->addMonthsNoOverflow($monthOffset);
+
                         return [
                             'date' => $date->translatedFormat('M Y'),
-                            'revenue' => $monthlyRevenues->get($date->format('Y-m'), 0)
+                            'revenue' => $monthlyRevenues->get($date->format('Y-m'), 0),
                         ];
                     });
                 }
@@ -328,7 +342,7 @@ class extends Component {
                 $cacheKeySuffix = $this->dateFilter . '_' . $startDate->format('Ymd') . '_' . $endDate->format('Ymd');
                 $cacheTtl = 60; // 60 seconds (1 minute)
 
-                $topProducts = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_top_products_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                $topProducts = collect(Cache::remember("dashboard_top_products_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('order_items')
                         ->join('orders', 'order_items.order_id', '=', 'orders.id')
                         ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
@@ -338,34 +352,34 @@ class extends Component {
                         ->orderByDesc('total_sold')
                         ->limit(5)
                         ->get()
-                        ->map(fn($item) => (array)$item)
+                        ->map(fn ($item) => (array) $item)
                         ->toArray();
-                }))->map(fn($item) => (object)$item);
+                }))->map(fn ($item) => (object) $item);
 
-                $paymentMethods = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_payment_methods_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                $paymentMethods = collect(Cache::remember("dashboard_payment_methods_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('orders')
                         ->select('payment_method', DB::raw('COUNT(id) as total'), DB::raw('SUM(total_price) as total_amount'))
                         ->whereBetween('created_at', [$startDate, $endDate])
                         ->whereIn('status', ['paid', 'completed'])
                         ->groupBy('payment_method')
                         ->get()
-                        ->map(fn($item) => (array)$item)
+                        ->map(fn ($item) => (array) $item)
                         ->toArray();
-                }))->map(fn($item) => (object)$item);
+                }))->map(fn ($item) => (object) $item);
 
-                $orderTypes = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_order_types_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                $orderTypes = collect(Cache::remember("dashboard_order_types_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('orders')
                         ->select('order_type', DB::raw('COUNT(id) as total'))
                         ->whereBetween('created_at', [$startDate, $endDate])
                         ->whereIn('status', ['paid', 'completed'])
                         ->groupBy('order_type')
                         ->get()
-                        ->map(fn($item) => (array)$item)
+                        ->map(fn ($item) => (array) $item)
                         ->toArray();
-                }))->map(fn($item) => (object)$item);
+                }))->map(fn ($item) => (object) $item);
 
                 // Peak Hours F&B
-                $peakSalesTimes = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_peak_hours_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                $peakSalesTimes = collect(Cache::remember("dashboard_peak_hours_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('orders')
                         ->whereBetween('created_at', [$startDate, $endDate])
                         ->whereIn('status', ['paid', 'completed'])
@@ -376,13 +390,14 @@ class extends Component {
                         ->get()
                         ->map(function ($item) {
                             $item->time_range = sprintf('%02d:00 - %02d:00', $item->hour, $item->hour + 1);
-                            return (array)$item;
+
+                            return (array) $item;
                         })
                         ->toArray();
-                }))->map(fn($item) => (object)$item);
+                }))->map(fn ($item) => (object) $item);
 
                 // Slow Moving Products (kurang laku)
-                $slowMovingProducts = collect(\Illuminate\Support\Facades\Cache::remember("dashboard_slow_moving_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
+                $slowMovingProducts = collect(Cache::remember("dashboard_slow_moving_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('order_items')
                         ->join('orders', 'orders.id', '=', 'order_items.order_id')
                         ->whereBetween('orders.created_at', [$startDate, $endDate])
@@ -393,25 +408,26 @@ class extends Component {
                         ->orderBy('total_sold')
                         ->limit(3)
                         ->get()
-                        ->map(fn($item) => (array)$item)
+                        ->map(fn ($item) => (array) $item)
                         ->toArray();
-                }))->map(fn($item) => (object)$item);
+                }))->map(fn ($item) => (object) $item);
             } catch (\Exception $e) {
                 // Ignore jika ada fungsi SQL yang tidak di-support driver database tertentu
             }
 
             try {
                 // Out of stock calculation via ProductVariant
-                $outOfStockVariants = \App\Tenant\Models\Core\ProductVariant::with('product')
+                $outOfStockVariants = ProductVariant::with('product')
                     ->where('stock', '<=', 0)
-                    ->whereHas('product', fn($q) => $q->where('is_active', true))
+                    ->whereHas('product', fn ($q) => $q->where('is_active', true))
                     ->get();
-                    
+
                 $outOfStockCount = $outOfStockVariants->count();
                 if ($outOfStockCount > 0) {
                     $outOfStockFirst = $outOfStockVariants->first()->product->name ?? $outOfStockVariants->first()->name;
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
 
             $newOrderCount = Order::where('id', '>', $this->lastCheckedOrderId)->count();
         }

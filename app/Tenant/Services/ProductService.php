@@ -48,7 +48,6 @@ class ProductService
                         ['id' => $variantData['id'] ?? null],
                         [
                             'name' => $variantData['name'],
-                            'sku' => $variantData['sku'] ?? null,
                             'cost' => $variantData['cost'] ?: 0,
                             'price' => $variantData['price'] ?: 0,
                             'stock' => $variantData['stock'] ?: 0,
@@ -63,7 +62,6 @@ class ProductService
             $defaultVariant = $product->variants()->updateOrCreate(
                 ['name' => 'Default'],
                 [
-                    'sku' => $data->baseSku ?: null,
                     'cost' => $data->baseCost ?: 0,
                     'price' => $data->basePrice ?: 0,
                     'stock' => $data->baseStock ?: 0,
@@ -79,8 +77,6 @@ class ProductService
 
     private function syncVariantRecipes($variant, array $recipes): void
     {
-        if (tenant('store_type') !== 'resto') return;
-
         $recipeIdsToKeep = [];
         foreach ($recipes as $recipeData) {
             if (!empty($recipeData['raw_material_id'])) {
@@ -99,8 +95,6 @@ class ProductService
 
     private function syncExtras(Product $product, ProductFormData $data): void
     {
-        if (tenant('store_type') !== 'resto') return;
-
         $extraIdsToKeep = [];
         foreach ($data->extras as $extraData) {
             if (!empty($extraData['name'])) {

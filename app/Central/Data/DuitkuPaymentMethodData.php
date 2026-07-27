@@ -11,6 +11,5 @@ class DuitkuPaymentMethodData extends Data
         public string $paymentName,
         public string $paymentImage,
         public int $totalFee,
-    ) {
-    }
+    ) {}
 }

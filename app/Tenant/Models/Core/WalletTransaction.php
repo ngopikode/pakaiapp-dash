@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 ])]
 class WalletTransaction extends Model
 {
-
     protected function casts(): array
     {
         return [

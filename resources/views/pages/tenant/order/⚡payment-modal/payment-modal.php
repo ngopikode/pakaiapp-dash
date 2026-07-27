@@ -1,22 +1,28 @@
 <?php
 
-use App\Tenant\Models\Core\Order;
-use App\Tenant\Services\TenantWalletService;
 use App\Central\Services\DuitkuService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\TenantUser;
+use App\Tenant\Services\TenantWalletService;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component {
-
+new class extends Component
+{
     public $paymentOrderId = null;
+
     public $paymentMethod = 'cash';
+
     public $paymentAmount = 0;
+
     public $paymentTotal = 0;
 
     // Duitku Payment Gateway fields
     public $duitkuMethod = null;
+
     public $duitkuCustomerEmail = '';
+
     public $duitkuPaymentMethods = [];
 
     // Tarif potong kredit per transaksi
@@ -36,7 +42,7 @@ new class extends Component {
             $this->duitkuMethod = null;
             $this->duitkuCustomerEmail = '';
             $this->duitkuPaymentMethods = [];
-            
+
             $this->fetchDuitkuMethods();
             $this->dispatch('show-payment-modal');
         }
@@ -46,18 +52,19 @@ new class extends Component {
     {
         if (!config('duitku.enabled')) {
             $this->duitkuPaymentMethods = [];
+
             return;
         }
 
         try {
-            $duitkuService = new DuitkuService();
+            $duitkuService = new DuitkuService;
             $methods = $duitkuService->getPaymentMethods((int) $this->paymentTotal);
             $this->duitkuPaymentMethods = $methods;
             if (!empty($methods)) {
-                $hasQris = collect($methods)->first(fn($m) => in_array($m['paymentMethod'], ['NQ', 'SP', 'QRIS', 'QRISC']));
+                $hasQris = collect($methods)->first(fn ($m) => in_array($m['paymentMethod'], ['NQ', 'SP', 'QRIS', 'QRISC']));
                 $this->duitkuMethod = $hasQris ? $hasQris['paymentMethod'] : $methods[0]['paymentMethod'];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->duitkuPaymentMethods = [];
         }
     }
@@ -68,6 +75,7 @@ new class extends Component {
         if ($this->paymentMethod === 'duitku') {
             if (!config('duitku.enabled')) {
                 $this->dispatch('notify', message: 'Pembayaran digital Duitku sedang tidak aktif.', type: 'error');
+
                 return;
             }
 
@@ -76,14 +84,14 @@ new class extends Component {
                     $order = Order::with('items')->lockForUpdate()->find($this->paymentOrderId);
 
                     if (!$order || $order->status !== 'pending') {
-                        throw new \Exception('Pesanan tidak ditemukan atau sudah dibayar.');
+                        throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                     }
 
                     // Email opsional di kasir — fallback ke email manager jika tidak diisi
                     $resolvedEmail = trim($this->duitkuCustomerEmail ?? '');
                     if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-                        $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
-                            ?? \App\Tenant\Models\Core\TenantUser::first();
+                        $manager = TenantUser::where('role', 'manager')->first()
+                            ?? TenantUser::first();
                         $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
                     }
 
@@ -97,7 +105,7 @@ new class extends Component {
                         'postalCode' => '00000',
                     ];
 
-                    $duitkuService = new DuitkuService();
+                    $duitkuService = new DuitkuService;
                     $tenantId = tenant()->getTenantKey();
 
                     $duitkuResult = $duitkuService->createInvoice(
@@ -122,9 +130,10 @@ new class extends Component {
                 $this->dispatch('open-duitku-link', url: $paymentUrl);
                 $this->dispatch('notify', message: 'Link pembayaran Duitku berhasil digenerate!', type: 'success');
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->dispatch('notify', message: $e->getMessage(), type: 'error');
             }
+
             return;
         }
 
@@ -134,10 +143,10 @@ new class extends Component {
                 $order = Order::lockForUpdate()->find($this->paymentOrderId);
 
                 if (!$order || $order->status !== 'pending') {
-                    throw new \Exception('Pesanan tidak valid atau sudah dibayar sebelumnya.');
+                    throw new Exception('Pesanan tidak valid atau sudah dibayar sebelumnya.');
                 }
 
-                $change = max(0, (float)$this->paymentAmount - $order->total_price);
+                $change = max(0, (float) $this->paymentAmount - $order->total_price);
 
                 $status = 'paid';
                 if (in_array($order->kitchen_status, ['ready', 'completed'])) {
@@ -150,7 +159,7 @@ new class extends Component {
                     'status' => $status,
                     'payment_method' => $this->paymentMethod,
                     'amount_paid' => $this->paymentAmount,
-                    'change_amount' => $change
+                    'change_amount' => $change,
                 ]);
 
                 // --- POTONG SALDO WALLET ---
@@ -165,7 +174,7 @@ new class extends Component {
             $this->dispatch('order-updated');
             $this->dispatch('notify', message: 'Pembayaran berhasil dikonfirmasi!', type: 'success');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->dispatch('notify', message: $e->getMessage(), type: 'error');
         }
     }

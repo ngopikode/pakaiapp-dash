@@ -44,7 +44,7 @@ class ProductQuotaService
     public function decrementUsedSlots(): void
     {
         Quota::where('type', 'PRODUCT_SLOT')
-             ->where('used_slots', '>', 0)
-             ->decrement('used_slots');
+            ->where('used_slots', '>', 0)
+            ->decrement('used_slots');
     }
 }

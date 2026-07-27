@@ -17,9 +17,6 @@ class OpenAiSupportService
     }
 
     /**
-     * @param array $history
-     * @param string $userMessage
-     * @return string
      * @throws ConnectionException
      */
     public function generateResponse(array $history, string $userMessage): string
@@ -51,7 +48,7 @@ ATURAN KETAT & PERSONA (WAJIB DIIKUTI):
 7. Jika mereka mengalami masalah teknis atau butuh bantuan manusia, berikan nomor dukungan WhatsApp dalam bentuk tombol HTML ini secara persis: <a href='https://wa.me/6285172441544' target='_blank' class='inline-flex items-center gap-2 px-4 py-2 mt-2 rounded-full font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-colors'><i class='ph-fill ph-whatsapp-logo text-lg'></i> Hubungi CS WhatsApp</a>";
 
         $messages = [
-            ['role' => 'system', 'content' => $systemPrompt]
+            ['role' => 'system', 'content' => $systemPrompt],
         ];
 
         // Add history

@@ -43,8 +43,6 @@ class KitchenUpdated implements ShouldBroadcastNow
 
     /**
      * Determine if this event should broadcast.
-     *
-     * @return bool
      */
     public function broadcastWhen(): bool
     {

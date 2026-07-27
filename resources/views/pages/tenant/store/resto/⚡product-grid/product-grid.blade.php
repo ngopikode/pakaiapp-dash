@@ -93,7 +93,7 @@
             :class="viewMode === 'grid' ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'"
         >
             @island(name: 'products', always: true)
-                @forelse($this->products as $index => $item)
+            @forelse($this->products as $index => $item)
                 @php $delay = $index < 20 ? $index * 50 : 0; @endphp
 
                 <div
@@ -119,7 +119,7 @@
 
                     {{-- OVERLAY LINK TRANSPARAN UNTUK DETAIL (z-10) --}}
                     @if($item['is_active'])
-                        <a href="{{ route('product.show', new \App\Tenant\Models\Core\Product($item)) }}"
+                        <a href="{{ route('menu.show', new \App\Tenant\Models\Core\Product($item)) }}"
                            wire:navigate.hover
                            class="absolute inset-0 z-10"></a>
                     @endif
@@ -170,7 +170,7 @@
                                 </svg>
                             </button>
                             <button
-                                @click="window.open('{{ route('product.story', new \App\Tenant\Models\Core\Product($item)) }}', '_blank')"
+                                @click="window.open('{{ route('menu.story', new \App\Tenant\Models\Core\Product($item)) }}', '_blank')"
                                 class="bg-[var(--surface)]/80 backdrop-blur-md p-1.5 rounded-full shadow-sm hover:bg-[#25D366] hover:text-[var(--background)] hover:shadow-md transition-all duration-300 hover:scale-110 active:scale-90 group/story"
                                 aria-label="Share ke Status WA">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -367,7 +367,6 @@
             </button>
         </div>
     </template>
-
 
 
 </div>

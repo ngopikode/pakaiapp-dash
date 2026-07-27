@@ -12,6 +12,7 @@ use Illuminate\Http\Client\ConnectionException;
 class PaymentGatewayService
 {
     protected ?DuitkuService $duitkuService = null;
+
     protected ?MidtransService $midtransService = null;
 
     protected function duitkuService(): DuitkuService
@@ -40,12 +41,11 @@ class PaymentGatewayService
         }
 
         $manager = TenantUser::select('email')->where('role', 'manager')->first() ?? TenantUser::select('email')->first();
+
         return $manager?->email ?? 'noreply@pakaiapp.online';
     }
 
     /**
-     * @param Order|null $order
-     * @return void
      * @throws Exception
      */
     private function guardPayable(?Order $order): void
@@ -57,9 +57,6 @@ class PaymentGatewayService
     }
 
     /**
-     * @param int $orderId
-     * @param string|null $customerEmail
-     * @return array
      * @throws Exception
      */
     private function getValidatedOrderAndCustomer(int $orderId, ?string $customerEmail): array
@@ -81,10 +78,6 @@ class PaymentGatewayService
     }
 
     /**
-     * @param int $orderId
-     * @param string $paymentMethod
-     * @param string|null $customerEmail
-     * @return array
      * @throws ConnectionException
      * @throws Exception
      */
@@ -108,9 +101,6 @@ class PaymentGatewayService
     }
 
     /**
-     * @param int $orderId
-     * @param string|null $customerEmail
-     * @return array
      * @throws Exception
      */
     public function generateMidtrans(int $orderId, ?string $customerEmail): array

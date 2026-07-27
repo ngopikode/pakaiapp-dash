@@ -11,10 +11,7 @@ use Throwable;
 
 class MidtransController extends Controller
 {
-
-    public function __construct(protected readonly MidtransService $midtransService)
-    {
-    }
+    public function __construct(protected readonly MidtransService $midtransService) {}
 
     /**
      * Handle notification/webhook dari Midtrans.
@@ -30,7 +27,7 @@ class MidtransController extends Controller
             return response()->json(['message' => 'OK']);
         } catch (Throwable $e) {
             Log::error('[Midtrans] Notification processing error', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             $status = $e->getCode() ?: 500;

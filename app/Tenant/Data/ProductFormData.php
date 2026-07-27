@@ -20,7 +20,6 @@ class ProductFormData extends Data
         public float $basePrice,
         public int $baseStock,
         public int $baseMinStock,
-        public string $baseSku,
         public array $variants,
         public array $extras,
         public array $baseRecipes,

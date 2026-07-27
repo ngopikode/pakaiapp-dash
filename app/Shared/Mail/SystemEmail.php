@@ -3,17 +3,20 @@
 namespace App\Shared\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SystemEmail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $title;
+
     public $messageContent;
+
     public $callToActionText;
+
     public $callToActionUrl;
 
     /**
@@ -37,6 +40,6 @@ class SystemEmail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject($this->title)
-                    ->view('emails.system');
+            ->view('emails.system');
     }
 }

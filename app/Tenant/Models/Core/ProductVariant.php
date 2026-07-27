@@ -2,12 +2,14 @@
 
 namespace App\Tenant\Models\Core;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Shared\Traits\ClearsAiMenuCache;
 use App\Tenant\Models\Ai\AiPricingRule;
 use App\Tenant\Models\Resto\VariantRecipe;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable([
     'id',
@@ -25,7 +27,7 @@ use App\Tenant\Models\Resto\VariantRecipe;
 ])]
 class ProductVariant extends Model
 {
-    use \App\Shared\Traits\ClearsAiMenuCache;
+    use ClearsAiMenuCache;
 
     public function product(): BelongsTo
     {
@@ -44,7 +46,7 @@ class ProductVariant extends Model
         return $this->hasMany(VariantRecipe::class, 'variant_id');
     }
 
-    public function aiPricingRules(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function aiPricingRules(): BelongsToMany
     {
         return $this->belongsToMany(AiPricingRule::class, 'ai_rule_variants')
             ->withPivot('id', 'discount_value');

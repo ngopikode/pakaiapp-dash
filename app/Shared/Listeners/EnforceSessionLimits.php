@@ -2,9 +2,9 @@
 
 namespace App\Shared\Listeners;
 
+use App\Central\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\DB;
-use App\Central\Models\User;
 
 class EnforceSessionLimits
 {

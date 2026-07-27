@@ -2,6 +2,7 @@
 
 namespace App\Tenant\Models\Resto;
 
+use App\Shared\Traits\ClearsAiMenuCache;
 use App\Tenant\Models\Core\Product;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class ProductExtra extends Model
 {
-    use \App\Shared\Traits\ClearsAiMenuCache;
+    use ClearsAiMenuCache;
 
     protected function casts(): array
     {

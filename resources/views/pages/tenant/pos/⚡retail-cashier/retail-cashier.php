@@ -1,19 +1,21 @@
 <?php
 
-use App\Tenant\Models\Core\Order;
-use App\Tenant\Models\Core\OrderItem;
-use App\Tenant\Models\Core\ProductVariant;
-use App\Tenant\Models\Core\StoreSetting;
-use App\Tenant\Services\TenantWalletService;
 use App\Central\Services\BillingService;
 use App\Central\Services\DuitkuService;
+use App\Central\Services\MidtransService;
+use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\ProductVariant;
+use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Models\Core\TenantUser;
+use App\Tenant\Services\OrderService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
-new class extends Component {
-
+new class extends Component
+{
     public string $activeTab = 'cashier';
 
     public function changeTab($tab): void
@@ -49,21 +51,21 @@ new class extends Component {
 
                 // Gunakan OrderService untuk logika tersentralisasi
                 $orderData = [
-                    'invoice_code' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                    'invoice_code' => 'INV-' . strtoupper(Str::random(6)),
                     'customer_name' => $customerName ?: 'Pelanggan Umum',
                     'customer_phone' => $customerPhone ?: null,
                     'order_type' => 'retail',
                     'payment_method' => $paymentMethod,
-                    'global_discount' => (float)$globalDiscount,
+                    'global_discount' => (float) $globalDiscount,
                     'status' => 'completed',
-                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    'user_id' => Auth::id(),
                 ];
 
-                $orderService = app(\App\Tenant\Services\OrderService::class);
+                $orderService = app(OrderService::class);
                 $order = $orderService->processOrder($orderData, $cart);
 
                 $totalPrice = $order->total_price;
-                $paid = (float)$amountPaid ?: $totalPrice;
+                $paid = (float) $amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
 
                 $order->update([
@@ -96,7 +98,7 @@ new class extends Component {
             // Tangkap semua error: Stok Kurang, Saldo Dompet Habis, dll.
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
@@ -110,26 +112,26 @@ new class extends Component {
                 'id' => $p->id,
                 'name' => $p->name,
                 'category_id' => $p->category_id,
-                'has_variants' => (bool)$p->has_variants,
-                'price' => (float)$p->variants->min('price'),
-                'stock' => (int)$p->variants->sum('stock'),
-                'variants' => $p->variants->map(fn($v) => [
+                'has_variants' => (bool) $p->has_variants,
+                'price' => (float) $p->variants->min('price'),
+                'stock' => (int) $p->variants->sum('stock'),
+                'variants' => $p->variants->map(fn ($v) => [
                     'id' => $v->id,
                     'name' => $v->name,
-                    'price' => (float)$v->price,
-                    'active_discount_price' => $v->active_discount_price ? (float)$v->active_discount_price : null,
+                    'price' => (float) $v->price,
+                    'active_discount_price' => $v->active_discount_price ? (float) $v->active_discount_price : null,
                     'active_discount_name' => $v->active_discount_name,
-                    'stock' => (int)$v->stock,
+                    'stock' => (int) $v->stock,
                 ])->toArray(),
             ];
 
             $formattedVariant = [
                 'id' => $variant->id,
                 'name' => $variant->name,
-                'price' => (float)$variant->price,
-                'active_discount_price' => $variant->active_discount_price ? (float)$variant->active_discount_price : null,
+                'price' => (float) $variant->price,
+                'active_discount_price' => $variant->active_discount_price ? (float) $variant->active_discount_price : null,
                 'active_discount_name' => $variant->active_discount_name,
-                'stock' => (int)$variant->stock,
+                'stock' => (int) $variant->stock,
             ];
 
             $this->dispatch('barcode-scanned', product: $formattedProduct, variant: $formattedVariant);
@@ -148,9 +150,9 @@ new class extends Component {
                     throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                 }
 
-                $discountAmount = (float)$discount;
-                $totalPrice = max(0, (isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal) - $discountAmount);
-                $paid = (float)$amountPaid ?: $totalPrice;
+                $discountAmount = (float) $discount;
+                $totalPrice = max(0, (isset($order->total_price) ? (float) $order->total_price : (float) $order->subtotal) - $discountAmount);
+                $paid = (float) $amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
 
                 $order->update([
@@ -190,8 +192,8 @@ new class extends Component {
         // Email opsional di kasir — fallback ke email manager jika tidak diisi
         $resolvedEmail = trim($customerEmail ?? '');
         if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-            $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
-                ?? \App\Tenant\Models\Core\TenantUser::first();
+            $manager = TenantUser::where('role', 'manager')->first()
+                ?? TenantUser::first();
             $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
         }
 
@@ -213,7 +215,7 @@ new class extends Component {
                     'postalCode' => '00000',
                 ];
 
-                $duitkuService = new DuitkuService();
+                $duitkuService = new DuitkuService;
                 $tenantId = tenant()->getTenantKey();
 
                 $duitkuResult = $duitkuService->createInvoice(
@@ -251,8 +253,8 @@ new class extends Component {
 
         $resolvedEmail = trim($customerEmail ?? '');
         if (empty($resolvedEmail) || !filter_var($resolvedEmail, FILTER_VALIDATE_EMAIL)) {
-            $manager = \App\Tenant\Models\Core\TenantUser::where('role', 'manager')->first()
-                ?? \App\Tenant\Models\Core\TenantUser::first();
+            $manager = TenantUser::where('role', 'manager')->first()
+                ?? TenantUser::first();
             $resolvedEmail = $manager?->email ?? 'noreply@pakaiapp.online';
         }
 
@@ -274,7 +276,7 @@ new class extends Component {
                     'postalCode' => '00000',
                 ];
 
-                $midtransService = new \App\Central\Services\MidtransService();
+                $midtransService = new MidtransService;
                 $tenantId = tenant()->getTenantKey();
 
                 $snapToken = $midtransService->createSnapToken(
@@ -314,13 +316,15 @@ new class extends Component {
         if ($order->status === 'cancelled') {
             $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
             $this->js("window.showIslandToast('Pesanan sudah dibatalkan sebelumnya.', 'danger');");
+
             return;
         }
 
         if ($order->status !== 'pending') {
-            if ($order->is_printed || \Carbon\Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
+            if ($order->is_printed || Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()) {
                 $this->js("window.dispatchEvent(new CustomEvent('close-cancel-modal'));");
                 $this->js("window.showIslandToast('Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.', 'danger');");
+
                 return;
             }
         }
@@ -348,7 +352,6 @@ new class extends Component {
     {
         Order::where('invoice_code', $invoiceCode)->update(['customer_phone' => $phone]);
     }
-
 
     public function with(): array
     {

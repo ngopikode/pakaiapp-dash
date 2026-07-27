@@ -239,6 +239,27 @@ Aturan ini berlaku untuk semua kode PHP di project ini.
 
 ---
 
+## 9. Array Validation Syntax
+
+Selalu gunakan array syntax `['required', 'string']` untuk validasi Laravel, bukan pipe syntax string `'required|string'`.
+
+```php
+// ❌ SALAH — pakai pipe (|) string
+$request->validate([
+    'name' => 'required|string|max:255',
+    'email' => 'required|email|unique:users',
+]);
+
+// ✅ BENAR — pakai array
+$request->validate([
+    'name' => ['required', 'string', 'max:255'],
+    'email' => ['required', 'email', 'unique:users'],
+]);
+```
+Ini mempermudah penambahan rule object custom (seperti `['required', new CustomRule()]`) ke depannya dan menghindari kesalahan parsing saat rule berisi regex yang menggunakan karakter `|`.
+
+---
+
 ## Referensi
 
 - [ADR Service Pattern](../../decisions/001-service-dto-pattern.md) — Detail DTO & service standard

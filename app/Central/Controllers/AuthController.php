@@ -42,6 +42,7 @@ class AuthController extends Controller
     public function registerStatus(string $invoiceCode): View
     {
         $registration = TenantRegistration::where('invoice_code', $invoiceCode)->firstOrFail();
+
         return view('pages.auth.register-status', compact('registration'));
     }
 
@@ -49,6 +50,7 @@ class AuthController extends Controller
     {
         try {
             $data = $this->tenantRegistrationService()->getRegisterStatus($invoiceCode);
+
             return $this->successResponse(data: $data);
         } catch (DomainException $e) {
             return $this->failResponse(code: $e->getCode() ?: ResponseAlias::HTTP_NOT_FOUND, message: $e->getMessage());
@@ -59,6 +61,7 @@ class AuthController extends Controller
     {
         try {
             $data = $this->tenantRegistrationService()->processCentralLogin(trim($input->login_input));
+
             return $this->successResponse(data: $data);
         } catch (DomainException $e) {
             return $this->failResponse(code: $e->getCode() ?: ResponseAlias::HTTP_BAD_REQUEST, message: $e->getMessage());
@@ -69,11 +72,13 @@ class AuthController extends Controller
     {
         try {
             $this->tenantRegistrationService()->requestOtp($input->email);
+
             return $this->successResponse(message: 'OTP berhasil dikirim ke email Anda.');
         } catch (DomainException $e) {
             return $this->failResponse(code: $e->getCode() ?: ResponseAlias::HTTP_BAD_REQUEST, message: $e->getMessage());
         } catch (Exception $e) {
-            Log::error("Gagal mengirim email OTP: " . $e->getMessage());
+            Log::error('Gagal mengirim email OTP: ' . $e->getMessage());
+
             return $this->errorResponse(message: 'Gagal mengirim email OTP. Silakan coba lagi.');
         }
     }
@@ -82,6 +87,7 @@ class AuthController extends Controller
     {
         try {
             $this->tenantRegistrationService()->verifyOtp($input->email, $input->otp);
+
             return $this->successResponse(message: 'Email berhasil diverifikasi!');
         } catch (DomainException $e) {
             return $this->failResponse(code: $e->getCode() ?: ResponseAlias::HTTP_BAD_REQUEST, message: $e->getMessage());
@@ -114,7 +120,8 @@ class AuthController extends Controller
         } catch (DomainException $e) {
             return $this->failResponse(code: ResponseAlias::HTTP_BAD_REQUEST, message: $e->getMessage());
         } catch (Exception $e) {
-            Log::error("Gagal registrasi tenant: " . $e->getMessage());
+            Log::error('Gagal registrasi tenant: ' . $e->getMessage());
+
             return $this->errorResponse(message: 'Terjadi kesalahan sistem.');
         }
     }

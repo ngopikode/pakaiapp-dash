@@ -4,11 +4,13 @@ namespace Database\Seeders;
 
 use App\Central\Models\Tenant;
 use App\Central\Models\User;
-use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Models\Core\Category;
 use App\Tenant\Models\Core\Product;
+use App\Tenant\Models\Core\ProductVariant;
+use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -35,20 +37,20 @@ class MigrationSeeder extends Seeder
             ]);
         }
 
-        $tenant1->run(function () use ($user1) {
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $tenant1->run(function () {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             StoreSetting::truncate();
             Category::truncate();
             Product::truncate();
-            \App\Tenant\Models\Core\ProductVariant::truncate();
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            ProductVariant::truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             StoreSetting::create([
                 'name' => 'Sama Roti Kukus',
                 'logo' => 'logos/1/logo.png', // Sesuaikan
                 'theme_color' => '#d4b982',
                 'whatsapp_number' => '6282283668001',
-                'address' => "Kompleks @allnewtsjcafe, Bangkot Kab Kampar",
+                'address' => 'Kompleks @allnewtsjcafe, Bangkot Kab Kampar',
                 'is_active' => true,
                 'hero_promo_text' => 'Promo',
                 'hero_status_text' => 'Open until 11.00PM',
@@ -130,20 +132,20 @@ class MigrationSeeder extends Seeder
             ]);
         }
 
-        $tenant2->run(function () use ($user2) {
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $tenant2->run(function () {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             StoreSetting::truncate();
             Category::truncate();
             Product::truncate();
-            \App\Tenant\Models\Core\ProductVariant::truncate();
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            ProductVariant::truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             StoreSetting::create([
                 'name' => 'Martabak Hening',
                 'logo' => 'logos/martabak-hening/logo.png',
                 'theme_color' => '#f59e0b',
                 'whatsapp_number' => '6285172441544',
-                'address' => "Jl. Kemenangan No. 88, (Depan Indomaret Point)",
+                'address' => 'Jl. Kemenangan No. 88, (Depan Indomaret Point)',
                 'is_active' => true,
                 'hero_promo_text' => 'Promo Spesial',
                 'hero_status_text' => 'Buka 17.00 - 23.00',

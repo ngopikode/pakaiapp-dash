@@ -33,6 +33,7 @@ class CreateTenantSymlinks extends Command
             $tenant = Tenant::find($tenantId);
             if (!$tenant) {
                 $this->error("Tenant '{$tenantId}' not found.");
+
                 return 1;
             }
             $tenants = collect([$tenant]);
@@ -41,11 +42,12 @@ class CreateTenantSymlinks extends Command
         }
 
         if ($tenants->isEmpty()) {
-            $this->info("No tenants found.");
+            $this->info('No tenants found.');
+
             return 0;
         }
 
-        $this->info("Processing symlinks for " . $tenants->count() . " tenant(s)...");
+        $this->info('Processing symlinks for ' . $tenants->count() . ' tenant(s)...');
 
         foreach ($tenants as $tenant) {
             $this->info("Creating directories and symlink for tenant: {$tenant->id}");
@@ -58,7 +60,8 @@ class CreateTenantSymlinks extends Command
             }
         }
 
-        $this->info("Symlink generation completed successfully!");
+        $this->info('Symlink generation completed successfully!');
+
         return 0;
     }
 }

@@ -6,10 +6,14 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public bool $lazy = false;
+
     public string $category = 'all';
+
     public int $perPage = 10;
+
     public array $categories = [];
 
     public function mount(): void
@@ -36,7 +40,7 @@ new class extends Component {
         $total = Product::query()
             ->when(
                 $this->category !== 'all',
-                fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
+                fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('name', $this->category))
             )
             ->count();
 
@@ -47,16 +51,17 @@ new class extends Component {
     public function products(): array
     {
         if ($this->lazy) return [];
+
         return Product::query()
             ->with(['category', 'variants'])
             ->when(
                 $this->category !== 'all',
-                fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
+                fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('name', $this->category))
             )
-            ->orderByRaw('is_active DESC') 
+            ->orderByRaw('is_active DESC')
             ->take($this->perPage)
             ->get()
-            ->map(fn(Product $p) => [
+            ->map(fn (Product $p) => [
                 'id' => $p->id,
                 'name' => $p->name,
                 'description' => $p->description,
@@ -70,7 +75,7 @@ new class extends Component {
                 'has_variants' => $p->has_variants,
                 'selection_type' => $p->selection_type ?? 'single',
                 'max_selections' => $p->max_selections ?? 1,
-                'variants' => $p->variants->map(fn($v) => [
+                'variants' => $p->variants->map(fn ($v) => [
                     'id' => $v->id,
                     'name' => $v->name,
                     'price' => $v->price,

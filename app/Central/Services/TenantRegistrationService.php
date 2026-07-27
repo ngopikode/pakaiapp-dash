@@ -24,7 +24,9 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class TenantRegistrationService
 {
     protected ?RegistrationAbuseGuardService $registrationAbuseGuardService = null;
+
     protected ?MidtransService $midtransService = null;
+
     protected ?DuitkuService $duitkuService = null;
 
     protected function registrationAbuseGuardService(): RegistrationAbuseGuardService
@@ -91,10 +93,11 @@ class TenantRegistrationService
                 stores: $registrations->map(function ($reg) {
                     $centralDomain = config('tenancy.central_domains')[2] ?? 'pakaiapp.online';
                     $domainUrl = "$reg->tenant_id.$centralDomain";
+
                     return [
                         'store_name' => $reg->store_name,
                         'tenant_id' => $reg->tenant_id,
-                        'url' => "https://$domainUrl/auth/login"
+                        'url' => "https://$domainUrl/auth/login",
                     ];
                 })->values()
             );
@@ -105,6 +108,7 @@ class TenantRegistrationService
         $tenant = Tenant::find($slug);
         if ($tenant) {
             $domain = $tenant->domains->first()?->domain ?? ($slug . '.' . (config('tenancy.central_domains')[2] ?? 'pakaiapp.online'));
+
             return new CentralLoginResultData(
                 type: 'subdomain',
                 redirect_url: "https://$domain/auth/login"
@@ -124,8 +128,6 @@ class TenantRegistrationService
     }
 
     /**
-     * @param string $email
-     * @return void
      * @throws RandomException
      */
     public function requestOtp(string $email): void
@@ -136,14 +138,14 @@ class TenantRegistrationService
             code: ResponseAlias::HTTP_BAD_REQUEST
         );
         // Generate 6 digit OTP
-        $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store OTP in cache for 5 minutes
         Cache::put(' ' . $email, $otp, now()->addMinutes(5));
 
         // Send Email
         $resumeUrl = url('/register?resume_email=' . urlencode($email));
-        $emailTitle = "Kode Verifikasi (OTP) Pendaftaran";
+        $emailTitle = 'Kode Verifikasi (OTP) Pendaftaran';
         $emailBody = "Halo,\n" .
             "\nTerima kasih telah mendaftar di Pakaiapp. Berikut adalah kode OTP Anda untuk verifikasi email:\n" .
             "\n$otp\n" .
@@ -161,7 +163,7 @@ class TenantRegistrationService
                 )
             );
         } catch (Exception $e) {
-            Log::error("Failed to send OTP email: " . $e->getMessage());
+            Log::error('Failed to send OTP email: ' . $e->getMessage());
             throw new DomainException(
                 message: 'Gagal mengirim email OTP. Silakan coba lagi.',
                 code: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR
@@ -197,14 +199,10 @@ class TenantRegistrationService
      */
     public function isEmailVerified(string $email): bool
     {
-        return (bool)Cache::get("email_verified_$email");
+        return (bool) Cache::get("email_verified_$email");
     }
 
     /**
-     * @param array $data
-     * @param string $ip
-     * @param bool $hasFreeTrialCookie
-     * @return RegistrationResultData
      * @throws ConnectionException
      * @throws Exception
      */
@@ -269,11 +267,11 @@ class TenantRegistrationService
                 . "Nama Toko: $registration->store_name\n"
                 . "Pemilik: $registration->owner_name\n"
                 . "Email: $registration->email\n"
-                . "Paket: " . ucfirst($registration->plan) . "\n"
+                . 'Paket: ' . ucfirst($registration->plan) . "\n"
                 . "Invoice: $invoiceCode\n"
-                . "Mohon info rekening untuk pembayaran sebesar Rp " . number_format($amount, 0, ',', '.') . ". Terima kasih.";
+                . 'Mohon info rekening untuk pembayaran sebesar Rp ' . number_format($amount, 0, ',', '.') . '. Terima kasih.';
 
-            $waUrl = "https://wa.me/6285172441544?text=" . urlencode($text);
+            $waUrl = 'https://wa.me/6285172441544?text=' . urlencode($text);
 
             $this->sendBillingEmail(
                 registration: $registration,
@@ -310,7 +308,7 @@ class TenantRegistrationService
 
         $registration->update([
             'duitku_payment_url' => $duitkuInvoice->paymentUrl,
-            'duitku_reference' => $duitkuInvoice->reference
+            'duitku_reference' => $duitkuInvoice->reference,
         ]);
 
         $this->sendBillingEmail(
@@ -373,8 +371,7 @@ class TenantRegistrationService
     /**
      * Selesaikan pendaftaran untuk Paket Free secara langsung.
      * Mengembalikan URL redirect untuk login otomatis.
-     * @param TenantRegistration $registration
-     * @return array
+     *
      * @throws Exception
      */
     public function completeFreePlanRegistration(TenantRegistration $registration): array
@@ -410,7 +407,7 @@ class TenantRegistrationService
 
             return [
                 'success' => true,
-                'redirect_url' => "https://$domainUrl/auth/auto-login?token=$autoLoginToken"
+                'redirect_url' => "https://$domainUrl/auth/auto-login?token=$autoLoginToken",
             ];
         } catch (Exception $e) {
             $emailBody = "Halo $registration->owner_name,\n"
@@ -433,6 +430,7 @@ class TenantRegistrationService
     /**
      * Helper untuk menyiapkan database tenant dan manager user.
      * Mengembalikan domain URL dan plain password.
+     *
      * @throws Exception
      */
     private function setupTenantDatabase(TenantRegistration $registration): array
@@ -455,7 +453,7 @@ class TenantRegistrationService
                 [
                     'name' => $registration->owner_name,
                     'password' => $plainPassword, // Set plain password (Laravel casts handles the hashing)
-                    'role' => 'manager'
+                    'role' => 'manager',
                 ]
             );
         });
@@ -463,7 +461,7 @@ class TenantRegistrationService
         // Securely hash the password inside the central DB now that store is ready
         $registration->update([
             'status' => 'created',
-            'password' => Hash::make($plainPassword)
+            'password' => Hash::make($plainPassword),
         ]);
 
         return [$domainUrl, $plainPassword];
@@ -478,7 +476,7 @@ class TenantRegistrationService
 
         try {
             Mail::to($registration->email)->send(
-                new SystemEmail("Pendaftaran Toko Gagal", $emailBody, 'Hubungi Support', "https://wa.me/6285172441544")
+                new SystemEmail('Pendaftaran Toko Gagal', $emailBody, 'Hubungi Support', 'https://wa.me/6285172441544')
             );
         } catch (Exception $mailEx) {
             Log::error('[TenantRegistrationService] Failed to send failure email: ' . $mailEx->getMessage());
@@ -490,27 +488,27 @@ class TenantRegistrationService
      */
     public function sendBillingEmail(TenantRegistration $registration, string $paymentMethod, array $paymentData = []): void
     {
-        $amountFmt = number_format((float)$registration->amount, 0, ',', '.');
+        $amountFmt = number_format((float) $registration->amount, 0, ',', '.');
 
         try {
-            $emailTitle = "";
-            $emailBody = "";
+            $emailTitle = '';
+            $emailBody = '';
             $btnText = null;
             $btnUrl = null;
 
             if ($paymentMethod === 'manual') {
                 $btnUrl = $paymentData['wa_url'] ?? '#';
                 $btnText = 'Konfirmasi via WA';
-                $emailTitle = "Menunggu Pembayaran (Manual) - " . $registration->invoice_code;
-                $emailBody = "Halo " . $registration->owner_name . ",\n\nPendaftaran toko Anda (" . $registration->store_name . ") telah kami catat dengan Paket " . ucfirst($registration->plan) . ".\n\nNomor Tagihan: " . $registration->invoice_code . "\nTotal Tagihan: Rp " . $amountFmt . "\nMetode: Transfer Manual\n\nSilakan klik tombol di bawah ini untuk chat dengan Admin kami guna mengkonfirmasi pembayaran Anda. Setelah dikonfirmasi, toko Anda akan langsung kami aktifkan.\n\nTerima kasih,\nTim Pakaiapp";
+                $emailTitle = 'Menunggu Pembayaran (Manual) - ' . $registration->invoice_code;
+                $emailBody = 'Halo ' . $registration->owner_name . ",\n\nPendaftaran toko Anda (" . $registration->store_name . ') telah kami catat dengan Paket ' . ucfirst($registration->plan) . ".\n\nNomor Tagihan: " . $registration->invoice_code . "\nTotal Tagihan: Rp " . $amountFmt . "\nMetode: Transfer Manual\n\nSilakan klik tombol di bawah ini untuk chat dengan Admin kami guna mengkonfirmasi pembayaran Anda. Setelah dikonfirmasi, toko Anda akan langsung kami aktifkan.\n\nTerima kasih,\nTim Pakaiapp";
             } elseif ($paymentMethod === 'midtrans') {
-                $emailTitle = "Tagihan Pendaftaran Toko - " . $registration->invoice_code;
-                $emailBody = "Halo " . $registration->owner_name . ",\n\nPendaftaran toko Anda (" . $registration->store_name . ") untuk Paket " . ucfirst($registration->plan) . " tinggal satu langkah lagi.\n\nNomor Tagihan: " . $registration->invoice_code . "\nTotal Tagihan: Rp " . $amountFmt . "\n\nSistem kami mendeteksi Anda akan menggunakan E-Wallet/QRIS. Silakan selesaikan pembayaran Anda di layar website Anda.\n\nTerima kasih,\nTim Pakaiapp";
+                $emailTitle = 'Tagihan Pendaftaran Toko - ' . $registration->invoice_code;
+                $emailBody = 'Halo ' . $registration->owner_name . ",\n\nPendaftaran toko Anda (" . $registration->store_name . ') untuk Paket ' . ucfirst($registration->plan) . " tinggal satu langkah lagi.\n\nNomor Tagihan: " . $registration->invoice_code . "\nTotal Tagihan: Rp " . $amountFmt . "\n\nSistem kami mendeteksi Anda akan menggunakan E-Wallet/QRIS. Silakan selesaikan pembayaran Anda di layar website Anda.\n\nTerima kasih,\nTim Pakaiapp";
             } elseif ($paymentMethod === 'duitku') {
                 $btnUrl = $paymentData['payment_url'] ?? '#';
                 $btnText = 'Lanjutkan Pembayaran';
-                $emailTitle = "Tagihan Pendaftaran Toko - " . $registration->invoice_code;
-                $emailBody = "Halo " . $registration->owner_name . ",\n\nPendaftaran toko Anda (" . $registration->store_name . ") untuk Paket " . ucfirst($registration->plan) . " telah diteruskan ke Payment Gateway.\n\nNomor Tagihan: " . $registration->invoice_code . "\nTotal Tagihan: Rp " . $amountFmt . "\n\nJika halaman pembayaran tidak terbuka otomatis atau tertutup, silakan klik tombol di bawah ini untuk melanjutkan pembayaran Anda.\n\nSetelah pembayaran berhasil, toko Anda akan otomatis disiapkan.\n\nTerima kasih,\nTim Pakaiapp";
+                $emailTitle = 'Tagihan Pendaftaran Toko - ' . $registration->invoice_code;
+                $emailBody = 'Halo ' . $registration->owner_name . ",\n\nPendaftaran toko Anda (" . $registration->store_name . ') untuk Paket ' . ucfirst($registration->plan) . " telah diteruskan ke Payment Gateway.\n\nNomor Tagihan: " . $registration->invoice_code . "\nTotal Tagihan: Rp " . $amountFmt . "\n\nJika halaman pembayaran tidak terbuka otomatis atau tertutup, silakan klik tombol di bawah ini untuk melanjutkan pembayaran Anda.\n\nSetelah pembayaran berhasil, toko Anda akan otomatis disiapkan.\n\nTerima kasih,\nTim Pakaiapp";
             }
 
             if ($emailTitle) {
@@ -521,7 +519,7 @@ class TenantRegistrationService
         } catch (Exception $e) {
             Log::error('[TenantRegistrationService] Failed to send billing email', [
                 'invoice_code' => $registration->invoice_code,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             // We intentionally don't throw DomainException here so that the registration process
             // can still succeed even if the email failed to send (e.g. SMTP issue).

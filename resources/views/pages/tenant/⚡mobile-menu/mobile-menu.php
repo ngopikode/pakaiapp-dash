@@ -3,11 +3,11 @@
 use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Title("Pengaturan")]
-class extends Component {
+new #[Title('Pengaturan')]
+class extends Component
+{
     public function logout(): void
     {
         Auth::logout();
@@ -28,7 +28,7 @@ class extends Component {
                 'items' => [
                     ['route' => 'product', 'icon' => 'ph-fill ph-book-open-text', 'label' => 'Katalog Produk', 'roles' => ['manager']],
                     ['route' => 'product-slot.buy', 'icon' => 'ph-fill ph-shopping-cart', 'label' => 'Beli Slot Produk', 'roles' => ['manager'], 'badge' => 'Baru'],
-                ]
+                ],
             ],
             [
                 'title' => 'Sistem & Pengaturan',
@@ -37,8 +37,8 @@ class extends Component {
                     ['route' => 'store-setting', 'icon' => 'ph-fill ph-storefront', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
                     ['route' => 'user', 'icon' => 'ph-fill ph-users', 'label' => 'Manajemen Pengguna', 'roles' => ['manager']],
                     ['route' => 'profile', 'icon' => 'ph-fill ph-user-gear', 'label' => 'Profil Akun', 'roles' => ['manager', 'cashier']],
-                ]
-            ]
+                ],
+            ],
         ];
 
         if ($storeType === 'resto') {
@@ -51,6 +51,6 @@ class extends Component {
             })->toArray();
 
             return $section;
-        })->filter(fn($section) => count($section['items']) > 0)->toArray();
+        })->filter(fn ($section) => count($section['items']) > 0)->toArray();
     }
 };

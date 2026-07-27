@@ -2,8 +2,8 @@
 
 namespace App\Tenant\Models\Core;
 
-use Carbon\Carbon;
 use App\Shared\Traits\ClearsStoreSettingCache;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -53,7 +53,7 @@ class StoreSetting extends Model
     {
         return [
             'operating_hours' => 'array',
-            'use_same_hours'  => 'boolean',
+            'use_same_hours' => 'boolean',
         ];
     }
 
@@ -77,6 +77,7 @@ class StoreSetting extends Model
         }
 
         $day = $this->todayKey();
+
         return $hours[$day] ?? $hours['default'] ?? ['open' => '00:00', 'close' => '23:59', 'is_closed' => false];
     }
 
@@ -96,8 +97,8 @@ class StoreSetting extends Model
             return false;
         }
 
-        $now   = Carbon::now('Asia/Jakarta');
-        $open  = Carbon::createFromFormat('H:i', $today['open'],  'Asia/Jakarta')->setDate($now->year, $now->month, $now->day);
+        $now = Carbon::now('Asia/Jakarta');
+        $open = Carbon::createFromFormat('H:i', $today['open'], 'Asia/Jakarta')->setDate($now->year, $now->month, $now->day);
         $close = Carbon::createFromFormat('H:i', $today['close'], 'Asia/Jakarta')->setDate($now->year, $now->month, $now->day);
 
         // Handle overnight (misal: buka 22:00 tutup 02:00)

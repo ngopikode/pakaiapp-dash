@@ -2,10 +2,10 @@
 
 namespace App\Tenant\Models\Ai;
 
+use App\Tenant\Models\Core\ProductVariant;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Tenant\Models\Core\ProductVariant;
 
 #[Fillable([
     'rule_name',

@@ -2,13 +2,16 @@
 
 namespace App\Tenant\Models\Core;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Observers\ProductObserver;
+use App\Shared\Traits\ClearsAiMenuCache;
+use App\Tenant\Models\Resto\ProductExtra;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use App\Tenant\Models\Resto\ProductExtra;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 #[ObservedBy(ProductObserver::class)]
@@ -28,7 +31,7 @@ use Illuminate\Support\Str;
 ])]
 class Product extends Model
 {
-    use \App\Shared\Traits\ClearsAiMenuCache;
+    use ClearsAiMenuCache;
 
     protected function casts(): array
     {
@@ -50,13 +53,13 @@ class Product extends Model
     public function resolveRouteBinding($value, $field = null): Model|Product|null
     {
         // Ambil angka terakhir (ID) dari string
-        $id = (int)last(explode('-', $value));
+        $id = (int) last(explode('-', $value));
 
         // Tetep cari pake ID, jadi database lu gak bakal keberatan
         return $this->where('id', $id)->firstOrFail();
     }
 
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
@@ -80,7 +83,7 @@ class Product extends Model
     protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->variants->min('price') ?? 0,
+            get: fn () => $this->variants->min('price') ?? 0,
         );
     }
 
@@ -115,7 +118,7 @@ class Product extends Model
     protected function totalStock(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->variants->sum('stock'),
+            get: fn () => $this->variants->sum('stock'),
         );
     }
 
@@ -126,31 +129,31 @@ class Product extends Model
     public function toFrontendArray(): array
     {
         return [
-            'id'              => $this->id,
-            'name'            => $this->name,
-            'description'     => $this->description,
-            'image'           => $this->image ? \Illuminate\Support\Facades\Storage::url($this->image) : null,
-            'price'           => $this->price,
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'image' => $this->image ? Storage::url($this->image) : null,
+            'price' => $this->price,
             'active_discount_price' => $this->variants->min('active_discount_price'),
-            'active_discount_name'  => $this->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
+            'active_discount_name' => $this->variants->firstWhere('active_discount_name', '!=', null)?->active_discount_name,
             'formatted_price' => $this->formatted_price,
-            'category'        => $this->category?->name ?? '',
-            'is_active'       => $this->is_active,
-            'has_variants'    => $this->has_variants,
-            'selection_type'  => $this->selection_type ?? 'single',
-            'max_selections'  => $this->max_selections ?? 1,
+            'category' => $this->category?->name ?? '',
+            'is_active' => $this->is_active,
+            'has_variants' => $this->has_variants,
+            'selection_type' => $this->selection_type ?? 'single',
+            'max_selections' => $this->max_selections ?? 1,
             'default_variant_id' => $this->variants->firstWhere('name', 'Default')?->id ?? $this->variants->first()?->id,
-            'variants'        => $this->variants->map(fn ($v) => [
-                'id'    => $v->id,
-                'name'  => $v->name,
+            'variants' => $this->variants->map(fn ($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
                 'price' => $v->price,
                 'active_discount_price' => $v->active_discount_price,
-                'active_discount_name'  => $v->active_discount_name,
-                'stock' => $v->stock
+                'active_discount_name' => $v->active_discount_name,
+                'stock' => $v->stock,
             ])->toArray(),
-            'extras'          => $this->extras->where('is_active', true)->map(fn ($e) => [
-                'id'    => $e->id,
-                'name'  => $e->name,
+            'extras' => $this->extras->where('is_active', true)->map(fn ($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
                 'price' => $e->price,
             ])->values()->toArray(),
         ];

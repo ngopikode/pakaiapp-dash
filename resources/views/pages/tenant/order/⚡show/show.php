@@ -6,8 +6,10 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 new #[Layout('layouts::mobile')]
-class extends Component {
+class extends Component
+{
     public Order $order;
+
     public $store;
 
     public function mount($code): void
@@ -24,6 +26,7 @@ class extends Component {
     public function title(): string
     {
         $storeName = $this->store->name ?? 'Toko';
+
         return "Detail Pesanan {$this->order->invoice_code} - {$storeName}";
     }
 
@@ -32,9 +35,9 @@ class extends Component {
         $waLines = [
             'Halo admin, pesanan baru nih!',
             "*Invoice:* {$this->order->invoice_code}",
-            "*Nama:* " . ($this->order->customer_name ?: 'Guest'),
-            "*Tipe:* " . ucfirst($this->order->order_type),
-            "*Status Pembayaran:* " . ($this->order->status === 'paid' || $this->order->status === 'completed' ? 'Sudah Dibayar' : 'Belum Dibayar'),
+            '*Nama:* ' . ($this->order->customer_name ?: 'Guest'),
+            '*Tipe:* ' . ucfirst($this->order->order_type),
+            '*Status Pembayaran:* ' . ($this->order->status === 'paid' || $this->order->status === 'completed' ? 'Sudah Dibayar' : 'Belum Dibayar'),
         ];
 
         if ($this->order->notes) {
@@ -49,16 +52,16 @@ class extends Component {
         }
 
         $waLines[] = '';
-        $waLines[] = "*Subtotal:* Rp " . number_format($this->order->subtotal, 0, ',', '.');
+        $waLines[] = '*Subtotal:* Rp ' . number_format($this->order->subtotal, 0, ',', '.');
 
         if ($this->order->service_charge_amount > 0) {
-            $waLines[] = "*Biaya Layanan:* Rp " . number_format($this->order->service_charge_amount, 0, ',', '.');
+            $waLines[] = '*Biaya Layanan:* Rp ' . number_format($this->order->service_charge_amount, 0, ',', '.');
         }
         if ($this->order->tax_amount > 0) {
-            $waLines[] = "*Pajak PB1:* Rp " . number_format($this->order->tax_amount, 0, ',', '.');
+            $waLines[] = '*Pajak PB1:* Rp ' . number_format($this->order->tax_amount, 0, ',', '.');
         }
 
-        $waLines[] = "*Total Tagihan:* Rp " . number_format($this->order->total_price, 0, ',', '.');
+        $waLines[] = '*Total Tagihan:* Rp ' . number_format($this->order->total_price, 0, ',', '.');
 
         return implode("\n", $waLines);
     }
@@ -69,6 +72,7 @@ class extends Component {
         if (!$number) return '';
 
         $text = $this->generateWaText();
+
         return "https://wa.me/{$number}?text=" . urlencode($text);
     }
 };

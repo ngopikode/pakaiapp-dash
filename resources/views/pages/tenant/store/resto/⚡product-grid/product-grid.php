@@ -10,7 +10,8 @@ use Livewire\Attributes\Session;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     #[Url(as: 'kategori', except: 'all')]
     public string $category = 'all';
 
@@ -31,9 +32,7 @@ new class extends Component {
     #[Session]
     public string $viewMode = 'grid';
 
-    public function mount(): void
-    {
-    }
+    public function mount(): void {}
 
     #[On('update-filters')]
     public function updateFilters($category = 'all', $search = '', $sort = 'popular', $minPrice = null, $maxPrice = null): void
@@ -57,15 +56,15 @@ new class extends Component {
         $query = Product::query()
             ->when(
                 value: $this->category === 'promo',
-                callback: fn($q) => $q->whereHas('variants', fn($q2) => $q2->whereNotNull('active_discount_price'))
+                callback: fn ($q) => $q->whereHas('variants', fn ($q2) => $q2->whereNotNull('active_discount_price'))
             )
             ->when(
                 value: $this->category !== 'all' && $this->category !== 'promo',
-                callback: fn($q) => $q->whereHas('category', fn($q2) => $q2->where('name', $this->category))
+                callback: fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('name', $this->category))
             )
             ->when(
                 $this->search !== '',
-                fn($q) => $q->where('products.name', 'like', '%' . $this->search . '%')
+                fn ($q) => $q->where('products.name', 'like', '%' . $this->search . '%')
             );
 
         if ($this->minPrice !== null || $this->maxPrice !== null) {
@@ -77,7 +76,6 @@ new class extends Component {
 
         return $query;
     }
-
 
     #[Computed]
     public function hasMore(): bool
@@ -106,7 +104,7 @@ new class extends Component {
 
         return $query->forPage($this->page, 10)
             ->get()
-            ->map(fn(Product $p) => $p->toFrontendArray())
+            ->map(fn (Product $p) => $p->toFrontendArray())
             ->toArray();
     }
 };

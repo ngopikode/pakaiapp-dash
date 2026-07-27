@@ -24,10 +24,7 @@ class TenantWalletService
 
     /**
      * Menambah saldo dompet (Top-up, Refund, dsb)
-     * @param float|int $amount
-     * @param Model $reference
-     * @param string|null $description
-     * @return WalletTransaction
+     *
      * @throws Throwable
      */
     public function addBalance(float|int $amount, Model $reference, ?string $description = null): WalletTransaction
@@ -48,11 +45,7 @@ class TenantWalletService
     /**
      * Core logic mutasi dompet dengan sistem penguncian mutlak (Pessimistic Locking).
      * Dibuat private agar controller hanya bisa memanggil addBalance / deductBalance.
-     * @param string $type
-     * @param float|int $amount
-     * @param Model $reference
-     * @param string|null $description
-     * @return WalletTransaction
+     *
      * @throws Throwable
      */
     private function processTransaction(string $type, float|int $amount, Model $reference, ?string $description = null): WalletTransaction
@@ -64,16 +57,16 @@ class TenantWalletService
             // Menggunakan lockForUpdate untuk mencegah Race Condition (Double Spend / Dirty Read)
             $wallet = Wallet::where('id', $expectedWalletId)->lockForUpdate()->firstOrFail();
 
-            $openingBalance = (float)$wallet->balance;
-            $transactionAmount = (float)$amount;
+            $openingBalance = (float) $wallet->balance;
+            $transactionAmount = (float) $amount;
 
             if ($transactionAmount <= 0) {
-                throw new Exception("Nominal transaksi harus lebih besar dari 0.");
+                throw new Exception('Nominal transaksi harus lebih besar dari 0.');
             }
 
             if ($type === 'DEBIT') {
                 if ($openingBalance < $transactionAmount) {
-                    throw new Exception("Kredit tidak mencukupi. Sisa saldo: Rp" . number_format($openingBalance, 0, ',', '.'));
+                    throw new Exception('Kredit tidak mencukupi. Sisa saldo: Rp' . number_format($openingBalance, 0, ',', '.'));
                 }
                 $closingBalance = $openingBalance - $transactionAmount;
             } else {

@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace App\Tenant\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Central\Services\DuitkuService;
+use App\Http\Controllers\Controller;
+use App\Shared\Traits\ApiResponserTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Throwable;
-use App\Shared\Traits\ApiResponserTrait;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
+use Throwable;
 
 class DuitkuApiController extends Controller
 {
     use ApiResponserTrait;
+
     public function __construct(
         protected readonly DuitkuService $duitkuService
-    )
-    {
-    }
+    ) {}
 
     public function getPaymentMethods(Request $request): JsonResponse
     {
@@ -29,14 +28,16 @@ class DuitkuApiController extends Controller
         }
 
         $request->validate([
-            'amount' => 'required|numeric|min:1'
+            'amount' => 'required|numeric|min:1',
         ]);
 
         try {
-            $methods = $this->duitkuService->getPaymentMethods((int)$request->amount);
+            $methods = $this->duitkuService->getPaymentMethods((int) $request->amount);
+
             return $this->successResponse(data: $methods);
         } catch (Throwable $e) {
             Log::error('[Duitku] getPaymentMethods error', ['error' => $e->getMessage()]);
+
             return $this->errorResponse(errors: [], message: 'Gagal mengambil metode pembayaran.', code: ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
