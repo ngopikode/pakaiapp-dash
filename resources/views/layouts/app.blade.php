@@ -79,7 +79,7 @@ $showSidebar = $accessibleMenus > 1;
     @if($showSidebar)
         {{-- HANYA DI-RENDER DI DESKTOP --}}
         <div
-            class="hidden xl:flex flex-col h-full shrink-0 border-r border-slate-200/60 dark:border-slate-800/60 bg-white/85 dark:bg-[#0B1120]/85 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out"
+            class="hidden xl:flex flex-col h-screen sticky top-0 shrink-0 border-r border-slate-200/60 dark:border-slate-800/60 bg-white/85 dark:bg-[#0B1120]/85 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out"
             :class="showDesktopSidebar ? 'w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'">
             <div class="w-64 flex flex-col h-full">
                 <livewire:layouts.sidebar elementId="sidebar-wrapper"/>

@@ -1,32 +1,33 @@
-<div class="max-w-6xl mx-auto pb-24 px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 font-sans">
+<div class="max-w-6xl mx-auto pb-28 px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 font-sans">
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
         <div>
             <h1 class="text-2xl font-black text-slate-900 dark:text-white">Pengaturan Toko</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola identitas, jam operasional, tampilan, dan SEO tokomu.</p>
         </div>
-        <div class="hidden sm:block shrink-0">
+    </div>
+
+    <!-- Universal Sticky Save Bar -->
+    <div class="fixed bottom-0 left-0 right-0 z-50 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-slate-200 dark:border-slate-700 transition-all">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+            <p class="text-[11px] sm:text-sm font-semibold text-orange-600 dark:text-orange-400 text-center sm:text-left transition-opacity duration-300"
+               :class="$wire.$dirty() ? 'opacity-100' : 'opacity-0'">
+                Ada perubahan yang belum disimpan
+            </p>
             <button wire:click="save"
-                    class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2"
+                    class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 sm:ml-auto"
+                    :class="$wire.$dirty() ? 'ring-2 ring-orange-500/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''"
                     wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="save"><i class="ph ph-check-circle text-lg"></i> Simpan Perubahan</span>
+                <span wire:loading.remove wire:target="save">
+                    <i class="ph ph-check-circle text-lg" x-show="!$wire.$dirty()"></i>
+                    <i class="ph-fill ph-dot text-white text-lg animate-pulse" x-show="$wire.$dirty()"></i>
+                    Simpan Perubahan
+                </span>
                 <span wire:loading wire:target="save" class="flex items-center gap-2">
                     <i class="ph ph-spinner animate-spin text-lg"></i> Menyimpan...
                 </span>
             </button>
         </div>
-    </div>
-
-    <!-- Sticky Save Button for Mobile -->
-    <div class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white dark:bg-slate-900 shadow-lg sm:hidden border-t border-slate-200 dark:border-slate-700">
-        <button wire:click="save"
-                class="w-full px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2"
-                wire:loading.attr="disabled">
-            <span wire:loading.remove wire:target="save"><i class="ph ph-check-circle text-lg"></i> Simpan Perubahan</span>
-            <span wire:loading wire:target="save" class="flex items-center gap-2">
-                <i class="ph ph-spinner animate-spin text-lg"></i> Menyimpan...
-            </span>
-        </button>
     </div>
 
     <div class="space-y-12 sm:space-y-16">

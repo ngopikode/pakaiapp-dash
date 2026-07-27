@@ -116,8 +116,10 @@ iPhone dengan home indicator (iPhone X ke atas di Safari) bisa memotong konten d
 
 | Masalah | Fix | File |
 |---------|-----|------|
-| Tidak ada unsaved indicator | `:class="$wire.$dirty() ? 'ring-2 ...' : ''"` di kedua tombol Save | `store-setting.blade.php` |
-| `pb-24` boros di desktop | Ubah ke `pb-24 sm:pb-10` di wrapper | `store-setting.blade.php` |
+| Tidak ada unsaved indicator | `:class="$wire.$dirty() ? 'ring-2 ...' : ''"` di tombol Save universal | `store-setting.blade.php` |
+| Sidebar ikut scroll di semua halaman | Ubah `h-full` → `h-screen sticky top-0` di sidebar desktop | `layouts/app.blade.php` |
+| Tombol Save hilang saat scroll | Jadikan sticky bottom bar universal (desktop + mobile) + backdrop-blur | `store-setting.blade.php` |
+| `pb-24` tidak cukup | Ubah ke `pb-28` di semua ukuran | `store-setting.blade.php` |
 | iOS safe area terpotong | `pb-[max(1rem,env(safe-area-inset-bottom))]` di sticky bar | `store-setting.blade.php` |
 
 **Tidak ada file PHP baru. Tidak ada roundtrip baru. Tidak ada dependency baru.**
@@ -126,16 +128,22 @@ iPhone dengan home indicator (iPhone X ke atas di Safari) bisa memotong konten d
 
 ## Fase Implementasi
 
-### ⬜ Fix #1: pb + Safe Area
+### ✅ Fix #1: Sidebar Sticky
 
-- [ ] Ubah `pb-24` → `pb-24 sm:pb-10` di wrapper utama
-- [ ] Ubah padding sticky bottom bar ke `px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]`
+- [x] Ubah `h-full` → `h-screen sticky top-0` di sidebar desktop `layouts/app.blade.php`
 
-### ⬜ Fix #2: Dirty Indicator
+### ✅ Fix #2: Universal Sticky Save Bar
 
-- [ ] Tambah `:class="$wire.$dirty() ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-orange-500' : ''"` di tombol Save desktop
-- [ ] Tambah `:class` yang sama di tombol Save mobile
-- [ ] Opsional: tambah teks `wire:show="$dirty"` di atas tombol Save mobile
+- [x] Hapus tombol Save dari header desktop
+- [x] Buat sticky bottom bar universal (hapus `sm:hidden`)
+- [x] Efek `backdrop-blur-xl` agar konten di bawah tetap terlihat
+- [x] Layout responsive: desktop text kiri + button kanan, mobile stacked
+- [x] `pb-24 sm:pb-10` → `pb-28` (karena bar sekarang ada di semua ukuran)
+
+### ✅ Fix #3: Dirty Indicator
+
+- [x] Tambah `:class="$wire.$dirty() ? 'ring-2 ring-orange-500/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''"` di tombol Save universal
+- [x] Teks "Ada perubahan yang belum disimpan" dengan `opacity` transisi (bukan `wire:show`)
 
 ---
 
