@@ -109,6 +109,11 @@ class StoreSetting extends Model
 
     public static function cached(): ?self
     {
-        return Cache::rememberForever('store_setting_' . tenant('id'), fn () => self::first());
+        $attrs = Cache::rememberForever(
+            'store_setting_' . tenant('id'),
+            fn () => self::first()?->getAttributes()
+        );
+
+        return $attrs ? (new self)->forceFill($attrs)->syncOriginal() : null;
     }
 }

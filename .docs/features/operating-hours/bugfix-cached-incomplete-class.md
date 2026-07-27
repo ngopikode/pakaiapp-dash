@@ -101,10 +101,10 @@ public static function cached(): ?self
 
 ## Fase Implementasi
 
-### ⬜ Fix `cached()`
+### ✅ Fix `cached()`
 
-- [ ] Update `StoreSetting::cached()` sesuai fix di atas
-- [ ] Hapus existing cache entries (jalankan `php artisan cache:clear` atau bust manual per tenant) agar tidak ada stale data berformat lama
+- [x] Update `StoreSetting::cached()` sesuai fix di atas
+- [x] Hapus existing cache entries (jalankan `php artisan cache:clear` atau bust manual per tenant) agar tidak ada stale data berformat lama
 
 ---
 
