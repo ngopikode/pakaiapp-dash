@@ -77,41 +77,37 @@ class extends Component {
         ];
     }
 
+    protected ?TenantWalletService $walletService = null;
+
+    protected function walletService(): TenantWalletService
+    {
+        return $this->walletService ??= app(TenantWalletService::class);
+    }
+
     public function with(): array
     {
-        $wallet = app(TenantWalletService::class)->getWallet();
-
-        /*
-         * Single query: fetch paginated rows AND both SUM aggregates together.
-         * We use a correlated subquery approach — two DB::raw SUM subqueries
-         * added as extra select columns on the same base table scan.
-         * This avoids a second round-trip to the DB entirely.
-         */
+        $wallet = $this->walletService()->getWallet();
         $walletId = $wallet->id;
 
         $transactions = WalletTransaction::query()
-            ->select([
-                'id', 'type', 'amount', 'description',
-                'reference_id', 'wallet_id', 'created_at',
-                // Aggregate sums as extra columns — computed once per query execution
-                DB::raw("(SELECT SUM(amount) FROM wallet_transactions WHERE wallet_id = {$walletId} AND type = 'CREDIT') as total_credit"),
-                DB::raw("(SELECT SUM(amount) FROM wallet_transactions WHERE wallet_id = {$walletId} AND type = 'DEBIT')  as total_debit"),
-            ])
             ->where('wallet_id', $walletId)
-            ->when($this->filter === 'credit', fn($q) => $q->where('type', 'CREDIT'))
-            ->when($this->filter === 'debit',  fn($q) => $q->where('type', 'DEBIT'))
+            ->when(in_array($this->filter, ['credit', 'debit']), fn($q) => $q->where('type', strtoupper($this->filter)))
             ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', $this->sortOrder)
             ->paginate(15);
 
-        // Pull aggregates from the first row (they're the same on every row)
-        $first = $transactions->first();
+        // Compute aggregates in a separate fast key-based query rather than subqueries on every row.
+        $aggregates = WalletTransaction::query()
+            ->selectRaw("SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END) as total_credit")
+            ->selectRaw("SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END) as total_debit")
+            ->where('wallet_id', $walletId)
+            ->first();
 
         return [
             'wallet'       => $wallet,
             'transactions' => $transactions,
-            'totalCredit'  => (float) ($first?->total_credit ?? 0),
-            'totalDebit'   => (float) ($first?->total_debit  ?? 0),
+            'totalCredit'  => (float) ($aggregates->total_credit ?? 0),
+            'totalDebit'   => (float) ($aggregates->total_debit ?? 0),
         ];
     }
 };

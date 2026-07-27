@@ -12,6 +12,13 @@ new class extends Component
     public $userInput = '';
     public $storeName = 'Asisten AI';
 
+    protected ?OpenAiMenuService $aiMenuService = null;
+
+    protected function aiMenuService(): OpenAiMenuService
+    {
+        return $this->aiMenuService ??= app(OpenAiMenuService::class);
+    }
+
     public function mount()
     {
         try {
@@ -74,7 +81,7 @@ new class extends Component
         $this->messages[] = ['role' => 'user', 'content' => $userMsg];
         
         $session = AiChatSession::find($this->sessionId);
-        $service = app(OpenAiMenuService::class);
+        $service = $this->aiMenuService();
         
         // Ambil balasan utuh (tanpa stream)
         $fullReply = $service->generateResponse($session, $userMsg);

@@ -7,6 +7,13 @@ new class extends Component {
     public $messages = [];
     public $userInput = '';
 
+    protected ?OpenAiSupportService $aiSupportService = null;
+
+    protected function aiSupportService(): OpenAiSupportService
+    {
+        return $this->aiSupportService ??= app(OpenAiSupportService::class);
+    }
+
     public function mount()
     {
         $this->messages = session()->get('central_ai_chat_messages', []);
@@ -33,7 +40,7 @@ new class extends Component {
         $this->messages[] = ['role' => 'user', 'content' => $userMsg];
         session()->put('central_ai_chat_messages', $this->messages);
 
-        $service = app(OpenAiSupportService::class);
+        $service = $this->aiSupportService();
 
         // Send last 10 messages for context (excluding the very new user message which is appended in the service)
         $historyForAi = collect($this->messages)

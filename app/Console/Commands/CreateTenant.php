@@ -29,6 +29,13 @@ class CreateTenant extends Command
      */
     protected $description = 'Create a new tenant with specific type (resto or retail)';
 
+    protected ?TenantWalletService $walletService = null;
+
+    protected function walletService(): TenantWalletService
+    {
+        return $this->walletService ??= app(TenantWalletService::class);
+    }
+
     /**
      * @return int
      * @throws Throwable
@@ -115,7 +122,7 @@ class CreateTenant extends Command
 
             // Initialize Wallet and Inject Initial Balance based on subscription plan
             try {
-                $walletService = app(TenantWalletService::class);
+                $walletService = $this->walletService();
                 $wallet = $walletService->getWallet();
 
                 $initialBalance = 10000; // Default Free: Rp 10.000

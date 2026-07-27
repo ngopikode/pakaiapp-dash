@@ -14,6 +14,13 @@ class extends Component {
 
     public string $insightText = '';
 
+    protected ?OpenAiMenuService $aiMenuService = null;
+
+    protected function openAiMenuService(): OpenAiMenuService
+    {
+        return $this->aiMenuService ??= app(OpenAiMenuService::class);
+    }
+
     public function mount(array $stats, Collection $topProducts, Collection $slowMovingProducts): void
     {
         $this->stats = $stats;
@@ -35,7 +42,7 @@ class extends Component {
         $cacheKey = 'ai_insight_tenant_' . auth()->id() . '_' . date('Y-m-d_H');
 
         $this->insightText = Cache::remember($cacheKey, 180 * 60, function () use ($dashboardData) {
-            return app(OpenAiMenuService::class)->generateDashboardInsight($dashboardData);
+            return $this->openAiMenuService()->generateDashboardInsight($dashboardData);
         });
     }
 

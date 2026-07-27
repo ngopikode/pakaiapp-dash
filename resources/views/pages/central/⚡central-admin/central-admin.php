@@ -43,9 +43,16 @@ class extends Component {
         $this->isAuthenticated = session()->get('superadmin_auth', false);
     }
 
+    protected ?TenantWalletService $walletService = null;
+
+    protected function walletService(): TenantWalletService
+    {
+        return $this->walletService ??= app(TenantWalletService::class);
+    }
+
     public function login()
     {
-        if ($this->authPin === '260501') {
+        if ($this->authPin === config('auth.central_admin_pin')) {
             session()->put('superadmin_auth', true);
             $this->isAuthenticated = true;
             $this->authPin = '';
@@ -127,7 +134,7 @@ class extends Component {
         try {
             $tenant = Tenant::findOrFail($this->selectedTenant);
             $tenant->run(function () {
-                $walletService = app(TenantWalletService::class);
+                $walletService = $this->walletService();
                 $walletService->addBalance($this->topupAmount, $walletService->getWallet(), $this->topupDescription);
             });
 

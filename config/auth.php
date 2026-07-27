@@ -114,4 +114,15 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Superadmin Central PIN
+    |--------------------------------------------------------------------------
+    |
+    | PIN used for central superadmin actions (creating tenants, topups, etc).
+    |
+    */
+
+    'central_admin_pin' => env('CENTRAL_ADMIN_PIN', '260501'),
+
 ];

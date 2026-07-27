@@ -15,6 +15,13 @@ class CancelExpiredOrders extends Command
 
     protected $description = 'Cancel pending online orders that have expired (30 min for digital, 2 hours for manual)';
 
+    protected ?OrderService $orderService = null;
+
+    protected function orderService(): OrderService
+    {
+        return $this->orderService ??= app(OrderService::class);
+    }
+
     /**
      * @throws TenantCouldNotBeIdentifiedById
      */
@@ -26,26 +33,24 @@ class CancelExpiredOrders extends Command
         foreach ($tenants as $tenant) {
             tenancy()->initialize($tenant);
 
-            $expiredDigital = Order::where('status', 'pending')
+            $expired = Order::where('status', 'pending')
                 ->where('is_online', true)
-                ->whereNotIn('payment_method', ['cash', 'manual'])
-                ->where('created_at', '<', now()->subMinutes(30))
-                ->get();
-
-            $expiredManual = Order::where('status', 'pending')
-                ->where('is_online', true)
-                ->whereIn('payment_method', ['cash', 'manual', null])
-                ->where('created_at', '<', now()->subHours(2))
-                ->get();
-
-            $expired = $expiredDigital->merge($expiredManual);
+                ->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->whereNotIn('payment_method', ['cash', 'manual'])
+                          ->where('created_at', '<', now()->subMinutes(30));
+                    })->orWhere(function ($q) {
+                        $q->whereIn('payment_method', ['cash', 'manual', null])
+                          ->where('created_at', '<', now()->subHours(2));
+                    });
+                })->get();
 
             if ($expired->isEmpty()) {
                 tenancy()->end();
                 continue;
             }
 
-            $orderService = app(OrderService::class);
+            $orderService = $this->orderService();
 
             foreach ($expired as $order) {
                 try {

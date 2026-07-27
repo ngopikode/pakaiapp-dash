@@ -3,49 +3,33 @@
 namespace App\Observers;
 
 use App\Tenant\Models\Core\Product;
-use App\Central\Models\Quota;
+use App\Tenant\Services\ProductQuotaService;
 use Exception;
 
 class ProductObserver
 {
+    protected ?ProductQuotaService $productQuotaService = null;
+
+    protected function productQuotaService(): ProductQuotaService
+    {
+        return $this->productQuotaService ??= app(ProductQuotaService::class);
+    }
+
     /**
-     * Handle the Product "creating" event.
      * @throws Exception
      */
     public function creating(Product $product): void
     {
-        $quota = \App\Central\Models\Quota::firstOrCreate(
-            ['type' => 'PRODUCT_SLOT'],
-            ['total_slots' => app(\App\Tenant\Services\SettingService::class)->get('product_slots', tenant(), 12), 'used_slots' => 0]
-        );
-
-        if ($quota->used_slots >= $quota->total_slots) {
-            throw new Exception("Wah, menu jualanmu makin banyak nih! 🚀 Sayangnya kuota slot ($quota->total_slots menu) sudah penuh. Yuk, tambah slot baru pakai Saldo biar makin cuan!");
-        }
+        $this->productQuotaService()->ensureCanCreate();
     }
 
-    /**
-     * Handle the Product "created" event.
-     */
     public function created(Product $product): void
     {
-        $quota = Quota::firstOrCreate(
-            ['type' => 'PRODUCT_SLOT'],
-            ['total_slots' => app(\App\Tenant\Services\SettingService::class)->get('product_slots', tenant(), 12), 'used_slots' => 0]
-        );
-
-        $quota->increment('used_slots');
+        $this->productQuotaService()->incrementUsedSlots();
     }
 
-    /**
-     * Handle the Product "deleted" event.
-     */
     public function deleted(Product $product): void
     {
-        $quota = Quota::where('type', 'PRODUCT_SLOT')->first();
-
-        if ($quota && $quota->used_slots > 0) {
-            $quota->decrement('used_slots');
-        }
+        $this->productQuotaService()->decrementUsedSlots();
     }
 }

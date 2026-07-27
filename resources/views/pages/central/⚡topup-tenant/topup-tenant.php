@@ -16,6 +16,13 @@ class extends Component {
     public string $description = 'Top Up Saldo dari Admin Pusat';
     public string $pin = '';
 
+    protected ?TenantWalletService $walletService = null;
+
+    protected function walletService(): TenantWalletService
+    {
+        return $this->walletService ??= app(TenantWalletService::class);
+    }
+
     public function processTopUp(): void
     {
         $this->validate([
@@ -29,7 +36,7 @@ class extends Component {
         ]);
 
         // Gatekeeper PIN
-        if ($this->pin !== '260501') {
+        if ($this->pin !== config('auth.central_admin_pin')) {
             $this->addError('pin', 'PIN Otoritas salah! Hubungi Admin.');
             return;
         }
@@ -39,7 +46,7 @@ class extends Component {
 
             // MASUK KE DATABASE TENANT
             $tenant->run(function () {
-                $walletService = app(TenantWalletService::class);
+                $walletService = $this->walletService();
 
                 // Ambil instance dompet milik tenant ini
                 $wallet = $walletService->getWallet();

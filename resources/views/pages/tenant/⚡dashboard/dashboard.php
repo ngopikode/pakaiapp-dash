@@ -23,6 +23,13 @@ class extends Component {
     public string $customEndDate = '';
     public bool $kitchenActive = true;
 
+    protected ?TenantWalletService $walletService = null;
+
+    protected function walletService(): TenantWalletService
+    {
+        return $this->walletService ??= app(TenantWalletService::class);
+    }
+
     // Tarif per transaksi, disamakan dengan kasir
     private int $feePerTransaction = 300;
 
@@ -305,7 +312,7 @@ class extends Component {
             }
 
             // AMBIL SALDO WALLET
-            $stats['wallet_balance'] = app(TenantWalletService::class)->getWallet()->balance;
+            $stats['wallet_balance'] = $this->walletService()->getWallet()->balance;
 
             // 5 Pesanan Terbaru
             $recentOrders = Order::latest()->take(5)->get();
