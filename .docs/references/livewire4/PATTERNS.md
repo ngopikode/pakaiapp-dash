@@ -96,6 +96,61 @@ public static function cached(): ?self
 
 ---
 
+## 5. Form Data ke Service via DTO
+
+**Masalah:** Livewire component mengirim data mentah (array) ke Service layer, melanggar layer isolation.
+
+**Pola:** Setiap data dari Livewire ke Service HARUS melalui Data Transfer Object (`Spatie\LaravelData\Data`).
+
+```php
+// ✅ BENAR — DTO sebagai kontrak antar layer
+$dto = ProductFormData::from($this->all());
+$this->productService()->saveFromForm($existingProduct, $dto);
+
+// ❌ SALAH — kirim array mentah
+$this->productService()->saveFromForm($existingProduct, $this->all());
+```
+
+**Alasan:**
+- Service tidak tahu asal data (Livewire / API / CLI).
+- DTO memberikan type safety dan dokumentasi eksplisit.
+- Validasi bisa dilakukan di DTO level.
+
+---
+
+## 6. Validation — `rules()` method over `#[Validate]`
+
+**Pola:** Gunakan method `rules()` yang return array, bukan attribute `#[Validate]`.
+
+```php
+// ✅ BENAR — rules() method
+protected function rules(): array
+{
+    return [
+        'name' => ['required', 'string', 'max:255'],
+        'categoryId' => ['required', 'exists:categories,id'],
+    ];
+}
+
+// ❌ SALAH — #[Validate] attribute (kurang eksplisit untuk form kompleks)
+#[Validate(['name' => 'required|string|max:255'])]
+public string $name = '';
+```
+
+**Alasan:** `rules()` memudahkan conditional rules (berubah berdasarkan state komponen lain) dan lebih mudah dibaca untuk form dengan banyak field.
+
+---
+
+## 7. Coding Standards (Single-line If, DB Transaction)
+
+Lihat [Laravel 13 PATTERNS.md](../laravel13/PATTERNS.md) section 7 dan 8 untuk:
+- **DB Transaction Pattern** — pakai `try/catch` + `beginTransaction`, bukan closure.
+- **Single-line If** — satu baris eksekusi tanpa kurung kurawal.
+
+Kedua aturan ini berlaku juga untuk semua file Livewire component.
+
+---
+
 ## Referensi
 
 - [STANDARDS.md](./STANDARDS.md) — Aturan nama class, MFC Alpine timing

@@ -86,21 +86,58 @@ public function store(OrderRequest $request)
 
 ## 3. DTO Pattern
 
-Jika method service membutuhkan **>3 parameter**, gunakan Data Transfer Object (`Spatie\LaravelData\Data`):
+Gunakan Data Transfer Object (`Spatie\LaravelData\Data`) di dua skenario:
+
+### 3a. Service method dengan parameter >3
 
 ```php
+// ❌ SALAH — parameter >3 tanpa DTO
+public function processOrder($customerName, $tableNumber, $orderType, $items, $isTaxActive) {}
+
+// ✅ BENAR — pake DTO
+public function processOrder(CreateOrderData $data): Order
+```
+
+### 3b. Livewire → Service boundary
+
+Setiap data yang dikirim dari Livewire component ke Service layer HARUS pake DTO, tidak peduli jumlah parameter.
+
+```php
+// ✅ BENAR — 1 parameter pun pake DTO karena ini boundary layer
+$dto = ProductFormData::from($this->all());
+$this->productService()->saveFromForm($existingProduct, $dto);
+```
+
+Aturan ini menjaga **layer isolation**: Service tidak tahu dari mana data berasal (Livewire, API, CLI). DTO adalah kontrak eksplisit antar layer.
+
+### Lokasi DTO
+
+| Domain | Path | Contoh |
+|--------|------|--------|
+| Tenant | `app/Tenant/Data/` | `ProductFormData.php`, `ProductFilterData.php` |
+| Central | `app/Central/Data/` | `RegisterTenantInputData.php` |
+
+### Contoh DTO
+
+```php
+namespace App\Tenant\Data;
+
 use Spatie\LaravelData\Data;
 
-readonly class ProductFilterData extends Data
+class ProductFilterData extends Data
 {
     public function __construct(
         public string $search = '',
         public string $filterCategory = '',
+        public string $filterStatus = '',
+        public string $filterPrice = '',
         public string $sortField = 'newest',
         public int $perPage = 20,
     ) {}
 }
 ```
+
+> Untuk DTO kompleks dengan nested data (seperti array of objects), lihat [Spatie Laravel Data docs](https://spatie.be/docs/laravel-data/v4/working-with-nested-data).
 
 ---
 
@@ -148,6 +185,57 @@ public function toggleAvailability(Product $product): void
 | Tenant | `app/Tenant/Services/` | `OrderService.php` |
 | Central DTO | `app/Central/Data/` | `RegisterTenantInputData.php` |
 | Tenant DTO | `app/Tenant/Data/` | `CategoryData.php` |
+
+---
+
+## 7. DB Transaction Pattern
+
+Jangan gunakan closure `DB::transaction(fn() => ...)`. Gunakan `try/catch` dengan manual `beginTransaction/commit/rollBack`.
+
+**Alasan:** Closure `DB::transaction()` tidak memberikan kontrol eksplisit — error handling, conditional rollback, atau lock management (`lockForUpdate()`) jadi tidak bisa diatur dengan baik.
+
+```php
+// ❌ SALAH — closure, kontrol terbatas
+DB::transaction(function () use ($data) {
+    $product = Product::create($data);
+    $this->syncVariants($product, $data);
+});
+
+// ✅ BENAR — try/catch manual, reusable, lock bisa dipasang
+try {
+    DB::beginTransaction();
+
+    $order = Order::lockForUpdate()->find($orderId);
+    if (!$order) throw new Exception('Pesanan tidak ditemukan');
+
+    $order->update(['status' => $toStatus]);
+
+    DB::commit();
+} catch (Throwable $e) {
+    DB::rollBack();
+    throw $e;
+}
+```
+
+Referensi implementasi: `app/Tenant/Services/KitchenService.php`.
+
+---
+
+## 8. Single-line If / Loop Statement
+
+Jika blok `if`, `foreach`, `for` hanya memiliki **satu baris eksekusi**, jangan gunakan kurung kurawal `{}`.
+
+```php
+// ❌ SALAH — braces tidak perlu untuk satu baris
+if ($product->is_active) {
+    $product->update(['is_active' => false]);
+}
+
+// ✅ BENAR — satu baris, no braces
+if (!$order) throw new Exception('Pesanan tidak ditemukan.');
+```
+
+Aturan ini berlaku untuk semua kode PHP di project ini.
 
 ---
 

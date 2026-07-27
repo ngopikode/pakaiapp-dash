@@ -98,7 +98,7 @@
                 </div>
 
                 {{-- Toggle Filter untuk Mobile --}}
-                <button @click="showMobileFilters = !showMobileFilters" 
+                <button @click="showMobileFilters = !showMobileFilters"
                         class="md:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                     <i class="ph-bold ph-faders text-base"></i>
                 </button>
@@ -123,10 +123,10 @@
                             class="flex-1 md:flex-none px-4 py-2.5 bg-white dark:bg-slate-900 border border-orange-500/30 text-orange-600 dark:text-orange-400 font-bold rounded-full hover:bg-orange-50 dark:hover:bg-orange-500/10 transition flex items-center justify-center gap-2 text-sm shadow-sm h-10">
                         <i class="ph-bold ph-folders text-base"></i> <span class="hidden lg:inline">Categories</span>
                     </button>
-                    <a href="{{ route('product.create') }}" wire:navigate.hover
+                    <button @click="$dispatch('open-product-form', { productId: null })"
                        class="flex-1 md:flex-none px-5 py-2.5 bg-[#E65C2C] hover:bg-[#D44A1A] text-white font-bold rounded-full shadow-sm transition-all duration-200 flex items-center justify-center gap-2 text-sm h-10 whitespace-nowrap">
                         <i class="ph-bold ph-plus text-base"></i> <span class="hidden md:inline">Add new product</span><span class="md:hidden">Add</span>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -284,15 +284,15 @@
                                 </td>
                                 <td class="py-2.5 px-4">
                                     <div class="flex items-center gap-3">
-                                        <a href="{{ route('product.edit', $product->id) }}" wire:navigate.hover class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0">
+                                        <button @click="$dispatch('open-product-form', { productId: {{ $product->id }} })" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0">
                                             @if($product->image)
                                                 <img src="{{ Storage::url($product->image) }}" class="w-full h-full object-cover" alt="{{ $product->name }}">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center text-slate-300"><i class="ph-fill ph-image"></i></div>
                                             @endif
-                                        </a>
+                                        </button>
                                         <div class="min-w-0">
-                                            <a href="{{ route('product.edit', $product->id) }}" wire:navigate.hover class="font-bold text-slate-900 dark:text-white truncate block hover:text-orange-500 transition-colors text-sm leading-tight">{{ $product->name }}</a>
+                                            <button @click="$dispatch('open-product-form', { productId: {{ $product->id }} })" class="font-bold text-slate-900 dark:text-white truncate block hover:text-orange-500 transition-colors text-sm leading-tight text-left">{{ $product->name }}</button>
                                             <p class="text-[10px] text-slate-400 mt-0.5">ID : {{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}{{ strtoupper(substr($product->name, 0, 2)) }}</p>
                                         </div>
                                     </div>
@@ -372,7 +372,7 @@
                                     <div class="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-2">
                                         <h6 class="line-clamp-2 text-sm font-black leading-snug text-slate-950 dark:text-white mb-1" title="{{ $product->name }}">{{ $product->name }}</h6>
                                         <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-2 truncate">
-                                            Stok: <span class="@if($product->total_stock > 10) text-emerald-500 @elseif($product->total_stock > 0) text-amber-500 @else text-red-500 @endif">{{ $product->total_stock }}</span>
+                                            Stok: <span class="@if($product->total_stock > 10) text-emerald-500 @elseif($product->total_stock > 0) @else @endif">{{ $product->total_stock }}</span>
                                         </p>
 
                                         <div class="mt-auto flex items-center justify-between gap-1 pt-2 border-t border-slate-100 dark:border-slate-800/60">
@@ -387,10 +387,10 @@
                                                     <div class="w-5 h-2.5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[9px] after:left-[9px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all dark:border-slate-500 peer-checked:bg-emerald-500"></div>
                                                 </label>
 
-                                                <a href="{{ route('product.edit', $product->id) }}" wire:navigate.hover
+                                                <button @click="$dispatch('open-product-form', { productId: {{ $product->id }} })"
                                                    class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-orange-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-orange-400">
                                                     <i class="ph-bold ph-pencil-simple"></i>
-                                                </a>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

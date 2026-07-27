@@ -149,7 +149,7 @@ document.addEventListener('livewire:navigated', () => {
     // HOOK LIVEWIRE UNTUK LOADER OTOMATIS
     Livewire.hook('commit', ({commit, succeed, fail}) => {
         // Tambahkan method lain yang dirasa berat
-        const heavyActions = ['save', 'deleteProduct', 'deleteCategory', 'processPayment', 'updateStatus', 'openPaymentModal'];
+        const heavyActions = ['save', 'deleteProduct', 'deleteCategory', 'processPayment', 'updateStatus', 'openPaymentModal', 'createProduct', 'editProduct'];
 
         const isHeavy = commit.calls.some(call => heavyActions.includes(call.method));
 

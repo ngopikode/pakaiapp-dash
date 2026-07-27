@@ -9,7 +9,8 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     protected ?ProductService $productService = null;
 
     protected ?CategoryService $categoryService = null;
