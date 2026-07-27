@@ -13,9 +13,18 @@ class MenuController extends Controller
 {
     public function show(Product $product)
     {
-        $product->load(['variants', 'extras']);
+        $setting = StoreSetting::cached();
 
-        $setting = once(fn() => StoreSetting::first());
+        // Redirect jika store tidak active atau sedang tutup
+        if (!$setting || !$setting->is_active) {
+            return redirect()->route('store.home');
+        }
+
+        if ($setting->operating_hours && !$setting->isOpenNow()) {
+            return redirect()->route('store.home');
+        }
+
+        $product->load(['variants', 'extras']);
 
         $waNumber   = '';
         $orderTypes = [['id' => 'takeaway', 'label' => 'Takeaway']];
@@ -68,7 +77,7 @@ class MenuController extends Controller
 
     public function shareAsStory(Product $product)
     {
-        $restaurant = once(fn() => StoreSetting::first()) ?? new StoreSetting(['name' => 'Resto']);
+        $restaurant = StoreSetting::cached() ?? new StoreSetting(['name' => 'Resto']);
         $productUrl = route('product.show', $product);
 
         return view('pages.tenant.store.story-preview', [

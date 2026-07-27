@@ -303,15 +303,15 @@
                         {{-- Lanjut ke Pembayaran Button --}}
                         <button
                             @click="nextStep"
-                            :disabled="cart.length === 0 || cart.some(i => i.unavailable)"
+                            :disabled="storeClosed || cart.length === 0 || cart.some(i => i.unavailable)"
                             class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg relative overflow-hidden group"
-                            :class="cart.length === 0 || cart.some(i => i.unavailable)
+                            :class="storeClosed || cart.length === 0 || cart.some(i => i.unavailable)
                                 ? 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
                                 : 'bg-[var(--primary-color)] text-black hover:brightness-110 shadow-[var(--primary-color)]/20 border border-[var(--primary-color)]'"
                         >
-                            <div x-show="cart.length > 0 && !cart.some(i => i.unavailable)" class="absolute inset-0 bg-white/20 animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div x-show="!storeClosed && cart.length > 0 && !cart.some(i => i.unavailable)" class="absolute inset-0 bg-white/20 animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <span class="relative z-10 flex items-center gap-2">
-                                <span>Lanjut ke Pembayaran</span>
+                                <span x-text="storeClosed ? 'Toko Tutup' : 'Lanjut ke Pembayaran'"></span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                      stroke-linejoin="round">
@@ -537,15 +537,15 @@
 
                             <button
                                 @click="processOrder"
-                                :disabled="cart.length === 0 || checkoutLoading || cart.some(i => i.unavailable)"
+                                :disabled="storeClosed || cart.length === 0 || checkoutLoading || cart.some(i => i.unavailable)"
                                 class="w-full py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed shadow-md hover:shadow-lg relative overflow-hidden group"
-                                :class="cart.length === 0 || cart.some(i => i.unavailable)
+                                :class="storeClosed || cart.length === 0 || cart.some(i => i.unavailable)
                                     ? 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)]'
                                     : 'bg-[var(--primary-color)] text-black hover:brightness-110 shadow-[var(--primary-color)]/20 border border-[var(--primary-color)]'"
                             >
-                                <div x-show="cart.length > 0 && !cart.some(i => i.unavailable)" class="absolute inset-0 bg-white/20 animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div x-show="!storeClosed && cart.length > 0 && !cart.some(i => i.unavailable)" class="absolute inset-0 bg-white/20 animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <span x-show="!checkoutLoading" class="flex items-center gap-2 relative z-10">
-                                    <span class="flex items-center gap-2">
+                                    <span x-show="!storeClosed" class="flex items-center gap-2">
                                         <!-- Cash Icon -->
                                         <span x-show="selectedPaymentMethod === 'cash'" class="flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"

@@ -45,6 +45,9 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        /* ===== STORE OPEN/CLOSED ===== */
+        storeClosed: false,
+
         /* ===== CART ===== */
         toast: {show: false, message: ''},
         qrOpen: false,
@@ -607,6 +610,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         init() {
+            this.storeClosed = !!parseInt(this.$root.dataset.storeClosed);
+
             const root = this.$el;
             this.orderType = root.dataset.defaultOrderType || 'takeaway';
             this.waNumber = root.dataset.waNumber || '';

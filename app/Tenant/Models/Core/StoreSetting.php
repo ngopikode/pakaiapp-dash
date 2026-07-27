@@ -3,8 +3,10 @@
 namespace App\Tenant\Models\Core;
 
 use Carbon\Carbon;
+use App\Shared\Traits\ClearsStoreSettingCache;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 #[Fillable([
     'id',
@@ -44,6 +46,8 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class StoreSetting extends Model
 {
+    use ClearsStoreSettingCache;
+
     protected function casts(): array
     {
         return [
@@ -101,5 +105,10 @@ class StoreSetting extends Model
         }
 
         return $now->between($open, $close);
+    }
+
+    public static function cached(): ?self
+    {
+        return Cache::rememberForever('store_setting_' . tenant('id'), fn () => self::first());
     }
 }

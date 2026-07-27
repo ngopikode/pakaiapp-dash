@@ -1,6 +1,7 @@
 <?php
 
 use App\Shared\Middleware\CheckRole;
+use App\Shared\Middleware\CheckStoreOpen;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,7 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('universal', []);
         $middleware->trustProxies(at: '*');
         $middleware->alias([
-            'role' => CheckRole::class,
+            'role'       => CheckRole::class,
+            'store.open' => CheckStoreOpen::class,
         ]);
         $middleware->web();
         $middleware->preventRequestForgery(except: [

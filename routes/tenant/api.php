@@ -22,7 +22,7 @@ Route::prefix('api')->middleware(['api'])->name('api.')->group(function () {
      * Orders Management
      */
     Route::prefix('orders')->name('orders.')->group(function () {
-        Route::post('/', [OrderApiController::class, 'store'])->middleware('throttle:orders')->name('store');
+        Route::post('/', [OrderApiController::class, 'store'])->middleware(['throttle:orders', 'store.open'])->name('store');
         Route::post('/history', [OrderHistoryApiController::class, 'index'])->middleware('throttle:30,1')->name('history');
     });
 

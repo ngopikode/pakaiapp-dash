@@ -16,7 +16,7 @@ class RestaurantApiController extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
-        $setting = StoreSetting::first();
+        $setting = StoreSetting::cached();
 
         if (!$setting) return $this->errorResponse(message: 'Store settings not found', code: ResponseAlias::HTTP_NOT_FOUND);
 

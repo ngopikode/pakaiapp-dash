@@ -2,9 +2,9 @@
     use App\Tenant\Models\Core\StoreSetting;
     use Illuminate\Support\Facades\Storage;
 
-    $setting = StoreSetting::where('is_active', true)->first();
+    $setting = StoreSetting::cached();
 
-    if ($setting) {
+    if ($setting?->is_active) {
         $waNumber = preg_replace('/\D/', '', $setting->whatsapp_number ?: '6281234567890');
         if (str_starts_with($waNumber, '0')) $waNumber = '62' . substr($waNumber, 1);
         $storeName = $setting->name ?: 'EzMenu';
@@ -19,10 +19,13 @@
         }
         if ($setting->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
         if (empty($orderTypes))           $orderTypes[] = ['id' => 'takeaway', 'label' => 'Takeaway'];
+
+        $isOpenNow  = $setting->isOpenNow();
+        $todayHours = $setting->getTodayHours();
     }
 @endphp
 
-@if (! $setting)
+@if (! $setting?->is_active)
 @include('layouts._partials.store-not-found')
 @else
     <!DOCTYPE html>
@@ -41,6 +44,7 @@
 <div
     class="bg-[var(--background)] min-h-screen text-[var(--foreground)] pb-28 font-sans antialiased relative selection:bg-[var(--primary)] selection:text-black"
     x-data="storeApp"
+    data-store-closed="{{ $isOpenNow ? 0 : 1 }}"
     data-default-order-type="{{ $orderTypes[0]['id'] }}"
     data-wa-number="{{ $waNumber }}"
     data-duitku-enabled="{{ config('duitku.enabled') ? 1 : 0 }}"
@@ -83,8 +87,13 @@
         </div>
     </div>
 
+    {{-- ===== BANNER KUNING TOKO TUTUP JIKA ADA OPERATING HOURS & TUTUP --}}
+    @if(isset($todayHours) && !empty($todayHours))
+        @include('layouts._partials._closed-banner', ['isOpenNow' => $isOpenNow, 'todayHours' => $todayHours])
+    @endif
+
     {{-- ===== HERO (Pure Blade — zero extra DB query) ===== --}}
-    @include('pages.tenant.store.resto.partials._hero', ['setting' => $setting])
+    @include('pages.tenant.store.resto.partials._hero', ['setting' => $setting, 'isOpenNow' => $isOpenNow ?? false, 'todayHours' => $todayHours ?? []])
 
     {{-- ===== PAGE CONTENT (product-list is the only Livewire component) ===== --}}
     {{ $slot }}

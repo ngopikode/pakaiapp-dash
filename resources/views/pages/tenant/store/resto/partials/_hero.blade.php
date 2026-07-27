@@ -166,14 +166,44 @@
                 </div>
             @endif
 
-            @if($setting->hero_status_text)
+            @php
+                $statusText = $setting->hero_status_text;
+                $statusColor = 'bg-red-400'; // Default closed
+
+                if (!empty($todayHours)) {
+                    if ($isOpenNow) {
+                        $statusText = 'Buka Sekarang';
+                        $statusColor = 'bg-emerald-500 animate-pulse';
+                    } elseif ($todayHours['is_closed']) {
+                        $statusText = 'Tutup Hari Ini';
+                    } else {
+                        $statusText = 'Sedang Tutup';
+                    }
+                } elseif ($setting->is_active) { // Fallback to old is_active if no operating_hours
+                    $statusText = 'Buka Sekarang';
+                    $statusColor = 'bg-emerald-500 animate-pulse';
+                }
+            @endphp
+
+            @if($statusText)
                 <div
                     class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">
-                    <div
-                        class="w-1.5 h-1.5 rounded-full shrink-0 {{ $setting->is_active ? 'bg-emerald-500 animate-pulse' : 'bg-red-400' }}"></div>
-                    {{ $setting->hero_status_text }}
+                    <div class="w-1.5 h-1.5 rounded-full shrink-0 {{ $statusColor }}"></div>
+                    {{ $statusText }}
                 </div>
             @endif
+
+            {{-- Menampilkan jam operasional hari ini jika ada --}}
+            @if(!empty($todayHours) && !$todayHours['is_closed'])
+                <p class="text-xs text-[var(--text-secondary)] mt-1 opacity-70">
+                    {{ $todayHours['open'] }} – {{ $todayHours['close'] }}
+                </p>
+            @elseif(!empty($todayHours) && $todayHours['is_closed'])
+                <p class="text-xs text-[var(--text-secondary)] mt-1 opacity-70">
+                    Buka lagi besok
+                </p>
+            @endif
+
         </div>
 
     </div>

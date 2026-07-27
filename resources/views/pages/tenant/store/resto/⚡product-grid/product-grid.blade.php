@@ -245,21 +245,25 @@
                             </template>
                             <template x-if="!showStepper">
                                 <button
-                                    {{ ! $item['is_active'] ? 'disabled' : '' }}
-                                    @click="(item.has_variants || (item.extras && item.extras.length > 0)) ? openOption(item) : addToCart(item)"
-                                    class="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 {{ $item['is_active'] ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)] border border-[var(--primary-color)]/30 hover:bg-[var(--primary-color)] hover:text-black hover:border-[var(--primary-color)] hover:shadow-md hover:shadow-[var(--primary-color)]/20 active:scale-95 cursor-pointer' : 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)] cursor-not-allowed' }}"
+                                    :disabled="storeClosed || !item.is_active"
+                                    @click="!storeClosed && ((item.has_variants || (item.extras && item.extras.length > 0)) ? openOption(item) : addToCart(item))"
+                                    :class="storeClosed || !item.is_active ? 'bg-[var(--bg-soft)] text-[var(--text-secondary)] border border-[var(--border)] cursor-not-allowed' : 'bg-[var(--primary-color)]/10 text-[var(--primary-color)] border border-[var(--primary-color)]/30 hover:bg-[var(--primary-color)] hover:text-black hover:border-[var(--primary-color)] hover:shadow-md hover:shadow-[var(--primary-color)]/20 active:scale-95 cursor-pointer'"
+                                    class="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5"
                                 >
-                                    @if($item['is_active'])
-                                        Tambah
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="12" x2="12" y1="5" y2="19"/>
-                                            <line x1="5" x2="19" y1="12" y2="12"/>
-                                        </svg>
-                                    @else
-                                        Habis
-                                    @endif
+                                    <template x-if="!storeClosed && item.is_active">
+                                        <span class="flex items-center gap-1.5">
+                                            Tambah
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="12" x2="12" y1="5" y2="19"/>
+                                                <line x1="5" x2="19" y1="12" y2="12"/>
+                                            </svg>
+                                        </span>
+                                    </template>
+                                    <template x-if="storeClosed || !item.is_active">
+                                        <span x-text="storeClosed ? 'Tutup' : 'Habis'"></span>
+                                    </template>
                                 </button>
                             </template>
                         </div>
