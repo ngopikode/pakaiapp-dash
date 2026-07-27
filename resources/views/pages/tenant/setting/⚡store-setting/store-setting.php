@@ -65,23 +65,23 @@ class extends Component
 
     public string $hero_tagline = 'Nikmati menu spesial kami.';
 
-    public string $hero_instagram_url = '';
+    public ?string $hero_instagram_url = '';
 
     public string $navbar_brand_text = 'Ez';
 
-    public string $navbar_title = '';
+    public ?string $navbar_title = '';
 
     public string $navbar_subtitle = 'Menu Digital';
 
-    public string $seo_title = '';
+    public ?string $seo_title = '';
 
-    public string $seo_description = '';
+    public ?string $seo_description = '';
 
-    public string $seo_keywords = '';
+    public ?string $seo_keywords = '';
 
-    public string $og_title = '';
+    public ?string $og_title = '';
 
-    public string $og_description = '';
+    public ?string $og_description = '';
 
     public bool $use_same_hours = false;
 
