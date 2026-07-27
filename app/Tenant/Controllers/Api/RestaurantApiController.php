@@ -50,7 +50,11 @@ class RestaurantApiController extends Controller
                 'og_title' => $setting->og_title,
                 'og_description' => $setting->og_description,
                 'og_image' => $setting->og_image ? Storage::url($setting->og_image) : null
-            ]
+            ],
+            'operating_hours' => $setting->operating_hours,
+            'use_same_hours'  => (bool) $setting->use_same_hours,
+            'is_open_now'     => $setting->isOpenNow(),
+            'today_hours'     => $setting->getTodayHours(),
         ];
 
         return $this->successResponse($data);

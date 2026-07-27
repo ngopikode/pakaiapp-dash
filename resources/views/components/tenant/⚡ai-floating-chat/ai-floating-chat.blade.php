@@ -154,7 +154,7 @@
                                     $extraNames = [];
                                     $validExtraIds = [];
                                     if (!empty($extraIds)) {
-                                        $extras = \App\Tenant\Models\Core\ProductExtra::whereIn('id', $extraIds)
+                                        $extras = \App\Tenant\Models\Resto\ProductExtra::whereIn('id', $extraIds)
                                             ->where('product_id', $product->id)
                                             ->get();
                                         $extraPrice = $extras->sum('price');

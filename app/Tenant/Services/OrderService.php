@@ -7,7 +7,7 @@ use App\Tenant\Events\KitchenUpdated;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\OrderItem;
 use App\Tenant\Models\Core\Product;
-use App\Tenant\Models\Core\ProductExtra;
+use App\Tenant\Models\Resto\ProductExtra;
 use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Models\Resto\RawMaterial;

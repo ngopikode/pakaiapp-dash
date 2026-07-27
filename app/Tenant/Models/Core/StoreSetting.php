@@ -2,6 +2,7 @@
 
 namespace App\Tenant\Models\Core;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,7 +37,69 @@ use Illuminate\Database\Eloquent\Model;
     'is_service_charge_active',
     'service_charge_rate',
     'is_kitchen_active',
+    'use_same_hours',
+    'operating_hours',
     'created_at',
     'updated_at',
 ])]
-class StoreSetting extends Model {}
+class StoreSetting extends Model
+{
+    protected function casts(): array
+    {
+        return [
+            'operating_hours' => 'array',
+            'use_same_hours'  => 'boolean',
+        ];
+    }
+
+    /** Nama hari lowercase sesuai key JSON (Carbon: 'Monday' → 'monday') */
+    private function todayKey(): string
+    {
+        return strtolower(Carbon::now('Asia/Jakarta')->format('l'));
+    }
+
+    /**
+     * Kembalikan schedule hari ini.
+     * Jika use_same_hours = true → pakai key 'default'.
+     * Jika tidak ada data → anggap buka 24 jam.
+     */
+    public function getTodayHours(): array
+    {
+        $hours = $this->operating_hours ?? [];
+
+        if ($this->use_same_hours) {
+            return $hours['default'] ?? ['open' => '00:00', 'close' => '23:59', 'is_closed' => false];
+        }
+
+        $day = $this->todayKey();
+        return $hours[$day] ?? $hours['default'] ?? ['open' => '00:00', 'close' => '23:59', 'is_closed' => false];
+    }
+
+    /**
+     * Cek apakah toko sedang buka berdasarkan jam operasional.
+     * Null operating_hours → dianggap selalu buka.
+     */
+    public function isOpenNow(): bool
+    {
+        if (empty($this->operating_hours)) {
+            return true;
+        }
+
+        $today = $this->getTodayHours();
+
+        if ($today['is_closed'] ?? false) {
+            return false;
+        }
+
+        $now   = Carbon::now('Asia/Jakarta');
+        $open  = Carbon::createFromFormat('H:i', $today['open'],  'Asia/Jakarta')->setDate($now->year, $now->month, $now->day);
+        $close = Carbon::createFromFormat('H:i', $today['close'], 'Asia/Jakarta')->setDate($now->year, $now->month, $now->day);
+
+        // Handle overnight (misal: buka 22:00 tutup 02:00)
+        if ($close->lt($open)) {
+            return $now->gte($open) || $now->lt($close);
+        }
+
+        return $now->between($open, $close);
+    }
+}

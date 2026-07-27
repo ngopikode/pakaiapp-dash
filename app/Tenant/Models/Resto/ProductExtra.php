@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Tenant\Models\Core;
+namespace App\Tenant\Models\Resto;
 
+use App\Tenant\Models\Core\Product;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
