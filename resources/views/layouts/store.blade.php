@@ -1,8 +1,10 @@
 @php
     use App\Tenant\Models\Core\StoreSetting;
+    use App\Tenant\Services\SettingService;
     use Illuminate\Support\Facades\Storage;
 
     $setting = StoreSetting::cached();
+    $appFeeAmount = app(SettingService::class)->get('default_trx_fee', tenant(), 300);
 
     if ($setting?->is_active) {
         $waNumber = preg_replace('/\D/', '', $setting->whatsapp_number ?: '6281234567890');
@@ -54,7 +56,7 @@
     data-service-active="{{ $setting->is_service_charge_active ? 1 : 0 }}"
     data-service-rate="{{ $setting->service_charge_rate ?? 5.00 }}"
     data-is-app-fee-active="{{ ($setting->is_application_fee_passed ?? false) ? 1 : 0 }}"
-    data-app-fee-amount="{{ app(\App\Tenant\Services\SettingService::class)->get('default_trx_fee', tenant(), 300) }}"
+    data-app-fee-amount="{{ $appFeeAmount }}"
     @open-qr-modal.window="qrOpen = true"
     @show-toast.window="showToast($event.detail.message)"
     @open-options-modal.window="openOption($event.detail.product)"

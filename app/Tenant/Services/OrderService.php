@@ -32,6 +32,13 @@ class OrderService
         return $this->billingService ??= app(BillingService::class);
     }
 
+    protected ?SettingService $settingService = null;
+
+    protected function settingService(): SettingService
+    {
+        return $this->settingService ??= app(SettingService::class);
+    }
+
     /**
      * Memproses dan membuat Order secara tersentralisasi.
      *
@@ -49,7 +56,7 @@ class OrderService
             $serviceRate = $isServiceActive ? (float) $storeSetting->service_charge_rate : 0.00;
             
             $isAppFeeActive = $orderData['is_application_fee_passed'] ?? ($storeSetting && $storeSetting->is_application_fee_passed);
-            $appFeeAmount = $isAppFeeActive ? (float) app(SettingService::class)->get('default_trx_fee', tenant(), 300) : 0;
+            $appFeeAmount = $isAppFeeActive ? (float) $this->settingService()->get('default_trx_fee', tenant(), 300) : 0;
             
             // ponytail: default true agar tenant yang belum punya kolom (retail) tidak terdampak
             $isKitchenActive = (bool) ($storeSetting->is_kitchen_active ?? true);

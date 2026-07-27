@@ -1,3 +1,6 @@
+@php
+    $appFeeAmount = app(\App\Tenant\Services\SettingService::class)->get('default_trx_fee', tenant(), 300);
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-no-progress-bar>
 @include('pages.tenant.store.resto.partials._product-head')
@@ -18,7 +21,7 @@
     data-service-active="{{ $setting?->is_service_charge_active ? 1 : 0 }}"
     data-service-rate="{{ $setting?->service_charge_rate ?? 5.00 }}"
     data-is-app-fee-active="{{ ($setting?->is_application_fee_passed ?? false) ? 1 : 0 }}"
-    data-app-fee-amount="{{ app(\App\Tenant\Services\SettingService::class)->get('default_trx_fee', tenant(), 300) }}"
+    data-app-fee-amount="{{ $appFeeAmount }}"
     @show-toast.window="showToast($event.detail.message)"
     @open-options-modal.window="openOption($event.detail.product)"
     @open-checkout-modal.window="openCheckout()"
