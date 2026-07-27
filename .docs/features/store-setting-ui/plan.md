@@ -214,23 +214,23 @@ Label di blade pakai `@foreach` di blade — tidak di PHP component, karena hany
 
 ## Fase Implementasi
 
-### Fase 1: Rewrite Blade + CSS ⬜ Planned
+### Fase 1: Rewrite Blade + CSS ✅ Selesai
 
-- [ ] Kosongkan `store-setting.css`
-- [ ] Rewrite `store-setting.blade.php` → Tailwind, layout scroll-section
-- [ ] Section Info Dasar (existing content, ganti style + icon)
-- [ ] Section Hero & Navbar (existing content, ganti style + icon)
-- [ ] Section SEO & Meta (existing content, ganti style + icon)
-- [ ] Sticky/top save button, mobile-friendly
+- [x] Kosongkan `store-setting.css`
+- [x] Rewrite `store-setting.blade.php` → Tailwind, layout scroll-section
+- [x] Section Info Dasar (existing content, ganti style + icon)
+- [x] Section Hero & Navbar (existing content, ganti style + icon)
+- [x] Section SEO & Meta (existing content, ganti style + icon)
+- [x] Sticky/top save button, mobile-friendly
 
-### Fase 2: Section Jam Operasional ⬜ Planned
+### Fase 2: Section Jam Operasional ✅ Selesai
 
-- [ ] Tambah props + `mount()` + `save()` di `store-setting.php`
-- [ ] Tambah section Jam Operasional di blade
-- [ ] Toggle `use_same_hours` + conditional show/hide Alpine
-- [ ] Row "Semua Hari" (`operating_hours.default`)
-- [ ] 7 rows Senin–Minggu dengan `x-bind:disabled` saat libur
-- [ ] Verifikasi: save → cache bust → `isOpenNow()` reflect perubahan
+- [x] Tambah props + `mount()` + `save()` di `store-setting.php`
+- [x] Tambah section Jam Operasional di blade
+- [x] Toggle `use_same_hours` + conditional show/hide Alpine
+- [x] Row "Semua Hari" (`operating_hours.default`)
+- [x] 7 rows Senin–Minggu dengan `x-bind:disabled` saat libur
+- [x] Verifikasi: save → cache bust → `isOpenNow()` reflect perubahan
 
 ---
 

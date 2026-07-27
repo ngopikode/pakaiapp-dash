@@ -96,23 +96,34 @@ Dokumen ini mencatat rencana implementasi, keputusan arsitektur, dan konteks unt
 - ✅ Method `isOpenNow()` dan `getTodayHours()` pada `StoreSetting`
 - ✅ Expose data jam buka di `GET /api/restaurant`
 
-### Fase 2: Middleware & Caching 🔄 Berikutnya
+### Fase 2: Middleware & Caching ✅ Selesai
 
-- [ ] Buat `app/Shared/Traits/ClearsStoreSettingCache.php`
-- [ ] Tambahkan trait + `static cached()` ke `StoreSetting`
-- [ ] Buat `app/Shared/Middleware/CheckStoreOpen.php`
-- [ ] Register alias `store.open` di `bootstrap/app.php`
-- [ ] Pasang middleware ke `POST /api/orders` di `routes/tenant/api.php`
-- [ ] Ganti semua `StoreSetting::first()` → `StoreSetting::cached()`
+- [x] Buat `app/Shared/Traits/ClearsStoreSettingCache.php`
+- [x] Tambahkan trait + `static cached()` ke `StoreSetting`
+- [x] Buat `app/Shared/Middleware/CheckStoreOpen.php`
+- [x] Register alias `store.open` di `bootstrap/app.php`
+- [x] Pasang middleware ke `POST /api/orders` di `routes/tenant/api.php`
+- [x] Ganti semua `StoreSetting::first()` → `StoreSetting::cached()`
 
-### Fase 3: UI Storefront Resto 📋 Planned
+### Fase 3: UI Storefront Resto ✅ Selesai
 
-- [ ] Update `layouts/store.blade.php` — inject `$isOpenNow`, `$todayHours`
-- [ ] Modifikasi `_hero.blade.php` — badge dinamis dari `$isOpenNow` + `$todayHours`
-- [ ] Buat `_closed-banner.blade.php` — banner sticky saat tutup
-- [ ] `product-grid.blade.php` — disable tombol "Tambah" saat `storeClosed`
-- [ ] `checkout-modal.blade.php` — disable checkout saat `storeClosed`
-- [ ] `MenuController` — gate `isOpenNow()`, pass state ke view
+- [x] Update `layouts/store.blade.php` — inject `$isOpenNow`, `$todayHours`
+- [x] Modifikasi `_hero.blade.php` — badge dinamis dari `$isOpenNow` + `$todayHours`
+- [x] Buat `_closed-banner.blade.php` — banner sticky saat tutup
+- [x] `product-grid.blade.php` — disable tombol "Tambah" saat `storeClosed`
+- [x] `checkout-modal.blade.php` — disable checkout saat `storeClosed`
+- [x] `MenuController` — gate `isOpenNow()`, pass state ke view
+
+### Fase 4: UI Settings (Jam Operasional) ✅ Selesai
+
+> Lihat doc lengkapnya: [`../store-setting-ui/plan.md`](../store-setting-ui/plan.md)
+
+- [x] Migrate `store-setting.blade.php` dari Bootstrap ke Tailwind CSS (Scroll section)
+- [x] Hapus style lokal custom `store-setting.css`
+- [x] Tambahkan section pengaturan **Jam Operasional**
+- [x] Implementasi 0-roundtrip binding untuk disable jam jika libur per hari (`$wire.operating_hours.*`)
+- [x] Store array setting di property PHP dan update via array_merge pada trait `mount()` / `save()`
+
 
 ---
 

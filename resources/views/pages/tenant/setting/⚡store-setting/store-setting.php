@@ -51,6 +51,10 @@ class extends Component {
     public $og_title = '';
     public $og_description = '';
 
+    // Jam Operasional
+    public bool $use_same_hours = false;
+    public array $operating_hours = [];
+
     public function mount()
     {
         $setting = StoreSetting::first();
@@ -90,6 +94,15 @@ class extends Component {
             $this->seo_keywords = $setting->seo_keywords;
             $this->og_title = $setting->og_title;
             $this->og_description = $setting->og_description;
+
+            $this->use_same_hours = (bool)($setting->use_same_hours ?? false);
+            $loaded = $setting->operating_hours ?? [];
+            $default = ['open' => '08:00', 'close' => '22:00', 'is_closed' => false];
+            $days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+            $this->operating_hours = array_merge(
+                ['default' => $loaded['default'] ?? $default],
+                array_combine($days, array_map(fn($d) => $loaded[$d] ?? $default, $days))
+            );
         }
     }
 
@@ -133,6 +146,8 @@ class extends Component {
             'seo_keywords' => $this->seo_keywords,
             'og_title' => $this->og_title,
             'og_description' => $this->og_description,
+            'use_same_hours' => $this->use_same_hours,
+            'operating_hours' => $this->operating_hours,
         ];
 
         // Eksekusi upload Logo jika ada yang baru

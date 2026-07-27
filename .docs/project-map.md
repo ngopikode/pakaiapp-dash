@@ -420,7 +420,8 @@ Didefinisikan di `AppServiceProvider::boot()`.
 
 | Doc | Status | Deskripsi |
 |-----|--------|-----------|
-| [`features/operating-hours/plan.md`](features/operating-hours/plan.md) | 🔄 In Progress (Fase 2) | Jam operasional toko: jadwal per hari, middleware cek order, caching StoreSetting, UI storefront |
+| [`features/operating-hours/plan.md`](features/operating-hours/plan.md) | ✅ Shipped | Jam operasional toko: jadwal per hari, middleware cek order, caching StoreSetting, UI storefront, UI Settings Tailwind |
+| [`features/store-setting-ui/plan.md`](features/store-setting-ui/plan.md) | ✅ Shipped | Rewrite halaman pengaturan toko ke Tailwind + tambah section Jam Operasional |
 | [`features/ai-menu-engine/`](features/ai-menu-engine/) | ✅ Shipped | AI menu recommendation via OpenAI |
 | [`features/pos-queue-optimization/`](features/pos-queue-optimization/) | ✅ Shipped | Optimasi antrian POS dapur |
 | [`features/tailwind-migration/`](features/tailwind-migration/) | 🔄 In Progress | Migrasi Bootstrap → Tailwind CSS |
