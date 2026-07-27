@@ -105,7 +105,7 @@
                             },
                             {
                                 target: '[x-model="isTaxActive"]',
-                                title: 'Pajak PB1 & Service Charge',
+                                title: 'Pajak PB1 & Biaya Aplikasi',
                                 content: 'Pajak resto (PB1 10%) dan biaya pelayanan (5%) dapat dikendalikan dengan sakelar (switch) di keranjang belanja.',
                                 position: 'left'
                             }
@@ -565,7 +565,7 @@
                                         <i class="bi bi-percent fs-4"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-body">Pajak PB1 & Service Charge</h6>
+                                        <h6 class="fw-bold mb-1 text-body">Pajak PB1 & Biaya Aplikasi</h6>
                                         <p class="text-secondary small mb-0" style="font-size: 0.8rem;">Pajak resto (PB1
                                             10%) dan biaya pelayanan (5%) otomatis dihitung. Anda dapat mematikan atau
                                             menyalakan keduanya lewat sakelar (switch) di keranjang.</p>

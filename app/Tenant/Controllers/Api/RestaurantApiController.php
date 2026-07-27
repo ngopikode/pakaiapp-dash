@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
+use App\Tenant\Services\SettingService;
+
 class RestaurantApiController extends Controller
 {
     use ApiResponserTrait;
@@ -31,6 +33,8 @@ class RestaurantApiController extends Controller
             'tax_rate' => (float)$setting->tax_rate,
             'is_service_charge_active' => (bool)$setting->is_service_charge_active,
             'service_charge_rate' => (float)$setting->service_charge_rate,
+            'is_application_fee_passed' => (bool)($setting->is_application_fee_passed ?? false),
+            'application_fee_amount' => (float) app(SettingService::class)->get('default_trx_fee', tenant(), 300),
             'hero' => [
                 'promo_text' => $setting->hero_promo_text,
                 'status_text' => $setting->hero_status_text,

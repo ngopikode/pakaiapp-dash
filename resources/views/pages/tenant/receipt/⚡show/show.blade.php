@@ -130,8 +130,14 @@
             @endif
             @if(($order->service_charge_amount ?? 0) > 0)
                 <div class="mb-2 flex justify-between">
-                    <span class="text-slate-500">Biaya Layanan ({{ number_format($order->service_charge_percentage ?? 5, 0) }}%)</span>
+                    <span class="text-slate-500">Biaya Layanan Resto ({{ number_format($order->service_charge_percentage ?? 5, 0) }}%)</span>
                     <span class="font-bold text-slate-900">Rp {{ number_format($order->service_charge_amount, 0, ',', '.') }}</span>
+                </div>
+            @endif
+            @if(($order->application_fee ?? 0) > 0)
+                <div class="mb-2 flex justify-between">
+                    <span class="text-slate-500">Biaya Aplikasi</span>
+                    <span class="font-bold text-slate-900">Rp {{ number_format($order->application_fee, 0, ',', '.') }}</span>
                 </div>
             @endif
             @if(($order->tax_amount ?? 0) > 0)

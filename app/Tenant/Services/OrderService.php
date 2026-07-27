@@ -10,6 +10,7 @@ use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Resto\ProductExtra;
 use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Services\SettingService;
 use App\Tenant\Models\Resto\RawMaterial;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -41,11 +42,15 @@ class OrderService
         try {
             DB::beginTransaction();
 
-            $storeSetting = StoreSetting::select('is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'is_kitchen_active')->first();
+            $storeSetting = StoreSetting::select('is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'is_application_fee_passed', 'is_kitchen_active')->first();
             $isTaxActive = $orderData['is_tax_active'] ?? ($storeSetting && $storeSetting->is_tax_active);
             $taxRate = $isTaxActive ? (float) $storeSetting->tax_rate : 0.00;
             $isServiceActive = $orderData['is_service_active'] ?? ($storeSetting && $storeSetting->is_service_charge_active);
             $serviceRate = $isServiceActive ? (float) $storeSetting->service_charge_rate : 0.00;
+            
+            $isAppFeeActive = $orderData['is_application_fee_passed'] ?? ($storeSetting && $storeSetting->is_application_fee_passed);
+            $appFeeAmount = $isAppFeeActive ? (float) app(SettingService::class)->get('default_trx_fee', tenant(), 300) : 0;
+            
             // ponytail: default true agar tenant yang belum punya kolom (retail) tidak terdampak
             $isKitchenActive = (bool) ($storeSetting->is_kitchen_active ?? true);
 
@@ -168,13 +173,13 @@ class OrderService
                 $order = $existingOrder;
                 $newSubtotal = $order->subtotal + $realSubtotal;
 
-                $calculations = $this->calculateTaxesAndTotal($newSubtotal, (float) $order->discount, $taxRate, $serviceRate);
+                $calculations = $this->calculateTaxesAndTotal($newSubtotal, (float) $order->discount, $taxRate, $serviceRate, (float) $order->application_fee);
                 $calculations['kitchen_status'] = $isKitchenActive ? 'waiting' : 'completed';
 
                 $order->update($calculations);
             } else {
                 $globalDiscount = (float) ($orderData['global_discount'] ?? $orderData['discount'] ?? 0);
-                $calculations = $this->calculateTaxesAndTotal($realSubtotal, $globalDiscount, $taxRate, $serviceRate);
+                $calculations = $this->calculateTaxesAndTotal($realSubtotal, $globalDiscount, $taxRate, $serviceRate, $appFeeAmount);
 
                 $order = Order::create(array_merge([
                     'invoice_code' => $orderData['invoice_code'] ?? 'INV-' . strtoupper(Str::random(6)),
@@ -338,7 +343,7 @@ class OrderService
 
             $newSubtotal = max(0, $order->subtotal - $subtotalToDeduct);
 
-            $order->update($this->calculateTaxesAndTotal($newSubtotal, (float) $order->discount, $taxRate, $serviceRate));
+            $order->update($this->calculateTaxesAndTotal($newSubtotal, (float) $order->discount, $taxRate, $serviceRate, (float) ($order->application_fee ?? 0)));
 
             DB::commit();
 
@@ -527,7 +532,7 @@ class OrderService
                 $item->update(['order_id' => $newOrder->id]);
             }
 
-            $newOrder->update($this->calculateTaxesAndTotal($newSubtotal, $splitDiscount, $taxRate, $serviceRate));
+            $newOrder->update($this->calculateTaxesAndTotal($newSubtotal, $splitDiscount, $taxRate, $serviceRate, 0.00));
 
             $order->refresh();
             $oldSubtotal = $order->items->sum('subtotal');
@@ -535,7 +540,7 @@ class OrderService
             if ($oldSubtotal == 0 && $order->items->count() == 0) {
                 $order->delete();
             } else {
-                $order->update($this->calculateTaxesAndTotal($oldSubtotal, $remainingDiscount, $taxRate, $serviceRate));
+                $order->update($this->calculateTaxesAndTotal($oldSubtotal, $remainingDiscount, $taxRate, $serviceRate, (float) ($order->application_fee ?? 0)));
             }
 
             DB::commit();
@@ -589,7 +594,13 @@ class OrderService
 
             $newSubtotal = $targetOrder->items->sum('subtotal');
             $newDiscount = (float) $targetOrder->discount + (float) $sourceOrder->discount;
-            $targetOrder->update($this->calculateTaxesAndTotal($newSubtotal, $newDiscount, $taxRate, $serviceRate));
+            $targetOrder->update($this->calculateTaxesAndTotal(
+                $newSubtotal, 
+                $newDiscount, 
+                $taxRate, 
+                $serviceRate, 
+                (float) ($targetOrder->application_fee ?? 0) + (float) ($sourceOrder->application_fee ?? 0)
+            ));
 
             $sourceOrder->delete();
 
@@ -606,16 +617,19 @@ class OrderService
     /**
      * Calculates tax, service charge, and total price after discount.
      */
-    private function calculateTaxesAndTotal(float $subtotal, float $discount, float $taxRate, float $serviceRate): array
+    private function calculateTaxesAndTotal(float $subtotal, float $discount, float $taxRate, float $serviceRate, float $appFeeAmount = 0): array
     {
         $subtotalAfterDiscount = max(0, $subtotal - $discount);
         $serviceCharge = round(($serviceRate / 100) * $subtotalAfterDiscount);
-        $taxAmount = round(($taxRate / 100) * ($subtotalAfterDiscount + $serviceCharge));
-        $totalPrice = $subtotalAfterDiscount + $serviceCharge + $taxAmount;
+
+        $dpp = $subtotalAfterDiscount + $serviceCharge + $appFeeAmount;
+        $taxAmount = round(($taxRate / 100) * $dpp);
+        $totalPrice = $dpp + $taxAmount;
 
         return [
             'subtotal' => $subtotal,
             'service_charge_amount' => $serviceCharge,
+            'application_fee' => $appFeeAmount,
             'tax_amount' => $taxAmount,
             'total_price' => $totalPrice,
             'discount' => $discount,

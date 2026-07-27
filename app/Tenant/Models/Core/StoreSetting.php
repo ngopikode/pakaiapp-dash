@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Cache;
     'tax_rate',
     'is_service_charge_active',
     'service_charge_rate',
+    'is_application_fee_passed',
     'is_kitchen_active',
     'use_same_hours',
     'operating_hours',

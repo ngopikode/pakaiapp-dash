@@ -193,9 +193,17 @@
 
             @if(($order->service_charge_amount ?? 0) > 0)
                 <div class="flex justify-between items-center text-sm">
-                    <span class="text-[var(--text-secondary)]">Biaya Layanan ({{ number_format($order->service_charge_percentage ?? 5) }}%)</span>
+                    <span class="text-[var(--text-secondary)]">Biaya Layanan Resto ({{ number_format($order->service_charge_percentage ?? 5) }}%)</span>
                     <span
                         class="font-bold text-[var(--foreground)] tabular-nums">Rp {{ number_format($order->service_charge_amount, 0, ',', '.') }}</span>
+                </div>
+            @endif
+
+            @if(($order->application_fee ?? 0) > 0)
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-[var(--text-secondary)]">Biaya Aplikasi</span>
+                    <span
+                        class="font-bold text-[var(--foreground)] tabular-nums">Rp {{ number_format($order->application_fee, 0, ',', '.') }}</span>
                 </div>
             @endif
 

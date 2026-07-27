@@ -516,9 +516,15 @@
                                 </div>
                                 <div class="flex items-center justify-between"
                                      x-show="isServiceActive && serviceChargeAmount > 0" style="display: none;">
-                                    <span>Biaya Layanan (<span x-text="serviceRate"></span>%)</span>
+                                    <span>Biaya Layanan Restoran (<span x-text="serviceRate"></span>%)</span>
                                     <span class="text-[var(--foreground)] font-black"
                                           x-text="formatPrice(serviceChargeAmount)"></span>
+                                </div>
+                                <div class="flex items-center justify-between" x-show="isAppFeeActive && appFeeAmount > 0"
+                                     style="display: none;">
+                                    <span>Biaya Aplikasi</span>
+                                    <span class="text-[var(--foreground)] font-black"
+                                          x-text="formatPrice(appFeeAmount)"></span>
                                 </div>
                                 <div class="flex items-center justify-between" x-show="isTaxActive && taxAmount > 0"
                                      style="display: none;">

@@ -65,7 +65,17 @@ class MidtransService
                 'id' => 'SERVICE_CHARGE',
                 'price' => (int)$order->service_charge_amount,
                 'quantity' => 1,
-                'name' => 'Biaya Layanan',
+                'name' => 'Biaya Layanan Restoran',
+            ];
+        }
+
+        // Tambah Biaya Aplikasi sebagai item_detail (jika ada)
+        if ($order->application_fee > 0) {
+            $params['item_details'][] = [
+                'id' => 'APP_FEE',
+                'price' => (int)$order->application_fee,
+                'quantity' => 1,
+                'name' => 'Biaya Aplikasi PakaiApp',
             ];
         }
 

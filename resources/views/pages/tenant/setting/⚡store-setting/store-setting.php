@@ -24,6 +24,7 @@ class extends Component {
     public float $tax_rate = 10.00;
     public bool $is_service_charge_active = true;
     public float $service_charge_rate = 5.00;
+    public bool $is_application_fee_passed = false;
     public bool $is_kitchen_active = true;
 
     // Foto lama
@@ -74,6 +75,7 @@ class extends Component {
             $this->tax_rate = isset($setting->tax_rate) ? (float)$setting->tax_rate : 10.00;
             $this->is_service_charge_active = !isset($setting->is_service_charge_active) || (bool)$setting->is_service_charge_active;
             $this->service_charge_rate = isset($setting->service_charge_rate) ? (float)$setting->service_charge_rate : 5.00;
+            $this->is_application_fee_passed = (bool)($setting->is_application_fee_passed ?? false);
             $this->is_kitchen_active = !isset($setting->is_kitchen_active) || (bool)$setting->is_kitchen_active;
 
             $this->logo = $setting->logo;
@@ -129,6 +131,7 @@ class extends Component {
             'tax_rate' => $this->tax_rate,
             'is_service_charge_active' => $this->is_service_charge_active,
             'service_charge_rate' => $this->service_charge_rate,
+            'is_application_fee_passed' => $this->is_application_fee_passed,
             'is_kitchen_active' => $this->is_kitchen_active,
 
             'hero_promo_text' => $this->hero_promo_text,

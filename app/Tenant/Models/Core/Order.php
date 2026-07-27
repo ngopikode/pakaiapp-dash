@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'service_charge_amount',
     'tax_percentage',
     'service_charge_percentage',
+    'application_fee',
     'discount',
     'total_price',
     'amount_paid',

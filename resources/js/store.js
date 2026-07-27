@@ -569,19 +569,26 @@ document.addEventListener('alpine:init', () => {
         taxRate: 0,
         isServiceActive: false,
         serviceRate: 0,
+        isAppFeeActive: false,
+        appFeeAmountVal: 0,
 
         get serviceChargeAmount() {
             if (!this.isServiceActive) return 0;
             return Math.round((this.serviceRate / 100) * this.totalCart);
         },
 
+        get appFeeAmount() {
+            if (!this.isAppFeeActive) return 0;
+            return this.appFeeAmountVal;
+        },
+
         get taxAmount() {
             if (!this.isTaxActive) return 0;
-            return Math.round((this.taxRate / 100) * (this.totalCart + this.serviceChargeAmount));
+            return Math.round((this.taxRate / 100) * (this.totalCart + this.serviceChargeAmount + this.appFeeAmount));
         },
 
         get totalOrderPrice() {
-            return this.totalCart + this.serviceChargeAmount + this.taxAmount;
+            return this.totalCart + this.serviceChargeAmount + this.appFeeAmount + this.taxAmount;
         },
 
         get isDigitalMethod() {
@@ -623,6 +630,8 @@ document.addEventListener('alpine:init', () => {
             this.taxRate = parseFloat(root.dataset.taxRate) || 0;
             this.isServiceActive = root.dataset.serviceActive === '1';
             this.serviceRate = parseFloat(root.dataset.serviceRate) || 0;
+            this.isAppFeeActive = root.dataset.isAppFeeActive === '1';
+            this.appFeeAmountVal = parseFloat(root.dataset.appFeeAmount) || 0;
 
             // Apply theme reliably on every component init (solves Livewire navigation reset)
             if (this.theme === 'dark') {
@@ -657,6 +666,8 @@ document.addEventListener('alpine:init', () => {
                     this.taxRate = parseFloat(data.data.tax_rate) || 0;
                     this.isServiceActive = !!data.data.is_service_charge_active;
                     this.serviceRate = parseFloat(data.data.service_charge_rate) || 0;
+                    this.isAppFeeActive = !!data.data.is_application_fee_passed;
+                    this.appFeeAmountVal = parseFloat(data.data.application_fee_amount) || 0;
                 }
             } catch (e) {
                 console.error('[Settings] Gagal mengambil pengaturan terbaru', e);

@@ -166,7 +166,7 @@
                             },
                             {
                                 target: '[x-model="isTaxActive"]',
-                                title: 'Pajak PB1 & Service Charge',
+                                title: 'Pajak PB1 & Biaya Resto',
                                 content: 'Pajak resto (PB1 10%) dan biaya pelayanan (5%) dapat dikendalikan dengan sakelar (switch) di keranjang belanja secara praktis.',
                                 position: 'left'
                             },

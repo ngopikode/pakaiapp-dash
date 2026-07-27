@@ -95,8 +95,14 @@
                                                 </tr>
                                                 @if(($order->service_charge_amount ?? 0) > 0)
                                                     <tr>
-                                                        <td class="text-muted ps-3 py-2">Service ({{ $order->service_charge_percentage }}%)</td>
+                                                        <td class="text-muted ps-3 py-2">Service Resto ({{ $order->service_charge_percentage }}%)</td>
                                                         <td class="fw-bold text-end pe-3 py-2">Rp {{ number_format($order->service_charge_amount, 0, ',', '.') }}</td>
+                                                    </tr>
+                                                @endif
+                                                @if(($order->application_fee ?? 0) > 0)
+                                                    <tr>
+                                                        <td class="text-muted ps-3 py-2">Biaya Aplikasi</td>
+                                                        <td class="fw-bold text-end pe-3 py-2">Rp {{ number_format($order->application_fee, 0, ',', '.') }}</td>
                                                     </tr>
                                                 @endif
                                                 @if(($order->tax_amount ?? 0) > 0)

@@ -201,7 +201,7 @@
                                 
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
-                                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Service Charge</span>
+                                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Service Charge Restoran</span>
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" wire:model="is_service_charge_active" class="sr-only peer">
                                             <div class="w-9 h-5 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
@@ -211,6 +211,17 @@
                                         <input type="number" step="0.01" wire:model="service_charge_rate" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:ring-1 focus:ring-orange-500">
                                         <span class="absolute right-3 top-2 text-sm text-slate-400">%</span>
                                     </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Biaya Aplikasi</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" wire:model="is_application_fee_passed" class="sr-only peer">
+                                            <div class="w-9 h-5 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
+                                        </label>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Bebankan biaya transaksi PakaiApp ke pelanggan.</p>
                                 </div>
                             </div>
                         </div>
