@@ -22,7 +22,7 @@ class OrderService
 {
     public const string OPERATION_INCREMENT = 'increment';
 
-    public const OPERATION_DECREMENT = 'decrement';
+    public const string OPERATION_DECREMENT = 'decrement';
 
     protected ?BillingService $billingService = null;
 
@@ -664,6 +664,12 @@ class OrderService
 
     /**
      * Executes the aggregated stock adjustments.
+     *
+     * @param array $variantAdjustments
+     * @param array $rawMaterialAdjustments
+     * @param string $operation
+     * @return void
+     * @throws Exception
      */
     private function executeStockAdjustments(array $variantAdjustments, array $rawMaterialAdjustments, string $operation = self::OPERATION_DECREMENT): void
     {
