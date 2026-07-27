@@ -20,8 +20,9 @@ use Throwable;
 
 class OrderService
 {
-    public const string OPERATION_INCREMENT = 'increment',
-        OPERATION_DECREMENT = 'decrement';
+    public const string OPERATION_INCREMENT = 'increment';
+
+    public const OPERATION_DECREMENT = 'decrement';
 
     protected ?BillingService $billingService = null;
 
@@ -47,17 +48,17 @@ class OrderService
         try {
             DB::beginTransaction();
 
-            $storeSetting = StoreSetting::select('is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'is_application_fee_passed', 'is_kitchen_active')->first();
+            $storeSetting = StoreSetting::cached();
             $isTaxActive = $orderData['is_tax_active'] ?? ($storeSetting && $storeSetting->is_tax_active);
-            $taxRate = $isTaxActive ? (float)$storeSetting->tax_rate : 0.00;
+            $taxRate = $isTaxActive ? (float) $storeSetting->tax_rate : 0.00;
             $isServiceActive = $orderData['is_service_active'] ?? ($storeSetting && $storeSetting->is_service_charge_active);
-            $serviceRate = $isServiceActive ? (float)$storeSetting->service_charge_rate : 0.00;
+            $serviceRate = $isServiceActive ? (float) $storeSetting->service_charge_rate : 0.00;
 
             $isAppFeeActive = $orderData['is_application_fee_passed'] ?? ($storeSetting && $storeSetting->is_application_fee_passed);
-            $appFeeAmount = $isAppFeeActive ? (float)$this->settingService()->get('default_trx_fee', tenant(), 300) : 0;
+            $appFeeAmount = $isAppFeeActive ? (float) $this->settingService()->get('default_trx_fee', tenant(), 300) : 0;
 
             // ponytail: default true agar tenant yang belum punya kolom (retail) tidak terdampak
-            $isKitchenActive = (bool)($storeSetting->is_kitchen_active ?? true);
+            $isKitchenActive = (bool) ($storeSetting->is_kitchen_active ?? true);
 
             $recalculatedItems = [];
             $realSubtotal = 0;
@@ -83,24 +84,24 @@ class OrderService
             $allProductIds = array_unique($allProductIds);
             $allExtraIds = array_unique($allExtraIds);
 
-            $dbVariants = ProductVariant::with(['recipes.rawMaterial', 'product'])
+            $dbVariants = !empty($allVariantIds) ? ProductVariant::with(['recipes.rawMaterial', 'product'])
                 ->whereIn('id', $allVariantIds)
                 ->lockForUpdate()
                 ->get()
-                ->keyBy('id');
+                ->keyBy('id') : collect();
 
-            $dbProducts = Product::with('variants')
+            $dbProducts = !empty($allProductIds) ? Product::with('variants')
                 ->whereIn('id', $allProductIds)
                 ->get()
-                ->keyBy('id');
+                ->keyBy('id') : collect();
 
-            $dbExtras = ProductExtra::whereIn('id', $allExtraIds)
+            $dbExtras = !empty($allExtraIds) ? ProductExtra::whereIn('id', $allExtraIds)
                 ->get()
-                ->keyBy('id');
+                ->keyBy('id') : collect();
 
             foreach ($items as $item) {
                 $productId = $item['product_id'] ?? $item['id'];
-                $qty = (int)($item['quantity'] ?? $item['qty'] ?? 1);
+                $qty = (int) ($item['quantity'] ?? $item['qty'] ?? 1);
                 if ($qty <= 0) continue;
 
                 $variantIds = $item['variant_ids'] ?? [];
@@ -121,16 +122,16 @@ class OrderService
                         ? $itemVariants
                         : collect([$itemVariants->first()])->filter();
 
-                    $originalPrice = (float)$validVariantsObjects->sum('price');
-                    $discountedPrice = (float)$validVariantsObjects->sum(fn($v) => $v->active_discount_price ?? $v->price);
-                    $cost = (float)$validVariantsObjects->sum('cost');
+                    $originalPrice = (float) $validVariantsObjects->sum('price');
+                    $discountedPrice = (float) $validVariantsObjects->sum(fn ($v) => $v->active_discount_price ?? $v->price);
+                    $cost = (float) $validVariantsObjects->sum('cost');
                 } else {
                     $product = $dbProducts->get($productId);
                     if (!$product) throw new Exception("Product ID $productId tidak ditemukan.");
 
-                    $originalPrice = (float)$product->price;
+                    $originalPrice = (float) $product->price;
                     $activeDiscountPrice = $product->variants->min('active_discount_price');
-                    $discountedPrice = (float)($activeDiscountPrice ?? $product->price);
+                    $discountedPrice = (float) ($activeDiscountPrice ?? $product->price);
                 }
 
                 $extraPrice = 0;
@@ -144,7 +145,7 @@ class OrderService
                 $itemOriginalPrice = $originalPrice + $extraPrice;
                 $itemDiscountedPrice = $discountedPrice + $extraPrice;
                 $aiDiscount = max(0, $itemOriginalPrice - $itemDiscountedPrice);
-                $manualDiscount = (float)($item['itemDiscount'] ?? $item['discount'] ?? 0);
+                $manualDiscount = (float) ($item['itemDiscount'] ?? $item['discount'] ?? 0);
                 $totalItemDiscount = $aiDiscount + $manualDiscount;
                 $itemSubtotal = max(0, ($itemOriginalPrice - $totalItemDiscount) * $qty);
 
@@ -178,12 +179,12 @@ class OrderService
                 $order = $existingOrder;
                 $newSubtotal = $order->subtotal + $realSubtotal;
 
-                $calculations = $this->calculateTaxesAndTotal($newSubtotal, (float)$order->discount, $taxRate, $serviceRate, (float)$order->application_fee);
+                $calculations = $this->calculateTaxesAndTotal($newSubtotal, (float) $order->discount, $taxRate, $serviceRate, (float) $order->application_fee);
                 $calculations['kitchen_status'] = $isKitchenActive ? 'waiting' : 'completed';
 
                 $order->update($calculations);
             } else {
-                $globalDiscount = (float)($orderData['global_discount'] ?? $orderData['discount'] ?? 0);
+                $globalDiscount = (float) ($orderData['global_discount'] ?? $orderData['discount'] ?? 0);
                 $calculations = $this->calculateTaxesAndTotal($realSubtotal, $globalDiscount, $taxRate, $serviceRate, $appFeeAmount);
 
                 $order = Order::create(array_merge([
@@ -274,7 +275,7 @@ class OrderService
                 ) throw new Exception('Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.');
             }
 
-            $hasProcessedItems = $order->items()->whereIn('kitchen_status', ['processing', 'ready', 'completed'])->exists();
+            $hasProcessedItems = $order->items->whereIn('kitchen_status', ['processing', 'ready', 'completed'])->isNotEmpty();
             if ($hasProcessedItems) throw new Exception('Pesanan tidak dapat dibatalkan secara keseluruhan karena sebagian/seluruh item sudah diproses oleh dapur.');
 
             $variantAdjustments = [];
@@ -343,12 +344,12 @@ class OrderService
             $subtotalToDeduct = $item->subtotal;
             $item->delete();
 
-            $taxRate = (float)$order->tax_percentage;
-            $serviceRate = (float)$order->service_charge_percentage;
+            $taxRate = (float) $order->tax_percentage;
+            $serviceRate = (float) $order->service_charge_percentage;
 
             $newSubtotal = max(0, $order->subtotal - $subtotalToDeduct);
 
-            $order->update($this->calculateTaxesAndTotal($newSubtotal, (float)$order->discount, $taxRate, $serviceRate, (float)($order->application_fee ?? 0)));
+            $order->update($this->calculateTaxesAndTotal($newSubtotal, (float) $order->discount, $taxRate, $serviceRate, (float) ($order->application_fee ?? 0)));
 
             DB::commit();
 
@@ -375,7 +376,7 @@ class OrderService
 
             if (!$order || !$isPayable) throw new Exception('Pesanan tidak ditemukan atau sudah dibayar penuh.');
 
-            $baseTotal = isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal;
+            $baseTotal = isset($order->total_price) ? (float) $order->total_price : (float) $order->subtotal;
             $totalPrice = max(0, $baseTotal - $discount);
             $paid = $amountPaid > 0 ? $amountPaid : $totalPrice;
 
@@ -431,8 +432,8 @@ class OrderService
 
             $taxRate = $order->tax_percentage ?? 10.00;
             $serviceRate = $order->service_charge_percentage ?? 5.00;
-            $originalSubtotal = (float)$order->items->sum('subtotal');
-            $sourceDiscount = (float)$order->discount;
+            $originalSubtotal = (float) $order->items->sum('subtotal');
+            $sourceDiscount = (float) $order->discount;
 
             $newOrderItemsData = [];
             $itemsToMove = [];
@@ -442,14 +443,14 @@ class OrderService
 
             foreach ($itemsToSplitData as $splitData) {
                 $itemId = $splitData['id'] ?? null;
-                $splitQty = (int)($splitData['qty'] ?? 0);
+                $splitQty = (int) ($splitData['qty'] ?? 0);
 
                 if ($splitQty <= 0) continue;
 
                 $item = $order->items->where('id', $itemId)->first();
                 if (!$item) continue;
 
-                $splitQty = min($splitQty, (int)$item->quantity);
+                $splitQty = min($splitQty, (int) $item->quantity);
                 $perItemSubtotal = $item->quantity > 0 ? $item->subtotal / $item->quantity : 0;
                 $newItemSubtotal = max(0, $perItemSubtotal * $splitQty);
                 if ($newItemSubtotal <= 0) continue;
@@ -545,7 +546,7 @@ class OrderService
             if ($oldSubtotal == 0 && $order->items->count() == 0) {
                 $order->delete();
             } else {
-                $order->update($this->calculateTaxesAndTotal($oldSubtotal, $remainingDiscount, $taxRate, $serviceRate, (float)($order->application_fee ?? 0)));
+                $order->update($this->calculateTaxesAndTotal($oldSubtotal, $remainingDiscount, $taxRate, $serviceRate, (float) ($order->application_fee ?? 0)));
             }
 
             DB::commit();
@@ -566,10 +567,14 @@ class OrderService
         try {
             DB::beginTransaction();
 
-            $sourceOrder = Order::with('items')->lockForUpdate()->find($sourceOrderId);
+            $firstId = min($sourceOrderId, $targetOrderId);
+            $secondId = max($sourceOrderId, $targetOrderId);
 
+            Order::whereIn('id', [$firstId, $secondId])->lockForUpdate()->get();
+
+            $sourceOrder = Order::with('items')->find($sourceOrderId);
             /** @var Order $targetOrder */
-            $targetOrder = Order::with('items')->lockForUpdate()->find($targetOrderId);
+            $targetOrder = Order::with('items')->find($targetOrderId);
 
             if (!$sourceOrder || !$targetOrder) throw new Exception('Pesanan tidak ditemukan.');
 
@@ -594,17 +599,17 @@ class OrderService
             $targetOrder->customer_name = substr($newCustomerName, 0, 100);
 
             $targetOrder->refresh();
-            $taxRate = (float)$targetOrder->tax_percentage;
-            $serviceRate = (float)$targetOrder->service_charge_percentage;
+            $taxRate = (float) $targetOrder->tax_percentage;
+            $serviceRate = (float) $targetOrder->service_charge_percentage;
 
             $newSubtotal = $targetOrder->items->sum('subtotal');
-            $newDiscount = (float)$targetOrder->discount + (float)$sourceOrder->discount;
+            $newDiscount = (float) $targetOrder->discount + (float) $sourceOrder->discount;
             $targetOrder->update($this->calculateTaxesAndTotal(
                 $newSubtotal,
                 $newDiscount,
                 $taxRate,
                 $serviceRate,
-                (float)($targetOrder->application_fee ?? 0) + (float)($sourceOrder->application_fee ?? 0)
+                (float) ($targetOrder->application_fee ?? 0) + (float) ($sourceOrder->application_fee ?? 0)
             ));
 
             $sourceOrder->delete();

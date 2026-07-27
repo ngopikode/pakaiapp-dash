@@ -125,16 +125,16 @@ class OrderApiController extends Controller
             'order_info' => ['nullable', 'string', 'max:100'],
             'total_price' => ['required', 'numeric', 'min:1'],
             'payment_method' => ['nullable', 'string', 'max:20'],
-            'items' => ['required', 'array', 'min:1'],
+            'items' => ['required', 'array', 'min:1', 'max:100'],
             'items.*.product_id' => ['required', 'integer'],
             'items.*.variant_id' => ['nullable', 'integer'],
-            'items.*.variant_ids' => ['nullable', 'array'],
+            'items.*.variant_ids' => ['nullable', 'array', 'max:20'],
             'items.*.variant_ids.*' => ['integer'],
-            'items.*.extra_ids' => ['nullable', 'array'],
+            'items.*.extra_ids' => ['nullable', 'array', 'max:20'],
             'items.*.extra_ids.*' => ['integer'],
             'items.*.name' => ['required', 'string', 'max:255'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
-            'items.*.price' => ['required', 'numeric', 'min:0'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000'],
+            'items.*.price' => ['required', 'numeric', 'min:0', 'max:100000000'],
         ]);
     }
 
