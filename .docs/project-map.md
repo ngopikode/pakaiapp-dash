@@ -1,6 +1,6 @@
 # Project Map — pakaiapp-dash
 
-Dokumen ini adalah referensi arsitektur codebase untuk agen AI dan developer. Dibuat otomatis dari hasil scan proyek pada 2026-07-23.
+Dokumen ini adalah referensi arsitektur codebase untuk agen AI dan developer. Dibuat otomatis dari hasil scan proyek pada 2026-07-23. Terakhir diperbarui: 2026-07-27.
 
 ---
 
@@ -81,12 +81,14 @@ app/
 │   │   └── SystemEmail.php
 │   ├── Middleware/
 │   │   ├── CheckRole.php
+│   │   ├── CheckStoreOpen.php              # ← planned (Fase 2 operating-hours)
 │   │   ├── FileUrlMiddleware.php
 │   │   └── IpWhitelist.php
 │   └── Traits/
 │       ├── ApiPaginationTrait.php
 │       ├── ApiResponserTrait.php
 │       ├── ClearsAiMenuCache.php
+│       ├── ClearsStoreSettingCache.php     # ← planned (Fase 2 operating-hours)
 │       └── ShowsToast.php
 │
 ├── Tenant/                         # Domain: Per-Tenant (Toko)
@@ -121,13 +123,13 @@ app/
 │   │   │   ├── Order.php
 │   │   │   ├── OrderItem.php
 │   │   │   ├── Product.php
-│   │   │   ├── ProductExtra.php
 │   │   │   ├── ProductVariant.php
 │   │   │   ├── StoreSetting.php
 │   │   │   ├── TenantUser.php
 │   │   │   ├── Wallet.php
 │   │   │   └── WalletTransaction.php
-│   │   └── Resto/
+│   │   └── Resto/                          # Model khusus tenant tipe "resto"
+│   │       ├── ProductExtra.php            # ← dipindah dari Core/ (2026-07-27)
 │   │       ├── RawMaterial.php
 │   │       └── VariantRecipe.php
 │   └── Services/
@@ -167,10 +169,9 @@ app/
 | `Category` | `categories` | — | — |
 | `Product` | `products` | `#[ObservedBy(ProductObserver)]` | `ClearsAiMenuCache`, accessors: `price`, `formattedPrice`, `totalStock`, custom route binding |
 | `ProductVariant` | `product_variants` | — | `ClearsAiMenuCache`, accessor `profitMargin` (legacy) |
-| `ProductExtra` | `product_extras` | — | `ClearsAiMenuCache`, `casts: price, cost → float, is_active → boolean` |
 | `Order` | `orders` | — | accessor `formattedPaymentMethod` (legacy), method `restoreStock()` |
 | `OrderItem` | `order_items` | — | — |
-| `StoreSetting` | `store_settings` | — | — |
+| `StoreSetting` | `store_settings` | `operating_hours` (JSON), `use_same_hours` (bool) | `isOpenNow()`, `getTodayHours()`, `cached()` (planned), `ClearsStoreSettingCache` (planned) |
 | `TenantUser` | `users` | `#[Table('users')]`, `#[Hidden]` | extends `Authenticatable`, `casts: email_verified_at, password` |
 | `Wallet` | `wallets` | — | `casts: balance, monthly_fee_paid → decimal:2` |
 | `WalletTransaction` | `wallet_transactions` | — | `casts: amount, opening_balance, closing_balance → decimal:2`, `morphTo` |
@@ -187,6 +188,7 @@ app/
 
 | Model | Tabel | Traits/Notes |
 |---|---|---|
+| `ProductExtra` | `product_extras` | `ClearsAiMenuCache`, `casts: price, cost → float, is_active → boolean`. Tabel hanya ada di DB tenant tipe `resto`. |
 | `RawMaterial` | `raw_materials` | — |
 | `VariantRecipe` | `variant_recipes` | `HasFactory`, `belongsTo ProductVariant & RawMaterial` |
 
@@ -255,7 +257,7 @@ Prefix: `/api`, middleware: `api`.
 | Method | URI | Controller | Middleware |
 |---|---|---|---|
 | GET | `/api/restaurant` | `RestaurantApiController` | — |
-| POST | `/api/orders` | `OrderApiController@store` | `throttle:orders` |
+| POST | `/api/orders` | `OrderApiController@store` | `throttle:orders`, `store.open` (planned) |
 | POST | `/api/orders/history` | `OrderHistoryApiController@index` | `throttle:30,1` |
 | GET | `/api/duitku/payment-methods` | `DuitkuApiController@getPaymentMethods` | — |
 
@@ -275,6 +277,7 @@ Prefix: `/api`, middleware: `api`.
 | Alias / Class | Lokasi | Fungsi |
 |---|---|---|
 | `role` | `app/Shared/Middleware/CheckRole.php` | Cek `$user->role` vs allowed roles |
+| `store.open` | `app/Shared/Middleware/CheckStoreOpen.php` | Blokir order jika di luar jam operasional (planned, Fase 2) |
 | — | `app/Shared/Middleware/FileUrlMiddleware.php` | Set URL disk `public` sesuai tenant ID |
 | — | `app/Shared/Middleware/IpWhitelist.php` | Whitelist IP Duitku & Midtrans untuk webhook |
 | — | `app/Central/Http/Middleware/DuitkuEnabled.php` | Guard jika Duitku dinonaktifkan via config |
@@ -320,6 +323,7 @@ Registrasi di `bootstrap/app.php`:
 | Trait | Digunakan di | Fungsi |
 |---|---|---|
 | `ClearsAiMenuCache` | `Product`, `ProductVariant`, `ProductExtra` | Hapus cache AI menu saat model `saved`/`deleted` |
+| `ClearsStoreSettingCache` | `StoreSetting` | Hapus cache setting toko saat model `saved`/`deleted` (planned, Fase 2) |
 | `ShowsToast` | Livewire components | Helper `toast()` kirim JS event ke frontend |
 | `ApiResponserTrait` | API Controllers | Standarisasi response JSON (`successResponse`, `failResponse`, `errorResponse`) |
 | `ApiPaginationTrait` | API Controllers | Wrapper pagination manual & otomatis |
@@ -390,7 +394,7 @@ Didefinisikan di `AppServiceProvider::boot()`.
 
 ---
 
-## Known Tech Debt (per 2026-07-23)
+## Known Tech Debt (per 2026-07-27)
 
 | # | File | Issue |
 |---|---|---|
@@ -400,6 +404,9 @@ Didefinisikan di `AppServiceProvider::boot()`.
 | 4 | `User.php`, `TenantUser.php` | Docblock `@return array<string, string>` di atas `casts()` — redundant |
 | 5 | `routes/console.php` | Schedule tasks belum pakai `onOneServer()` — perlu jika multi-server |
 | 6 | `AppServiceProvider.php` | `Event::listen` manual — bisa diganti auto-discovery via `withEvents` di `bootstrap/app.php` |
+| 7 | `routes/tenant.php` | `/raw-material` dan `/kitchen` tidak ada route guard per `store_type` — accessible oleh semua tenant types via URL langsung |
+| 8 | `RestaurantApiController.php` | `StoreSetting::first()` tanpa cache — akan diperbaiki di Fase 2 operating-hours |
+| 9 | `MenuController.php` | Halaman detail produk (`/menu/{slug}`) tidak melewati gate `is_active` / `isOpenNow()` — akan diperbaiki di Fase 3 operating-hours |
 
 ---
 
@@ -408,6 +415,16 @@ Didefinisikan di `AppServiceProvider::boot()`.
 | Doc | Decision |
 |-----|----------|
 | [`decisions/001-service-dto-pattern.md`](decisions/001-service-dto-pattern.md) | Standarisasi Service + DTO untuk semua business logic baru |
+
+## Features
+
+| Doc | Status | Deskripsi |
+|-----|--------|-----------|
+| [`features/operating-hours/plan.md`](features/operating-hours/plan.md) | 🔄 In Progress (Fase 2) | Jam operasional toko: jadwal per hari, middleware cek order, caching StoreSetting, UI storefront |
+| [`features/ai-menu-engine/`](features/ai-menu-engine/) | ✅ Shipped | AI menu recommendation via OpenAI |
+| [`features/pos-queue-optimization/`](features/pos-queue-optimization/) | ✅ Shipped | Optimasi antrian POS dapur |
+| [`features/tailwind-migration/`](features/tailwind-migration/) | 🔄 In Progress | Migrasi Bootstrap → Tailwind CSS |
+| [`features/ui-standards/`](features/ui-standards/) | ✅ Shipped | Standar UI komponen |
 
 ## Additional References
 
