@@ -56,7 +56,7 @@ new class extends Component
                     'customer_phone' => $customerPhone ?: null,
                     'order_type' => 'retail',
                     'payment_method' => $paymentMethod,
-                    'global_discount' => (float) $globalDiscount,
+                    'global_discount' => (float)$globalDiscount,
                     'status' => 'completed',
                     'user_id' => Auth::id(),
                 ];
@@ -65,7 +65,7 @@ new class extends Component
                 $order = $orderService->processOrder($orderData, $cart);
 
                 $totalPrice = $order->total_price;
-                $paid = (float) $amountPaid ?: $totalPrice;
+                $paid = (float)$amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
 
                 $order->update([
@@ -112,26 +112,26 @@ new class extends Component
                 'id' => $p->id,
                 'name' => $p->name,
                 'category_id' => $p->category_id,
-                'has_variants' => (bool) $p->has_variants,
-                'price' => (float) $p->variants->min('price'),
-                'stock' => (int) $p->variants->sum('stock'),
+                'has_variants' => (bool)$p->has_variants,
+                'price' => (float)$p->variants->min('price'),
+                'stock' => (int)$p->variants->sum('stock'),
                 'variants' => $p->variants->map(fn ($v) => [
                     'id' => $v->id,
                     'name' => $v->name,
-                    'price' => (float) $v->price,
-                    'active_discount_price' => $v->active_discount_price ? (float) $v->active_discount_price : null,
+                    'price' => (float)$v->price,
+                    'active_discount_price' => $v->active_discount_price ? (float)$v->active_discount_price : null,
                     'active_discount_name' => $v->active_discount_name,
-                    'stock' => (int) $v->stock,
+                    'stock' => (int)$v->stock,
                 ])->toArray(),
             ];
 
             $formattedVariant = [
                 'id' => $variant->id,
                 'name' => $variant->name,
-                'price' => (float) $variant->price,
-                'active_discount_price' => $variant->active_discount_price ? (float) $variant->active_discount_price : null,
+                'price' => (float)$variant->price,
+                'active_discount_price' => $variant->active_discount_price ? (float)$variant->active_discount_price : null,
                 'active_discount_name' => $variant->active_discount_name,
-                'stock' => (int) $variant->stock,
+                'stock' => (int)$variant->stock,
             ];
 
             $this->dispatch('barcode-scanned', product: $formattedProduct, variant: $formattedVariant);
@@ -150,9 +150,9 @@ new class extends Component
                     throw new Exception('Pesanan tidak ditemukan atau sudah dibayar.');
                 }
 
-                $discountAmount = (float) $discount;
-                $totalPrice = max(0, (isset($order->total_price) ? (float) $order->total_price : (float) $order->subtotal) - $discountAmount);
-                $paid = (float) $amountPaid ?: $totalPrice;
+                $discountAmount = (float)$discount;
+                $totalPrice = max(0, (isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal) - $discountAmount);
+                $paid = (float)$amountPaid ?: $totalPrice;
                 $change = max(0, $paid - $totalPrice);
 
                 $order->update([

@@ -50,7 +50,7 @@ class DuitkuController extends Controller
 
         try {
             // Ambil merchantOrderId dari POST body
-            $rawMerchantOrderId = (string) $request->input('merchantOrderId', '');
+            $rawMerchantOrderId = (string)$request->input('merchantOrderId', '');
 
             $this->duitkuService->handleWebhook($rawMerchantOrderId);
 
@@ -181,7 +181,7 @@ class DuitkuController extends Controller
     public function getPaymentMethods(GetPaymentMethodsInputData $input): JsonResponse
     {
         try {
-            $methods = $this->duitkuService->getPaymentMethods((int) $input->amount);
+            $methods = $this->duitkuService->getPaymentMethods((int)$input->amount);
 
             return $this->successResponse(data: $methods);
         } catch (Throwable $e) {

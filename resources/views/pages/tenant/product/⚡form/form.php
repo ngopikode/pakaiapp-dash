@@ -101,7 +101,7 @@ class extends Component
 
         $this->product = $product;
         $this->name = $product->name;
-        $this->categoryId = (string) $product->category_id;
+        $this->categoryId = (string)$product->category_id;
         $this->description = $product->description ?? '';
         $this->taxIncluded = $product->tax_included;
         $this->isActive = $product->is_active;
@@ -117,14 +117,14 @@ class extends Component
                     $variantRecipes[] = [
                         'id' => $recipe->id,
                         'raw_material_id' => $recipe->raw_material_id,
-                        'quantity_used' => (float) $recipe->quantity_used,
+                        'quantity_used' => (float)$recipe->quantity_used,
                     ];
                 }
                 $this->variants[] = [
                     'id' => $variant->id,
                     'name' => $variant->name,
-                    'cost' => (float) $variant->cost,
-                    'price' => (float) $variant->price,
+                    'cost' => (float)$variant->cost,
+                    'price' => (float)$variant->price,
                     'stock' => $variant->stock,
                     'minStock' => $variant->min_stock,
                     'recipes' => $variantRecipes,
@@ -133,15 +133,15 @@ class extends Component
         } else {
             $defaultVariant = $product->variants->first();
             if ($defaultVariant) {
-                $this->baseCost = (float) $defaultVariant->cost;
-                $this->basePrice = (float) $defaultVariant->price;
+                $this->baseCost = (float)$defaultVariant->cost;
+                $this->basePrice = (float)$defaultVariant->price;
                 $this->baseStock = $defaultVariant->stock;
                 $this->baseMinStock = $defaultVariant->min_stock;
                 foreach ($defaultVariant->recipes as $recipe) {
                     $this->baseRecipes[] = [
                         'id' => $recipe->id,
                         'raw_material_id' => $recipe->raw_material_id,
-                        'quantity_used' => (float) $recipe->quantity_used,
+                        'quantity_used' => (float)$recipe->quantity_used,
                     ];
                 }
             }
@@ -153,8 +153,8 @@ class extends Component
             $this->extras[] = [
                 'id' => $extra->id,
                 'name' => $extra->name,
-                'cost' => (float) $extra->cost,
-                'price' => (float) $extra->price,
+                'cost' => (float)$extra->cost,
+                'price' => (float)$extra->price,
             ];
         }
         if (empty($this->extras)) {
@@ -200,7 +200,7 @@ class extends Component
 
         $dto = new ProductFormData(
             name: $this->name,
-            categoryId: (int) $this->categoryId,
+            categoryId: (int)$this->categoryId,
             description: $this->description ?: null,
             image: $imagePath,
             taxIncluded: $this->taxIncluded,

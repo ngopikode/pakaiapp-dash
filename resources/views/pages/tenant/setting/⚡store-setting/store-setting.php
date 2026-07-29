@@ -105,15 +105,15 @@ class extends Component
         $this->address = $setting->address;
         $this->is_active = $setting->is_active;
         $this->store_type = $setting->store_type ?? 'resto';
-        $this->is_dinein_active = (bool) $setting->is_dinein_active;
-        $this->is_takeaway_active = (bool) $setting->is_takeaway_active;
-        $this->is_delivery_active = (bool) $setting->is_delivery_active;
-        $this->is_tax_active = !isset($setting->is_tax_active) || (bool) $setting->is_tax_active;
-        $this->tax_rate = isset($setting->tax_rate) ? (float) $setting->tax_rate : 10.00;
-        $this->is_service_charge_active = !isset($setting->is_service_charge_active) || (bool) $setting->is_service_charge_active;
-        $this->service_charge_rate = isset($setting->service_charge_rate) ? (float) $setting->service_charge_rate : 5.00;
-        $this->is_application_fee_passed = (bool) ($setting->is_application_fee_passed ?? false);
-        $this->is_kitchen_active = !isset($setting->is_kitchen_active) || (bool) $setting->is_kitchen_active;
+        $this->is_dinein_active = (bool)$setting->is_dinein_active;
+        $this->is_takeaway_active = (bool)$setting->is_takeaway_active;
+        $this->is_delivery_active = (bool)$setting->is_delivery_active;
+        $this->is_tax_active = !isset($setting->is_tax_active) || (bool)$setting->is_tax_active;
+        $this->tax_rate = isset($setting->tax_rate) ? (float)$setting->tax_rate : 10.00;
+        $this->is_service_charge_active = !isset($setting->is_service_charge_active) || (bool)$setting->is_service_charge_active;
+        $this->service_charge_rate = isset($setting->service_charge_rate) ? (float)$setting->service_charge_rate : 5.00;
+        $this->is_application_fee_passed = (bool)($setting->is_application_fee_passed ?? false);
+        $this->is_kitchen_active = !isset($setting->is_kitchen_active) || (bool)$setting->is_kitchen_active;
 
         $this->logo = $setting->logo;
         $this->og_image = $setting->og_image;
@@ -134,7 +134,7 @@ class extends Component
         $this->og_title = $setting->og_title;
         $this->og_description = $setting->og_description;
 
-        $this->use_same_hours = (bool) ($setting->use_same_hours ?? false);
+        $this->use_same_hours = (bool)($setting->use_same_hours ?? false);
         $loaded = $setting->operating_hours ?? [];
         $default = ['open' => '08:00', 'close' => '22:00', 'is_closed' => false];
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

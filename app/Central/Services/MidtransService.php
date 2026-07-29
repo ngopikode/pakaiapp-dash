@@ -39,7 +39,7 @@ class MidtransService
         $params = [
             'transaction_details' => [
                 'order_id' => $merchantOrderId,
-                'gross_amount' => (int) $order->total_price,
+                'gross_amount' => (int)$order->total_price,
             ],
             'customer_details' => [
                 'first_name' => $customerDetail['firstName'] ?? '',
@@ -50,8 +50,8 @@ class MidtransService
             'item_details' => $order->items->map(function ($item) {
                 return [
                     'id' => $item->product_id,
-                    'price' => (int) $item->price,
-                    'quantity' => (int) $item->quantity,
+                    'price' => (int)$item->price,
+                    'quantity' => (int)$item->quantity,
                     'name' => mb_strimwidth($item->product_name, 0, 50, '...'), // max 50 chars for Midtrans
                 ];
             })->toArray(),
@@ -61,7 +61,7 @@ class MidtransService
         if ($order->service_charge_amount > 0) {
             $params['item_details'][] = [
                 'id' => 'SERVICE_CHARGE',
-                'price' => (int) $order->service_charge_amount,
+                'price' => (int)$order->service_charge_amount,
                 'quantity' => 1,
                 'name' => 'Biaya Layanan Restoran',
             ];
@@ -71,7 +71,7 @@ class MidtransService
         if ($order->application_fee > 0) {
             $params['item_details'][] = [
                 'id' => 'APP_FEE',
-                'price' => (int) $order->application_fee,
+                'price' => (int)$order->application_fee,
                 'quantity' => 1,
                 'name' => 'Biaya Aplikasi PakaiApp',
             ];
@@ -81,7 +81,7 @@ class MidtransService
         if ($order->tax_amount > 0) {
             $params['item_details'][] = [
                 'id' => 'TAX_PB1',
-                'price' => (int) $order->tax_amount,
+                'price' => (int)$order->tax_amount,
                 'quantity' => 1,
                 'name' => 'Pajak Restoran (PB1)',
             ];
@@ -112,7 +112,7 @@ class MidtransService
         $params = [
             'transaction_details' => [
                 'order_id' => $merchantOrderId,
-                'gross_amount' => (int) $registration->amount,
+                'gross_amount' => (int)$registration->amount,
             ],
             'customer_details' => [
                 'first_name' => mb_strimwidth($registration->owner_name, 0, 50, ''),
@@ -122,7 +122,7 @@ class MidtransService
             'item_details' => [
                 [
                     'id' => 'PLAN_' . strtoupper($registration->plan),
-                    'price' => (int) $registration->amount,
+                    'price' => (int)$registration->amount,
                     'quantity' => 1,
                     'name' => 'Pendaftaran Pakaiapp - Paket ' . ucfirst($registration->plan),
                 ],
@@ -239,7 +239,7 @@ class MidtransService
         $paymentMethodDb = in_array(strtolower($type), ['gopay', 'shopeepay', 'qris']) ? 'qris' : 'transfer';
 
         if ($status === 'paid') {
-            $amountPaid = (int) $notif->gross_amount;
+            $amountPaid = (int)$notif->gross_amount;
 
             // MITIGASI FRAUD: Cek apakah nominal bayar sesuai
             if ($amountPaid < $order->total_price) {

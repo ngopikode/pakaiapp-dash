@@ -32,7 +32,7 @@ class DuitkuApiController extends Controller
         ]);
 
         try {
-            $methods = $this->duitkuService->getPaymentMethods((int) $request->amount);
+            $methods = $this->duitkuService->getPaymentMethods((int)$request->amount);
 
             return $this->successResponse(data: $methods);
         } catch (Throwable $e) {

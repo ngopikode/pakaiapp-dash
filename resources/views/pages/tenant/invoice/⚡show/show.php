@@ -44,7 +44,7 @@ class extends Component
         try {
             $service = new DuitkuService;
             // Ambil daftar metode aktif dari API berdasarkan nominal order secara real-time
-            $activeMethods = $service->getPaymentMethods((int) $this->order->total_price);
+            $activeMethods = $service->getPaymentMethods((int)$this->order->total_price);
 
             foreach ($activeMethods as $method) {
                 if (strtoupper($method['paymentMethod'] ?? '') === $code) {

@@ -83,7 +83,7 @@ class BillingService
             $isUnderFup = $wallet->monthly_transaction_count < $fupLimit;
 
             $feeToCharge = ($isCapped && $isUnderFup) ? 0 : $trxFee;
-            $isPassedToCustomer = (float) $order->application_fee > 0;
+            $isPassedToCustomer = (float)$order->application_fee > 0;
             $isGatewaySettlement = in_array($order->payment_method, ['duitku', 'digital', 'midtrans'], true);
             $shouldDeductBilling = $feeToCharge > 0 && (!$isPassedToCustomer || !$isGatewaySettlement);
 

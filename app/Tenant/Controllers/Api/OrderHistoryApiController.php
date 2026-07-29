@@ -49,7 +49,7 @@ class OrderHistoryApiController extends Controller
                 return [
                     'invoiceCode' => $order->invoice_code,
                     'date' => $order->created_at->toIso8601String(),
-                    'totalRaw' => (float) $order->total_price,
+                    'totalRaw' => (float)$order->total_price,
                     'orderType' => $order->order_type,
                     'status' => $order->status,
                     'paymentMethod' => $order->payment_method,
@@ -58,7 +58,7 @@ class OrderHistoryApiController extends Controller
                         return [
                             'name' => $item->product_name,
                             'qty' => $item->quantity,
-                            'price' => (float) $item->price,
+                            'price' => (float)$item->price,
                         ];
                     }),
                 ];

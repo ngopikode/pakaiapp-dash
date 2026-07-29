@@ -140,7 +140,7 @@ class OrderService
                         : collect([$itemVariants->first()])->filter();
 
                     $originalPrice = (float)$validVariantsObjects->sum('price');
-                    $discountedPrice = (float)$validVariantsObjects->sum(fn($v) => $v->active_discount_price ?? $v->price);
+                    $discountedPrice = (float)$validVariantsObjects->sum(fn ($v) => $v->active_discount_price ?? $v->price);
                     $cost = (float)$validVariantsObjects->sum('cost');
                 } else {
                     $product = $dbProducts->get($productId);
@@ -750,7 +750,7 @@ class OrderService
             if ($operation === self::OPERATION_DECREMENT) {
                 $updated = RawMaterial::where('id', $id)->where('stock', '>=', $qty)->decrement('stock', $qty);
                 if ($updated !== 1) throw new Exception(message: 'Stok bahan baku tidak mencukupi.');
- 
+
                 continue;
             }
 

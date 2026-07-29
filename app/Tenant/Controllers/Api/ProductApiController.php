@@ -16,7 +16,7 @@ class ProductApiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $limit = (int) $request->input('limit', 20);
+        $limit = (int)$request->input('limit', 20);
         $categoryName = $request->input('category', 'all');
 
         $query = Product::with(['category', 'variants']);
@@ -34,12 +34,12 @@ class ProductApiController extends Controller
                 'id' => "product-{$product->id}",
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'price' => (float) $product->price, // Uses accessor
+                'price' => (float)$product->price, // Uses accessor
                 'description' => $product->description,
                 'category' => $product->category ? $product->category->name : 'Uncategorized',
                 'image' => $product->image ? Storage::url($product->image) : null,
                 'type' => $product->has_variants ? 'multi' : 'single',
-                'is_available' => (bool) $product->is_active,
+                'is_available' => (bool)$product->is_active,
                 'options' => $product->variants->pluck('name'),
             ];
         });
@@ -58,12 +58,12 @@ class ProductApiController extends Controller
             'id' => "product-{$product->id}",
             'product_id' => $product->id,
             'name' => $product->name,
-            'price' => (float) $product->price,
+            'price' => (float)$product->price,
             'description' => $product->description,
             'category' => $product->category ? $product->category->name : 'Uncategorized',
             'image' => $product->image ? Storage::url($product->image) : null,
             'type' => $product->has_variants ? 'multi' : 'single',
-            'is_available' => (bool) $product->is_active,
+            'is_available' => (bool)$product->is_active,
             'options' => $product->variants->pluck('name'),
         ];
 

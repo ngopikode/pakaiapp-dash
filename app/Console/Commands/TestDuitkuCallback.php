@@ -101,7 +101,7 @@ class TestDuitkuCallback extends Command
             }
 
             if ($order && !$amount) {
-                $amount = (string) $order->total_price;
+                $amount = (string)$order->total_price;
             }
         });
 
@@ -116,7 +116,7 @@ class TestDuitkuCallback extends Command
         }
 
         $this->line("  <fg=green>✓</fg=green> Invoice  : <fg=yellow>{$invoiceCode}</fg=yellow>");
-        $this->line('  <fg=green>✓</fg=green> Amount   : <fg=yellow>Rp ' . number_format((int) $amount, 0, ',', '.') . '</fg=yellow>');
+        $this->line('  <fg=green>✓</fg=green> Amount   : <fg=yellow>Rp ' . number_format((int)$amount, 0, ',', '.') . '</fg=yellow>');
 
         // ── 3. Build Merchant Order ID & Hitung Signature ───────────────────
         $merchantCode = config('duitku.merchant_code');

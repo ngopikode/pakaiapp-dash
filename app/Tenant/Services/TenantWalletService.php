@@ -70,8 +70,8 @@ class TenantWalletService
             // Menggunakan lockForUpdate untuk mencegah Race Condition (Double Spend / Dirty Read)
             $wallet = Wallet::where('id', $expectedWalletId)->lockForUpdate()->firstOrFail();
 
-            $openingBalance = (float) $wallet->balance;
-            $transactionAmount = (float) $amount;
+            $openingBalance = (float)$wallet->balance;
+            $transactionAmount = (float)$amount;
 
             if ($transactionAmount <= 0) {
                 throw new Exception('Nominal transaksi harus lebih besar dari 0.');

@@ -167,8 +167,8 @@ new class extends Component
                 tableNumber: $tableNumber,
                 orderType: $orderType,
                 paymentMethod: $paymentMethod,
-                discount: (float) $discount,
-                amountPaid: (float) $amountPaid,
+                discount: (float)$discount,
+                amountPaid: (float)$amountPaid,
                 isTaxActive: $isTaxActive,
                 isServiceActive: $isServiceActive,
             );
@@ -278,7 +278,7 @@ new class extends Component
                 ];
             }
 
-            $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float) $discount, (float) $amountPaid);
+            $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float)$discount, (float)$amountPaid);
 
             $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
 
@@ -517,9 +517,9 @@ new class extends Component
             'activeTab' => $this->activeTab,
             'restoOrderTypes' => $orderTypes,
             'isTaxActive' => $storeSetting?->is_tax_active ?? true,
-            'taxRate' => (float) ($storeSetting?->tax_rate ?? 10.00),
+            'taxRate' => (float)($storeSetting?->tax_rate ?? 10.00),
             'isServiceChargeActive' => $storeSetting?->is_service_charge_active ?? true,
-            'serviceChargeRate' => (float) ($storeSetting?->service_charge_rate ?? 5.00),
+            'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
             'counts' => $counts,
             'filters' => $filters,
             'queueOrders' => $filteredQueueOrders, // Use filtered orders for the view

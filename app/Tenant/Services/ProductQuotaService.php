@@ -16,7 +16,7 @@ class ProductQuotaService
 
     private function resolveQuota(): Quota
     {
-        $limit = (int) $this->settingService()->get('product_slots', tenant(), 12);
+        $limit = (int)$this->settingService()->get('product_slots', tenant(), 12);
 
         return Quota::firstOrCreate(
             ['type' => 'PRODUCT_SLOT'],

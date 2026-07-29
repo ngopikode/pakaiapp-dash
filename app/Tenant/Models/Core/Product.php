@@ -53,7 +53,7 @@ class Product extends Model
     public function resolveRouteBinding($value, $field = null): Model|Product|null
     {
         // Ambil angka terakhir (ID) dari string
-        $id = (int) last(explode('-', $value));
+        $id = (int)last(explode('-', $value));
 
         // Tetep cari pake ID, jadi database lu gak bakal keberatan
         return $this->where('id', $id)->firstOrFail();

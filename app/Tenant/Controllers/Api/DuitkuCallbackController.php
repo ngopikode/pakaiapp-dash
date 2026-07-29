@@ -106,7 +106,7 @@ class DuitkuCallbackController extends Controller
                     'status' => 'paid',
                     'payment_method' => $this->mapPaymentMethod($notif['paymentCode'] ?? ''),
                     'duitku_reference' => $notif['reference'] ?? $order->duitku_reference,
-                    'amount_paid' => (int) ($notif['amount'] ?? $order->total_price),
+                    'amount_paid' => (int)($notif['amount'] ?? $order->total_price),
                 ]);
 
                 event(new KitchenUpdated);
@@ -249,7 +249,7 @@ class DuitkuCallbackController extends Controller
 
         try {
             $duitkuService = new DuitkuService;
-            $methods = $duitkuService->getPaymentMethods((int) $request->amount);
+            $methods = $duitkuService->getPaymentMethods((int)$request->amount);
 
             return response()->json([
                 'success' => true,

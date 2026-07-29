@@ -44,7 +44,7 @@ class DuitkuService
     ) {
         $this->merchantKey = config('duitku.merchant_key') ?? '';
         $this->merchantCode = config('duitku.merchant_code') ?? '';
-        $this->sandbox = (bool) config('duitku.sandbox', true);
+        $this->sandbox = (bool)config('duitku.sandbox', true);
 
         // TODO(security): Di production, pastikan key tidak kosong. Fail-close jika tidak ada.
         if (empty($this->merchantKey) || empty($this->merchantCode)) {
@@ -79,7 +79,7 @@ class DuitkuService
             throw new RuntimeException('Format tenantId tidak valid.');
         }
 
-        $expiryPeriod = (int) config('duitku.expiry_period', 60);
+        $expiryPeriod = (int)config('duitku.expiry_period', 60);
         $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');
 
         // Central URLs — TIDAK menggunakan route() tenant karena butuh URL statis
@@ -126,11 +126,11 @@ class DuitkuService
         // Mengirimkan detail per item dapat menyebabkan ketidakcocokan jumlah total (Error 409).
         $itemDetails = [[
             'name' => substr(strip_tags('Pembayaran ' . $order->invoice_code), 0, 255),
-            'price' => (int) $order->total_price,
+            'price' => (int)$order->total_price,
             'quantity' => 1,
         ]];
 
-        $paymentAmount = (int) $order->total_price;
+        $paymentAmount = (int)$order->total_price;
         $stringToSign = $this->merchantCode . $merchantOrderId . $paymentAmount;
         $signature = hash_hmac('sha256', $stringToSign, $this->merchantKey);
 
@@ -212,7 +212,7 @@ class DuitkuService
      */
     public function createRegistrationInvoice(TenantRegistration $registration, string $paymentMethod): DuitkuInvoiceResultData
     {
-        $expiryPeriod = (int) config('duitku.expiry_period', 60);
+        $expiryPeriod = (int)config('duitku.expiry_period', 60);
         $callbackBaseUrl = config('duitku.callback_base_url', 'https://api.pakaiapp.online');
 
         // Central URLs
@@ -248,11 +248,11 @@ class DuitkuService
 
         $itemDetails = [[
             'name' => 'Registrasi Pakaiapp Paket ' . ucfirst($registration->plan),
-            'price' => (int) $registration->amount,
+            'price' => (int)$registration->amount,
             'quantity' => 1,
         ]];
 
-        $paymentAmount = (int) $registration->amount;
+        $paymentAmount = (int)$registration->amount;
         $stringToSign = $this->merchantCode . $merchantOrderId . $paymentAmount;
         $signature = hash_hmac('sha256', $stringToSign, $this->merchantKey);
 
@@ -459,7 +459,7 @@ class DuitkuService
                 paymentMethod: $method['paymentMethod'],
                 paymentName: $method['paymentName'],
                 paymentImage: $method['paymentImage'],
-                totalFee: (int) $method['totalFee']
+                totalFee: (int)$method['totalFee']
             );
         }
 
@@ -599,7 +599,7 @@ class DuitkuService
             }
 
             if ($resultCode === '00') {
-                $amountPaid = (int) ($notif['amount'] ?? $order->total_price);
+                $amountPaid = (int)($notif['amount'] ?? $order->total_price);
 
                 if ($amountPaid < $order->total_price) {
                     Log::warning('[Duitku Central] Fraud detected: Underpaid', [

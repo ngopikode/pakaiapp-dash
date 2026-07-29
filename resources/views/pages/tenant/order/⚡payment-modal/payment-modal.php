@@ -58,7 +58,7 @@ new class extends Component
 
         try {
             $duitkuService = new DuitkuService;
-            $methods = $duitkuService->getPaymentMethods((int) $this->paymentTotal);
+            $methods = $duitkuService->getPaymentMethods((int)$this->paymentTotal);
             $this->duitkuPaymentMethods = $methods;
             if (!empty($methods)) {
                 $hasQris = collect($methods)->first(fn ($m) => in_array($m['paymentMethod'], ['NQ', 'SP', 'QRIS', 'QRISC']));
@@ -146,7 +146,7 @@ new class extends Component
                     throw new Exception('Pesanan tidak valid atau sudah dibayar sebelumnya.');
                 }
 
-                $change = max(0, (float) $this->paymentAmount - $order->total_price);
+                $change = max(0, (float)$this->paymentAmount - $order->total_price);
 
                 $status = 'paid';
                 if (in_array($order->kitchen_status, ['ready', 'completed'])) {

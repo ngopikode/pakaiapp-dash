@@ -44,7 +44,7 @@ class extends Component
     public function mount(): void
     {
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
-        $this->kitchenActive = (bool) (StoreSetting::first()?->is_kitchen_active ?? true);
+        $this->kitchenActive = (bool)(StoreSetting::first()?->is_kitchen_active ?? true);
     }
 
     public function setDateFilter($filter)
@@ -352,9 +352,9 @@ class extends Component
                         ->orderByDesc('total_sold')
                         ->limit(5)
                         ->get()
-                        ->map(fn ($item) => (array) $item)
+                        ->map(fn ($item) => (array)$item)
                         ->toArray();
-                }))->map(fn ($item) => (object) $item);
+                }))->map(fn ($item) => (object)$item);
 
                 $paymentMethods = collect(Cache::remember("dashboard_payment_methods_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('orders')
@@ -363,9 +363,9 @@ class extends Component
                         ->whereIn('status', ['paid', 'completed'])
                         ->groupBy('payment_method')
                         ->get()
-                        ->map(fn ($item) => (array) $item)
+                        ->map(fn ($item) => (array)$item)
                         ->toArray();
-                }))->map(fn ($item) => (object) $item);
+                }))->map(fn ($item) => (object)$item);
 
                 $orderTypes = collect(Cache::remember("dashboard_order_types_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
                     return DB::table('orders')
@@ -374,9 +374,9 @@ class extends Component
                         ->whereIn('status', ['paid', 'completed'])
                         ->groupBy('order_type')
                         ->get()
-                        ->map(fn ($item) => (array) $item)
+                        ->map(fn ($item) => (array)$item)
                         ->toArray();
-                }))->map(fn ($item) => (object) $item);
+                }))->map(fn ($item) => (object)$item);
 
                 // Peak Hours F&B
                 $peakSalesTimes = collect(Cache::remember("dashboard_peak_hours_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
@@ -391,10 +391,10 @@ class extends Component
                         ->map(function ($item) {
                             $item->time_range = sprintf('%02d:00 - %02d:00', $item->hour, $item->hour + 1);
 
-                            return (array) $item;
+                            return (array)$item;
                         })
                         ->toArray();
-                }))->map(fn ($item) => (object) $item);
+                }))->map(fn ($item) => (object)$item);
 
                 // Slow Moving Products (kurang laku)
                 $slowMovingProducts = collect(Cache::remember("dashboard_slow_moving_{$cacheKeySuffix}", $cacheTtl, function () use ($startDate, $endDate) {
@@ -408,9 +408,9 @@ class extends Component
                         ->orderBy('total_sold')
                         ->limit(3)
                         ->get()
-                        ->map(fn ($item) => (array) $item)
+                        ->map(fn ($item) => (array)$item)
                         ->toArray();
-                }))->map(fn ($item) => (object) $item);
+                }))->map(fn ($item) => (object)$item);
             } catch (\Exception $e) {
                 // Ignore jika ada fungsi SQL yang tidak di-support driver database tertentu
             }

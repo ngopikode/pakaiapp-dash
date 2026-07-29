@@ -22,7 +22,7 @@ new class extends Component
         $user = Auth::user();
         $storeSetting = StoreSetting::first();
         $storeType = $storeSetting?->store_type ?? 'retail';
-        $isKitchenActive = (bool) ($storeSetting?->is_kitchen_active ?? true);
+        $isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
 
         $sections = [
             [

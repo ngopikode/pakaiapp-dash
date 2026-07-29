@@ -138,7 +138,7 @@ class TenantRegistrationService
             code: ResponseAlias::HTTP_BAD_REQUEST
         );
         // Generate 6 digit OTP
-        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store OTP in cache for 5 minutes
         Cache::put(' ' . $email, $otp, now()->addMinutes(5));
@@ -199,7 +199,7 @@ class TenantRegistrationService
      */
     public function isEmailVerified(string $email): bool
     {
-        return (bool) Cache::get("email_verified_$email");
+        return (bool)Cache::get("email_verified_$email");
     }
 
     /**
@@ -488,7 +488,7 @@ class TenantRegistrationService
      */
     public function sendBillingEmail(TenantRegistration $registration, string $paymentMethod, array $paymentData = []): void
     {
-        $amountFmt = number_format((float) $registration->amount, 0, ',', '.');
+        $amountFmt = number_format((float)$registration->amount, 0, ',', '.');
 
         try {
             $emailTitle = '';

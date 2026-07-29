@@ -119,8 +119,8 @@ class extends Component
         return [
             'wallet' => $wallet,
             'transactions' => $transactions,
-            'totalCredit' => (float) ($aggregates->total_credit ?? 0),
-            'totalDebit' => (float) ($aggregates->total_debit ?? 0),
+            'totalCredit' => (float)($aggregates->total_credit ?? 0),
+            'totalDebit' => (float)($aggregates->total_debit ?? 0),
         ];
     }
 };

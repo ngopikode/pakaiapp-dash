@@ -29,9 +29,9 @@ trait ApiPaginationTrait
     {
         return [
             '_metadata' => [
-                'page' => (int) $data->currentPage(),
-                'per_page' => (int) $data->perPage(),
-                'total' => (int) $data->total(),
+                'page' => (int)$data->currentPage(),
+                'per_page' => (int)$data->perPage(),
+                'total' => (int)$data->total(),
             ],
             'records' => $data->items(),
         ];
