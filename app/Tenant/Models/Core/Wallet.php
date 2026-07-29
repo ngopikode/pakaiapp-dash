@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'id',
+    'name',
+    'type',
     'balance',
     'current_billing_period',
     'monthly_transaction_count',
@@ -16,6 +18,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Wallet extends Model
 {
+    public const string TYPE_BILLING = 'billing';
+
+    public const string TYPE_CASH = 'cash';
+
+    public const string TYPE_BANK = 'bank';
+
+    public const string TYPE_GATEWAY = 'gateway';
+
     protected function casts(): array
     {
         return [

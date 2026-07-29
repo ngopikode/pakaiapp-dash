@@ -27,10 +27,15 @@ class BillingService
     private function lockAndPrepareWallet(): Wallet
     {
         // Optimization: lock immediately during the first fetch to avoid 2 separate queries
-        $wallet = Wallet::lockForUpdate()->firstOrCreate(
-            ['id' => 1],
-            ['balance' => 0]
-        );
+        $wallet = Wallet::where('type', Wallet::TYPE_BILLING)
+            ->lockForUpdate()
+            ->firstOrCreate(
+                ['type' => Wallet::TYPE_BILLING],
+                [
+                    'name' => 'Deposit Pakaiapp',
+                    'balance' => 0,
+                ]
+            );
 
         $currentMonth = date('Y-m');
 
@@ -78,6 +83,9 @@ class BillingService
             $isUnderFup = $wallet->monthly_transaction_count < $fupLimit;
 
             $feeToCharge = ($isCapped && $isUnderFup) ? 0 : $trxFee;
+            $isPassedToCustomer = (float) $order->application_fee > 0;
+            $isGatewaySettlement = in_array($order->payment_method, ['duitku', 'digital', 'midtrans'], true);
+            $shouldDeductBilling = $feeToCharge > 0 && (!$isPassedToCustomer || !$isGatewaySettlement);
 
             $updateData = ['monthly_transaction_count' => $wallet->monthly_transaction_count + 1];
 
@@ -86,14 +94,20 @@ class BillingService
             // Save counters FIRST before calling other services to prevent stale reads/deadlocks
             $wallet->update($updateData);
 
-            if ($feeToCharge > 0) $this->walletService->deductBalance(
-                amount: $feeToCharge,
-                reference: $order,
-                description: "Biaya layanan pakaiapp untuk pesanan $order->invoice_code"
-            );
+            if ($shouldDeductBilling) {
+                $this->walletService->deductBalance(
+                    amount: $feeToCharge,
+                    reference: $order,
+                    description: "Biaya layanan pakaiapp untuk pesanan $order->invoice_code",
+                    walletType: Wallet::TYPE_BILLING
+                );
+            }
 
             Log::info("[BillingService] Charged fee for order $order->invoice_code", [
                 'fee_charged' => $feeToCharge,
+                'is_passed_to_customer' => $isPassedToCustomer,
+                'is_gateway_settlement' => $isGatewaySettlement,
+                'should_deduct_billing' => $shouldDeductBilling,
                 'monthly_fee_paid' => $wallet->monthly_fee_paid,
                 'monthly_tx_count' => $wallet->monthly_transaction_count,
             ]);

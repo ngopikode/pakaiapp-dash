@@ -9,6 +9,7 @@ use App\Tenant\Models\Core\OrderItem;
 use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Core\StoreSetting;
+use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Resto\ProductExtra;
 use App\Tenant\Models\Resto\RawMaterial;
 use Exception;
@@ -23,6 +24,22 @@ class OrderService
     public const string OPERATION_INCREMENT = 'increment';
 
     public const string OPERATION_DECREMENT = 'decrement';
+
+    protected ?TenantWalletService $walletService = null;
+
+    protected function walletService(): TenantWalletService
+    {
+        return $this->walletService ??= app(TenantWalletService::class);
+    }
+
+    private function getWalletTypeForPayment(string $paymentMethod): string
+    {
+        return match (strtolower($paymentMethod)) {
+            'qris', 'transfer', 'manual' => Wallet::TYPE_BANK,
+            'duitku', 'midtrans', 'digital' => Wallet::TYPE_GATEWAY,
+            default => Wallet::TYPE_CASH,
+        };
+    }
 
     protected ?BillingService $billingService = null;
 
@@ -55,7 +72,7 @@ class OrderService
             $serviceRate = $isServiceActive ? (float)$storeSetting->service_charge_rate : 0.00;
 
             $isAppFeeActive = $orderData['is_application_fee_passed'] ?? ($storeSetting && $storeSetting->is_application_fee_passed);
-            $appFeeAmount = $isAppFeeActive ? (float)$this->settingService()->get('default_trx_fee', tenant(), 300) : 0;
+            $applicationFeeAmount = $isAppFeeActive ? (float)$this->settingService()->get('default_trx_fee', tenant(), 300) : 0;
 
             // ponytail: default true agar tenant yang belum punya kolom (retail) tidak terdampak
             $isKitchenActive = (bool)($storeSetting->is_kitchen_active ?? true);
@@ -116,7 +133,7 @@ class OrderService
                 if (!empty($variantIds)) {
                     $itemVariants = $dbVariants->only($variantIds);
                     $product = $itemVariants->first()?->product ?? $dbProducts->get($productId);
-                    if (!$product) throw new Exception("Product ID $productId tidak ditemukan.");
+                    if (!$product) throw new Exception(message: "Product ID $productId tidak ditemukan.");
 
                     $validVariantsObjects = $product->selection_type === 'multiple'
                         ? $itemVariants
@@ -127,7 +144,7 @@ class OrderService
                     $cost = (float)$validVariantsObjects->sum('cost');
                 } else {
                     $product = $dbProducts->get($productId);
-                    if (!$product) throw new Exception("Product ID $productId tidak ditemukan.");
+                    if (!$product) throw new Exception(message: "Product ID $productId tidak ditemukan.");
 
                     $originalPrice = (float)$product->price;
                     $activeDiscountPrice = $product->variants->min('active_discount_price');
@@ -171,9 +188,7 @@ class OrderService
                 ];
             }
 
-            if (empty($recalculatedItems)) {
-                throw new Exception('Semua produk dalam pesanan tidak valid.');
-            }
+            if (empty($recalculatedItems)) throw new Exception(message: 'Semua produk dalam pesanan tidak valid.');
 
             if ($existingOrder) {
                 $order = $existingOrder;
@@ -185,7 +200,7 @@ class OrderService
                 $order->update($calculations);
             } else {
                 $globalDiscount = (float)($orderData['global_discount'] ?? $orderData['discount'] ?? 0);
-                $calculations = $this->calculateTaxesAndTotal($realSubtotal, $globalDiscount, $taxRate, $serviceRate, $appFeeAmount);
+                $calculations = $this->calculateTaxesAndTotal($realSubtotal, $globalDiscount, $taxRate, $serviceRate, $applicationFeeAmount);
 
                 $order = Order::create(array_merge([
                     'invoice_code' => $orderData['invoice_code'] ?? 'INV-' . strtoupper(Str::random(6)),
@@ -212,36 +227,44 @@ class OrderService
             $rawMaterialAdjustments = [];
             $now = now();
 
-            foreach ($recalculatedItems as $item) {
+            foreach ($recalculatedItems as $recalculatedItem) {
                 $orderItemData[] = [
                     'order_id' => $order->id,
-                    'product_id' => $item['product_id'],
-                    'variant_id' => $item['variant_id'],
-                    'product_name' => $item['product_name'],
-                    'variant_name' => $item['variant_name'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'cost' => $item['cost'],
-                    'discount' => $item['discount'],
-                    'subtotal' => $item['subtotal'],
-                    'note' => $item['note'],
-                    'kitchen_status' => $item['kitchen_status'],
-                    'selected_variants' => json_encode($item['selected_variants']),
-                    'selected_extras' => json_encode($item['selected_extras']),
+                    'product_id' => $recalculatedItem['product_id'],
+                    'variant_id' => $recalculatedItem['variant_id'],
+                    'product_name' => $recalculatedItem['product_name'],
+                    'variant_name' => $recalculatedItem['variant_name'],
+                    'quantity' => $recalculatedItem['quantity'],
+                    'price' => $recalculatedItem['price'],
+                    'cost' => $recalculatedItem['cost'],
+                    'discount' => $recalculatedItem['discount'],
+                    'subtotal' => $recalculatedItem['subtotal'],
+                    'note' => $recalculatedItem['note'],
+                    'kitchen_status' => $recalculatedItem['kitchen_status'],
+                    'selected_variants' => json_encode($recalculatedItem['selected_variants']),
+                    'selected_extras' => json_encode($recalculatedItem['selected_extras']),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
 
-                foreach ($item['valid_variants_objects'] as $variant) {
-                    $this->aggregateStockAdjustments($variant, $item['quantity'], $variantAdjustments, $rawMaterialAdjustments);
+                foreach ($recalculatedItem['valid_variants_objects'] as $variant) {
+                    $this->aggregateStockAdjustments($variant, $recalculatedItem['quantity'], $variantAdjustments, $rawMaterialAdjustments);
                 }
             }
 
-            if (!empty($orderItemData)) {
-                OrderItem::insert($orderItemData);
-            }
+            if (!empty($orderItemData)) OrderItem::insert($orderItemData);
 
             $this->executeStockAdjustments($variantAdjustments, $rawMaterialAdjustments);
+
+            if (in_array($order->status, ['paid', 'completed'], true)) {
+                $netRevenue = $order->total_price - (float)($order->application_fee ?? 0);
+                if ($netRevenue > 0) $this->walletService()->addBalance(
+                    amount: $netRevenue,
+                    reference: $order,
+                    description: "Penerimaan dana dari pesanan $order->invoice_code",
+                    walletType: $this->getWalletTypeForPayment($order->payment_method)
+                );
+            }
 
             event(new KitchenUpdated);
 
@@ -265,18 +288,22 @@ class OrderService
 
             /** @var Order $order */
             $order = Order::with('items.variant.recipes.rawMaterial')->lockForUpdate()->find($orderId);
-            if (!$order) throw new Exception('Pesanan tidak ditemukan.');
+            if (!$order) throw new Exception(message: 'Pesanan tidak ditemukan.');
 
-            if ($order->status === 'cancelled') throw new Exception('Pesanan sudah dibatalkan sebelumnya.');
+            if ($order->status === 'cancelled') throw new Exception(message: 'Pesanan sudah dibatalkan sebelumnya.');
 
             if ($order->status !== 'pending') {
                 if (
                     $order->is_printed || Carbon::parse($order->created_at)->toDateString() !== today()->toDateString()
-                ) throw new Exception('Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.');
+                ) throw new Exception(
+                    message: 'Pesanan yang sudah dicetak struk atau lewat hari tidak bisa dibatalkan.'
+                );
             }
 
             $hasProcessedItems = $order->items->whereIn('kitchen_status', ['processing', 'ready', 'completed'])->isNotEmpty();
-            if ($hasProcessedItems) throw new Exception('Pesanan tidak dapat dibatalkan secara keseluruhan karena sebagian/seluruh item sudah diproses oleh dapur.');
+            if ($hasProcessedItems) throw new Exception(
+                message: 'Pesanan tidak dapat dibatalkan secara keseluruhan karena sebagian/seluruh item sudah diproses oleh dapur.'
+            );
 
             $variantAdjustments = [];
             $rawMaterialAdjustments = [];
@@ -291,7 +318,21 @@ class OrderService
             if ($note) $updateData['cancellation_note'] = $note;
             $order->update($updateData);
 
-            if ($order->getOriginal('status') !== 'pending') $this->billingService()->processVoidPenalty($order);
+            $originalStatus = $order->getOriginal('status');
+
+            if ($originalStatus !== 'pending') {
+                $this->billingService()->processVoidPenalty($order);
+
+                if (in_array($originalStatus, ['paid', 'completed'], true)) {
+                    $netRevenue = $order->total_price - (float)($order->application_fee ?? 0);
+                    if ($netRevenue > 0) $this->walletService()->deductBalance(
+                        amount: $netRevenue,
+                        reference: $order,
+                        description: "Pengembalian dana (refund) pembatalan pesanan $order->invoice_code",
+                        walletType: $this->getWalletTypeForPayment($order->payment_method)
+                    );
+                }
+            }
 
             DB::commit();
 
@@ -312,16 +353,16 @@ class OrderService
             DB::beginTransaction();
 
             $item = OrderItem::with('order')->lockForUpdate()->find($orderItemId);
-            if (!$item) throw new Exception('Item tidak ditemukan.');
+            if (!$item) throw new Exception(message: 'Item tidak ditemukan.');
 
             $order = $item->order;
             if (
-                !$order || in_array($order->status, ['completed', 'cancelled'])
-            ) throw new Exception('Pesanan sudah selesai atau dibatalkan, tidak bisa void.');
+                !$order || in_array($order->status, ['completed', 'cancelled'], true)
+            ) throw new Exception(message: 'Pesanan sudah selesai atau dibatalkan, tidak bisa void.');
 
             if (
-                in_array($item->kitchen_status, ['processing', 'ready', 'completed'])
-            ) throw new Exception('Item sedang/sudah diproses oleh dapur dan tidak bisa dibatalkan.');
+                in_array($item->kitchen_status, ['processing', 'ready', 'completed'], true)
+            ) throw new Exception(message: 'Item sedang/sudah diproses oleh dapur dan tidak bisa dibatalkan.');
 
             if (
                 $order->items()->count() <= 1
@@ -349,7 +390,22 @@ class OrderService
 
             $newSubtotal = max(0, $order->subtotal - $subtotalToDeduct);
 
+            $oldTotalPrice = $order->getOriginal('total_price') - (float)($order->getOriginal('application_fee') ?? 0);
+
             $order->update($this->calculateTaxesAndTotal($newSubtotal, (float)$order->discount, $taxRate, $serviceRate, (float)($order->application_fee ?? 0)));
+
+            $originalStatus = $order->getOriginal('status');
+            if (in_array($originalStatus, ['paid', 'completed'], true)) {
+                $newTotalPrice = $order->total_price - (float)($order->application_fee ?? 0);
+                $refundAmount = max(0, $oldTotalPrice - $newTotalPrice);
+
+                if ($refundAmount > 0) $this->walletService()->deductBalance(
+                    amount: $refundAmount,
+                    reference: $order,
+                    description: "Pengembalian dana void item pada pesanan $order->invoice_code",
+                    walletType: $this->getWalletTypeForPayment($order->payment_method)
+                );
+            }
 
             DB::commit();
 
@@ -374,7 +430,7 @@ class OrderService
             $isPayable = $order && ($order->status === 'pending' ||
                     ($order->status === 'progress' && $order->amount_paid < $order->total_price));
 
-            if (!$order || !$isPayable) throw new Exception('Pesanan tidak ditemukan atau sudah dibayar penuh.');
+            if (!$order || !$isPayable) throw new Exception(message: 'Pesanan tidak ditemukan atau sudah dibayar penuh.');
 
             $baseTotal = isset($order->total_price) ? (float)$order->total_price : (float)$order->subtotal;
             $totalPrice = max(0, $baseTotal - $discount);
@@ -397,6 +453,16 @@ class OrderService
                 'change_amount' => $change,
                 'status' => $newStatus,
             ]);
+
+            if (in_array($newStatus, ['paid', 'completed'], true)) {
+                $netRevenue = $totalPrice - (float)($order->application_fee ?? 0);
+                if ($netRevenue > 0) $this->walletService()->addBalance(
+                    amount: $netRevenue,
+                    reference: $order,
+                    description: "Penerimaan dana pembayaran pesanan $order->invoice_code",
+                    walletType: $this->getWalletTypeForPayment($paymentMethod)
+                );
+            }
 
             event(new KitchenUpdated);
             $this->billingService()->chargeTransactionFee($order);
@@ -423,12 +489,12 @@ class OrderService
             $order = Order::with('items')->lockForUpdate()->find($orderId);
 
             if (
-                !$order || in_array($order->status, ['completed', 'cancelled', 'paid'])
-            ) throw new Exception('Pesanan yang sudah lunas/selesai tidak bisa dipisah.');
+                !$order || in_array($order->status, ['completed', 'cancelled', 'paid'], true)
+            ) throw new Exception(message: 'Pesanan yang sudah lunas/selesai tidak bisa dipisah.');
 
-            if ($order->amount_paid > 0) throw new Exception('Pesanan yang sudah dicicil bayar tidak bisa dipisah per item.');
+            if ($order->amount_paid > 0) throw new Exception(message: 'Pesanan yang sudah dicicil bayar tidak bisa dipisah per item.');
 
-            if (empty($itemsToSplitData)) throw new Exception('Pilih minimal 1 item untuk dipisah.');
+            if (empty($itemsToSplitData)) throw new Exception(message: 'Pilih minimal 1 item untuk dipisah.');
 
             $taxRate = $order->tax_percentage ?? 10.00;
             $serviceRate = $order->service_charge_percentage ?? 5.00;
@@ -487,7 +553,7 @@ class OrderService
                 $newSubtotal += $newItemSubtotal;
             }
 
-            if ($newSubtotal <= 0) throw new Exception('Tidak ada item valid yang bisa dipisah.');
+            if ($newSubtotal <= 0) throw new Exception(message: 'Tidak ada item valid yang bisa dipisah.');
 
             do {
                 $newInvoiceCode = $order->invoice_code . '-' . strtoupper(Str::random(3));
@@ -576,19 +642,19 @@ class OrderService
             /** @var Order $targetOrder */
             $targetOrder = Order::with('items')->find($targetOrderId);
 
-            if (!$sourceOrder || !$targetOrder) throw new Exception('Pesanan tidak ditemukan.');
+            if (!$sourceOrder || !$targetOrder) throw new Exception(message: 'Pesanan tidak ditemukan.');
 
             if (
-                in_array($sourceOrder->status, ['completed', 'cancelled', 'paid']) || in_array($targetOrder->status, ['completed', 'cancelled', 'paid'])
-            ) throw new Exception('Tidak bisa menggabungkan pesanan yang sudah selesai, dibatalkan, atau lunas.');
+                in_array($sourceOrder->status, ['completed', 'cancelled', 'paid'], true) || in_array($targetOrder->status, ['completed', 'cancelled', 'paid'], true)
+            ) throw new Exception(message: 'Tidak bisa menggabungkan pesanan yang sudah selesai, dibatalkan, atau lunas.');
 
             if (
                 $sourceOrder->is_online !== $targetOrder->is_online
-            ) throw new Exception('Tidak bisa menggabungkan Pesanan Digital dengan Pesanan Kasir Manual.');
+            ) throw new Exception(message: 'Tidak bisa menggabungkan Pesanan Digital dengan Pesanan Kasir Manual.');
 
             if (
                 $sourceOrder->amount_paid > 0 || $targetOrder->amount_paid > 0
-            ) throw new Exception('Tidak bisa menggabungkan pesanan yang sudah dicicil/memiliki pembayaran masuk.');
+            ) throw new Exception(message: 'Tidak bisa menggabungkan pesanan yang sudah dicicil/memiliki pembayaran masuk.');
 
             OrderItem::where('order_id', $sourceOrderId)->update(['order_id' => $targetOrder->id]);
 
@@ -627,19 +693,19 @@ class OrderService
     /**
      * Calculates tax, service charge, and total price after discount.
      */
-    private function calculateTaxesAndTotal(float $subtotal, float $discount, float $taxRate, float $serviceRate, float $appFeeAmount = 0): array
+    private function calculateTaxesAndTotal(float $subtotal, float $discount, float $taxRate, float $serviceRate, float $applicationFeeAmount = 0): array
     {
         $subtotalAfterDiscount = max(0, $subtotal - $discount);
-        $serviceCharge = round(($serviceRate / 100) * $subtotalAfterDiscount);
+        $serviceChargeAmount = round(($serviceRate / 100) * $subtotalAfterDiscount);
 
-        $dpp = $subtotalAfterDiscount + $serviceCharge + $appFeeAmount;
+        $dpp = $subtotalAfterDiscount + $serviceChargeAmount + $applicationFeeAmount;
         $taxAmount = round(($taxRate / 100) * $dpp);
         $totalPrice = $dpp + $taxAmount;
 
         return [
             'subtotal' => $subtotal,
-            'service_charge_amount' => $serviceCharge,
-            'application_fee' => $appFeeAmount,
+            'service_charge_amount' => $serviceChargeAmount,
+            'application_fee' => $applicationFeeAmount,
             'tax_amount' => $taxAmount,
             'total_price' => $totalPrice,
             'discount' => $discount,
@@ -665,10 +731,6 @@ class OrderService
     /**
      * Executes the aggregated stock adjustments.
      *
-     * @param array $variantAdjustments
-     * @param array $rawMaterialAdjustments
-     * @param string $operation
-     * @return void
      * @throws Exception
      */
     private function executeStockAdjustments(array $variantAdjustments, array $rawMaterialAdjustments, string $operation = self::OPERATION_DECREMENT): void
@@ -676,7 +738,7 @@ class OrderService
         foreach ($variantAdjustments as $id => $qty) {
             if ($operation === self::OPERATION_DECREMENT) {
                 $updated = ProductVariant::where('id', $id)->where('stock', '>=', $qty)->decrement('stock', $qty);
-                if ($updated !== 1) throw new Exception('Stok varian tidak mencukupi.');
+                if ($updated !== 1) throw new Exception(message: 'Stok varian tidak mencukupi.');
 
                 continue;
             }
@@ -687,8 +749,8 @@ class OrderService
         foreach ($rawMaterialAdjustments as $id => $qty) {
             if ($operation === self::OPERATION_DECREMENT) {
                 $updated = RawMaterial::where('id', $id)->where('stock', '>=', $qty)->decrement('stock', $qty);
-                if ($updated !== 1) throw new Exception('Stok bahan baku tidak mencukupi.');
-
+                if ($updated !== 1) throw new Exception(message: 'Stok bahan baku tidak mencukupi.');
+ 
                 continue;
             }
 

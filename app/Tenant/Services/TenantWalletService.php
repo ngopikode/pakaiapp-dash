@@ -11,14 +11,27 @@ use Throwable;
 
 class TenantWalletService
 {
+    private function defaultWalletName(string $type): string
+    {
+        return match ($type) {
+            Wallet::TYPE_BILLING => 'Deposit Pakaiapp',
+            Wallet::TYPE_CASH => 'Kas Tunai',
+            Wallet::TYPE_BANK => 'Kas Bank',
+            Wallet::TYPE_GATEWAY => 'Kas Gateway',
+        };
+    }
+
     /**
-     * Mendapatkan atau membuat dompet utama tenant (Singleton per tenant database).
+     * Mendapatkan atau membuat dompet tenant berdasarkan tipe.
      */
-    public function getWallet(): Wallet
+    public function getWallet(string $type = Wallet::TYPE_BILLING): Wallet
     {
         return Wallet::firstOrCreate(
-            ['id' => 1],
-            ['balance' => 0]
+            ['type' => $type],
+            [
+                'name' => $this->defaultWalletName($type),
+                'balance' => 0,
+            ]
         );
     }
 
@@ -27,9 +40,9 @@ class TenantWalletService
      *
      * @throws Throwable
      */
-    public function addBalance(float|int $amount, Model $reference, ?string $description = null): WalletTransaction
+    public function addBalance(float|int $amount, Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
     {
-        return $this->processTransaction('CREDIT', $amount, $reference, $description);
+        return $this->processTransaction('CREDIT', $amount, $reference, $description, $walletType);
     }
 
     /**
@@ -37,9 +50,9 @@ class TenantWalletService
      *
      * @throws Exception|Throwable Jika saldo tidak mencukupi
      */
-    public function deductBalance(float|int $amount, Model $reference, ?string $description = null): WalletTransaction
+    public function deductBalance(float|int $amount, Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
     {
-        return $this->processTransaction('DEBIT', $amount, $reference, $description);
+        return $this->processTransaction('DEBIT', $amount, $reference, $description, $walletType);
     }
 
     /**
@@ -48,12 +61,12 @@ class TenantWalletService
      *
      * @throws Throwable
      */
-    private function processTransaction(string $type, float|int $amount, Model $reference, ?string $description = null): WalletTransaction
+    private function processTransaction(string $type, float|int $amount, Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
     {
         try {
             DB::beginTransaction();
 
-            $expectedWalletId = $this->getWallet()->id;
+            $expectedWalletId = $this->getWallet($walletType)->id;
             // Menggunakan lockForUpdate untuk mencegah Race Condition (Double Spend / Dirty Read)
             $wallet = Wallet::where('id', $expectedWalletId)->lockForUpdate()->firstOrFail();
 

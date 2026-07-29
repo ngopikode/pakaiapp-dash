@@ -260,6 +260,38 @@ Ini mempermudah penambahan rule object custom (seperti `['required', new CustomR
 
 ---
 
+## 10. Domain Constants Pattern
+
+Jangan pakai string literal berulang untuk nilai domain yang terbatas seperti tipe, status, dan kategori internal. Definisikan constant di model yang memiliki field tersebut, lalu pakai constant itu di migration, service, controller, dan Livewire.
+
+```php
+// ✅ BENAR — single source of truth di model pemilik field
+class Wallet extends Model
+{
+    public const TYPE_BILLING = 'billing';
+    public const TYPE_CASH = 'cash';
+    public const TYPE_DIGITAL = 'digital';
+}
+
+TenantWalletService::getWallet(Wallet::TYPE_BILLING);
+```
+
+```php
+// ❌ SALAH — raw string rawan typo dan susah refactor
+TenantWalletService::getWallet('billing');
+```
+
+Jika constant dipakai di migration, import model terkait agar enum/default/backfill tetap konsisten:
+
+```php
+use App\Tenant\Models\Core\Wallet;
+
+$table->enum('type', [Wallet::TYPE_BILLING, Wallet::TYPE_CASH, Wallet::TYPE_DIGITAL])
+    ->default(Wallet::TYPE_BILLING);
+```
+
+---
+
 ## Referensi
 
 - [ADR Service Pattern](../../decisions/001-service-dto-pattern.md) — Detail DTO & service standard
