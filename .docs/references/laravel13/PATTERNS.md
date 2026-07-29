@@ -290,6 +290,31 @@ $table->enum('type', [Wallet::TYPE_BILLING, Wallet::TYPE_CASH, Wallet::TYPE_DIGI
     ->default(Wallet::TYPE_BILLING);
 ```
 
+## 11. Named Arguments Pattern
+
+Gunakan Named Arguments (fitur bawaan PHP 8) secara eksplisit untuk fungsi internal atau public yang memiliki lebih dari dua parameter untuk meningkatkan keterbacaan, terutama pada argumen bertipe `boolean`, `array`, atau `null`.
+
+```php
+// ✅ BENAR — jelas parameter mana yang dikirim
+$this->aggregateStockAdjustments(
+    variant: $variant,
+    quantity: $recalculatedItem['quantity'],
+    variantAdjustments: $variantAdjustments,
+    rawMaterialAdjustments: $rawMaterialAdjustments
+);
+
+$this->executeStockAdjustments(
+    variantAdjustments: $variantAdjustments,
+    rawMaterialAdjustments: $rawMaterialAdjustments,
+    operation: self::OPERATION_INCREMENT
+);
+```
+
+```php
+// ❌ SALAH — susah ditebak jika melihat pemanggilannya dari luar
+$this->aggregateStockAdjustments($variant, $recalculatedItem['quantity'], $variantAdjustments, $rawMaterialAdjustments);
+```
+
 ---
 
 ## Referensi

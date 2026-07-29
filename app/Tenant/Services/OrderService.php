@@ -194,13 +194,25 @@ class OrderService
                 $order = $existingOrder;
                 $newSubtotal = $order->subtotal + $realSubtotal;
 
-                $calculations = $this->calculateTaxesAndTotal($newSubtotal, (float)$order->discount, $taxRate, $serviceRate, (float)$order->application_fee);
+                $calculations = $this->calculateTaxesAndTotal(
+                    subtotal: $newSubtotal,
+                    discount: (float)$order->discount,
+                    taxRate: $taxRate,
+                    serviceRate: $serviceRate,
+                    applicationFeeAmount: (float)$order->application_fee
+                );
                 $calculations['kitchen_status'] = $isKitchenActive ? 'waiting' : 'completed';
 
                 $order->update($calculations);
             } else {
                 $globalDiscount = (float)($orderData['global_discount'] ?? $orderData['discount'] ?? 0);
-                $calculations = $this->calculateTaxesAndTotal($realSubtotal, $globalDiscount, $taxRate, $serviceRate, $applicationFeeAmount);
+                $calculations = $this->calculateTaxesAndTotal(
+                    subtotal: $realSubtotal,
+                    discount: $globalDiscount,
+                    taxRate: $taxRate,
+                    serviceRate: $serviceRate,
+                    applicationFeeAmount: $applicationFeeAmount
+                );
 
                 $order = Order::create(array_merge([
                     'invoice_code' => $orderData['invoice_code'] ?? 'INV-' . strtoupper(Str::random(6)),
@@ -248,13 +260,21 @@ class OrderService
                 ];
 
                 foreach ($recalculatedItem['valid_variants_objects'] as $variant) {
-                    $this->aggregateStockAdjustments($variant, $recalculatedItem['quantity'], $variantAdjustments, $rawMaterialAdjustments);
+                    $this->aggregateStockAdjustments(
+                        variant: $variant,
+                        quantity: $recalculatedItem['quantity'],
+                        variantAdjustments: $variantAdjustments,
+                        rawMaterialAdjustments: $rawMaterialAdjustments
+                    );
                 }
             }
 
             if (!empty($orderItemData)) OrderItem::insert($orderItemData);
 
-            $this->executeStockAdjustments($variantAdjustments, $rawMaterialAdjustments);
+            $this->executeStockAdjustments(
+                variantAdjustments: $variantAdjustments,
+                rawMaterialAdjustments: $rawMaterialAdjustments
+            );
 
             if (in_array($order->status, ['paid', 'completed'], true)) {
                 $netRevenue = $order->total_price - (float)($order->application_fee ?? 0);
@@ -309,10 +329,21 @@ class OrderService
             $rawMaterialAdjustments = [];
 
             foreach ($order->items as $item) {
-                if ($item->variant) $this->aggregateStockAdjustments($item->variant, $item->quantity, $variantAdjustments, $rawMaterialAdjustments);
+                if ($item->variant) {
+                    $this->aggregateStockAdjustments(
+                        variant: $item->variant,
+                        quantity: $item->quantity,
+                        variantAdjustments: $variantAdjustments,
+                        rawMaterialAdjustments: $rawMaterialAdjustments
+                    );
+                }
             }
 
-            $this->executeStockAdjustments($variantAdjustments, $rawMaterialAdjustments, self::OPERATION_INCREMENT);
+            $this->executeStockAdjustments(
+                variantAdjustments: $variantAdjustments,
+                rawMaterialAdjustments: $rawMaterialAdjustments,
+                operation: self::OPERATION_INCREMENT
+            );
 
             $updateData = ['status' => 'cancelled'];
             if ($note) $updateData['cancellation_note'] = $note;
@@ -376,11 +407,20 @@ class OrderService
             if ($item->variant_id) {
                 $variant = ProductVariant::with('recipes.rawMaterial')->lockForUpdate()->find($item->variant_id);
                 if ($variant) {
-                    $this->aggregateStockAdjustments($variant, $item->quantity, $variantAdjustments, $rawMaterialAdjustments);
+                    $this->aggregateStockAdjustments(
+                        variant: $variant,
+                        quantity: $item->quantity,
+                        variantAdjustments: $variantAdjustments,
+                        rawMaterialAdjustments: $rawMaterialAdjustments
+                    );
                 }
             }
 
-            $this->executeStockAdjustments($variantAdjustments, $rawMaterialAdjustments, self::OPERATION_INCREMENT);
+            $this->executeStockAdjustments(
+                variantAdjustments: $variantAdjustments,
+                rawMaterialAdjustments: $rawMaterialAdjustments,
+                operation: self::OPERATION_INCREMENT
+            );
 
             $subtotalToDeduct = $item->subtotal;
             $item->delete();
@@ -392,7 +432,13 @@ class OrderService
 
             $oldTotalPrice = $order->getOriginal('total_price') - (float)($order->getOriginal('application_fee') ?? 0);
 
-            $order->update($this->calculateTaxesAndTotal($newSubtotal, (float)$order->discount, $taxRate, $serviceRate, (float)($order->application_fee ?? 0)));
+            $order->update($this->calculateTaxesAndTotal(
+                subtotal: $newSubtotal,
+                discount: (float)$order->discount,
+                taxRate: $taxRate,
+                serviceRate: $serviceRate,
+                applicationFeeAmount: (float)($order->application_fee ?? 0)
+            ));
 
             $originalStatus = $order->getOriginal('status');
             if (in_array($originalStatus, ['paid', 'completed'], true)) {
@@ -604,7 +650,13 @@ class OrderService
                 $item->update(['order_id' => $newOrder->id]);
             }
 
-            $newOrder->update($this->calculateTaxesAndTotal($newSubtotal, $splitDiscount, $taxRate, $serviceRate, 0.00));
+            $newOrder->update($this->calculateTaxesAndTotal(
+                subtotal: $newSubtotal,
+                discount: $splitDiscount,
+                taxRate: $taxRate,
+                serviceRate: $serviceRate,
+                applicationFeeAmount: 0.00
+            ));
 
             $order->refresh();
             $oldSubtotal = $order->items->sum('subtotal');
@@ -612,7 +664,13 @@ class OrderService
             if ($oldSubtotal == 0 && $order->items->count() == 0) {
                 $order->delete();
             } else {
-                $order->update($this->calculateTaxesAndTotal($oldSubtotal, $remainingDiscount, $taxRate, $serviceRate, (float)($order->application_fee ?? 0)));
+                $order->update($this->calculateTaxesAndTotal(
+                    subtotal: $oldSubtotal,
+                    discount: $remainingDiscount,
+                    taxRate: $taxRate,
+                    serviceRate: $serviceRate,
+                    applicationFeeAmount: (float)($order->application_fee ?? 0)
+                ));
             }
 
             DB::commit();
@@ -671,11 +729,11 @@ class OrderService
             $newSubtotal = $targetOrder->items->sum('subtotal');
             $newDiscount = (float)$targetOrder->discount + (float)$sourceOrder->discount;
             $targetOrder->update($this->calculateTaxesAndTotal(
-                $newSubtotal,
-                $newDiscount,
-                $taxRate,
-                $serviceRate,
-                max((float)($targetOrder->application_fee ?? 0), (float)($sourceOrder->application_fee ?? 0))
+                subtotal: $newSubtotal,
+                discount: $newDiscount,
+                taxRate: $taxRate,
+                serviceRate: $serviceRate,
+                applicationFeeAmount: max((float)($targetOrder->application_fee ?? 0), (float)($sourceOrder->application_fee ?? 0))
             ));
 
             $sourceOrder->delete();
