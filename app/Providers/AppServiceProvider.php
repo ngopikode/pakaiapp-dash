@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Central\Support\Agents\OpencodeAgent;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Boost\Boost;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        if (class_exists(Boost::class) && !array_key_exists('opencode', Boost::getAgents())) {
+            Boost::registerAgent('opencode', OpencodeAgent::class);
+        }
 
         if (!app()->runningInConsole()) {
 

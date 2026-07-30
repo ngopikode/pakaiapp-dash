@@ -26,3 +26,12 @@ yarn-error.log
 /pakaiapp_central
 **/__pycache__/
 *.pyc
+
+# Laravel Boost Auto-generated
+/.opencode/
+/.junie/
+/.agents/
+AGENTS.md
+CLAUDE.md
+boost.json
+opencode.json
