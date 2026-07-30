@@ -8,6 +8,7 @@ use Laravel\Boost\Contracts\SupportsGuidelines;
 use Laravel\Boost\Contracts\SupportsMcp;
 use Laravel\Boost\Contracts\SupportsSkills;
 use Laravel\Boost\Install\Agents\Agent;
+use Laravel\Boost\Install\Enums\Platform;
 
 class OpencodeAgent extends Agent implements SupportsGuidelines, SupportsMcp, SupportsSkills
 {
@@ -33,5 +34,40 @@ class OpencodeAgent extends Agent implements SupportsGuidelines, SupportsMcp, Su
     public function mcpConfigPath(): string
     {
         return '.opencode/mcp.json';
+    }
+
+    public function name(): string
+    {
+        return 'opencode';
+    }
+
+    public function displayName(): string
+    {
+        return 'Opencode';
+    }
+
+    public function systemDetectionConfig(Platform $platform): array
+    {
+        // For testing we will always return false here, project level matters
+        return [];
+    }
+
+    public function projectDetectionConfig(): array
+    {
+        return [
+            'paths' => [
+                '.opencode',
+            ],
+        ];
+    }
+
+    public function guidelinesPath(): string
+    {
+        return '.opencode/CLAUDE.md';
+    }
+
+    public function skillsPath(): string
+    {
+        return '.opencode/skills';
     }
 }
