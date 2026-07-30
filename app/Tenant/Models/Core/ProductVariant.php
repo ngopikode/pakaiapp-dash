@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
     'id',
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
     'price',
     'active_discount_price',
     'active_discount_name',
+    'is_critical',
     'stock',
     'min_stock',
     'created_at',
@@ -28,6 +30,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class ProductVariant extends Model
 {
     use ClearsAiMenuCache;
+
+    protected function casts(): array
+    {
+        return [
+            'is_critical' => 'boolean',
+        ];
+    }
 
     public function product(): BelongsTo
     {
@@ -41,9 +50,9 @@ class ProductVariant extends Model
         );
     }
 
-    public function recipes()
+    public function recipes(): MorphMany
     {
-        return $this->hasMany(VariantRecipe::class, 'variant_id');
+        return $this->morphMany(VariantRecipe::class, 'recipeable');
     }
 
     public function aiPricingRules(): BelongsToMany

@@ -352,7 +352,7 @@ class OrderService
             $originalStatus = $order->getOriginal('status');
 
             if ($originalStatus !== 'pending') {
-                $this->billingService()->processVoidPenalty($order);
+                $this->billingService()->processVoidPenalty(order: $order);
 
                 if (in_array($originalStatus, ['paid', 'completed'], true)) {
                     $netRevenue = $order->total_price - (float)($order->application_fee ?? 0);
@@ -511,7 +511,7 @@ class OrderService
             }
 
             event(new KitchenUpdated);
-            $this->billingService()->chargeTransactionFee($order);
+            $this->billingService()->chargeTransactionFee(order: $order);
 
             DB::commit();
 

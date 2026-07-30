@@ -2,19 +2,21 @@
 
 namespace App\Tenant\Models\Resto;
 
-use App\Tenant\Models\Core\ProductVariant;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-#[Fillable(['variant_id', 'raw_material_id', 'quantity_used'])]
+#[Fillable(['recipeable_type', 'recipeable_id', 'raw_material_id', 'quantity_used'])]
 class VariantRecipe extends Model
 {
     use HasFactory;
 
-    public function variant()
+    protected $table = 'recipes';
+
+    public function recipeable(): MorphTo
     {
-        return $this->belongsTo(ProductVariant::class);
+        return $this->morphTo();
     }
 
     public function rawMaterial()

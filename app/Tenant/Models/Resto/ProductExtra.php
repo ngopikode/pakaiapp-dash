@@ -7,6 +7,7 @@ use App\Tenant\Models\Core\Product;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
     'id',
@@ -34,5 +35,10 @@ class ProductExtra extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function recipes(): MorphMany
+    {
+        return $this->morphMany(VariantRecipe::class, 'recipeable');
     }
 }
