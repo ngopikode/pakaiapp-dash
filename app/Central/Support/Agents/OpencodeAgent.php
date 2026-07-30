@@ -17,7 +17,7 @@ class OpencodeAgent extends Agent implements SupportsGuidelines, SupportsMcp, Su
      */
     public function guidelineFilePath(): string
     {
-        return '.opencode/CLAUDE.md';
+        return 'AGENTS.md';
     }
 
     /**
@@ -63,7 +63,7 @@ class OpencodeAgent extends Agent implements SupportsGuidelines, SupportsMcp, Su
 
     public function guidelinesPath(): string
     {
-        return '.opencode/CLAUDE.md';
+        return 'AGENTS.md';
     }
 
     public function skillsPath(): string
