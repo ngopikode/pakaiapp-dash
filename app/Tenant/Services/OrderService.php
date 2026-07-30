@@ -8,6 +8,7 @@ use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\OrderItem;
 use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\ProductVariant;
+use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Resto\ProductExtra;
@@ -39,6 +40,54 @@ class OrderService
             'duitku', 'midtrans', 'digital' => Wallet::TYPE_GATEWAY,
             default => Wallet::TYPE_CASH,
         };
+    }
+
+    private function processRevenue(Order $order, float $netRevenue, string $paymentMethod, string $description): void
+    {
+        $walletType = $this->getWalletTypeForPayment($paymentMethod);
+
+        if ($walletType === Wallet::TYPE_CASH) {
+            $storeSetting = StoreSetting::cached();
+            if ($storeSetting && $storeSetting->is_shift_active) {
+                $activeShift = Shift::where('user_id', Auth::id())->where('status', Shift::STATUS_ACTIVE)->first();
+                if (!$activeShift) throw new Exception(message: 'Harap buka shift terlebih dahulu untuk menerima pembayaran tunai.');
+
+                $activeShift->increment('cash_sales', $netRevenue);
+
+                return;
+            }
+        }
+
+        $this->walletService()->addBalance(
+            amount: $netRevenue,
+            reference: $order,
+            description: $description,
+            walletType: $walletType
+        );
+    }
+
+    private function processRefund(Order $order, float $netRefund, string $paymentMethod, string $description): void
+    {
+        $walletType = $this->getWalletTypeForPayment($paymentMethod);
+
+        if ($walletType === Wallet::TYPE_CASH) {
+            $storeSetting = StoreSetting::cached();
+            if ($storeSetting && $storeSetting->is_shift_active) {
+                $activeShift = Shift::where('user_id', Auth::id())->where('status', Shift::STATUS_ACTIVE)->first();
+                if ($activeShift) {
+                    $activeShift->decrement('cash_sales', $netRefund);
+                }
+
+                return;
+            }
+        }
+
+        $this->walletService()->deductBalance(
+            amount: $netRefund,
+            reference: $order,
+            description: $description,
+            walletType: $walletType
+        );
     }
 
     protected ?BillingService $billingService = null;
@@ -278,12 +327,14 @@ class OrderService
 
             if (in_array($order->status, ['paid', 'completed'], true)) {
                 $netRevenue = $order->total_price - (float)($order->application_fee ?? 0);
-                if ($netRevenue > 0) $this->walletService()->addBalance(
-                    amount: $netRevenue,
-                    reference: $order,
-                    description: "Penerimaan dana dari pesanan $order->invoice_code",
-                    walletType: $this->getWalletTypeForPayment($order->payment_method)
-                );
+                if ($netRevenue > 0) {
+                    $this->processRevenue(
+                        order: $order,
+                        netRevenue: $netRevenue,
+                        paymentMethod: $order->payment_method,
+                        description: "Penerimaan dana dari pesanan $order->invoice_code"
+                    );
+                }
             }
 
             event(new KitchenUpdated);
@@ -356,12 +407,14 @@ class OrderService
 
                 if (in_array($originalStatus, ['paid', 'completed'], true)) {
                     $netRevenue = $order->total_price - (float)($order->application_fee ?? 0);
-                    if ($netRevenue > 0) $this->walletService()->deductBalance(
-                        amount: $netRevenue,
-                        reference: $order,
-                        description: "Pengembalian dana (refund) pembatalan pesanan $order->invoice_code",
-                        walletType: $this->getWalletTypeForPayment($order->payment_method)
-                    );
+                    if ($netRevenue > 0) {
+                        $this->processRefund(
+                            order: $order,
+                            netRefund: $netRevenue,
+                            paymentMethod: $order->payment_method,
+                            description: "Pengembalian dana (refund) pembatalan pesanan $order->invoice_code"
+                        );
+                    }
                 }
             }
 
@@ -445,12 +498,14 @@ class OrderService
                 $newTotalPrice = $order->total_price - (float)($order->application_fee ?? 0);
                 $refundAmount = max(0, $oldTotalPrice - $newTotalPrice);
 
-                if ($refundAmount > 0) $this->walletService()->deductBalance(
-                    amount: $refundAmount,
-                    reference: $order,
-                    description: "Pengembalian dana void item pada pesanan $order->invoice_code",
-                    walletType: $this->getWalletTypeForPayment($order->payment_method)
-                );
+                if ($refundAmount > 0) {
+                    $this->processRefund(
+                        order: $order,
+                        netRefund: $refundAmount,
+                        paymentMethod: $order->payment_method,
+                        description: "Pengembalian dana void item pada pesanan $order->invoice_code"
+                    );
+                }
             }
 
             DB::commit();
@@ -502,12 +557,14 @@ class OrderService
 
             if (in_array($newStatus, ['paid', 'completed'], true)) {
                 $netRevenue = $totalPrice - (float)($order->application_fee ?? 0);
-                if ($netRevenue > 0) $this->walletService()->addBalance(
-                    amount: $netRevenue,
-                    reference: $order,
-                    description: "Penerimaan dana pembayaran pesanan $order->invoice_code",
-                    walletType: $this->getWalletTypeForPayment($paymentMethod)
-                );
+                if ($netRevenue > 0) {
+                    $this->processRevenue(
+                        order: $order,
+                        netRevenue: $netRevenue,
+                        paymentMethod: $paymentMethod,
+                        description: "Penerimaan dana pembayaran pesanan $order->invoice_code"
+                    );
+                }
             }
 
             event(new KitchenUpdated);
