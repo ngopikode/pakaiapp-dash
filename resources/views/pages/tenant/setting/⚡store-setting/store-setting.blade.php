@@ -142,6 +142,16 @@
                                 <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
                             </label>
                         </div>
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
+                            <div>
+                                <span class="block text-sm font-semibold text-slate-900 dark:text-white">Sesi Shift Kasir</span>
+                                <span class="block text-xs text-slate-500 dark:text-slate-400">Wajibkan kasir buka shift dan opname saat tutup laci</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="$wire.is_shift_active" wire:model="is_shift_active" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
+                            </label>
+                        </div>
                         @endif
                     </div>
 
@@ -224,6 +234,16 @@
                                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Bebankan biaya transaksi PakaiApp ke pelanggan.</p>
                                 </div>
                             </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
+                            <div>
+                                <span class="block text-sm font-semibold text-slate-900 dark:text-white">Sesi Shift Kasir</span>
+                                <span class="block text-xs text-slate-500 dark:text-slate-400">Wajibkan kasir buka shift dan opname saat tutup laci</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="$wire.is_shift_active" wire:model="is_shift_active" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
+                            </label>
                         </div>
                         @endif
                     </div>
@@ -498,7 +518,17 @@
                                             <i class="ph ph-image text-3xl mb-2"></i>
                                             <span class="text-xs font-semibold">Klik untuk upload</span>
                                             <span class="text-[10px] mt-1">Rekomendasi: 1200x630px</span>
-                                        </div>
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
+                            <div>
+                                <span class="block text-sm font-semibold text-slate-900 dark:text-white">Sesi Shift Kasir</span>
+                                <span class="block text-xs text-slate-500 dark:text-slate-400">Wajibkan kasir buka shift dan opname saat tutup laci</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="$wire.is_shift_active" wire:model="is_shift_active" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
+                            </label>
+                        </div>
+                    </div>
                                     @endif
                                     <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <i class="ph-fill ph-camera text-white text-2xl"></i>

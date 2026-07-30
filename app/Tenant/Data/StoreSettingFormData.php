@@ -22,6 +22,7 @@ class StoreSettingFormData extends Data
         public float $serviceChargeRate,
         public bool $isApplicationFeePassed,
         public bool $isKitchenActive,
+        public bool $isShiftActive,
 
         public string $heroPromoText,
         public string $heroStatusText,

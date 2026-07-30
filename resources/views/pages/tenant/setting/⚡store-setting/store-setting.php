@@ -47,6 +47,8 @@ class extends Component
 
     public bool $is_kitchen_active = true;
 
+    public bool $is_shift_active = false;
+
     /** @var TemporaryUploadedFile|string|null */
     public $logo;
 
@@ -114,6 +116,7 @@ class extends Component
         $this->service_charge_rate = isset($setting->service_charge_rate) ? (float)$setting->service_charge_rate : 5.00;
         $this->is_application_fee_passed = (bool)($setting->is_application_fee_passed ?? false);
         $this->is_kitchen_active = !isset($setting->is_kitchen_active) || (bool)$setting->is_kitchen_active;
+        $this->is_shift_active = (bool)($setting->is_shift_active ?? false);
 
         $this->logo = $setting->logo;
         $this->og_image = $setting->og_image;
@@ -169,6 +172,7 @@ class extends Component
             serviceChargeRate: $this->service_charge_rate,
             isApplicationFeePassed: $this->is_application_fee_passed,
             isKitchenActive: $this->is_kitchen_active,
+            isShiftActive: $this->is_shift_active,
             heroPromoText: $this->hero_promo_text,
             heroStatusText: $this->hero_status_text,
             heroHeadline: $this->hero_headline,

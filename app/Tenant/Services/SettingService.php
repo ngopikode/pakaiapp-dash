@@ -102,6 +102,7 @@ class SettingService
             'service_charge_rate' => $data->serviceChargeRate,
             'is_application_fee_passed' => $data->isApplicationFeePassed,
             'is_kitchen_active' => $data->isKitchenActive,
+            'is_shift_active' => $data->isShiftActive,
             'hero_promo_text' => $data->heroPromoText,
             'hero_status_text' => $data->heroStatusText,
             'hero_headline' => $data->heroHeadline,
