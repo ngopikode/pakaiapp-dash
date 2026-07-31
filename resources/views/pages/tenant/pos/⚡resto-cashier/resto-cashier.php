@@ -4,10 +4,15 @@ use App\Central\Services\BillingService;
 use App\Shared\Traits\ShowsToast;
 use App\Tenant\Data\CheckoutData;
 use App\Tenant\Data\CreateOrderData;
+use App\Tenant\Data\ShiftClosingData;
+use App\Tenant\Data\ShiftExpenseData;
+use App\Tenant\Data\ShiftOpnameItemData;
 use App\Tenant\Models\Core\Order;
+use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\OrderService;
 use App\Tenant\Services\PaymentGatewayService;
+use App\Tenant\Services\ShiftService;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -27,11 +32,25 @@ new class extends Component
 
     public string $queueSearch = '';
 
+    public float $startingCash = 0;
+
+    public float $expenseAmount = 0;
+
+    public string $expenseDescription = '';
+
+    public array $opnameItems = [];
+
+    public float $actualCash = 0;
+
+    public int $closeShiftStep = 1;
+
     protected ?OrderService $orderService = null;
 
     protected ?PaymentGatewayService $paymentGatewayService = null;
 
     protected ?BillingService $billingService = null;
+
+    protected ?ShiftService $shiftService = null;
 
     protected function orderService(): OrderService
     {
@@ -46,6 +65,11 @@ new class extends Component
     protected function billingService(): BillingService
     {
         return $this->billingService ??= app(BillingService::class);
+    }
+
+    protected function shiftService(): ShiftService
+    {
+        return $this->shiftService ??= app(ShiftService::class);
     }
 
     private function isOrderEditable(Order $order): bool
@@ -370,6 +394,131 @@ new class extends Component
     }
 
     #[Computed]
+    public function activeShift(): ?Shift
+    {
+        return Shift::where('user_id', auth()->id())
+            ->where('status', Shift::STATUS_ACTIVE)
+            ->first();
+    }
+
+    public function openShift(): void
+    {
+        $this->validate([
+            'startingCash' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $this->shiftService()->openShift(
+                userId: auth()->id(),
+                startingCash: (float)$this->startingCash
+            );
+            $this->startingCash = 0;
+            $this->toast('Shift berhasil dibuka.');
+            $this->js("window.dispatchEvent(new CustomEvent('close-open-shift-modal'));");
+        } catch (Exception $e) {
+            $this->toast($e->getMessage(), 'danger');
+        }
+    }
+
+    public function saveExpense(): void
+    {
+        $activeShift = $this->activeShift();
+        if (!$activeShift) {
+            $this->toast('Tidak ada shift aktif.', 'danger');
+
+            return;
+        }
+
+        $this->validate([
+            'expenseAmount' => 'required|numeric|gt:0',
+            'expenseDescription' => 'required|string|max:255',
+        ]);
+
+        try {
+            $this->shiftService()->addExpense(
+                shift: $activeShift,
+                data: new ShiftExpenseData(
+                    amount: (float)$this->expenseAmount,
+                    description: $this->expenseDescription
+                )
+            );
+            $this->expenseAmount = 0;
+            $this->expenseDescription = '';
+            $this->toast('Pengeluaran berhasil dicatat.');
+            $this->js("window.dispatchEvent(new CustomEvent('close-shift-expense-modal'));");
+        } catch (Exception $e) {
+            $this->toast($e->getMessage(), 'danger');
+        }
+    }
+
+    public function prepareCloseShift(): void
+    {
+        $activeShift = $this->activeShift();
+        if (!$activeShift) {
+            $this->toast('Tidak ada shift aktif.', 'danger');
+
+            return;
+        }
+
+        $this->opnameItems = $this->shiftService()->initiateClose($activeShift);
+        $this->actualCash = 0;
+        $this->closeShiftStep = 1;
+        $this->js("window.dispatchEvent(new CustomEvent('open-close-shift-modal'));");
+    }
+
+    public function submitCloseShift(): void
+    {
+        $activeShift = $this->activeShift();
+        if (!$activeShift) {
+            $this->toast('Tidak ada shift aktif.', 'danger');
+
+            return;
+        }
+
+        if ($this->closeShiftStep === 1) {
+            $this->validate([
+                'opnameItems.*.physical_stock' => 'required|numeric|min:0',
+            ], [
+                'opnameItems.*.physical_stock.required' => 'Semua stok fisik harus diisi.',
+                'opnameItems.*.physical_stock.numeric' => 'Stok fisik harus berupa angka.',
+            ]);
+            $this->closeShiftStep = 2;
+
+            return;
+        }
+
+        $this->validate([
+            'actualCash' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $dtoItems = [];
+            foreach ($this->opnameItems as $item) {
+                $dtoItems[] = new ShiftOpnameItemData(
+                    rawMaterialId: (int)$item['id'],
+                    physicalStock: (float)$item['physical_stock'],
+                    note: $item['note'] ?? null
+                );
+            }
+
+            $closingData = new ShiftClosingData(
+                actualCash: (float)$this->actualCash,
+                opnameItems: $dtoItems
+            );
+
+            $this->shiftService()->closeShift(
+                shift: $activeShift,
+                data: $closingData
+            );
+
+            $this->toast('Shift berhasil ditutup.');
+            $this->js("window.dispatchEvent(new CustomEvent('close-close-shift-modal'));");
+        } catch (Exception $e) {
+            $this->toast($e->getMessage(), 'danger');
+        }
+    }
+
+    #[Computed]
     public function activeOrders(): Collection|array
     {
         return Order::select([
@@ -474,7 +623,7 @@ new class extends Component
     {
         $storeSetting = StoreSetting::select([
             'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
-            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name',
+            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name', 'is_shift_active',
         ])->first();
         $orderTypes = [];
 
@@ -520,6 +669,8 @@ new class extends Component
             'taxRate' => (float)($storeSetting?->tax_rate ?? 10.00),
             'isServiceChargeActive' => $storeSetting?->is_service_charge_active ?? true,
             'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
+            'isShiftActive' => $storeSetting?->is_shift_active ?? false,
+            'activeShift' => $this->activeShift?->only(['id', 'started_at', 'starting_cash', 'cash_sales', 'cash_expenses']),
             'counts' => $counts,
             'filters' => $filters,
             'queueOrders' => $filteredQueueOrders, // Use filtered orders for the view

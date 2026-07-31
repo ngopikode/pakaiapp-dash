@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('store_settings', function (Blueprint $table) {
-            $table->boolean('is_shift_active')->default(false)->after('is_kitchen_active');
+            $table->boolean('is_shift_active')->default(false)->after('is_active');
         });
     }
 

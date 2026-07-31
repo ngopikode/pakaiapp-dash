@@ -1,5 +1,5 @@
 <div
-    class="pos-shell m-2 h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-0 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-4 lg:pb-6 lg:pt-4"
+    class="pos-shell relative m-2 h-full min-h-0 max-lg:h-[calc(100dvh-4rem)] overflow-hidden rounded-[2rem] bg-[#F5F2EA] px-0 pb-5 pt-3 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:h-[90dvh] lg:px-4 lg:pb-6 lg:pt-4"
     x-data='restoPos({
         currentTab: $wire.entangle("activeTab").live,
         customerName: window.posInitialData?.customerName || "",
@@ -36,6 +36,25 @@
         };
     </script>
 
+    @if($isShiftActive && !$activeShift)
+        {{-- System Lock: shift wajib dibuka sebelum berjualan --}}
+        <div class="flex h-full min-h-0 flex-col items-center justify-center gap-6 px-6 text-center">
+            <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-sm dark:bg-slate-800">
+                <i class="ph ph-lock-key text-4xl text-slate-400"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Shift Belum Dibuka</h2>
+                <p class="mx-auto max-w-sm text-sm text-slate-500 dark:text-slate-400">
+                    Toko kamu menggunakan sistem shift kasir. Buka shift terlebih dahulu sebelum mulai menerima pembayaran.
+                </p>
+            </div>
+            <button type="button"
+                    class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:text-slate-950"
+                    @click="window.dispatchEvent(new CustomEvent('open-open-shift-modal'))">
+                <i class="ph ph-door-open"></i> Buka Shift Kasir
+            </button>
+        </div>
+    @else
     <div x-show="currentTab === 'cashier'"
          class="flex h-full min-h-0 flex-col gap-5 overflow-hidden lg:flex-row" x-transition.opacity.duration.150ms>
         {{-- Product list — always fills viewport --}}
@@ -75,6 +94,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <div x-show="currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden"
          x-transition.opacity.duration.150ms>
@@ -141,7 +161,31 @@
         </button>
     </template>
 
+    {{-- Shift Indicator Pill --}}
+    @if($isShiftActive && $activeShift)
+        <div class="absolute right-3 top-3 z-[1040] flex items-center gap-2 lg:right-5 lg:top-5">
+            <div class="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 backdrop-blur-sm dark:bg-slate-800/90 dark:text-slate-300 dark:ring-slate-700">
+                <span class="relative flex h-2 w-2">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                Shift aktif
+            </div>
+            <button @click="window.dispatchEvent(new CustomEvent('open-shift-expense-modal'))"
+                    class="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 backdrop-blur-sm transition-colors hover:bg-slate-50 dark:bg-slate-800/90 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-700">
+                <i class="ph ph-receipt text-[14px]"></i> Pengeluaran
+            </button>
+            <button wire:click="prepareCloseShift"
+                    class="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-rose-600 shadow-sm ring-1 ring-slate-200 backdrop-blur-sm transition-colors hover:bg-rose-50 dark:bg-slate-800/90 dark:text-rose-400 dark:ring-slate-700 dark:hover:bg-slate-700">
+                <i class="ph ph-door-closed text-[14px]"></i> Tutup Shift
+            </button>
+        </div>
+    @endif
+
     {{-- Shared Modals --}}
+    @include('pages.tenant.pos.partials._modal-open-shift')
+    @include('pages.tenant.pos.partials._modal-shift-expense')
+    @include('pages.tenant.pos.partials._modal-close-shift')
     @include('pages.tenant.pos.partials._modal-payment')
     @include('pages.tenant.pos.partials._modal-success')
     {{-- @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'resto']) --}}
@@ -175,6 +219,9 @@
             showSplitModalState: false,
             isMergeModalOpen: false,
             isVoidItemModalOpen: false,
+            isOpenShiftModalOpen: false,
+            isShiftExpenseModalOpen: false,
+            isCloseShiftModalOpen: false,
             voidItemId: null,
 
             optionProduct: null,

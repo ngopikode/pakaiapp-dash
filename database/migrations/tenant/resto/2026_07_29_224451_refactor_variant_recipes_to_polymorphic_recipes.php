@@ -11,29 +11,52 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Rename tabel
-        Schema::rename('variant_recipes', 'recipes');
+        // 1. Rename tabel jika belum
+        if (Schema::hasTable('variant_recipes') && !Schema::hasTable('recipes')) {
+            Schema::rename('variant_recipes', 'recipes');
+        } elseif (!Schema::hasTable('recipes')) {
+            return; // tabel tidak ada, skip
+        }
 
         // 2. Modify kolom
         Schema::table('recipes', function (Blueprint $table) {
-            // Drop constraint lama
-            $table->dropForeign(['variant_id']);
+            // Drop FK lama dengan nama asli (variant_recipes_variant_id_foreign) jika ada
+            try {
+                $table->dropForeign('variant_recipes_variant_id_foreign');
+            } catch (\Exception) {
+                // FK tidak ada atau sudah dihapus
+            }
 
-            // Tambahkan struktur polymorphic
-            $table->string('recipeable_type')->after('id')->nullable();
+            // Tambahkan struktur polymorphic jika belum ada
+            if (!Schema::hasColumn('recipes', 'recipeable_type')) {
+                $table->string('recipeable_type')->after('id')->nullable();
+            }
 
-            // Rename kolom variant_id ke recipeable_id untuk re-use datanya
-            $table->renameColumn('variant_id', 'recipeable_id');
+            // Rename kolom variant_id ke recipeable_id jika masih bernama variant_id
+            if (Schema::hasColumn('recipes', 'variant_id') && !Schema::hasColumn('recipes', 'recipeable_id')) {
+                $table->renameColumn('variant_id', 'recipeable_id');
+            }
         });
 
         // 3. Update existing data to point to ProductVariant
-        DB::table('recipes')->update(['recipeable_type' => 'App\\Tenant\\Models\\Core\\ProductVariant']);
+        DB::table('recipes')->whereNull('recipeable_type')->update(['recipeable_type' => 'App\\Tenant\\Models\\Core\\ProductVariant']);
 
         // 4. Buat nullable jadi NOT NULL dan tambahkan index
         Schema::table('recipes', function (Blueprint $table) {
             $table->string('recipeable_type')->nullable(false)->change();
-            $table->index(['recipeable_type', 'recipeable_id']);
+            if (!$this->indexExists('recipes', 'recipes_recipeable_type_recipeable_id_index')) {
+                $table->index(['recipeable_type', 'recipeable_id']);
+            }
         });
+    }
+
+    private function indexExists(string $table, string $indexName): bool
+    {
+        try {
+            return collect(DB::select("SHOW INDEX FROM {$table}"))->contains('Key_name', $indexName);
+        } catch (\Exception) {
+            return false;
+        }
     }
 
     /**
