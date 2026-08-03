@@ -32,11 +32,12 @@
             tableNumber: @json($existingOrder ? ($existingOrder->table_number ?? $existingOrder->notes) : ""),
             orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]["id"] ?? "dinein")),
             isEditingOrder: @json((bool)$existingOrder),
-            editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null)
+            editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null),
+            isShiftLocked: @json((bool)($isShiftActive && !$activeShift))
         };
     </script>
 
-    @if($isShiftActive && !$activeShift)
+    <template x-if="window.posInitialData.isShiftLocked">
         {{-- System Lock: shift wajib dibuka sebelum berjualan --}}
         <div class="flex h-full w-full flex-col items-center justify-center gap-6 px-6 text-center">
             <div class="flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-sm dark:bg-slate-800">
@@ -54,9 +55,10 @@
                 <i class="ph ph-door-open"></i> Buka Shift Kasir
             </button>
         </div>
-    @else
-        <div x-show="currentTab === 'cashier'"
-             class="flex h-full min-h-0 flex-col gap-5 overflow-hidden lg:flex-row" x-transition.opacity.duration.150ms>
+    </template>
+
+    <div x-show="!window.posInitialData.isShiftLocked && currentTab === 'cashier'"
+         class="flex h-full min-h-0 flex-col gap-5 overflow-hidden lg:flex-row" x-transition.opacity.duration.150ms>
             {{-- Product list — always fills viewport --}}
             <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                 <livewire:tenant.pos.product-list/>
@@ -95,7 +97,7 @@
             </div>
         </div>
 
-        <div x-show="currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden"
+        <div x-show="!window.posInitialData.isShiftLocked && currentTab === 'queue'" class="flex h-full min-h-0 flex-col overflow-hidden"
              x-transition.opacity.duration.150ms>
             <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden relative">
                 @island(name: 'queue')
@@ -149,7 +151,7 @@
         </div>
 
         {{-- Floating Cart Button for Mobile (Safe Template Destructive DOM Toggle) --}}
-        <template x-if="currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
+        <template x-if="!window.posInitialData.isShiftLocked && currentTab === 'cashier' && !isMobileCartOpen && cart.length > 0">
             <button
                 class="floating-cart-btn fixed bottom-5 left-1/2 z-[1030] flex w-[90%] max-w-[400px] -translate-x-1/2 items-center justify-between rounded-2xl bg-emerald-800 p-4 text-sm font-black text-white shadow-xl transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400"
                 :class="{'lg:hidden': isDesktopCartOpen}"
@@ -159,7 +161,6 @@
                 <span x-text="'Rp ' + formatRupiah(subTotal)"></span>
             </button>
         </template>
-    @endif
 
     {{-- Shift Indicator Pill --}}
     @if($isShiftActive && $activeShift)
