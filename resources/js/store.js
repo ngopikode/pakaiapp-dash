@@ -441,21 +441,21 @@ document.addEventListener('alpine:init', () => {
         },
 
         /* ===== EXTRAS (Add-ons) ===== */
-        toggleExtra(extraName) {
-            const idx = this.extrasSelected.indexOf(extraName);
+        toggleExtra(extraId) {
+            const idx = this.extrasSelected.indexOf(extraId);
             if (idx > -1) {
                 this.extrasSelected.splice(idx, 1);
             } else {
-                this.extrasSelected.push(extraName);
+                this.extrasSelected.push(extraId);
             }
         },
-        isExtraSelected(name) {
-            return this.extrasSelected.includes(name);
+        isExtraSelected(id) {
+            return this.extrasSelected.includes(id);
         },
         get extrasTotal() {
             if (!this.optionProduct?.extras?.length) return 0;
             return this.optionProduct.extras
-                .filter(e => this.extrasSelected.includes(e.name))
+                .filter(e => this.extrasSelected.includes(e.id))
                 .reduce((sum, e) => sum + (parseFloat(e.price) || 0), 0);
         },
         get optionValid() {
@@ -524,15 +524,13 @@ document.addEventListener('alpine:init', () => {
             finalPrice += this.extrasTotal;
             originalVariantPrice += this.extrasTotal;
 
-            const finalExtraLabel = this.extrasSelected.length
-                ? this.extrasSelected.join(', ')
+            const finalExtraLabel = this.extrasSelected.length && this.optionProduct.extras
+                ? this.optionProduct.extras.filter(e => this.extrasSelected.includes(e.id)).map(e => e.name).join(', ')
                 : '';
 
             let extraIds = [];
             if (this.optionProduct.extras && this.extrasSelected.length > 0) {
-                extraIds = this.optionProduct.extras
-                    .filter(e => this.extrasSelected.includes(e.name))
-                    .map(e => e.id);
+                extraIds = this.extrasSelected; // Sudah berupa array of IDs
             }
 
             const combinedLabel = [finalVariantLabel, finalExtraLabel]
