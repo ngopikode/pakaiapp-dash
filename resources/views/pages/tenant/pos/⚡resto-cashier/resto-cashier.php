@@ -440,7 +440,7 @@ new class extends Component
             $this->startingCash = 0;
             $this->unsetComputedProperty('activeShift');
             $this->toast('Shift berhasil dibuka.');
-            $this->js("window.dispatchEvent(new CustomEvent('close-open-shift-modal'));");
+            $this->js("window.dispatchEvent(new CustomEvent('close-open-shift-modal')); window.dispatchEvent(new CustomEvent('shift-active'));");
         } catch (Exception $e) {
             $this->toast($e->getMessage(), 'danger');
         }
@@ -539,7 +539,7 @@ new class extends Component
 
             $this->unsetComputedProperty('activeShift');
             $this->toast('Shift berhasil ditutup.');
-            $this->js("window.dispatchEvent(new CustomEvent('close-close-shift-modal'));");
+            $this->js("window.dispatchEvent(new CustomEvent('close-close-shift-modal')); window.dispatchEvent(new CustomEvent('shift-closed'));");
         } catch (Exception $e) {
             $this->toast($e->getMessage(), 'danger');
         }

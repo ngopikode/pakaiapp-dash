@@ -24,6 +24,7 @@
     @open-payment-modal.window="openPayForOrder($event.detail)"
     @open-void-item-modal.window="voidItemId = $event.detail.itemId; isVoidItemModalOpen = true"
     @start-editing-order.window="isEditingOrder = true; editInvoiceCode = $event.detail.invoice_code; customerName = $event.detail.customer; tableNumber = $event.detail.table; orderType = $event.detail.type"
+    @pos-prepare-close-shift.window="$wire.prepareCloseShift()"
     x-cloak>
 
     <script>
@@ -33,7 +34,8 @@
             orderType: @json($existingOrder ? $existingOrder->order_type : ($restoOrderTypes[0]["id"] ?? "dinein")),
             isEditingOrder: @json((bool)$existingOrder),
             editInvoiceCode: @json($existingOrder ? $existingOrder->invoice_code : null),
-            isShiftLocked: @json((bool)($isShiftActive && !$activeShift))
+            isShiftLocked: @json((bool)($isShiftActive && !$activeShift)),
+            shiftActive: @json((bool)($isShiftActive && $activeShift))
         };
     </script>
 
@@ -163,24 +165,9 @@
         </template>
 
     {{-- Shift Indicator Pill --}}
+    {{-- Moved to navbar. Dispatch event so navbar Alpine can react. --}}
     @if($isShiftActive && $activeShift)
-        <div class="absolute right-3 top-3 z-[1040] flex items-center gap-2 lg:right-5 lg:top-5">
-            <div class="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 backdrop-blur-sm dark:bg-slate-800/90 dark:text-slate-300 dark:ring-slate-700">
-                <span class="relative flex h-2 w-2">
-                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                </span>
-                Shift aktif
-            </div>
-            <button @click="window.dispatchEvent(new CustomEvent('open-shift-expense-modal'))"
-                    class="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 backdrop-blur-sm transition-colors hover:bg-slate-50 dark:bg-slate-800/90 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-700">
-                <i class="ph ph-receipt text-[14px]"></i> Pengeluaran
-            </button>
-            <button wire:click="prepareCloseShift"
-                    class="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-rose-600 shadow-sm ring-1 ring-slate-200 backdrop-blur-sm transition-colors hover:bg-rose-50 dark:bg-slate-800/90 dark:text-rose-400 dark:ring-slate-700 dark:hover:bg-slate-700">
-                <i class="ph ph-door-closed text-[14px]"></i> Tutup Shift
-            </button>
-        </div>
+        <span x-init="window.dispatchEvent(new CustomEvent('shift-active', { detail: { active: true } }))" class="hidden"></span>
     @endif
 
     {{-- Shared Modals --}}

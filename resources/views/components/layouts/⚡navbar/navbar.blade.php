@@ -80,6 +80,39 @@
     @endif
 
     <div class="flex items-center gap-1.5 lg:gap-3">
+        @if($isPosNavbar)
+            {{-- Shift Controls: reactive via custom events from cashier component --}}
+            <div x-data="{
+                    shiftActive: window.posInitialData?.shiftActive ?? false,
+                    init() {
+                        window.addEventListener('shift-active', () => this.shiftActive = true);
+                        window.addEventListener('shift-closed', () => this.shiftActive = false);
+                    }
+                }"
+                 class="flex items-center gap-1.5"
+                 x-show="shiftActive"
+                 x-cloak>
+                <div class="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/30">
+                    <span class="relative flex h-2 w-2">
+                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                    </span>
+                    <span class="hidden sm:inline">Shift aktif</span>
+                </div>
+                <button @click="window.dispatchEvent(new CustomEvent('open-shift-expense-modal'))"
+                        class="flex h-9 items-center gap-1.5 rounded-full bg-slate-100 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 focus:outline-none dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        title="Catat Pengeluaran">
+                    <i class="ph ph-receipt text-sm"></i>
+                    <span class="hidden sm:inline">Pengeluaran</span>
+                </button>
+                <button @click="window.dispatchEvent(new CustomEvent('pos-prepare-close-shift'))"
+                        class="flex h-9 items-center gap-1.5 rounded-full bg-rose-50 px-3 text-xs font-semibold text-rose-600 ring-1 ring-rose-200 transition hover:bg-rose-100 focus:outline-none dark:bg-rose-500/10 dark:text-rose-400 dark:ring-rose-500/30 dark:hover:bg-rose-500/20"
+                        title="Tutup Shift">
+                    <i class="ph ph-door-closed text-sm"></i>
+                    <span class="hidden sm:inline">Tutup Shift</span>
+                </button>
+            </div>
+        @endif
         @if(!$isPosNavbar)
             @island(name: 'notification-badge', defer: true)
             @placeholder
