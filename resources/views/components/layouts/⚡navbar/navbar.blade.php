@@ -80,39 +80,6 @@
     @endif
 
     <div class="flex items-center gap-1.5 lg:gap-3">
-        @if($isPosNavbar)
-            {{-- Shift Controls: reactive via custom events from cashier component --}}
-            <div x-data="{
-                    shiftActive: window.posInitialData?.shiftActive ?? false,
-                    init() {
-                        window.addEventListener('shift-active', () => this.shiftActive = true);
-                        window.addEventListener('shift-closed', () => this.shiftActive = false);
-                    }
-                }"
-                 class="flex items-center gap-1.5"
-                 x-show="shiftActive"
-                 x-cloak>
-                <div class="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/30">
-                    <span class="relative flex h-2 w-2">
-                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                    </span>
-                    <span class="hidden sm:inline">Shift aktif</span>
-                </div>
-                <button @click="window.dispatchEvent(new CustomEvent('open-shift-expense-modal'))"
-                        class="flex h-9 items-center gap-1.5 rounded-full bg-slate-100 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 focus:outline-none dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        title="Catat Pengeluaran">
-                    <i class="ph ph-receipt text-sm"></i>
-                    <span class="hidden sm:inline">Pengeluaran</span>
-                </button>
-                <button @click="window.dispatchEvent(new CustomEvent('pos-prepare-close-shift'))"
-                        class="flex h-9 items-center gap-1.5 rounded-full bg-rose-50 px-3 text-xs font-semibold text-rose-600 ring-1 ring-rose-200 transition hover:bg-rose-100 focus:outline-none dark:bg-rose-500/10 dark:text-rose-400 dark:ring-rose-500/30 dark:hover:bg-rose-500/20"
-                        title="Tutup Shift">
-                    <i class="ph ph-door-closed text-sm"></i>
-                    <span class="hidden sm:inline">Tutup Shift</span>
-                </button>
-            </div>
-        @endif
         @if(!$isPosNavbar)
             @island(name: 'notification-badge', defer: true)
             @placeholder
@@ -211,18 +178,33 @@
                 </li>
             @endif
 
-            <li x-data="{ open: false }" class="relative">
+            <li x-data="{
+                    open: false,
+                    shiftActive: window.posInitialData?.shiftActive ?? false,
+                    init() {
+                        window.addEventListener('shift-active', () => this.shiftActive = true);
+                        window.addEventListener('shift-closed', () => this.shiftActive = false);
+                    }
+                }" class="relative">
                 <button @click="open = !open" @click.outside="open = false"
                         class="flex items-center gap-2 p-1.5 pr-2.5 lg:pr-3 rounded-full border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors focus:outline-none ml-1">
-                    <div
-                        class="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 dark:from-slate-700 dark:to-slate-500 text-white flex items-center justify-center shadow-sm shrink-0 font-bold text-[14px]">
-                        {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                    <div class="relative w-8 h-8 lg:w-9 lg:h-9 shrink-0">
+                        <div class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 dark:from-slate-700 dark:to-slate-500 text-white flex items-center justify-center shadow-sm font-bold text-[14px]">
+                            {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                        </div>
+                        {{-- Shift active dot on avatar --}}
+                        <span x-show="shiftActive" x-cloak
+                              class="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"></span>
+                        </span>
                     </div>
                     <div class="text-left leading-tight hidden lg:block mr-1">
                         <div class="font-bold text-[13px] text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
                             {{ Auth::user()->name ?? 'User' }}
                         </div>
-                        <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Admin</div>
+                        <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400"
+                             x-text="shiftActive ? 'Shift aktif' : 'Admin'"></div>
                     </div>
                     <i class="ph-bold ph-caret-down text-slate-400 dark:text-slate-500 hidden lg:block text-[10px] transition-transform duration-200"
                        :class="open ? 'rotate-180' : ''"></i>
@@ -236,23 +218,47 @@
                      x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                      class="absolute right-0 mt-3 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 p-2"
                      style="display: none;">
-                    <div class="px-3 py-3 border-b border-border mb-1 lg:hidden flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 dark:from-slate-700 dark:to-slate-500 text-white flex items-center justify-center shadow-sm shrink-0 font-bold text-lg">
+                    {{-- Mobile user header --}}
+                    <div class="px-3 py-3 border-b border-slate-100 dark:border-slate-700/60 mb-1 lg:hidden flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-800 to-slate-600 dark:from-slate-700 dark:to-slate-500 text-white flex items-center justify-center shadow-sm shrink-0 font-bold text-lg">
                             {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
                         </div>
                         <div>
-                            <span
-                                class="font-bold block text-slate-800 dark:text-slate-200 text-sm">{{ Auth::user()->name ?? 'User' }}</span>
+                            <span class="font-bold block text-slate-800 dark:text-slate-200 text-sm">{{ Auth::user()->name ?? 'User' }}</span>
                             <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Admin</span>
                         </div>
                     </div>
+
+                    {{-- Shift section: hanya muncul di POS saat shift aktif --}}
+                    <div x-show="shiftActive" x-cloak>
+                        <div class="px-3 py-2 flex items-center gap-2">
+                            <span class="relative flex h-2 w-2 shrink-0">
+                                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                            </span>
+                            <span class="text-[12px] font-semibold text-emerald-700 dark:text-emerald-400">Shift sedang berjalan</span>
+                        </div>
+                        <button type="button"
+                                @click="open = false; window.dispatchEvent(new CustomEvent('open-shift-expense-modal'))"
+                                class="w-full flex items-center px-3 py-2.5 text-[13px] font-medium text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white transition-colors text-left">
+                            <i class="ph ph-receipt mr-2.5 text-[18px] text-slate-400 dark:text-slate-500"></i>
+                            Catat Pengeluaran
+                        </button>
+                        <button type="button"
+                                @click="open = false; window.dispatchEvent(new CustomEvent('pos-prepare-close-shift'))"
+                                class="w-full flex items-center px-3 py-2.5 text-[13px] font-bold text-rose-600 dark:text-rose-400 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-left">
+                            <i class="ph ph-door-closed mr-2.5 text-[18px]"></i>
+                            Tutup Shift
+                        </button>
+                        <div class="my-1 border-t border-slate-100 dark:border-slate-700/60 mx-2"></div>
+                    </div>
+
                     <a href="{{ route('profile') }}" wire:navigate.hover
                        class="flex items-center px-3 py-2.5 text-[13px] font-medium text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white transition-colors">
                         <i class="ph-fill ph-user-circle mr-2.5 text-[18px] text-slate-400 dark:text-slate-500"></i>
                         Edit Profil
                     </a>
-                    <div class="my-1 border-t border-border mx-2"></div>
+                    <div class="my-1 border-t border-slate-100 dark:border-slate-700/60 mx-2"></div>
                     <button type="button" wire:click="logout()"
                             class="w-full flex items-center px-3 py-2.5 text-[13px] font-bold text-red-600 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left group">
                         <i class="ph-bold ph-sign-out mr-2.5 text-[18px] group-hover:-translate-x-0.5 transition-transform"></i>
