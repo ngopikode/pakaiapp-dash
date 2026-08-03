@@ -12,8 +12,21 @@
     <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
          @click="isOpenShiftModalOpen = false"></div>
 
-    <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all dark:bg-slate-900 sm:my-8"
+    <div class="relative w-full max-w-md transform overflow-hidden rounded-[24px] bg-white text-left align-middle shadow-2xl transition-all dark:bg-slate-900 sm:my-8 border border-slate-200 dark:border-slate-800"
          x-show="isOpenShiftModalOpen"
+         x-data="{ 
+            displayValue: '', 
+            formatValue(val) { 
+                let num = val.toString().replace(/\D/g, ''); 
+                this.displayValue = num ? new Intl.NumberFormat('id-ID').format(num) : '';
+                $wire.set('startingCash', num);
+            },
+            quickFill(amount) {
+                this.formatValue(amount.toString());
+                $refs.startingCashInput.focus();
+            }
+         }"
+         @open-open-shift-modal.window="displayValue = ''; $wire.set('startingCash', 0)"
          x-transition:enter="ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -22,37 +35,69 @@
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
 
         <form wire:submit="openShift">
-            <div class="bg-white px-4 pb-4 pt-5 dark:bg-slate-900 sm:p-6 sm:pb-4">
+            <div class="bg-white px-6 pb-6 pt-6 dark:bg-slate-900 sm:p-8 sm:pb-6">
                 <div class="sm:flex sm:items-start">
-                    <div class="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50 sm:mx-0 sm:h-10 sm:w-10">
-                        <i class="ph ph-door-open text-xl text-emerald-600 dark:text-emerald-400"></i>
+                    <div class="mx-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 sm:mx-0 sm:h-12 sm:w-12 ring-8 ring-emerald-50 dark:ring-emerald-900/20">
+                        <i class="ph-bold ph-door-open text-2xl text-emerald-600 dark:text-emerald-400"></i>
                     </div>
-                    <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
-                        <h3 class="text-base font-semibold leading-6 text-slate-900 dark:text-white" id="modal-title">Buka Shift Kasir</h3>
+                    <div class="mt-4 text-center sm:ml-5 sm:mt-0 sm:text-left w-full">
+                        <h3 class="text-xl font-bold leading-6 text-slate-900 dark:text-white" id="modal-title">Buka Shift Kasir</h3>
                         <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                            Masukkan modal awal yang ada di laci kasir saat ini. Uang ini akan dihitung pada saat tutup shift.
+                            Masukkan uang fisik (modal awal) yang ada di laci kasir saat ini.
                         </div>
 
-                        <div class="mt-4 space-y-4 text-left">
+                        <div class="mt-6 space-y-4 text-left">
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Modal Awal (Rp)</label>
-                                <input type="number" wire:model="startingCash" x-ref="startingCashInput"
-                                       class="block w-full rounded-xl border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-emerald-500"
-                                       placeholder="Contoh: 100000" min="0" required>
-                                @error('startingCash') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                <label class="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300">Modal Awal</label>
+                                <div class="relative">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                                        <span class="text-xl font-bold text-slate-400 dark:text-slate-500">Rp</span>
+                                    </div>
+                                    <input type="text" inputmode="numeric" 
+                                           x-ref="startingCashInput"
+                                           x-model="displayValue" 
+                                           @input="formatValue($event.target.value)"
+                                           class="block w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-4 pl-12 pr-4 text-right text-3xl font-black text-slate-900 tracking-tight transition-all focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-emerald-500 dark:focus:bg-slate-900 placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                                           placeholder="0" required autocomplete="off">
+                                </div>
+                                @error('startingCash') <span class="mt-1 block text-sm font-medium text-rose-500">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Quick Fill Chips -->
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                <button type="button" @click="quickFill(0)"
+                                        class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    Kosong (0)
+                                </button>
+                                <button type="button" @click="quickFill(50000)"
+                                        class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    50.000
+                                </button>
+                                <button type="button" @click="quickFill(100000)"
+                                        class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    100.000
+                                </button>
+                                <button type="button" @click="quickFill(200000)"
+                                        class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    200.000
+                                </button>
+                                <button type="button" @click="quickFill(500000)"
+                                        class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    500.000
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="bg-slate-50 px-4 py-3 dark:bg-slate-800/50 sm:flex sm:flex-row-reverse sm:px-6">
+            <div class="bg-slate-50 px-6 py-4 dark:bg-slate-800/50 sm:flex sm:flex-row-reverse sm:px-8">
                 <button type="submit" wire:loading.attr="disabled"
-                        class="inline-flex w-full justify-center rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 sm:ml-3 sm:w-auto disabled:opacity-75">
-                    <span wire:loading.remove wire:target="openShift">Buka Shift</span>
-                    <span wire:loading wire:target="openShift">Memproses...</span>
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-500 focus:ring-4 focus:ring-emerald-500/20 active:scale-[0.98] sm:ml-3 sm:w-auto disabled:opacity-75">
+                    <span wire:loading.remove wire:target="openShift"><i class="ph-bold ph-door-open text-lg"></i> Buka Shift</span>
+                    <span wire:loading wire:target="openShift"><i class="ph-bold ph-spinner animate-spin text-lg"></i> Memproses...</span>
                 </button>
                 <button type="button" @click="isOpenShiftModalOpen = false"
-                        class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-700 sm:mt-0 sm:w-auto">
+                        class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-6 py-3 text-sm font-bold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 active:scale-[0.98] dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700 dark:hover:bg-slate-700 sm:mt-0 sm:w-auto">
                     Batal
                 </button>
             </div>

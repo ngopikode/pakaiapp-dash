@@ -82,27 +82,38 @@
 
                 @if($closeShiftStep === 2)
                 <!-- STEP 2: Blind Cash Count -->
-                <div x-data="{ init() { setTimeout(() => $refs.actualCash.focus(), 100) } }">
-                    <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">2</span>
+                <div x-data="{ 
+                    displayValue: '',
+                    init() { setTimeout(() => $refs.actualCashInput.focus(), 100) },
+                    formatValue(val) { 
+                        let num = val.toString().replace(/\D/g, ''); 
+                        this.displayValue = num ? new Intl.NumberFormat('id-ID').format(num) : '';
+                        $wire.set('actualCash', num);
+                    }
+                }">
+                    <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-5 flex items-center gap-3">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-sm font-black text-rose-700 dark:bg-rose-900/50 dark:text-rose-300">2</span>
                         Perhitungan Uang Kasir (Blind Count)
                     </h4>
                     
-                    <div class="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Total Uang Fisik di Laci Saat Ini</label>
-                        <p class="text-xs text-slate-500 mb-4">
-                            Hitung semua uang fisik (kertas & koin) yang ada di laci dan masukkan totalnya. Sistem akan menghitung otomatis selisihnya.
+                    <div class="rounded-2xl border-2 border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+                        <label class="block text-base font-bold text-slate-800 dark:text-slate-200 mb-2">Total Uang Fisik di Laci Saat Ini</label>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                            Keluarkan semua uang (kertas & koin) dari laci kasir, hitung total keseluruhannya, lalu ketik di bawah. Sistem akan mencocokkan dengan catatan penjualan otomatis.
                         </p>
                         
                         <div class="relative">
                             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                                <span class="font-medium text-slate-500">Rp</span>
+                                <span class="text-xl font-bold text-slate-400 dark:text-slate-500">Rp</span>
                             </div>
-                            <input type="number" wire:model="actualCash" x-ref="actualCash"
-                                   class="block w-full rounded-xl border-slate-300 bg-slate-50 py-4 pl-12 pr-4 text-xl font-bold text-slate-900 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:bg-slate-900"
-                                   placeholder="0" required min="0">
+                            <input type="text" inputmode="numeric" 
+                                   x-ref="actualCashInput"
+                                   x-model="displayValue"
+                                   @input="formatValue($event.target.value)"
+                                   class="block w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-5 pl-12 pr-5 text-right text-4xl font-black text-slate-900 tracking-tight transition-all focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-rose-500 dark:focus:bg-slate-900 placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                                   placeholder="0" required autocomplete="off">
                         </div>
-                        @error('actualCash') <span class="text-sm text-red-500 mt-2 block">{{ $message }}</span> @enderror
+                        @error('actualCash') <span class="mt-2 block text-sm font-medium text-rose-500">{{ $message }}</span> @enderror
                     </div>
                 </div>
                 @endif
