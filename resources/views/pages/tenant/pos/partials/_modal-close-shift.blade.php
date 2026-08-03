@@ -24,7 +24,7 @@
         <!-- Header -->
         <div class="border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900 shrink-0">
             <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <i class="ph ph-door-closed text-rose-500"></i> Tutup Shift (Z-Report)
+                <i class="ph-bold ph-sign-out text-rose-500"></i> Tutup Shift (Z-Report)
             </h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Lakukan perhitungan stok dan kasir sebelum pergantian shift.

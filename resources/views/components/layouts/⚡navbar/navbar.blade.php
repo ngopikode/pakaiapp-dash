@@ -241,13 +241,13 @@
                         <button type="button"
                                 @click="open = false; window.dispatchEvent(new CustomEvent('open-shift-expense-modal'))"
                                 class="w-full flex items-center px-3 py-2.5 text-[13px] font-medium text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white transition-colors text-left">
-                            <i class="ph-fill ph-receipt mr-2.5 text-[18px] text-slate-400 dark:text-slate-500"></i>
+                            <i class="ph-bold ph-receipt mr-2.5 text-[18px] text-slate-400 dark:text-slate-500"></i>
                             Catat Pengeluaran
                         </button>
                         <button type="button"
                                 @click="open = false; window.dispatchEvent(new CustomEvent('pos-prepare-close-shift'))"
                                 class="w-full flex items-center px-3 py-2.5 text-[13px] font-bold text-rose-600 dark:text-rose-400 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-left">
-                            <i class="ph-fill ph-door-closed mr-2.5 text-[18px]"></i>
+                            <i class="ph-bold ph-sign-out mr-2.5 text-[18px]"></i>
                             Tutup Shift
                         </button>
                         <div class="my-1 border-t border-slate-100 dark:border-slate-700/60 mx-2"></div>
