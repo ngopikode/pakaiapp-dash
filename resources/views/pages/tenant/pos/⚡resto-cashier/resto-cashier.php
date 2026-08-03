@@ -670,7 +670,7 @@ new class extends Component
             'isServiceChargeActive' => $storeSetting?->is_service_charge_active ?? true,
             'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
             'isShiftActive' => $storeSetting?->is_shift_active ?? false,
-            'activeShift' => $this->activeShift?->only(['id', 'started_at', 'starting_cash', 'cash_sales', 'cash_expenses']),
+            'activeShift' => $this->activeShift()?->only(['id', 'started_at', 'starting_cash', 'cash_sales', 'cash_expenses']),
             'counts' => $counts,
             'filters' => $filters,
             'queueOrders' => $filteredQueueOrders, // Use filtered orders for the view
