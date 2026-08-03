@@ -1,6 +1,6 @@
 <div class="fixed inset-0 z-[1050] flex items-center justify-center p-4 sm:p-0"
      x-show="isShiftExpenseModalOpen" x-cloak
-     @open-shift-expense-modal.window="isShiftExpenseModalOpen = true; setTimeout(() => $refs.expenseAmountInput.focus(), 100)"
+     @open-shift-expense-modal.window="isShiftExpenseModalOpen = true"
      @close-shift-expense-modal.window="isShiftExpenseModalOpen = false"
      x-transition:enter="ease-out duration-300"
      x-transition:enter-start="opacity-0"
@@ -22,7 +22,7 @@
                 $wire.set('expenseAmount', num);
             }
          }"
-         @open-shift-expense-modal.window="displayValue = ''; $wire.set('expenseAmount', 0); $wire.set('expenseDescription', '')"
+         @open-shift-expense-modal.window="displayValue = ''; $wire.set('expenseAmount', 0); $wire.set('expenseDescription', ''); setTimeout(() => $refs.expenseAmountInput.focus(), 100)"
          x-transition:enter="ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"

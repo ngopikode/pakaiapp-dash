@@ -1,6 +1,6 @@
 <div class="fixed inset-0 z-[1050] flex items-center justify-center p-4 sm:p-0"
      x-show="isOpenShiftModalOpen" x-cloak
-     @open-open-shift-modal.window="isOpenShiftModalOpen = true; setTimeout(() => $refs.startingCashInput.focus(), 100)"
+     @open-open-shift-modal.window="isOpenShiftModalOpen = true"
      @close-open-shift-modal.window="isOpenShiftModalOpen = false"
      x-transition:enter="ease-out duration-300"
      x-transition:enter-start="opacity-0"
@@ -26,7 +26,7 @@
                 $refs.startingCashInput.focus();
             }
          }"
-         @open-open-shift-modal.window="displayValue = ''; $wire.set('startingCash', 0)"
+         @open-open-shift-modal.window="displayValue = ''; $wire.set('startingCash', 0); setTimeout(() => $refs.startingCashInput.focus(), 100)"
          x-transition:enter="ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
