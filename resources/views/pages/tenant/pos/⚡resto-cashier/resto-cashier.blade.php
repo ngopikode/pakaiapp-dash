@@ -391,9 +391,9 @@
             },
             get taxAmount() {
                 if (!this.isTaxActive) return 0;
-                // Match PHP backend: DPP = SubtotalAfterDiscount + ServiceCharge + AppFee
-                let dpp = this.subtotalAfterDiscount + this.serviceChargeAmount + this.applicationFeeAmount;
-                return Math.round((parseFloat(this.taxRate) / 100) * dpp);
+                // Match PHP backend: Taxable Amount (DPP) = SubtotalAfterDiscount + ServiceCharge + AppFee
+                let taxableAmount = this.subtotalAfterDiscount + this.serviceChargeAmount + this.applicationFeeAmount;
+                return Math.round((parseFloat(this.taxRate) / 100) * taxableAmount);
             },
             get subTotalWithCharges() {
                 return this.subtotalAfterDiscount + this.serviceChargeAmount + this.taxAmount + this.applicationFeeAmount;

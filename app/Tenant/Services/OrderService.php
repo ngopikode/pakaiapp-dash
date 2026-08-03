@@ -836,9 +836,9 @@ class OrderService
         $subtotalAfterDiscount = max(0, $subtotal - $discount);
         $serviceChargeAmount = round(($serviceRate / 100) * $subtotalAfterDiscount);
 
-        $dpp = $subtotalAfterDiscount + $serviceChargeAmount + $applicationFeeAmount;
-        $taxAmount = round(($taxRate / 100) * $dpp);
-        $totalPrice = $dpp + $taxAmount;
+        $taxableAmount = $subtotalAfterDiscount + $serviceChargeAmount + $applicationFeeAmount;
+        $taxAmount = round(($taxRate / 100) * $taxableAmount);
+        $totalPrice = $taxableAmount + $taxAmount;
 
         return [
             'subtotal' => $subtotal,
