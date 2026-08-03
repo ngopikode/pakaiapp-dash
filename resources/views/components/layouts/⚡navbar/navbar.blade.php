@@ -247,7 +247,7 @@
                         <button type="button"
                                 @click="open = false; window.dispatchEvent(new CustomEvent('pos-prepare-close-shift'))"
                                 class="w-full flex items-center px-3 py-2.5 text-[13px] font-bold text-rose-600 dark:text-rose-400 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-left">
-                            <i class="ph-bold ph-sign-out mr-2.5 text-[18px]"></i>
+                            <i class="ph-bold ph-power mr-2.5 text-[18px]"></i>
                             Tutup Shift
                         </button>
                         <div class="my-1 border-t border-slate-100 dark:border-slate-700/60 mx-2"></div>
