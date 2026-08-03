@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Cache;
     'service_charge_rate',
     'is_application_fee_passed',
     'is_kitchen_active',
+    'is_shift_active',
     'use_same_hours',
     'operating_hours',
     'created_at',
@@ -52,6 +53,7 @@ class StoreSetting extends Model
     protected function casts(): array
     {
         return [
+            'is_shift_active' => 'boolean',
             'operating_hours' => 'array',
             'use_same_hours' => 'boolean',
         ];
