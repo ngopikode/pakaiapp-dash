@@ -23,7 +23,7 @@ class ShiftService
     }
 
     /**
-     * @throws Exception
+     * @throws Throwable
      */
     public function openShift(int $userId, float $startingCash): Shift
     {
@@ -31,16 +31,34 @@ class ShiftService
             ->where('status', Shift::STATUS_ACTIVE)
             ->exists();
 
-        if ($existingShift) {
-            throw new Exception(message: 'Kasir sudah memiliki shift yang aktif.');
-        }
+        if ($existingShift) throw new Exception(message: 'Kasir sudah memiliki shift yang aktif.');
 
-        return Shift::create([
-            'user_id' => $userId,
-            'started_at' => now(),
-            'starting_cash' => $startingCash,
-            'status' => Shift::STATUS_ACTIVE,
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $shift = Shift::create([
+                'user_id' => $userId,
+                'started_at' => now(),
+                'starting_cash' => $startingCash,
+                'status' => Shift::STATUS_ACTIVE,
+            ]);
+
+            if ($startingCash > 0) {
+                $this->walletService()->deductBalance(
+                    amount: $startingCash,
+                    reference: $shift,
+                    description: 'Modal awal laci kasir (Shift #' . $shift->id . ')',
+                    walletType: Wallet::TYPE_CASH
+                );
+            }
+
+            DB::commit();
+
+            return $shift;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
