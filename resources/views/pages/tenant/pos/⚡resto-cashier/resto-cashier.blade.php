@@ -385,8 +385,7 @@
                 return Math.round((parseFloat(this.taxRate) / 100) * (this.subTotal + this.serviceChargeAmount));
             },
             get applicationFeeAmount() {
-                if (!this.isAppFeePassed) return 0;
-                return (this.cart.length > 0 || this.payingOrder) ? this.appFeeAmount : 0;
+                return this.isAppFeePassed ? this.appFeeAmount : 0;
             },
             get subTotalWithCharges() {
                 return this.subTotal + this.serviceChargeAmount + this.taxAmount + this.applicationFeeAmount;
