@@ -184,8 +184,8 @@
     @include('pages.tenant.order.⚡order-list._modal-split-bill')
 
     {{-- Cancel Modal Component --}}
-    <div>
-        @include('pages.tenant.pos.partials.._cancel-modal')
+    <div wire:ignore>
+        @include('pages.tenant.pos.partials._cancel-modal')
     </div>
 
     @include('pages.tenant.pos.partials._modal-void-item')
