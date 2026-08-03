@@ -109,6 +109,10 @@
                 <span class="font-semibold text-slate-500 dark:text-slate-400">Pajak PB1 (<span x-text="taxRate"></span>%)</span>
                 <span class="font-black text-slate-900 dark:text-white" x-text="'Rp ' + formatRupiah(taxAmount)"></span>
             </div>
+            <div class="mb-1 flex justify-between text-xs" x-show="applicationFeeAmount > 0">
+                <span class="font-semibold text-slate-500 dark:text-slate-400">Biaya Aplikasi</span>
+                <span class="font-black text-slate-900 dark:text-white" x-text="'Rp ' + formatRupiah(applicationFeeAmount)"></span>
+            </div>
             <div class="my-2 border-t border-slate-200 dark:border-slate-800"></div>
             <div class="flex items-center justify-between">
                 <span class="font-black text-slate-950 dark:text-white">Total</span>

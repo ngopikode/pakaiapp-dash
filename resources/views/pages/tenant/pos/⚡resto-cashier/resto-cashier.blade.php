@@ -9,6 +9,8 @@
         editInvoiceCode: window.posInitialData?.editInvoiceCode || null,
         isShiftLocked: window.posInitialData?.isShiftLocked ?? false,
         shiftActive: window.posInitialData?.shiftActive ?? false,
+        isAppFeePassed: @json($isAppFeePassed),
+        appFeeAmount: @json($appFeeAmount),
         taxRate: @json($taxRate),
         serviceChargeRate: @json($serviceChargeRate),
         isTaxActive: @json($isTaxActive),
@@ -261,6 +263,8 @@
             lastOrder: {},
             payingOrder: null,
 
+            isAppFeePassed: config.isAppFeePassed,
+            appFeeAmount: config.appFeeAmount,
             taxRate: config.taxRate,
             serviceChargeRate: config.serviceChargeRate,
             isTaxActive: config.isTaxActive,
@@ -380,8 +384,11 @@
                 if (!this.isTaxActive) return 0;
                 return Math.round((parseFloat(this.taxRate) / 100) * (this.subTotal + this.serviceChargeAmount));
             },
+            get applicationFeeAmount() {
+                return this.isAppFeePassed && this.subTotal > 0 ? this.appFeeAmount : 0;
+            },
             get subTotalWithCharges() {
-                return this.subTotal + this.serviceChargeAmount + this.taxAmount;
+                return this.subTotal + this.serviceChargeAmount + this.taxAmount + this.applicationFeeAmount;
             },
             get payTotal() {
                 let t = this.payingOrder ? (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) : this.subTotalWithCharges;

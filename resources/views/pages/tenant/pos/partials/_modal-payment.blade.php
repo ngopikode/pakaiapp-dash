@@ -28,6 +28,9 @@
                         <div class="mb-3 rounded-2xl border border-emerald-800/15 bg-emerald-50/60 p-4 text-center dark:border-slate-800 dark:bg-slate-950">
                             <h6 class="mb-1 text-xs font-bold text-slate-600 dark:text-slate-400">Total Tagihan</h6>
                             <h2 class="mb-0 font-black text-emerald-800 dark:text-emerald-400" x-text="'Rp ' + formatRupiah(payTotal)"></h2>
+                            <template x-if="applicationFeeAmount > 0">
+                                <p class="mt-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400">Termasuk Biaya Aplikasi: <span x-text="'Rp ' + formatRupiah(applicationFeeAmount)"></span></p>
+                            </template>
                         </div>
 
                         {{-- Payment Methods --}}

@@ -11,6 +11,7 @@ use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\OrderService;
 use App\Tenant\Services\PaymentGatewayService;
+use App\Tenant\Services\SettingService;
 use App\Tenant\Services\ShiftService;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
@@ -207,12 +208,12 @@ new class extends Component
             $dto = new ProcessOrderData(
                 customerName: $customerName ?: 'Pelanggan Umum',
                 orderType: $orderType,
-                paymentMethod: $isMidtrans ? 'transfer' : ($isDuitku ? $paymentMethod : $paymentMethod),
+                paymentMethod: $isMidtrans ? 'transfer' : $paymentMethod,
                 status: ($isDuitku || $isMidtrans) ? 'pending' : 'paid',
                 tableNumber: $orderType === 'dinein' ? $tableNumber : null,
                 notes: $orderType !== 'dinein' ? $tableNumber : null,
-                duitkuPaymentMethod: $duitkuMethod,
                 customerEmail: $customerEmail,
+                duitkuPaymentMethod: $duitkuMethod,
                 globalDiscount: (float)$discount,
                 amountPaid: (float)$amountPaid,
                 isTaxActive: $isTaxActive,
@@ -270,7 +271,7 @@ new class extends Component
                 'table_number' => $dto->tableNumber,
                 'store_name' => $storeName,
                 'total_price' => $totalPrice,
-                'discount' => $dto->discount,
+                'discount' => $dto->globalDiscount,
                 'amount_paid' => $paid,
                 'change_amount' => $change,
             ];
@@ -540,7 +541,7 @@ new class extends Component
             unset($this->activeShift);
             $this->toast('Shift berhasil ditutup.');
             $this->js("
-                window.dispatchEvent(new CustomEvent('close-close-shift-modal')); 
+                window.dispatchEvent(new CustomEvent('close-close-shift-modal'));
                 window.dispatchEvent(new CustomEvent('open-shift-summary-modal'));
             ");
         } catch (Exception $e) {
@@ -554,6 +555,7 @@ new class extends Component
         return StoreSetting::select([
             'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
             'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name', 'is_shift_active',
+            'is_application_fee_passed',
         ])->first();
     }
 
@@ -700,6 +702,9 @@ new class extends Component
             ['id' => 'completed', 'label' => 'Selesai'],
         ];
 
+        $isAppFeePassed = $storeSetting?->is_application_fee_passed ?? false;
+        $appFeeAmount = $isAppFeePassed ? (float)app(SettingService::class)->get('default_trx_fee', tenant(), 300) : 0;
+
         return [
             'activeTab' => $this->activeTab,
             'restoOrderTypes' => $orderTypes,
@@ -709,6 +714,8 @@ new class extends Component
             'serviceChargeRate' => (float)($storeSetting?->service_charge_rate ?? 5.00),
             'isShiftActive' => $storeSetting?->is_shift_active ?? false,
             'activeShift' => $this->activeShift()?->only(['id', 'started_at', 'starting_cash', 'cash_sales', 'cash_expenses']),
+            'isAppFeePassed' => $isAppFeePassed,
+            'appFeeAmount' => $appFeeAmount,
             'counts' => $counts,
             'filters' => $filters,
             'queueOrders' => $filteredQueueOrders, // Use filtered orders for the view
