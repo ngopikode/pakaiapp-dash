@@ -4,6 +4,7 @@ namespace App\Tenant\Services;
 
 use App\Central\Services\BillingService;
 use App\Tenant\Data\ProcessOrderData;
+use App\Tenant\Events\KitchenUpdated;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\OrderItem;
 use App\Tenant\Models\Core\Product;
