@@ -18,8 +18,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     use ShowsToast;
 
     public string $activeTab = 'cashier';
@@ -249,18 +248,6 @@ new class extends Component
             }
 
             // Manual cash/transfer
-            $totalPrice = $order->total_price;
-            $paid = $dto->amountPaid > 0 ? $dto->amountPaid : $totalPrice;
-            if ($paid < $totalPrice) throw new Exception(message: 'Nominal pembayaran kurang dari total tagihan.');
-            $change = max(0, $paid - $totalPrice);
-
-            $order->update([
-                'amount_paid' => $paid,
-                'change_amount' => $change,
-                'payment_method' => $dto->paymentMethod,
-                'status' => 'paid',
-            ]);
-
             $this->billingService()->chargeTransactionFee($order);
             $storeName = $this->storeSetting()?->name ?? 'Resto Kami';
 
@@ -270,10 +257,10 @@ new class extends Component
                 'customer_name' => $dto->customerName,
                 'table_number' => $dto->tableNumber,
                 'store_name' => $storeName,
-                'total_price' => $totalPrice,
-                'discount' => $dto->globalDiscount,
-                'amount_paid' => $paid,
-                'change_amount' => $change,
+                'total_price' => $order->total_price,
+                'discount' => $order->discount,
+                'amount_paid' => $order->amount_paid,
+                'change_amount' => $order->change_amount,
             ];
         } catch (Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
@@ -552,11 +539,7 @@ new class extends Component
     #[Computed]
     public function storeSetting(): ?StoreSetting
     {
-        return StoreSetting::select([
-            'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
-            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name', 'is_shift_active',
-            'is_application_fee_passed',
-        ])->first();
+        return StoreSetting::cached();
     }
 
     #[Computed]
@@ -568,13 +551,13 @@ new class extends Component
             'payment_method', 'status', 'kitchen_status', 'tax_amount',
             'service_charge_amount', 'discount', 'updated_at',
         ])
-            ->with(['items' => fn ($query) => $query->select([
+            ->with(['items' => fn($query) => $query->select([
                 'id', 'order_id', 'product_name', 'variant_name',
                 'quantity', 'subtotal', 'note', 'kitchen_status',
             ])])
             // ponytail: optimize index usage and drop deep history scanning
-            ->where(fn ($query) => $query->whereIn('status', ['pending', 'progress', 'paid'])
-                ->orWhere(fn ($q) => $q->where('status', 'completed')
+            ->where(fn($query) => $query->whereIn('status', ['pending', 'progress', 'paid'])
+                ->orWhere(fn($q) => $q->where('status', 'completed')
                     ->where('updated_at', '>=', now()->subHours(2))
                 )
             )
@@ -645,7 +628,7 @@ new class extends Component
             'tax_amount' => $order->tax_amount,
             'service_charge_amount' => $order->service_charge_amount,
             'discount' => $order->discount,
-            'items' => $order->items->map(fn ($item) => [
+            'items' => $order->items->map(fn($item) => [
                 'id' => $item->id,
                 'product_name' => $item->product_name,
                 'variant_name' => $item->variant_name,
@@ -674,14 +657,14 @@ new class extends Component
 
         $activeOrders = $this->activeOrders();
 
-        $queueOrders = $activeOrders->map(fn ($order) => $this->mapOrderForQueue($order));
+        $queueOrders = $activeOrders->map(fn($order) => $this->mapOrderForQueue($order));
 
         $kStatusCounts = $queueOrders->countBy('kStatus');
 
         // Filter queueOrders based on Livewire state for rendering
         $filteredQueueOrders = $queueOrders
-            ->when($this->queueFilter !== 'all', fn ($collection) => $collection->where('kStatus', $this->queueFilter))
-            ->when($this->queueSearch !== '', fn ($collection) => $collection->filter(fn ($order) => str_contains(strtolower($order->invoice_code), strtolower($this->queueSearch))
+            ->when($this->queueFilter !== 'all', fn($collection) => $collection->where('kStatus', $this->queueFilter))
+            ->when($this->queueSearch !== '', fn($collection) => $collection->filter(fn($order) => str_contains(strtolower($order->invoice_code), strtolower($this->queueSearch))
                 || str_contains(strtolower($order->customer_name), strtolower($this->queueSearch))
                 || str_contains(strtolower($order->table_number ?? $order->notes), strtolower($this->queueSearch))
             ));

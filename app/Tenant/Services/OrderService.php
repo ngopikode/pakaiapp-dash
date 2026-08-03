@@ -253,6 +253,9 @@ class OrderService
                 );
                 $calculations['kitchen_status'] = $isKitchenActive ? 'waiting' : 'completed';
 
+                // Note: Penambahan pesanan (edit) biasanya tidak lunas seketika,
+                // sehingga tidak perlu divalidasi $amountPaid-nya di sini (status jadi progress/pending).
+
                 $order->update($calculations);
             } else {
                 $globalDiscount = $data->globalDiscount;
@@ -263,6 +266,20 @@ class OrderService
                     serviceRate: $serviceRate,
                     applicationFeeAmount: $applicationFeeAmount
                 );
+
+                $finalTotalPrice = (float)$calculations['total_price'];
+                $isDirectPayment = in_array($data->status, ['paid', 'completed'], true);
+
+                $paid = $data->amountPaid;
+                if ($isDirectPayment) {
+                    if ($paid <= 0) $paid = $finalTotalPrice; // Kasir menginput uang pas (kosong di UI)
+                    // Toleransi selisih 10 rupiah untuk masalah rounding antar javascript & php
+                    if ($paid < ($finalTotalPrice - 10)) {
+                        throw new Exception(message: 'Nominal pembayaran kurang dari total tagihan.');
+                    }
+                }
+
+                $change = max(0, $paid - $finalTotalPrice);
 
                 $order = Order::create(array_merge([
                     'invoice_code' => $data->invoiceCode ?? 'INV-' . strtoupper(Str::random(6)),
@@ -277,8 +294,8 @@ class OrderService
                     'duitku_payment_method' => $data->duitkuPaymentMethod,
                     'tax_percentage' => $taxRate,
                     'service_charge_percentage' => $serviceRate,
-                    'amount_paid' => $data->amountPaid,
-                    'change_amount' => $data->changeAmount,
+                    'amount_paid' => $isDirectPayment ? $paid : ($data->amountPaid ?? 0),
+                    'change_amount' => $isDirectPayment ? $change : ($data->changeAmount ?? 0),
                     'status' => $data->status,
                     'user_id' => $data->userId ?? Auth::id(),
                 ], $calculations));
@@ -539,9 +556,15 @@ class OrderService
             $paid = $amountPaid > 0 ? $amountPaid : $totalPrice;
 
             $accumulatedPaid = $order->amount_paid + $paid;
+
+            // Toleransi selisih 10 rupiah untuk masalah rounding antar javascript & php
+            if ($accumulatedPaid < ($totalPrice - 10)) {
+                throw new Exception(message: 'Nominal pembayaran kurang dari total tagihan.');
+            }
+
             $change = max(0, $accumulatedPaid - $totalPrice);
 
-            if ($accumulatedPaid >= $totalPrice) {
+            if ($accumulatedPaid >= ($totalPrice - 10)) {
                 $newStatus = ($order->kitchen_status === 'ready' || $order->kitchen_status === 'completed') ? 'completed' : 'paid';
             } else {
                 $newStatus = 'progress';
