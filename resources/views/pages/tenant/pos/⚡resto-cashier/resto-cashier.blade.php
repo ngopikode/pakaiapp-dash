@@ -376,25 +376,32 @@
             get subTotal() {
                 return this.cart.reduce((t, i) => t + i.subtotal, 0);
             },
+            get globalDiscount() {
+                return parseFloat(this.payDiscount) || 0;
+            },
+            get subtotalAfterDiscount() {
+                return Math.max(0, this.subTotal - this.globalDiscount);
+            },
             get serviceChargeAmount() {
                 if (!this.isServiceActive) return 0;
-                return Math.round((parseFloat(this.serviceChargeRate) / 100) * this.subTotal);
-            },
-            get taxAmount() {
-                if (!this.isTaxActive) return 0;
-                return Math.round((parseFloat(this.taxRate) / 100) * (this.subTotal + this.serviceChargeAmount));
+                return Math.round((parseFloat(this.serviceChargeRate) / 100) * this.subtotalAfterDiscount);
             },
             get applicationFeeAmount() {
                 return this.isAppFeePassed ? this.appFeeAmount : 0;
             },
+            get taxAmount() {
+                if (!this.isTaxActive) return 0;
+                // Match PHP backend: DPP = SubtotalAfterDiscount + ServiceCharge + AppFee
+                let dpp = this.subtotalAfterDiscount + this.serviceChargeAmount + this.applicationFeeAmount;
+                return Math.round((parseFloat(this.taxRate) / 100) * dpp);
+            },
             get subTotalWithCharges() {
-                return this.subTotal + this.serviceChargeAmount + this.taxAmount + this.applicationFeeAmount;
+                return this.subtotalAfterDiscount + this.serviceChargeAmount + this.taxAmount + this.applicationFeeAmount;
             },
             get payTotal() {
                 let t = this.payingOrder ? (parseFloat(this.payingOrder.total_price) || parseFloat(this.payingOrder.subtotal)) : this.subTotalWithCharges;
                 let p = this.payingOrder ? (parseFloat(this.payingOrder.amount_paid) || 0) : 0;
-                let d = this.payDiscount || 0;
-                return Math.max(0, t - p - d);
+                return Math.max(0, t - p);
             },
             get getChange() {
                 return Math.max(0, (parseFloat(this.amountPaid) || 0) - this.payTotal);

@@ -269,16 +269,16 @@ class OrderService
 
                 $finalTotalPrice = (float)$calculations['total_price'];
                 $isDirectPayment = in_array($data->status, ['paid', 'completed'], true);
-
+                
                 $paid = $data->amountPaid;
                 if ($isDirectPayment) {
                     if ($paid <= 0) $paid = $finalTotalPrice; // Kasir menginput uang pas (kosong di UI)
-                    // Toleransi selisih 10 rupiah untuk masalah rounding antar javascript & php
-                    if ($paid < ($finalTotalPrice - 10)) {
+                    
+                    if ($paid < $finalTotalPrice) {
                         throw new Exception(message: 'Nominal pembayaran kurang dari total tagihan.');
                     }
                 }
-
+                
                 $change = max(0, $paid - $finalTotalPrice);
 
                 $order = Order::create(array_merge([
@@ -557,14 +557,13 @@ class OrderService
 
             $accumulatedPaid = $order->amount_paid + $paid;
 
-            // Toleransi selisih 10 rupiah untuk masalah rounding antar javascript & php
-            if ($accumulatedPaid < ($totalPrice - 10)) {
+            if ($accumulatedPaid < $totalPrice) {
                 throw new Exception(message: 'Nominal pembayaran kurang dari total tagihan.');
             }
 
             $change = max(0, $accumulatedPaid - $totalPrice);
 
-            if ($accumulatedPaid >= ($totalPrice - 10)) {
+            if ($accumulatedPaid >= $totalPrice) {
                 $newStatus = ($order->kitchen_status === 'ready' || $order->kitchen_status === 'completed') ? 'completed' : 'paid';
             } else {
                 $newStatus = 'progress';
