@@ -510,30 +510,30 @@
         <div class="px-4 pb-4 sm:pb-6 pt-8 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent dark:from-[#0B1120] dark:via-[#0B1120]/90 pointer-events-auto">
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-2xl p-4 transition-all">
                 <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-500/10 transition-colors"
-                         :class="$wire.$dirty() ? 'bg-orange-100 dark:bg-orange-500/10' : 'bg-slate-100 dark:bg-slate-700'">
-                        <i class="ph ph-warning-circle text-xl text-orange-600 dark:text-orange-400" x-show="$wire.$dirty()"></i>
-                        <i class="ph ph-check-circle text-xl text-slate-400 dark:text-slate-500" x-show="!$wire.$dirty()"></i>
+                    <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700 transition-colors"
+                         wire:dirty.class="!bg-slate-100 !dark:bg-slate-700 bg-orange-100 dark:bg-orange-500/10">
+                        <i class="ph ph-check-circle text-xl text-slate-400 dark:text-slate-500" wire:dirty.remove></i>
+                        <i class="ph ph-warning-circle text-xl text-orange-600 dark:text-orange-400 hidden" wire:dirty.class.remove="hidden"></i>
                     </div>
                     <div>
                         <p class="text-sm font-bold text-slate-900 dark:text-white">
                             Status Pengaturan
                         </p>
-                        <p class="text-xs font-medium transition-colors duration-300"
-                           :class="$wire.$dirty() ? 'text-orange-600 dark:text-orange-400' : 'text-slate-500 dark:text-slate-400'">
-                            <span x-show="$wire.$dirty()">Ada perubahan yang belum disimpan</span>
-                            <span x-show="!$wire.$dirty()">Semua perubahan telah tersimpan</span>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 transition-colors duration-300"
+                           wire:dirty.class="!text-slate-500 !dark:text-slate-400 text-orange-600 dark:text-orange-400">
+                            <span wire:dirty.remove>Semua perubahan telah tersimpan</span>
+                            <span class="hidden" wire:dirty.class.remove="hidden">Ada perubahan yang belum disimpan</span>
                         </p>
                     </div>
                 </div>
 
                 <button wire:click="save"
-                        class="w-full sm:w-auto px-8 py-2.5 text-white text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
-                        :class="$wire.$dirty() ? 'bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg' : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'"
-                        wire:loading.attr="disabled"
-                        x-bind:disabled="!$wire.$dirty()">
+                        class="w-full sm:w-auto px-8 py-2.5 text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-700 text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
+                        wire:dirty.class="!bg-slate-200 !dark:bg-slate-700 !text-slate-500 !dark:text-slate-400 bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg text-white"
+                        wire:dirty.attr.remove="disabled"
+                        disabled>
                     <span wire:loading.remove wire:target="save" class="flex items-center gap-2">
-                        <i class="ph-fill ph-dot text-lg animate-pulse" x-show="$wire.$dirty()"></i>
+                        <i class="ph-fill ph-dot text-lg animate-pulse hidden" wire:dirty.class.remove="hidden"></i>
                         Simpan Perubahan
                     </span>
                     <span wire:loading wire:target="save" class="flex items-center gap-2">
