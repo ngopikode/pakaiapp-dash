@@ -82,13 +82,13 @@
                                             <button type="button"
                                                     class="flex w-full flex-row items-center justify-between rounded-2xl border p-3 text-start transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
                                                     :class="{
-                                                        'border-emerald-700 bg-emerald-100 ring-2 ring-emerald-700/25 dark:border-emerald-400 dark:bg-emerald-500/15 dark:ring-emerald-400/25': isExtraSelected(extra.name),
-                                                        'border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/60 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10': !isExtraSelected(extra.name)
+                                                        'border-emerald-700 bg-emerald-100 ring-2 ring-emerald-700/25 dark:border-emerald-400 dark:bg-emerald-500/15 dark:ring-emerald-400/25': isExtraSelected(extra.id),
+                                                        'border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/60 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10': !isExtraSelected(extra.id)
                                                     }"
                                                     @click="toggleExtra(extra)">
                                                 <div class="flex items-center gap-3">
                                                     <i class="text-2xl"
-                                                       :class="isExtraSelected(extra.name) ? 'ph-fill ph-check-square text-emerald-800 dark:text-emerald-400' : 'ph-bold ph-square text-slate-300 dark:text-slate-600'"></i>
+                                                       :class="isExtraSelected(extra.id) ? 'ph-fill ph-check-square text-emerald-800 dark:text-emerald-400' : 'ph-bold ph-square text-slate-300 dark:text-slate-600'"></i>
                                                     <div>
                                                         <h6 class="mb-0 font-black text-slate-900 dark:text-white" x-text="extra.name"></h6>
                                                     </div>

@@ -439,22 +439,22 @@
             },
 
             toggleExtra(extra) {
-                const idx = this.extrasSelected.indexOf(extra.name);
+                const idx = this.extrasSelected.indexOf(extra.id);
                 if (idx > -1) {
                     this.extrasSelected.splice(idx, 1);
                 } else {
-                    this.extrasSelected.push(extra.name);
+                    this.extrasSelected.push(extra.id);
                 }
             },
 
-            isExtraSelected(name) {
-                return this.extrasSelected.includes(name);
+            isExtraSelected(id) {
+                return this.extrasSelected.includes(id);
             },
 
             get extrasTotal() {
                 if (!this.optionProduct?.extras?.length) return 0;
                 return this.optionProduct.extras
-                    .filter(e => this.extrasSelected.includes(e.name))
+                    .filter(e => this.extrasSelected.includes(e.id))
                     .reduce((sum, e) => sum + (parseFloat(e.price) || 0), 0);
             },
 
@@ -528,7 +528,8 @@
                 }
 
                 // Gabungkan label variant & extras
-                const extrasLabel = this.extrasSelected.length ? this.extrasSelected.join(', ') : '';
+                const extrasNames = this.optionProduct.extras ? this.optionProduct.extras.filter(e => this.extrasSelected.includes(e.id)).map(e => e.name) : [];
+                const extrasLabel = extrasNames.length ? extrasNames.join(', ') : '';
                 const finalVariantLabel = [combinedVariantName, extrasLabel].filter(Boolean).join(' + ');
 
                 const basePrice = parseFloat(variant.active_discount_price || variant.price) || 0;
@@ -560,7 +561,8 @@
                         subtotal: finalUnitPrice * this.optionQty,
                         stock: minStock,
                         note: '',
-                        image_url: this.optionProduct.image_url || null
+                        image_url: this.optionProduct.image_url || null,
+                        extra_ids: [...this.extrasSelected]
                     });
                 }
 
@@ -592,7 +594,8 @@
                         variant_name: product.has_variants ? variant.name : null,
                         price: finalPrice, quantity: qty, subtotal: finalPrice * qty,
                         stock: variant.stock, note: '',
-                        image_url: product.image_url || null
+                        image_url: product.image_url || null,
+                        extra_ids: []
                     });
                 }
             },
