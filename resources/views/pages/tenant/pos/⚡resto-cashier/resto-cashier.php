@@ -519,6 +519,15 @@ new class extends Component
     }
 
     #[Computed]
+    public function storeSetting(): ?StoreSetting
+    {
+        return StoreSetting::select([
+            'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
+            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name', 'is_shift_active',
+        ])->first();
+    }
+
+    #[Computed]
     public function activeOrders(): Collection|array
     {
         return Order::select([
@@ -531,10 +540,14 @@ new class extends Component
                 'id', 'order_id', 'product_name', 'variant_name',
                 'quantity', 'subtotal', 'note', 'kitchen_status',
             ])])
-            ->where('created_at', '>=', now()->subHours(24))
-            ->where('status', '!=', 'cancelled')
-            ->where(fn ($query) => $query->where('status', '!=', 'completed')
-                ->orWhere('updated_at', '>=', now()->subHours(2)))
+            // ponytail: optimize index usage and drop deep history scanning
+            ->where(function ($query) {
+                $query->whereIn('status', ['pending', 'progress', 'paid'])
+                      ->orWhere(function ($q) {
+                          $q->where('status', 'completed')
+                            ->where('updated_at', '>=', now()->subHours(2));
+                      });
+            })
             ->orderByDesc('created_at')
             ->get();
     }
@@ -621,10 +634,7 @@ new class extends Component
 
     public function with(): array
     {
-        $storeSetting = StoreSetting::select([
-            'is_dinein_active', 'is_takeaway_active', 'is_delivery_active',
-            'is_tax_active', 'tax_rate', 'is_service_charge_active', 'service_charge_rate', 'name', 'is_shift_active',
-        ])->first();
+        $storeSetting = $this->storeSetting();
         $orderTypes = [];
 
         if ($storeSetting?->is_dinein_active) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
@@ -632,7 +642,7 @@ new class extends Component
         if ($storeSetting?->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
         if (empty($orderTypes)) $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
 
-        $activeOrders = $this->activeOrders;
+        $activeOrders = $this->activeOrders();
 
         $queueOrders = $activeOrders->map(fn ($order) => $this->mapOrderForQueue($order));
 
