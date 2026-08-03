@@ -1,4 +1,4 @@
-<div class="h-[calc(100dvh-4rem)] lg:h-[100dvh] overflow-y-auto relative flex flex-col font-sans">
+<div class="h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-6rem)] overflow-y-auto relative flex flex-col font-sans -m-6" style="margin: -1.5rem;">
     <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 flex-1 pb-12">
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
