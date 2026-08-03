@@ -528,12 +528,11 @@
                 </div>
 
                 <button wire:click="save"
-                        class="w-full sm:w-auto px-8 py-2.5 text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-700 text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
-                        wire:dirty.class="!bg-slate-200 !dark:bg-slate-700 !text-slate-500 !dark:text-slate-400 bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg text-white"
-                        wire:dirty.attr.remove="disabled"
-                        disabled>
+                        class="w-full sm:w-auto px-8 py-2.5 text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
+                        x-bind:class="$wire.$dirty() ? 'bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg text-white' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400 opacity-50 cursor-not-allowed'"
+                        x-bind:disabled="!$wire.$dirty()">
                     <span wire:loading.remove wire:target="save" class="flex items-center gap-2">
-                        <i class="ph-fill ph-dot text-lg animate-pulse hidden" wire:dirty.class.remove="hidden"></i>
+                        <i class="ph-fill ph-dot text-lg animate-pulse" x-show="$wire.$dirty()" x-cloak></i>
                         Simpan Perubahan
                     </span>
                     <span wire:loading wire:target="save" class="flex items-center gap-2">
