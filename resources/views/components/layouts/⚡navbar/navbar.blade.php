@@ -111,7 +111,7 @@
                      x-transition:leave="transition ease-in duration-150"
                      x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                      x-transition:leave-end="opacity-0 translate-y-2 scale-95"
-                     class="absolute right-0 mt-3 w-[320px] bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 overflow-hidden"
+                     class="absolute right-0 mt-3 w-[320px] bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 overflow-hidden"
                      style="display: none;">
                     <div
                         class="px-5 py-4 border-b border-border flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
@@ -216,7 +216,7 @@
                      x-transition:leave="transition ease-in duration-150"
                      x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                      x-transition:leave-end="opacity-0 translate-y-2 scale-95"
-                     class="absolute right-0 mt-3 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 p-2"
+                     class="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 z-50 p-2"
                      style="display: none;">
                     {{-- Mobile user header --}}
                     <div class="px-3 py-3 border-b border-slate-100 dark:border-slate-700/60 mb-1 lg:hidden flex items-center gap-3">
