@@ -176,6 +176,7 @@
     @include('pages.tenant.pos.partials._modal-open-shift')
     @include('pages.tenant.pos.partials._modal-shift-expense')
     @include('pages.tenant.pos.partials._modal-close-shift')
+    @include('pages.tenant.pos.partials._modal-shift-summary')
     @include('pages.tenant.pos.partials._modal-payment')
     @include('pages.tenant.pos.partials._modal-success')
     {{-- @include('pages.tenant.pos.partials._pos-tour-guide', ['mode' => 'resto']) --}}
@@ -212,6 +213,7 @@
             isOpenShiftModalOpen: false,
             isShiftExpenseModalOpen: false,
             isCloseShiftModalOpen: false,
+            isShiftSummaryModalOpen: false,
             voidItemId: null,
             isShiftLocked: config.isShiftLocked,
             shiftActive: config.shiftActive,

@@ -43,6 +43,8 @@ new class extends Component
 
     public int $closeShiftStep = 1;
 
+    public ?array $closedShiftSummary = null;
+
     protected ?OrderService $orderService = null;
 
     protected ?PaymentGatewayService $paymentGatewayService = null;
@@ -518,14 +520,29 @@ new class extends Component
                 opnameItems: $dtoItems
             );
 
-            $this->shiftService()->closeShift(
+            $closedShift = $this->shiftService()->closeShift(
                 shift: $activeShift,
                 data: $closingData
             );
 
+            $this->closedShiftSummary = [
+                'cashier_name' => Auth::user()->name,
+                'started_at' => $closedShift->started_at->format('d M Y, H:i'),
+                'ended_at' => $closedShift->ended_at->format('d M Y, H:i'),
+                'starting_cash' => $closedShift->starting_cash,
+                'cash_sales' => $closedShift->cash_sales,
+                'cash_expenses' => $closedShift->cash_expenses,
+                'expected_cash' => $closedShift->expected_cash,
+                'actual_cash' => $closedShift->actual_cash,
+                'difference' => $closedShift->difference,
+            ];
+
             unset($this->activeShift);
             $this->toast('Shift berhasil ditutup.');
-            $this->js("window.dispatchEvent(new CustomEvent('close-close-shift-modal')); window.dispatchEvent(new CustomEvent('shift-closed'));");
+            $this->js("
+                window.dispatchEvent(new CustomEvent('close-close-shift-modal')); 
+                window.dispatchEvent(new CustomEvent('open-shift-summary-modal'));
+            ");
         } catch (Exception $e) {
             $this->toast($e->getMessage(), 'danger');
         }
