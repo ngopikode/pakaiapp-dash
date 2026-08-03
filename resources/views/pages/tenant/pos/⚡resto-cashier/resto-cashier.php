@@ -78,6 +78,17 @@ new class extends Component
             ($order->status === 'progress' && $order->amount_paid < $order->total_price);
     }
 
+    /** @return array{success: false, error: string}|null */
+    private function validateCart(array $cart): ?array
+    {
+        foreach ($cart as $item) {
+            if (!isset($item['variant_id'], $item['quantity']) || !is_int($item['variant_id']) || !is_numeric($item['quantity']) || $item['quantity'] < 1)
+                return ['success' => false, 'error' => 'Data keranjang tidak valid.'];
+        }
+
+        return null;
+    }
+
     private function clearIfExistingOrderIsNotEditable(): void
     {
         if ($this->existingOrder && !$this->isOrderEditable($this->existingOrder)) {
@@ -150,11 +161,7 @@ new class extends Component
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
         // Security: validate cart structure from JS to prevent mass assignment / fraud
-        foreach ($cart as $item) {
-            if (!isset($item['variant_id'], $item['quantity']) || !is_int($item['variant_id']) || !is_numeric($item['quantity']) || $item['quantity'] < 1) {
-                return ['success' => false, 'error' => 'Data keranjang tidak valid.'];
-            }
-        }
+        if ($error = $this->validateCart($cart)) return $error;
 
         try {
             $dto = new CreateOrderData(
@@ -193,11 +200,7 @@ new class extends Component
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
         // Security: validate cart structure from JS to prevent mass assignment / fraud
-        foreach ($cart as $item) {
-            if (!isset($item['variant_id'], $item['quantity']) || !is_int($item['variant_id']) || !is_numeric($item['quantity']) || $item['quantity'] < 1) {
-                return ['success' => false, 'error' => 'Data keranjang tidak valid.'];
-            }
-        }
+        if ($error = $this->validateCart($cart)) return $error;
 
         // Security: whitelist payment methods
         if (!in_array($paymentMethod, ['cash', 'transfer', 'digital', 'duitku'])) {
@@ -438,7 +441,7 @@ new class extends Component
                 startingCash: (float)$this->startingCash
             );
             $this->startingCash = 0;
-            $this->unsetComputedProperty('activeShift');
+            unset($this->activeShift);
             $this->toast('Shift berhasil dibuka.');
             $this->js("window.dispatchEvent(new CustomEvent('close-open-shift-modal')); window.dispatchEvent(new CustomEvent('shift-active'));");
         } catch (Exception $e) {
@@ -537,7 +540,7 @@ new class extends Component
                 data: $closingData
             );
 
-            $this->unsetComputedProperty('activeShift');
+            unset($this->activeShift);
             $this->toast('Shift berhasil ditutup.');
             $this->js("window.dispatchEvent(new CustomEvent('close-close-shift-modal')); window.dispatchEvent(new CustomEvent('shift-closed'));");
         } catch (Exception $e) {
