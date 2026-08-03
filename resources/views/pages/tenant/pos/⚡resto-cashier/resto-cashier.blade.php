@@ -302,6 +302,7 @@
                 });
                 window.addEventListener('shift-closed', () => {
                     this.shiftActive = false;
+                    this.isShiftLocked = true;
                 });
             },
 
