@@ -3,7 +3,7 @@
 namespace App\Tenant\Services;
 
 use App\Central\Services\BillingService;
-use App\Tenant\Events\KitchenUpdated;
+use App\Tenant\Data\ProcessOrderData;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\OrderItem;
 use App\Tenant\Models\Core\Product;
@@ -109,18 +109,18 @@ class OrderService
      *
      * @throws Throwable
      */
-    public function processOrder(array $orderData, array $items, ?Order $existingOrder = null): Order
+    public function processOrder(ProcessOrderData $data, array $items, ?Order $existingOrder = null): Order
     {
         try {
             DB::beginTransaction();
 
             $storeSetting = StoreSetting::cached();
-            $isTaxActive = $orderData['is_tax_active'] ?? ($storeSetting && $storeSetting->is_tax_active);
+            $isTaxActive = $data->isTaxActive ?? ($storeSetting && $storeSetting->is_tax_active);
             $taxRate = $isTaxActive ? (float)$storeSetting->tax_rate : 0.00;
-            $isServiceActive = $orderData['is_service_active'] ?? ($storeSetting && $storeSetting->is_service_charge_active);
+            $isServiceActive = $data->isServiceActive ?? ($storeSetting && $storeSetting->is_service_charge_active);
             $serviceRate = $isServiceActive ? (float)$storeSetting->service_charge_rate : 0.00;
 
-            $isAppFeeActive = $orderData['is_application_fee_passed'] ?? ($storeSetting && $storeSetting->is_application_fee_passed);
+            $isAppFeeActive = $data->isApplicationFeePassed ?? ($storeSetting && $storeSetting->is_application_fee_passed);
             $applicationFeeAmount = $isAppFeeActive ? (float)$this->settingService()->get('default_trx_fee', tenant(), 300) : 0;
 
             // ponytail: default true agar tenant yang belum punya kolom (retail) tidak terdampak
@@ -254,7 +254,7 @@ class OrderService
 
                 $order->update($calculations);
             } else {
-                $globalDiscount = (float)($orderData['global_discount'] ?? $orderData['discount'] ?? 0);
+                $globalDiscount = $data->globalDiscount;
                 $calculations = $this->calculateTaxesAndTotal(
                     subtotal: $realSubtotal,
                     discount: $globalDiscount,
@@ -264,22 +264,22 @@ class OrderService
                 );
 
                 $order = Order::create(array_merge([
-                    'invoice_code' => $orderData['invoice_code'] ?? 'INV-' . strtoupper(Str::random(6)),
-                    'customer_name' => $orderData['customer_name'] ?? 'Pelanggan Umum',
-                    'customer_phone' => $orderData['customer_phone'] ?? null,
-                    'customer_email' => $orderData['customer_email'] ?? null,
-                    'table_number' => $orderData['table_number'] ?? null,
-                    'notes' => $orderData['notes'] ?? null,
-                    'order_type' => $orderData['order_type'] ?? 'takeaway',
-                    'is_online' => $orderData['is_online'] ?? false,
-                    'payment_method' => $orderData['payment_method'] ?? 'cash',
-                    'duitku_payment_method' => $orderData['duitku_payment_method'] ?? null,
+                    'invoice_code' => $data->invoiceCode ?? 'INV-' . strtoupper(Str::random(6)),
+                    'customer_name' => $data->customerName,
+                    'customer_phone' => $data->customerPhone,
+                    'customer_email' => $data->customerEmail,
+                    'table_number' => $data->tableNumber,
+                    'notes' => $data->notes,
+                    'order_type' => $data->orderType,
+                    'is_online' => $data->isOnline,
+                    'payment_method' => $data->paymentMethod,
+                    'duitku_payment_method' => $data->duitkuPaymentMethod,
                     'tax_percentage' => $taxRate,
                     'service_charge_percentage' => $serviceRate,
-                    'amount_paid' => $orderData['amount_paid'] ?? 0,
-                    'change_amount' => $orderData['change_amount'] ?? 0,
-                    'status' => $orderData['status'] ?? 'pending',
-                    'user_id' => $orderData['user_id'] ?? Auth::id(),
+                    'amount_paid' => $data->amountPaid,
+                    'change_amount' => $data->changeAmount,
+                    'status' => $data->status,
+                    'user_id' => $data->userId ?? Auth::id(),
                 ], $calculations));
             }
 

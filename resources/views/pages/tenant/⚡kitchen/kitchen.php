@@ -3,6 +3,7 @@
 use App\Shared\Traits\ShowsToast;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\OrderItem;
+use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\KitchenService;
 use Illuminate\Support\Facades\Auth;
@@ -82,12 +83,13 @@ class extends Component
 
     public function logout(): void
     {
-        $hasActiveShift = \App\Tenant\Models\Core\Shift::where('user_id', Auth::id())
-            ->where('status', \App\Tenant\Models\Core\Shift::STATUS_ACTIVE)
+        $hasActiveShift = Shift::where('user_id', Auth::id())
+            ->where('status', Shift::STATUS_ACTIVE)
             ->exists();
 
         if ($hasActiveShift) {
             $this->toast('Tutup shift kasir terlebih dahulu sebelum logout.', 'warning');
+
             return;
         }
 

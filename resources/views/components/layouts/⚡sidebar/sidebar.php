@@ -1,8 +1,8 @@
 <?php
 
+use App\Shared\Traits\ShowsToast;
 use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
-use App\Shared\Traits\ShowsToast;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -20,6 +20,7 @@ new class extends Component
 
         if ($hasActiveShift) {
             $this->toast('Tutup shift kasir terlebih dahulu sebelum logout.', 'warning');
+
             return;
         }
 

@@ -3,6 +3,7 @@
 use App\Central\Services\BillingService;
 use App\Central\Services\DuitkuService;
 use App\Central\Services\MidtransService;
+use App\Tenant\Data\ProcessOrderData;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\ProductVariant;
 use App\Tenant\Models\Core\StoreSetting;
@@ -50,19 +51,21 @@ new class extends Component
                 }
 
                 // Gunakan OrderService untuk logika tersentralisasi
-                $orderData = [
-                    'invoice_code' => 'INV-' . strtoupper(Str::random(6)),
-                    'customer_name' => $customerName ?: 'Pelanggan Umum',
-                    'customer_phone' => $customerPhone ?: null,
-                    'order_type' => 'retail',
-                    'payment_method' => $paymentMethod,
-                    'global_discount' => (float)$globalDiscount,
-                    'status' => 'completed',
-                    'user_id' => Auth::id(),
-                ];
+                $dto = new ProcessOrderData(
+                    invoiceCode: 'INV-' . strtoupper(Str::random(6)),
+                    customerName: $customerName ?: 'Pelanggan Umum',
+                    customerPhone: $customerPhone ?: null,
+                    orderType: 'retail',
+                    paymentMethod: $paymentMethod,
+                    globalDiscount: (float)$globalDiscount,
+                    amountPaid: (float)$amountPaid,
+                    changeAmount: max(0, (float)$amountPaid - (float)$finalTotal),
+                    status: 'completed',
+                    userId: Auth::id(),
+                );
 
                 $orderService = app(OrderService::class);
-                $order = $orderService->processOrder($orderData, $cart);
+                $order = $orderService->processOrder($dto, $cart);
 
                 $totalPrice = $order->total_price;
                 $paid = (float)$amountPaid ?: $totalPrice;

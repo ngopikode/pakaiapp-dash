@@ -62,26 +62,12 @@ if ($error = $this->validateCart($cart)) return $error;
 
 DTO `CreateOrderData` dan `CheckoutData` dibuat dengan benar, tapi lalu datanya langsung di-unpack ulang ke array `$orderData` sebelum dikirim ke service. Ini melanggar PATTERNS.md #5 yang mewajibkan DTO sebagai kontrak langsung antar layer.
 
-```php
-// SEKARANG (melanggar standar):
-$dto = new CreateOrderData(customerName: ..., orderType: ...);
-$orderData = [                          // ← DTO di-unpack ke array
-    'customer_name' => $dto->customerName,
-    'order_type'    => $dto->orderType,
-    // ...
-];
-$this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
-//                                    ↑ array dikirim, bukan DTO
-
-// SEHARUSNYA:
-$dto = new CreateOrderData(...);
-$this->orderService()->processOrder($dto, $cart, $this->existingOrder);
-//                                   ↑ DTO langsung sebagai kontrak
-```
-
-**Dampak:** Service layer seharusnya tidak tahu bahwa data berasal dari Livewire — DTO adalah kontrak eksplisitnya. Dengan mengirim array, kita membuang type safety yang sudah dibangun, dan DTO hanya menjadi dekorasi tanpa fungsi nyata.
-
-**Catatan Penting:** Fix ini memerlukan perubahan signature `OrderService::processOrder()` — perlu audit semua caller sebelum dieksekusi karena berisiko breaking change. **Scope fix ini lebih besar dari yang terlihat.**
+**Fix:**
+1. Dibuat DTO baru yang lebih fleksibel dan mencakup seluruh kebutuhan caller: `app/Tenant/Data/ProcessOrderData.php`.
+2. Signature di `app/Tenant/Services/OrderService.php` diubah: `public function processOrder(ProcessOrderData $data, ...)`
+3. Semua referensi array `$orderData['key']` di dalam service diubah menjadi properti DTO `$data->key`.
+4. Semua caller (Resto Cashier, Retail Cashier, Order API Controller) diubah untuk passing object `ProcessOrderData`.
+5. DTO lama `CreateOrderData` dan `CheckoutData` tidak digunakan lagi untuk flow ini.
 
 ---
 
@@ -145,16 +131,15 @@ Lalu di blade, ubah semua referensi statis menjadi Alpine reactive:
 
 ## Urutan Eksekusi Fix
 
-| Prioritas | Bug | Alasan |
-|-----------|-----|--------|
-| 🔴 1 | Bug 3 — Shift lock tidak reaktif | Bug fungsional — kasir tidak bisa dipakai setelah buka shift |
-| 🟡 2 | Bug 1 — Duplikat validasi cart | Code quality — ekstrak 5 baris ke 1 method |
-| 🟠 3 | Bug 2 — DTO tidak dikirim ke service | Breaking change — perlu audit `OrderService` dulu, scope lebih besar |
+| Prioritas | Bug | Alasan | Status |
+|-----------|-----|--------|--------|
+| 🔴 1 | Bug 3 — Shift lock tidak reaktif | Bug fungsional — kasir tidak bisa dipakai setelah buka shift | ✅ DONE |
+| 🟡 2 | Bug 1 — Duplikat validasi cart | Code quality — ekstrak 5 baris ke 1 method | ✅ DONE |
+| 🟠 3 | Bug 2 — DTO tidak dikirim ke service | Breaking change — perlu merapikan ProcessOrderData sebagai standard parameter | ✅ DONE |
 
 ---
 
 ## Keputusan
 
-- Fix Bug 3 dan Bug 1 dilakukan dalam satu commit setelah dokumen ini ditulis.
-- Fix Bug 2 ditunda sampai ada sesi khusus audit `OrderService` dan semua callernya.
-- Dokumen ini menjadi referensi saat mengerjakan refactor `OrderService` ke depannya.
+- Semua bug di atas sudah berhasil diselesaikan dalam satu siklus refactor.
+- `ProcessOrderData` resmi ditetapkan sebagai standar input tunggal (DTO) untuk fungsi `OrderService::processOrder()` menghentikan pengiriman parameter `array` dari Livewire/Controller.

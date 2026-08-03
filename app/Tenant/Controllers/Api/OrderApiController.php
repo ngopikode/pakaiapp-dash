@@ -6,6 +6,7 @@ use App\Central\Services\DuitkuService;
 use App\Central\Services\MidtransService;
 use App\Http\Controllers\Controller;
 use App\Shared\Traits\ApiResponserTrait;
+use App\Tenant\Data\ProcessOrderData;
 use App\Tenant\Models\Core\Order;
 use App\Tenant\Models\Core\Product;
 use App\Tenant\Models\Core\TenantUser;
@@ -162,22 +163,22 @@ class OrderApiController extends Controller
         $mappedOrderType = in_array($request->order_type, ['dinein', 'takeaway', 'delivery'])
             ? $request->order_type : 'takeaway';
 
-        $orderData = [
-            'invoice_code' => $invoiceCode,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email,
-            'order_type' => $mappedOrderType,
-            'is_online' => true,
-            'table_number' => $mappedOrderType === 'dinein' ? $request->order_info : null,
-            'notes' => $mappedOrderType !== 'dinein' ? $request->order_info : null,
-            'payment_method' => $gateway['db_method'],
-            'duitku_payment_method' => $gateway['duitku_method'],
-            'status' => 'pending',
-            'user_id' => Auth::id() ?? null,
-        ];
+        $dto = new ProcessOrderData(
+            invoiceCode: $invoiceCode,
+            customerName: $request->customer_name,
+            customerPhone: $request->customer_phone,
+            customerEmail: $request->customer_email,
+            orderType: $mappedOrderType,
+            isOnline: true,
+            tableNumber: $mappedOrderType === 'dinein' ? $request->order_info : null,
+            notes: $mappedOrderType !== 'dinein' ? $request->order_info : null,
+            paymentMethod: $gateway['db_method'],
+            duitkuPaymentMethod: $gateway['duitku_method'],
+            status: 'pending',
+            userId: Auth::id() ?? null,
+        );
 
-        return $this->orderService()->processOrder($orderData, $request->items);
+        return $this->orderService()->processOrder($dto, $request->items);
     }
 
     private function processPaymentGateway(Order $order, Request $request, array $gateway): JsonResponse

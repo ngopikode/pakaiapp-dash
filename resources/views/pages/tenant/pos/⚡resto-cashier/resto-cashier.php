@@ -2,8 +2,7 @@
 
 use App\Central\Services\BillingService;
 use App\Shared\Traits\ShowsToast;
-use App\Tenant\Data\CheckoutData;
-use App\Tenant\Data\CreateOrderData;
+use App\Tenant\Data\ProcessOrderData;
 use App\Tenant\Data\ShiftClosingData;
 use App\Tenant\Data\ShiftExpenseData;
 use App\Tenant\Data\ShiftOpnameItemData;
@@ -164,30 +163,22 @@ new class extends Component
         if ($error = $this->validateCart($cart)) return $error;
 
         try {
-            $dto = new CreateOrderData(
+            $dto = new ProcessOrderData(
                 customerName: $customerName ?: 'Pelanggan Umum',
-                tableNumber: $tableNumber,
                 orderType: $orderType,
+                paymentMethod: 'cash',
+                status: 'pending',
+                tableNumber: $orderType === 'dinein' ? $tableNumber : null,
+                notes: $orderType !== 'dinein' ? $tableNumber : null,
                 isTaxActive: $isTaxActive,
                 isServiceActive: $isServiceActive,
             );
-
-            $orderData = [
-                'table_number' => $dto->orderType === 'dinein' ? $dto->tableNumber : null,
-                'notes' => $dto->orderType !== 'dinein' ? $dto->tableNumber : null,
-                'customer_name' => $dto->customerName,
-                'order_type' => $dto->orderType,
-                'payment_method' => 'cash',
-                'status' => 'pending',
-                'is_tax_active' => $dto->isTaxActive,
-                'is_service_active' => $dto->isServiceActive,
-            ];
 
             if (
                 $this->existingOrder && !$this->isOrderEditable($this->existingOrder)
             ) throw new Exception(message: 'Pesanan sudah selesai, lunas, atau dibatalkan. Tidak bisa menambah menu.');
 
-            $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
+            $order = $this->orderService()->processOrder($dto, $cart, $this->existingOrder);
 
             return ['success' => true, 'invoice_code' => $order->invoice_code];
         } catch (Exception $e) {
@@ -208,33 +199,25 @@ new class extends Component
         }
 
         try {
-            $dto = new CheckoutData(
+            $isDuitku = $paymentMethod === 'duitku';
+            $isMidtrans = $paymentMethod === 'digital';
+
+            $dto = new ProcessOrderData(
                 customerName: $customerName ?: 'Pelanggan Umum',
-                tableNumber: $tableNumber,
                 orderType: $orderType,
-                paymentMethod: $paymentMethod,
-                discount: (float)$discount,
+                paymentMethod: $isMidtrans ? 'transfer' : ($isDuitku ? $paymentMethod : $paymentMethod),
+                status: ($isDuitku || $isMidtrans) ? 'pending' : 'paid',
+                tableNumber: $orderType === 'dinein' ? $tableNumber : null,
+                notes: $orderType !== 'dinein' ? $tableNumber : null,
+                duitkuPaymentMethod: $duitkuMethod,
+                customerEmail: $customerEmail,
+                globalDiscount: (float)$discount,
                 amountPaid: (float)$amountPaid,
                 isTaxActive: $isTaxActive,
                 isServiceActive: $isServiceActive,
             );
 
-            $isDuitku = $paymentMethod === 'duitku';
-            $isMidtrans = $paymentMethod === 'digital';
-
-            $orderData = [
-                'table_number' => $dto->orderType === 'dinein' ? $dto->tableNumber : null,
-                'notes' => $dto->orderType !== 'dinein' ? $dto->tableNumber : null,
-                'customer_name' => $dto->customerName,
-                'order_type' => $dto->orderType,
-                'payment_method' => $isMidtrans ? 'transfer' : ($isDuitku ? $dto->paymentMethod : $dto->paymentMethod),
-                'global_discount' => $dto->discount,
-                'status' => ($isDuitku || $isMidtrans) ? 'pending' : 'paid',
-                'is_tax_active' => $dto->isTaxActive,
-                'is_service_active' => $dto->isServiceActive,
-            ];
-
-            $order = $this->orderService()->processOrder($orderData, $cart, $this->existingOrder);
+            $order = $this->orderService()->processOrder($dto, $cart, $this->existingOrder);
 
             if ($isDuitku) {
                 if (!$duitkuMethod) throw new Exception(message: 'Metode pembayaran Duitku belum dipilih.');

@@ -23,7 +23,7 @@ return new class extends Migration
             // Drop FK lama dengan nama asli (variant_recipes_variant_id_foreign) jika ada
             try {
                 $table->dropForeign('variant_recipes_variant_id_foreign');
-            } catch (\Exception) {
+            } catch (Exception) {
                 // FK tidak ada atau sudah dihapus
             }
 
@@ -54,7 +54,7 @@ return new class extends Migration
     {
         try {
             return collect(DB::select("SHOW INDEX FROM {$table}"))->contains('Key_name', $indexName);
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
