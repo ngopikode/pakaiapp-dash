@@ -149,6 +149,13 @@ new class extends Component
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
 
+        // Security: validate cart structure from JS to prevent mass assignment / fraud
+        foreach ($cart as $item) {
+            if (!isset($item['variant_id'], $item['quantity']) || !is_int($item['variant_id']) || !is_numeric($item['quantity']) || $item['quantity'] < 1) {
+                return ['success' => false, 'error' => 'Data keranjang tidak valid.'];
+            }
+        }
+
         try {
             $dto = new CreateOrderData(
                 customerName: $customerName ?: 'Pelanggan Umum',
@@ -184,6 +191,18 @@ new class extends Component
     public function processDirectCheckout($cart, $customerName, $tableNumber, $orderType, $paymentMethod, $discount, $amountPaid, $isTaxActive = true, $isServiceActive = true, $duitkuMethod = null, $customerEmail = null): array
     {
         if (empty($cart)) return ['success' => false, 'error' => 'Keranjang kosong.'];
+
+        // Security: validate cart structure from JS to prevent mass assignment / fraud
+        foreach ($cart as $item) {
+            if (!isset($item['variant_id'], $item['quantity']) || !is_int($item['variant_id']) || !is_numeric($item['quantity']) || $item['quantity'] < 1) {
+                return ['success' => false, 'error' => 'Data keranjang tidak valid.'];
+            }
+        }
+
+        // Security: whitelist payment methods
+        if (!in_array($paymentMethod, ['cash', 'transfer', 'digital', 'duitku'])) {
+            return ['success' => false, 'error' => 'Metode pembayaran tidak valid.'];
+        }
 
         try {
             $dto = new CheckoutData(
@@ -254,7 +273,7 @@ new class extends Component
             ]);
 
             $this->billingService()->chargeTransactionFee($order);
-            $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
+            $storeName = $this->storeSetting()?->name ?? 'Resto Kami';
 
             return [
                 'success' => true,
@@ -274,6 +293,12 @@ new class extends Component
 
     public function processPayment($orderId, $paymentMethod, $discount, $amountPaid, $duitkuMethod = null, $customerEmail = null): array
     {
+        // Security: validate orderId is integer, whitelist payment methods
+        if (!is_int($orderId) || $orderId < 1) return ['success' => false, 'error' => 'Pesanan tidak valid.'];
+        if (!in_array($paymentMethod, ['cash', 'transfer', 'digital', 'duitku'])) {
+            return ['success' => false, 'error' => 'Metode pembayaran tidak valid.'];
+        }
+
         try {
             $isDuitku = $paymentMethod === 'duitku';
             $isMidtrans = $paymentMethod === 'digital';
@@ -304,7 +329,7 @@ new class extends Component
 
             $order = $this->orderService()->processPayment($orderId, $paymentMethod, (float)$discount, (float)$amountPaid);
 
-            $storeName = StoreSetting::first()?->name ?? 'Resto Kami';
+            $storeName = $this->storeSetting()?->name ?? 'Resto Kami';
 
             return [
                 'success' => true,
@@ -404,7 +429,7 @@ new class extends Component
     public function openShift(): void
     {
         $this->validate([
-            'startingCash' => 'required|numeric|min:0',
+            'startingCash' => ['required', 'numeric', 'min:0'],
         ]);
 
         try {
@@ -431,8 +456,8 @@ new class extends Component
         }
 
         $this->validate([
-            'expenseAmount' => 'required|numeric|gt:0',
-            'expenseDescription' => 'required|string|max:255',
+            'expenseAmount' => ['required', 'numeric', 'gt:0'],
+            'expenseDescription' => ['required', 'string', 'max:255'],
         ]);
 
         try {
@@ -478,7 +503,7 @@ new class extends Component
 
         if ($this->closeShiftStep === 1) {
             $this->validate([
-                'opnameItems.*.physical_stock' => 'required|numeric|min:0',
+                'opnameItems.*.physical_stock' => ['required', 'numeric', 'min:0'],
             ], [
                 'opnameItems.*.physical_stock.required' => 'Semua stok fisik harus diisi.',
                 'opnameItems.*.physical_stock.numeric' => 'Stok fisik harus berupa angka.',
@@ -489,7 +514,7 @@ new class extends Component
         }
 
         $this->validate([
-            'actualCash' => 'required|numeric|min:0',
+            'actualCash' => ['required', 'numeric', 'min:0'],
         ]);
 
         try {
