@@ -16,14 +16,15 @@
     <div class="relative w-full max-w-md transform overflow-hidden rounded-[24px] bg-white text-left align-middle shadow-2xl transition-all dark:bg-slate-900 sm:my-8 border border-slate-200 dark:border-slate-800"
          x-show="isShiftExpenseModalOpen"
          x-data="{ 
-            displayValue: '', 
-            formatValue(val) { 
-                let num = val.toString().replace(/\D/g, ''); 
-                this.displayValue = num ? new Intl.NumberFormat('id-ID').format(num) : '';
-                $wire.set('expenseAmount', num);
+            raw: $wire.entangle('expenseAmount'), 
+            get displayValue() {
+                return this.raw ? new Intl.NumberFormat('id-ID').format(this.raw) : '';
+            },
+            updateValue(val) { 
+                this.raw = val.toString().replace(/\D/g, ''); 
             }
          }"
-         @open-shift-expense-modal.window="displayValue = ''; $wire.set('expenseAmount', 0); $wire.set('expenseDescription', ''); setTimeout(() => $refs.expenseAmountInput.focus(), 100)"
+         @open-shift-expense-modal.window="this.raw = ''; $wire.set('expenseDescription', ''); setTimeout(() => $refs.expenseAmountInput.focus(), 100)"
          x-transition:enter="ease-out duration-300"
          x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -52,8 +53,8 @@
                                     </div>
                                     <input type="text" inputmode="numeric" 
                                            x-ref="expenseAmountInput"
-                                           x-model="displayValue" 
-                                           @input="formatValue($event.target.value)"
+                                           :value="displayValue" 
+                                           @input="updateValue($event.target.value)"
                                            class="block w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-4 pl-12 pr-4 text-right text-3xl font-black text-slate-900 tracking-tight transition-all focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-orange-500 dark:focus:bg-slate-900 placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                            placeholder="0" required autocomplete="off">
                                 </div>

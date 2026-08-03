@@ -85,12 +85,13 @@
                 @if($closeShiftStep === 2)
                 <!-- STEP 2: Blind Cash Count -->
                 <div x-data="{ 
-                    displayValue: '',
+                    raw: $wire.entangle('actualCash'),
                     init() { setTimeout(() => $refs.actualCashInput.focus(), 100) },
-                    formatValue(val) { 
-                        let num = val.toString().replace(/\D/g, ''); 
-                        this.displayValue = num ? new Intl.NumberFormat('id-ID').format(num) : '';
-                        $wire.set('actualCash', num);
+                    get displayValue() {
+                        return this.raw ? new Intl.NumberFormat('id-ID').format(this.raw) : '';
+                    },
+                    updateValue(val) { 
+                        this.raw = val.toString().replace(/\D/g, ''); 
                     }
                 }">
                     <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-5 flex items-center gap-3">
@@ -110,8 +111,8 @@
                             </div>
                             <input type="text" inputmode="numeric" 
                                    x-ref="actualCashInput"
-                                   x-model="displayValue"
-                                   @input="formatValue($event.target.value)"
+                                   :value="displayValue"
+                                   @input="updateValue($event.target.value)"
                                    class="block w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-5 pl-12 pr-5 text-right text-4xl font-black text-slate-900 tracking-tight transition-all focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-rose-500 dark:focus:bg-slate-900 placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                    placeholder="0" required autocomplete="off">
                         </div>
