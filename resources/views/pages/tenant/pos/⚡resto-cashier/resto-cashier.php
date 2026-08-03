@@ -413,6 +413,7 @@ new class extends Component
                 startingCash: (float)$this->startingCash
             );
             $this->startingCash = 0;
+            $this->unsetComputedProperty('activeShift');
             $this->toast('Shift berhasil dibuka.');
             $this->js("window.dispatchEvent(new CustomEvent('close-open-shift-modal'));");
         } catch (Exception $e) {
@@ -511,6 +512,7 @@ new class extends Component
                 data: $closingData
             );
 
+            $this->unsetComputedProperty('activeShift');
             $this->toast('Shift berhasil ditutup.');
             $this->js("window.dispatchEvent(new CustomEvent('close-close-shift-modal'));");
         } catch (Exception $e) {
@@ -541,13 +543,11 @@ new class extends Component
                 'quantity', 'subtotal', 'note', 'kitchen_status',
             ])])
             // ponytail: optimize index usage and drop deep history scanning
-            ->where(function ($query) {
-                $query->whereIn('status', ['pending', 'progress', 'paid'])
-                      ->orWhere(function ($q) {
-                          $q->where('status', 'completed')
-                            ->where('updated_at', '>=', now()->subHours(2));
-                      });
-            })
+            ->where(fn ($query) => $query->whereIn('status', ['pending', 'progress', 'paid'])
+                ->orWhere(fn ($q) => $q->where('status', 'completed')
+                    ->where('updated_at', '>=', now()->subHours(2))
+                )
+            )
             ->orderByDesc('created_at')
             ->get();
     }
