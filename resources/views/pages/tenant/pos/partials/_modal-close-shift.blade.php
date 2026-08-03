@@ -1,14 +1,15 @@
-<div class="fixed inset-0 z-[1050] flex items-center justify-center p-4 sm:p-0"
-     x-data="{ isCloseShiftModalOpen: false }"
-     x-show="isCloseShiftModalOpen" x-cloak
+<div x-data="{ isCloseShiftModalOpen: false }"
      @open-close-shift-modal.window="isCloseShiftModalOpen = true;"
-     @close-close-shift-modal.window="isCloseShiftModalOpen = false"
-     x-transition:enter="ease-out duration-300"
-     x-transition:enter-start="opacity-0"
-     x-transition:enter-end="opacity-100"
-     x-transition:leave="ease-in duration-200"
-     x-transition:leave-start="opacity-100"
-     x-transition:leave-end="opacity-0">
+     @close-close-shift-modal.window="isCloseShiftModalOpen = false">
+
+    <div class="fixed inset-0 z-[1050] flex items-center justify-center p-4 sm:p-0"
+         x-show="isCloseShiftModalOpen" x-cloak
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
 
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
          @click="isCloseShiftModalOpen = false"></div>
@@ -147,4 +148,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>
