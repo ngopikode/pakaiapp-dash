@@ -1,13 +1,14 @@
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-28 sm:mt-10 font-sans">
-    <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
-        <div>
-            <h1 class="text-2xl font-black text-slate-900 dark:text-white">Pengaturan Toko</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola identitas, jam operasional, tampilan, dan SEO tokomu.</p>
+<div class="h-[calc(100dvh-4rem)] lg:h-[100dvh] overflow-y-auto relative flex flex-col font-sans">
+    <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 flex-1 pb-12">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 dark:text-white">Pengaturan Toko</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola identitas, jam operasional, tampilan, dan SEO tokomu.</p>
+            </div>
         </div>
-    </div>
 
-    <div class="space-y-12 sm:space-y-16">
+        <div class="space-y-12 sm:space-y-16">
 
         {{-- ═══════════════════════════════════════════════════════════
              1. INFORMASI DASAR
@@ -505,10 +506,11 @@
         </section>
 
     </div>
+    </div>
 
-    <!-- Fixed Save Bar (tied to bottom of viewport, responsive to content width) -->
-    <div class="fixed bottom-0 left-0 right-0 lg:left-64 z-[100] px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-slate-200 dark:border-slate-700 transition-all">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+    <!-- Sticky Save Bar (Tied to the bottom of the scrollable container) -->
+    <div class="sticky bottom-0 z-[100] px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-slate-200 dark:border-slate-700 transition-all shrink-0">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 w-full">
             <p class="text-[11px] sm:text-sm font-semibold text-orange-600 dark:text-orange-400 text-center sm:text-left transition-opacity duration-300"
                :class="$wire.$dirty() ? 'opacity-100' : 'opacity-0'">
                 Ada perubahan yang belum disimpan
