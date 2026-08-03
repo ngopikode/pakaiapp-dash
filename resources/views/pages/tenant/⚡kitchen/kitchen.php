@@ -82,6 +82,15 @@ class extends Component
 
     public function logout(): void
     {
+        $hasActiveShift = \App\Tenant\Models\Core\Shift::where('user_id', Auth::id())
+            ->where('status', \App\Tenant\Models\Core\Shift::STATUS_ACTIVE)
+            ->exists();
+
+        if ($hasActiveShift) {
+            $this->toast('Tutup shift kasir terlebih dahulu sebelum logout.', 'warning');
+            return;
+        }
+
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();

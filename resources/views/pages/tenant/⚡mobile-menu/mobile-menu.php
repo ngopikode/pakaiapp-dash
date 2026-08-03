@@ -1,6 +1,8 @@
 <?php
 
+use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
+use App\Shared\Traits\ShowsToast;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -8,8 +10,19 @@ use Livewire\Component;
 new #[Title('Pengaturan')]
 class extends Component
 {
+    use ShowsToast;
+
     public function logout(): void
     {
+        $hasActiveShift = Shift::where('user_id', Auth::id())
+            ->where('status', Shift::STATUS_ACTIVE)
+            ->exists();
+
+        if ($hasActiveShift) {
+            $this->toast('Tutup shift kasir terlebih dahulu sebelum logout.', 'warning');
+            return;
+        }
+
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
