@@ -503,8 +503,6 @@
                 </div>
             </div>
         </section>
-
-    </div>
     </div>
 
     <!-- Floating Save Bar -->
