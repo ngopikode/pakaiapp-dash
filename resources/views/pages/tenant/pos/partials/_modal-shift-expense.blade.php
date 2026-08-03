@@ -1,4 +1,5 @@
 <div class="fixed inset-0 z-[1050] flex items-center justify-center p-4 sm:p-0"
+     x-data="{ isShiftExpenseModalOpen: false }"
      x-show="isShiftExpenseModalOpen" x-cloak
      @open-shift-expense-modal.window="isShiftExpenseModalOpen = true"
      @close-shift-expense-modal.window="isShiftExpenseModalOpen = false"

@@ -1,4 +1,5 @@
 <div class="fixed inset-0 z-[1060] flex items-center justify-center p-4 sm:p-0"
+     x-data="{ isShiftSummaryModalOpen: false }"
      x-show="isShiftSummaryModalOpen" x-cloak
      @open-shift-summary-modal.window="isShiftSummaryModalOpen = true"
      x-transition:enter="ease-out duration-300"

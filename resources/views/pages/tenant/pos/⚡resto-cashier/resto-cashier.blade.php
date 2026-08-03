@@ -173,8 +173,10 @@
     @endif
 
     {{-- Shared Modals --}}
-    @include('pages.tenant.pos.partials._modal-open-shift')
-    @include('pages.tenant.pos.partials._modal-shift-expense')
+    <div wire:ignore>
+        @include('pages.tenant.pos.partials._modal-open-shift')
+        @include('pages.tenant.pos.partials._modal-shift-expense')
+    </div>
     @include('pages.tenant.pos.partials._modal-close-shift')
     @include('pages.tenant.pos.partials._modal-shift-summary')
     @include('pages.tenant.pos.partials._modal-payment')
@@ -210,10 +212,6 @@
             showSplitModalState: false,
             isMergeModalOpen: false,
             isVoidItemModalOpen: false,
-            isOpenShiftModalOpen: false,
-            isShiftExpenseModalOpen: false,
-            isCloseShiftModalOpen: false,
-            isShiftSummaryModalOpen: false,
             voidItemId: null,
             isShiftLocked: config.isShiftLocked,
             shiftActive: config.shiftActive,
