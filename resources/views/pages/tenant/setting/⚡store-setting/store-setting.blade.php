@@ -1,16 +1,13 @@
-<div class="flex flex-col h-[calc(100dvh-4rem)] md:h-[calc(100dvh-4rem-3rem)] font-sans">
-    <!-- Scrollable Content Area -->
-    <div class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-6">
-        <div class="max-w-6xl mx-auto w-full">
-            <!-- Page Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
-                <div>
-                    <h1 class="text-2xl font-black text-slate-900 dark:text-white">Pengaturan Toko</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola identitas, jam operasional, tampilan, dan SEO tokomu.</p>
-                </div>
-            </div>
+<div class="relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 font-sans pb-28">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white">Pengaturan Toko</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola identitas, jam operasional, tampilan, dan SEO tokomu.</p>
+        </div>
+    </div>
 
-            <div class="space-y-12 sm:space-y-16">
+    <div class="space-y-12 sm:space-y-16">
 
         {{-- ═══════════════════════════════════════════════════════════
              1. INFORMASI DASAR
@@ -510,26 +507,42 @@
     </div>
     </div>
 
-    <!-- Static Footer (Always visible at bottom) -->
-    <div class="shrink-0 px-4 sm:px-6 lg:px-8 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-700 transition-all z-10 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 w-full">
-            <p class="text-[11px] sm:text-sm font-semibold text-orange-600 dark:text-orange-400 text-center sm:text-left transition-opacity duration-300"
-               :class="$wire.$dirty() ? 'opacity-100' : 'opacity-0'">
-                Ada perubahan yang belum disimpan
-            </p>
-            <button wire:click="save"
-                    class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 sm:ml-auto"
-                    :class="$wire.$dirty() ? 'ring-2 ring-orange-500/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''"
-                    wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="save">
-                    <i class="ph ph-check-circle text-lg" x-show="!$wire.$dirty()"></i>
-                    <i class="ph-fill ph-dot text-white text-lg animate-pulse" x-show="$wire.$dirty()"></i>
-                    Simpan Perubahan
-                </span>
-                <span wire:loading wire:target="save" class="flex items-center gap-2">
-                    <i class="ph ph-spinner animate-spin text-lg"></i> Menyimpan...
-                </span>
-            </button>
+    <!-- Floating Save Bar -->
+    <div class="fixed bottom-0 left-0 right-0 z-[100] xl:left-64 pointer-events-none">
+        <div class="px-4 pb-4 sm:pb-6 pt-8 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent dark:from-[#0B1120] dark:via-[#0B1120]/90 pointer-events-auto">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-2xl p-4 transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-500/10 transition-colors"
+                         :class="$wire.$dirty() ? 'bg-orange-100 dark:bg-orange-500/10' : 'bg-slate-100 dark:bg-slate-700'">
+                        <i class="ph ph-warning-circle text-xl text-orange-600 dark:text-orange-400" x-show="$wire.$dirty()"></i>
+                        <i class="ph ph-check-circle text-xl text-slate-400 dark:text-slate-500" x-show="!$wire.$dirty()"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">
+                            Status Pengaturan
+                        </p>
+                        <p class="text-xs font-medium transition-colors duration-300"
+                           :class="$wire.$dirty() ? 'text-orange-600 dark:text-orange-400' : 'text-slate-500 dark:text-slate-400'">
+                            <span x-show="$wire.$dirty()">Ada perubahan yang belum disimpan</span>
+                            <span x-show="!$wire.$dirty()">Semua perubahan telah tersimpan</span>
+                        </p>
+                    </div>
+                </div>
+
+                <button wire:click="save"
+                        class="w-full sm:w-auto px-8 py-2.5 text-white text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
+                        :class="$wire.$dirty() ? 'bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg' : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'"
+                        wire:loading.attr="disabled"
+                        x-bind:disabled="!$wire.$dirty()">
+                    <span wire:loading.remove wire:target="save" class="flex items-center gap-2">
+                        <i class="ph-fill ph-dot text-lg animate-pulse" x-show="$wire.$dirty()"></i>
+                        Simpan Perubahan
+                    </span>
+                    <span wire:loading wire:target="save" class="flex items-center gap-2">
+                        <i class="ph ph-spinner animate-spin text-lg"></i> Menyimpan...
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
