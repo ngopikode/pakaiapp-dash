@@ -274,12 +274,12 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 font-bold transition-all"
                                        :class="$wire.type === 'in' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-900/20 dark:text-emerald-400' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400'">
-                                    <input type="radio" wire:model.live="type" value="in" class="sr-only">
+                                    <input type="radio" x-model="$wire.type" value="in" class="sr-only">
                                     <i class="ph-bold ph-arrow-down-left text-lg"></i> Pemasukan
                                 </label>
                                 <label class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 font-bold transition-all"
                                        :class="$wire.type === 'out' ? 'border-rose-500 bg-rose-50 text-rose-700 dark:border-rose-400 dark:bg-rose-900/20 dark:text-rose-400' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400'">
-                                    <input type="radio" wire:model.live="type" value="out" class="sr-only">
+                                    <input type="radio" x-model="$wire.type" value="out" class="sr-only">
                                     <i class="ph-bold ph-arrow-up-right text-lg"></i> Pengeluaran
                                 </label>
                             </div>
