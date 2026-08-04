@@ -1,4 +1,4 @@
-# ADR: Peningkatan Dompet, Buku Kas Baru, dan Global Lock Saldo
+# ADR: Peningkatan Keamanan Billing & Halaman Cashbook
 
 **Tanggal:** 2026-08-04  
 **Status:** Planned  
@@ -8,63 +8,49 @@
 
 ## Konteks & Latar Belakang
 
-Berdasarkan dokumen `wallet-refactor/plan.md`, tabel `wallets` telah di-upgrade dari *single-purpose* (hanya deposit) menjadi **4 tipe dompet**:
-1. `billing` (Deposit Pakaiapp untuk potongan fee transaksi)
-2. `cash` (Uang fisik di laci/toko hasil setoran Z-Report)
-3. `bank` (Uang non-tunai yang bypass langsung masuk rekening tenant)
-4. `gateway` (Uang di *payment gateway* seperti Midtrans/Duitku)
+Berdasarkan dokumen `wallet-refactor/plan.md`, tabel `wallets` telah di-upgrade dari *single-purpose* menjadi **4 tipe dompet**: `billing`, `cash`, `bank`, dan `gateway`.
 
-Walaupun backend/Service sudah mendukung ke-empat tipe ini, antarmuka pengguna (UI) saat ini:
-1. Halaman Wallet (`pages/tenant/finance/wallet`) masih berfokus hanya pada saldo lama (Billing), membingungkan pengguna yang ingin melihat Buku Kas (Laci & Bank).
-2. Tidak ada sarana (form UI) bagi tenant untuk mencatat pemasukan/pengeluaran manual (seperti uang kasbon karyawan, beli beras, dll) yang mana ini esensial dalam operasional *Buku Kas*.
+Namun, saat ini ada dua celah besar:
+1. **Kebocoran App Fee:** Bisnis PakaiApp memotong saldo dari dompet `billing`. Jika saldo `billing` habis (Rp 0), tenant masih bisa menerima order, yang menyebabkan kerugian sistem (hutang akumulatif). Sistem harus mengunci aplikasi jika saldo billing kosong.
+2. **Ketiadaan Fitur Pencatatan Operasional:** Tenant butuh sarana mencatat pemasukan/pengeluaran manual (seperti uang kasbon karyawan, beli beras, listrik) untuk arus kas di `cash` (laci) dan `bank` (rekening).
 
-Selain itu, karena bisnis PakaiApp bergantung pada pemotongan saldo dari dompet `billing` (melalui `BillingService`), muncul risiko *minus balance*. Jika saldo `billing` tenant habis (Rp 0), tenant masih bisa menikmati aplikasi dan berjualan, yang menyebabkan akumulasi hutang biaya transaksi.
+**Catatan Khusus tentang Halaman Wallet Eksisting:**
+Halaman Wallet saat ini (`/wallet`) yang memiliki *Virtual Premium Wallet Card* UI dibiarkan persis seperti aslinya. Tidak ada perombakan UI "4-Cards" yang dipaksakan. Halaman itu tetap berfungsi sebagai UI utama. 
 
 ---
 
 ## Keputusan & Rencana Implementasi
 
 ### 1. Global Lock Modal (Saldo Billing Habis)
-Untuk menghentikan kebocoran biaya aplikasi, sistem harus dikunci ketika dompet tipe `billing` habis.
+Sistem harus dikunci ketika dompet tipe `billing` habis.
+- **Frontend (Global Layout):**
+  Pengecekan *read-only* saldo `billing` di `layouts/app.blade.php`. Jika saldonya `<= 0`, render *Full Screen Overlay Modal* tanpa tombol *close*.
+  Isi modal: *"Aplikasi Terkunci. Saldo Deposit Pakaiapp Anda Habis."* beserta tombol *Top Up*. Modal ini tidak akan muncul jika pengguna sedang berada di halaman `/wallet`, `/login`, `/logout`, atau `/profile`.
+- **Backend Security Guard:**
+  Pencegatan di `OrderService::processOrder()`. Jika `wallet(TYPE_BILLING)->balance <= 0`, lempar *Exception* sehingga transaksi ditolak dari sisi server.
 
-- **Frontend (AlpineJS Global & Layout):**
-  Pengecekan saldo `billing` dilakukan di Layout utama aplikasi (`layouts/app.blade.php`). Jika saldonya `<= 0`, render komponen *Full Screen Overlay* ber-z-index ekstrem (`z-[99999]`) yang menutupi seluruh layar tanpa tombol *close*.
-  Isi modal: *"Saldo Deposit Pakaiapp (Billing) Anda Habis. Aplikasi terkunci sementara. Silakan isi ulang saldo (Top Up) untuk melanjutkan berjualan."*
-  Modal ini dirancang interaktif di Alpine (bisa di-refresh) agar saat proses Top Up selesai, modal bisa hilang tanpa *refresh* page penuh.
-  
-- **Backend Security:**
-  Mencegat proses *Order Creation* di `OrderService` (atau middleware API). Jika `wallet(TYPE_BILLING)->balance <= 0`, lempar *Exception* yang akan membatalkan seluruh operasi. Fitur ini memastikan tenant yang mahir *Inspect Element* pun tetap tidak bisa mem-*bypass* sistem penguncian.
-
-### 2. Fitur Halaman Buku Kas (Cash Book)
-- **Modul Baru:** Buat komponen Livewire baru `pages/tenant/finance/buku-kas/buku-kas.php`.
-- **Fungsi Utama:** Melakukan pencatatan operasional (Income / Expense).
-- **Aliran Dana:** Saat form disimpan, sistem akan memanggil `TenantWalletService` dan melakukan operasi `addBalance` atau `deductBalance` pada tipe dompet yang dipilih (pilihan dibatasi hanya pada `cash` atau `bank` — karena `billing` dikontrol admin/top up, dan `gateway` dikontrol API bank).
-- UI menggunakan standar F&B dengan tabel mutasi (`wallet_histories`) khusus tipe `cash` dan `bank`.
-
-### 3. Redesain Halaman Wallet & Saldo (Overview)
-- Refactor halaman `wallet` saat ini (jika sudah ada) menjadi *Dashboard Keuangan*.
-- Tampilkan 4 Kartu Saldo (Cards) untuk:
-  - Saldo Deposit (`billing`)
-  - Saldo Laci Kasir (`cash`)
-  - Saldo Rekening/QRIS (`bank`)
-  - Saldo Pending/Gateway (`gateway`)
-- Tabel riwayat (histories) akan dimodifikasi dengan *filter tab* untuk melihat mutasi secara terpisah per jenis dompet.
+### 2. Halaman Cashbook (Pencatatan Operasional)
+Sesuai standar penamaan profesional, modul baru akan menggunakan *English nomenclature* di tingkat *codebase*.
+- **Lokasi Komponen MFC:** `resources/views/pages/tenant/finance/⚡cashbook/` (Berisi `cashbook.php` dan `cashbook.blade.php`).
+- **Route:** `Route::livewire('cashbook', 'pages::tenant.finance.cashbook')->name('cashbook');`
+- **Aliran Dana:** Saat form disimpan, sistem memanggil `TenantWalletService` (`addBalance` atau `deductBalance`) untuk tipe dompet `cash` atau `bank`.
+- **UI & UX:**
+  - Halaman ini memuat tabel riwayat dari model `WalletTransaction` khusus tipe `cash` dan `bank`.
+  - Dilengkapi tombol "Add Transaction" yang membuka modal input.
+  - Modal form menggunakan *Jumbo Input* dengan fitur *Real-time Rupiah Masking* AlpineJS untuk menghindari salah ketik angka, mirip dengan modal POS Shift.
 
 ---
 
 ## Task Breakdown (Tahapan Eksekusi)
 
-**Fase 1: Security & Global Lock Modal**
-- [ ] Ubah `layouts/app.blade.php` atau `Layout Controller` untuk menyuplai boolean `$isBillingEmpty` ke Alpine `app.js`.
-- [ ] Buat file `resources/views/layouts/_partials/_billing-lock-modal.blade.php`.
-- [ ] Implementasikan blokir transaksi (Throw Exception jika <= 0) pada `OrderService`.
+**Fase 1: Security & Global Lock Modal (SELESAI)**
+- [x] Ubah `layouts/app.blade.php` untuk pengecekan read-only `$isBillingEmpty`.
+- [x] Buat file modal overlay `resources/views/layouts/_partials/_billing-lock-modal.blade.php`.
+- [x] Implementasikan blokir transaksi (Throw Exception jika <= 0) pada `OrderService`.
 
-**Fase 2: Pembuatan Halaman Buku Kas**
-- [ ] Buat folder dan file Livewire komponen untuk `BukuKas`.
-- [ ] Rancang UI Buku Kas sesuai panduan `ui-ux-pro-max` (Jumbo input nominal, masking *real-time*).
-- [ ] Panggil `TenantWalletService` dari metode simpan komponen.
-
-**Fase 3: Pembaruan Wallet Dashboard**
-- [ ] Tambahkan query pemanggilan semua jenis saldo di halaman *Wallet*.
-- [ ] Tata letak UI menjadi 4 kartu metrik utama.
-- [ ] Implementasikan *filter histories* berdasarkan tipe dompet.
+**Fase 2: Pembuatan Halaman Cashbook**
+- [ ] Buat file `cashbook.php` dan `cashbook.blade.php` di dalam `resources/views/pages/tenant/finance/⚡cashbook/`.
+- [ ] Rancang UI form *Add Transaction* dengan *Jumbo Input Rupiah Masking* AlpineJS.
+- [ ] Buat tabel riwayat `WalletTransaction` (difilter hanya tipe `cash` dan `bank`).
+- [ ] Daftarkan route `cashbook` ke `routes/tenant.php`.
+- [ ] Tambahkan tautan menu `cashbook` ke `sidebar.php` dan `mobile-menu.php`.
