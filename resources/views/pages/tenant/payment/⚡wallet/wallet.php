@@ -1,5 +1,6 @@
 <?php
 
+use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
 use Livewire\Attributes\Title;
@@ -7,11 +8,10 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Dompet')]
-class extends Component
-{
+class extends Component {
     use WithPagination;
 
-    protected $paginationTheme = 'tailwind';
+    protected string $paginationTheme = 'tailwind';
 
     public string $filter = 'all';  // all | credit | debit
 
@@ -99,8 +99,8 @@ class extends Component
 
     public function with(): array
     {
-        $billingWallet = $this->walletService()->getWallet(Wallet::TYPE_BILLING);
-        $gatewayWallet = $this->walletService()->getWallet(Wallet::TYPE_GATEWAY);
+        $billingWallet = $this->walletService()->getWallet();
+        $gatewayWallet = $this->walletService()->getWallet(type: Wallet::TYPE_GATEWAY);
 
         $walletIds = [$billingWallet->id, $gatewayWallet->id];
 
@@ -110,10 +110,10 @@ class extends Component
         $mockWallet->id = $billingWallet->id;
         $mockWallet->balance = $billingWallet->balance + $gatewayWallet->balance;
 
-        $transactions = WalletTransaction::query()
+        $transactions = WalletTransaction::with('wallet')
             ->whereIn('wallet_id', $walletIds)
-            ->when(in_array($this->filter, ['credit', 'debit']), fn ($q) => $q->where('type', strtoupper($this->filter)))
-            ->when($this->search, fn ($q) => $q->where('description', 'like', '%' . $this->search . '%'))
+            ->when(in_array($this->filter, ['credit', 'debit']), fn($q) => $q->where('type', strtoupper($this->filter)))
+            ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', $this->sortOrder)
             ->paginate(15);
 
