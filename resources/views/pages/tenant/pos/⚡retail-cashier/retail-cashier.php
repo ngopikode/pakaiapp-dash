@@ -24,6 +24,14 @@ new class extends Component
         $this->activeTab = $tab;
     }
 
+    public function checkBillingBalance(): void
+    {
+        $billingWallet = \App\Tenant\Models\Core\Wallet::firstOrCreate(['type' => \App\Tenant\Models\Core\Wallet::TYPE_BILLING], ['balance' => 0]);
+        if ($billingWallet->balance <= 0) {
+            $this->js("window.dispatchEvent(new CustomEvent('show-billing-lock'));");
+        }
+    }
+    
     /**
      * Proses checkout retail: langsung bayar, support diskon per-item.
      */

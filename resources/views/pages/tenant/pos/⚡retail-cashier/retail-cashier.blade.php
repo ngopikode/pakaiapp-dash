@@ -1,5 +1,6 @@
 <div class="pos-container d-flex flex-column h-100 bg-transparent position-relative"
      x-data="retailPos()"
+     x-init="$wire.checkBillingBalance()"
      @add-product.window="handleProductClick($event.detail.product, $event.detail.variantId)"
      @barcode-scanned.window="handleBarcodeScan($event.detail.product, $event.detail.variant)"
      @barcode-not-found.window="showIslandToast('Barcode tidak ditemukan', 'danger')"

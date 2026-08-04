@@ -40,7 +40,7 @@ class TenantWalletService
      *
      * @throws Throwable
      */
-    public function addBalance(float|int $amount, Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
+    public function addBalance(float|int $amount, ?Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
     {
         return $this->processTransaction('CREDIT', $amount, $reference, $description, $walletType);
     }
@@ -50,9 +50,9 @@ class TenantWalletService
      *
      * @throws Exception|Throwable Jika saldo tidak mencukupi
      */
-    public function deductBalance(float|int $amount, Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
+    public function deductBalance(float|int $amount, ?Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING, bool $allowNegative = false): WalletTransaction
     {
-        return $this->processTransaction('DEBIT', $amount, $reference, $description, $walletType);
+        return $this->processTransaction('DEBIT', $amount, $reference, $description, $walletType, $allowNegative);
     }
 
     /**
@@ -61,7 +61,7 @@ class TenantWalletService
      *
      * @throws Throwable
      */
-    private function processTransaction(string $type, float|int $amount, Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING): WalletTransaction
+    private function processTransaction(string $type, float|int $amount, ?Model $reference, ?string $description = null, string $walletType = Wallet::TYPE_BILLING, bool $allowNegative = false): WalletTransaction
     {
         try {
             DB::beginTransaction();
@@ -78,7 +78,7 @@ class TenantWalletService
             }
 
             if ($type === 'DEBIT') {
-                if ($openingBalance < $transactionAmount) {
+                if (!$allowNegative && $openingBalance < $transactionAmount) {
                     throw new Exception('Kredit tidak mencukupi. Sisa saldo: Rp' . number_format($openingBalance, 0, ',', '.'));
                 }
                 $closingBalance = $openingBalance - $transactionAmount;
@@ -96,8 +96,8 @@ class TenantWalletService
                 'amount' => $transactionAmount,
                 'opening_balance' => $openingBalance,
                 'closing_balance' => $closingBalance,
-                'reference_id' => $reference->getKey(),
-                'reference_type' => $reference->getMorphClass(),
+                'reference_id' => $reference?->getKey(),
+                'reference_type' => $reference?->getMorphClass(),
                 'description' => $description,
                 'created_by' => auth()->id(),
             ]);

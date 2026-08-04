@@ -1,9 +1,5 @@
 @php
     use App\Tenant\Models\Core\StoreSetting;
-    use App\Tenant\Models\Core\Wallet;
-
-    $billingWallet = Wallet::firstOrCreate(['type' => Wallet::TYPE_BILLING], ['balance' => 0]);
-    $isBillingEmpty = $billingWallet->balance <= 0 && !request()->routeIs('wallet', 'login', 'logout', 'profile');
 @endphp
 
     <!DOCTYPE html>
@@ -145,7 +141,7 @@ $showSidebar = $accessibleMenus > 1;
 
 </div>
 
-@include('layouts._partials._billing-lock-modal', ['isBillingEmpty' => $isBillingEmpty])
+@include('layouts._partials._billing-lock-modal')
 
 @livewireScripts
 

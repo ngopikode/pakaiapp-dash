@@ -1,4 +1,11 @@
-<div x-data="{ isLocked: @json($isBillingEmpty) }"
+<div x-data="{ 
+         isLocked: false,
+         init() {
+             window.addEventListener('show-billing-lock', () => {
+                 this.isLocked = true;
+             });
+         }
+     }"
      x-show="isLocked" x-cloak
      class="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-900/90 backdrop-blur-md">
      

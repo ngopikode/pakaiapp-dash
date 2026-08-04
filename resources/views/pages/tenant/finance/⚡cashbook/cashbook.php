@@ -1,6 +1,7 @@
 <?php
 
 use App\Shared\Traits\ShowsToast;
+use App\Tenant\Data\CashbookTransactionData;
 use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
@@ -44,21 +45,28 @@ new #[Title('Buku Kas Operasional')] class extends Component
         try {
             DB::beginTransaction();
 
-            $amountFloat = (float)$this->amount;
+            $dto = new CashbookTransactionData(
+                wallet_type: $this->walletType,
+                transaction_type: $this->type === 'in' ? 'income' : 'expense',
+                amount: (float)$this->amount,
+                description: $this->description,
+                transaction_date: now()
+            );
 
-            if ($this->type === 'in') {
+            if ($dto->transaction_type === 'income') {
                 $this->walletService()->addBalance(
-                    amount: $amountFloat,
+                    amount: $dto->amount,
                     reference: null,
-                    description: $this->description,
-                    walletType: $this->walletType
+                    description: $dto->description,
+                    walletType: $dto->wallet_type
                 );
             } else {
                 $this->walletService()->deductBalance(
-                    amount: $amountFloat,
+                    amount: $dto->amount,
                     reference: null,
-                    description: $this->description,
-                    walletType: $this->walletType
+                    description: $dto->description,
+                    walletType: $dto->wallet_type,
+                    allowNegative: true // Kasus kasir ngeluarin uang walau tercatat kurang (opsional, disesuaikan)
                 );
             }
 
@@ -72,7 +80,7 @@ new #[Title('Buku Kas Operasional')] class extends Component
             // Trigger alpine modal close
             $this->js("window.dispatchEvent(new CustomEvent('close-cashbook-modal'))");
 
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             $this->toast($e->getMessage(), 'danger');
         }

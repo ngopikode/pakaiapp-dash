@@ -409,6 +409,14 @@ new class extends Component {
         ]);
 
         try {
+            // Cek saldo billing sebelum open shift
+            $billingWallet = \App\Tenant\Models\Core\Wallet::firstOrCreate(['type' => \App\Tenant\Models\Core\Wallet::TYPE_BILLING], ['balance' => 0]);
+            if ($billingWallet->balance <= 0) {
+                $this->js("window.dispatchEvent(new CustomEvent('close-open-shift-modal'));");
+                $this->js("window.dispatchEvent(new CustomEvent('show-billing-lock'));");
+                return;
+            }
+
             $this->shiftService()->openShift(
                 userId: auth()->id(),
                 startingCash: (float)$this->startingCash
