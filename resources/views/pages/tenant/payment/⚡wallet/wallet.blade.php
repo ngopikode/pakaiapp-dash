@@ -128,33 +128,33 @@
             </div>
 
             {{-- Bagian Kanan: Ringkasan Arus Kas --}}
-            <div class="w-full md:w-2/5 flex flex-col sm:flex-row gap-4">
+                <div class="w-full md:w-2/5 flex flex-row gap-3 sm:gap-4">
 
                 {{-- Total Keluar --}}
-                <div class="group flex-1 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950 flex flex-col justify-between gap-6 hover:shadow-lg hover:shadow-red-500/5 hover:-translate-y-1 hover:border-red-200 dark:hover:border-red-900/30 transition-all duration-300 cursor-default">
+                <div class="group flex-1 p-4 sm:p-6 rounded-[24px] sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950 flex flex-col justify-between gap-4 sm:gap-6 hover:shadow-lg hover:shadow-red-500/5 hover:-translate-y-1 hover:border-red-200 dark:hover:border-red-900/30 transition-all duration-300 cursor-default overflow-hidden">
                     <div class="flex justify-between items-start">
-                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-10deg] transition-transform duration-300 shadow-sm" style="background-color: rgba(239, 68, 68, 0.08); color: var(--brand-red, #EF4444);">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-10deg] transition-transform duration-300 shadow-sm" style="background-color: rgba(239, 68, 68, 0.08); color: var(--brand-red, #EF4444);">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>
                         </div>
-                        <span class="text-[10px] font-extrabold tracking-widest uppercase text-red-500 bg-red-50 dark:bg-red-500/10 px-2.5 py-1 rounded-lg">Keluar</span>
+                        <span class="hidden sm:inline-block text-[10px] font-extrabold tracking-widest uppercase text-red-500 bg-red-50 dark:bg-red-500/10 px-2.5 py-1 rounded-lg">Keluar</span>
                     </div>
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">Total Keluar</div>
-                        <div class="font-extrabold text-2xl font-mono text-foreground">Rp <span x-text="displayDebit"></span></div>
+                        <div class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">Total Keluar</div>
+                        <div class="font-extrabold text-base sm:text-2xl font-mono text-foreground truncate">Rp <span x-text="displayDebit"></span></div>
                     </div>
                 </div>
 
                 {{-- Total Masuk --}}
-                <div class="group flex-1 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950 flex flex-col justify-between gap-6 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-1 hover:border-emerald-200 dark:hover:border-emerald-900/30 transition-all duration-300 cursor-default">
+                <div class="group flex-1 p-4 sm:p-6 rounded-[24px] sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950 flex flex-col justify-between gap-4 sm:gap-6 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-1 hover:border-emerald-200 dark:hover:border-emerald-900/30 transition-all duration-300 cursor-default overflow-hidden">
                     <div class="flex justify-between items-start">
-                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[10deg] transition-transform duration-300 shadow-sm" style="background-color: rgba(16, 185, 129, 0.08); color: var(--brand-accent);">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[10deg] transition-transform duration-300 shadow-sm" style="background-color: rgba(16, 185, 129, 0.08); color: var(--brand-accent);">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>
                         </div>
-                        <span class="text-[10px] font-extrabold tracking-widest uppercase text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg">Masuk</span>
+                        <span class="hidden sm:inline-block text-[10px] font-extrabold tracking-widest uppercase text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg">Masuk</span>
                     </div>
                     <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">Total Masuk</div>
-                        <div class="font-extrabold text-2xl font-mono" style="color: var(--brand-accent);">Rp <span x-text="displayCredit"></span></div>
+                        <div class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">Total Masuk</div>
+                        <div class="font-extrabold text-base sm:text-2xl font-mono truncate" style="color: var(--brand-accent);">Rp <span x-text="displayCredit"></span></div>
                     </div>
                 </div>
             </div>
