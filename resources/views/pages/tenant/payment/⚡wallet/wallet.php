@@ -8,19 +8,42 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Dompet')] class extends Component {
+new #[Title('Dompet')] class extends Component
+{
     use WithPagination;
 
     // --- 1. Public Properties ---
     public string $filter = 'all';  // all | credit | debit
+
     public string $search = '';
+
     public string $sortOrder = 'desc'; // desc | asc
+
+    // Static wallet data cache to avoid DB hits on subsequent requests
+    public array $walletIds = [];
+
+    public array $mockWalletState = [];
 
     // --- 2. Protected Properties ---
     protected string $paginationTheme = 'tailwind';
+
     protected ?TenantWalletService $walletService = null;
 
     // --- 3. Lifecycle Hooks ---
+    public function mount(): void
+    {
+        // Hit DB only once on initial page load
+        $billingWallet = $this->walletService()->getWallet(Wallet::TYPE_BILLING);
+        $gatewayWallet = $this->walletService()->getWallet(Wallet::TYPE_GATEWAY);
+
+        $this->walletIds = [$billingWallet->id, $gatewayWallet->id];
+
+        $this->mockWalletState = [
+            'id' => $billingWallet->id,
+            'balance' => $billingWallet->balance + $gatewayWallet->balance,
+        ];
+    }
+
     public function updatedFilter(): void
     {
         $this->resetPage();
@@ -109,28 +132,12 @@ new #[Title('Dompet')] class extends Component {
 
     // --- 7. Computed Properties (Lazy Load Data) ---
     #[Computed]
-    public function walletData(): array
-    {
-        $billingWallet = $this->walletService()->getWallet(Wallet::TYPE_BILLING);
-        $gatewayWallet = $this->walletService()->getWallet(Wallet::TYPE_GATEWAY);
-
-        $mockWallet = new stdClass();
-        $mockWallet->id = $billingWallet->id;
-        $mockWallet->balance = $billingWallet->balance + $gatewayWallet->balance;
-
-        return [
-            'ids' => [$billingWallet->id, $gatewayWallet->id],
-            'mock' => $mockWallet
-        ];
-    }
-
-    #[Computed]
     public function transactions()
     {
         return WalletTransaction::with('wallet')
-            ->whereIn('wallet_id', $this->walletData['ids'])
-            ->when(in_array($this->filter, ['credit', 'debit']), fn($q) => $q->where('type', strtoupper($this->filter)))
-            ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))
+            ->whereIn('wallet_id', $this->walletIds)
+            ->when(in_array($this->filter, ['credit', 'debit']), fn ($q) => $q->where('type', strtoupper($this->filter)))
+            ->when($this->search, fn ($q) => $q->where('description', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', $this->sortOrder)
             ->paginate(15);
     }
@@ -141,15 +148,19 @@ new #[Title('Dompet')] class extends Component {
         return WalletTransaction::query()
             ->selectRaw("SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END) as total_credit")
             ->selectRaw("SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END) as total_debit")
-            ->whereIn('wallet_id', $this->walletData['ids'])
+            ->whereIn('wallet_id', $this->walletIds)
             ->first();
     }
 
     // --- 8. Render ---
     public function with(): array
     {
+        $mockWallet = new stdClass;
+        $mockWallet->id = $this->mockWalletState['id'] ?? 1;
+        $mockWallet->balance = $this->mockWalletState['balance'] ?? 0;
+
         return [
-            'wallet' => $this->walletData['mock'],
+            'wallet' => $mockWallet,
             'transactions' => $this->transactions,
             'totalCredit' => (float)($this->aggregates->total_credit ?? 0),
             'totalDebit' => (float)($this->aggregates->total_debit ?? 0),
