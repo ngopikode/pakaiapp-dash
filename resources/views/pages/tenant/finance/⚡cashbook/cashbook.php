@@ -132,9 +132,4 @@ new #[Title('Buku Kas Operasional')] class extends Component
             'iconBg' => $iconBg,
         ];
     }
-
-    public function render()
-    {
-        return view('pages.tenant.finance.⚡cashbook.cashbook');
-    }
 };
