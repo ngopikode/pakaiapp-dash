@@ -65,6 +65,7 @@ Route::middleware([
             Route::livewire('dashboard', 'pages::tenant.dashboard')->name('dashboard');
             Route::livewire('ai-engine', 'pages::tenant.ai-engine-manager')->name('ai-engine');
             Route::livewire('wallet', 'pages::tenant.payment.wallet')->name('wallet');
+            Route::livewire('buku-kas', 'pages::tenant.finance.buku-kas')->name('buku-kas');
             Route::view('products', 'pages.tenant.product.product')->name('products');
             Route::livewire('raw-material', 'pages::tenant.resto.raw-material')->name('raw-material');
             Route::livewire('store-setting', 'pages::tenant.setting.store-setting')->name('store-setting');
