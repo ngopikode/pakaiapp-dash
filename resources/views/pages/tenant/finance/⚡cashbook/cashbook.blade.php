@@ -1,4 +1,7 @@
-<div class="space-y-8 pb-12 m-4 md:m-6">
+<div class="m-4 md:m-6">
+    <div class="space-y-8 pb-12">
+    
+    {{-- BARIS 1: TOP ACTION AREA ─────────────────────────────────────────── --}}
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
             <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Buku Kas Operasional</h1>
@@ -8,40 +11,48 @@
         </div>
         <button x-data @click="$dispatch('open-cashbook-modal')"
                 class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
-            <i class="ph-bold ph-plus text-lg"></i>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
             Catat Transaksi Kas
         </button>
     </div>
 
     <!-- Metrik Saldo -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         @foreach($this->wallets as $wallet)
-            <div class="rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/50 relative overflow-hidden group">
-                <!-- Decorative Icon Background -->
-                <div class="absolute -right-4 -top-4 opacity-5 transition-transform duration-500 group-hover:scale-110">
-                    <i class="ph-fill {{ $wallet->type === 'cash' ? 'ph-cash-register' : 'ph-bank' }} text-[120px]"></i>
-                </div>
+            <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+                <!-- Decorative Glow Background -->
+                <div class="absolute -right-20 -bottom-20 w-48 h-48 {{ $wallet->type === 'cash' ? 'bg-emerald-500/10' : 'bg-blue-500/10' }} rounded-full blur-3xl pointer-events-none transition-all group-hover:scale-150 duration-500"></div>
                 
-                <div class="relative z-10 flex items-center gap-4 mb-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl {{ $wallet->type === 'cash' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400' }}">
-                        <i class="ph-bold {{ $wallet->type === 'cash' ? 'ph-money' : 'ph-bank' }} text-xl"></i>
+                <div class="relative z-10 flex flex-col justify-between h-full min-h-[120px]">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl {{ $wallet->type === 'cash' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' }}">
+                                @if($wallet->type === 'cash')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                @else
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                @endif
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400">Saldo {{ $wallet->type === 'cash' ? 'Tunai (Laci)' : 'Rekening Bank' }}</h3>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Saldo {{ $wallet->type === 'cash' ? 'Tunai (Laci)' : 'Rekening Bank' }}</h3>
+                    
+                    <div class="mt-4">
+                        <span class="text-sm font-bold text-slate-400">Rp</span>
+                        <span class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{{ number_format($wallet->balance, 0, ',', '.') }}</span>
                     </div>
-                </div>
-                <div class="relative z-10">
-                    <span class="text-sm font-bold text-slate-400">Rp</span>
-                    <span class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">{{ number_format($wallet->balance, 0, ',', '.') }}</span>
                 </div>
             </div>
         @endforeach
     </div>
 
-    <!-- Riwayat Transaksi -->
-    <div class="rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0B1120] overflow-hidden">
+    {{-- BARIS 3: RIWAYAT TRANSAKSI ────────────────────────────────────────── --}}
+    <div class="mt-8 rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
         <div class="flex flex-col gap-4 border-b border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Riwayat Mutasi Kas</h2>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Riwayat Mutasi Kas
+            </h2>
             
             <div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto hide-scrollbar w-full md:w-auto">
                 <button wire:click="$set('filterWallet', 'all')"
@@ -79,7 +90,11 @@
                             </td>
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase {{ $history->wallet->type === 'cash' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
-                                    <i class="ph-fill {{ $history->wallet->type === 'cash' ? 'ph-money' : 'ph-bank' }}"></i>
+                                    @if($history->wallet->type === 'cash')
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    @endif
                                     {{ $history->wallet->type }}
                                 </span>
                             </td>
@@ -94,14 +109,14 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <span class="font-bold text-slate-600 dark:text-slate-400">Rp {{ number_format($history->balance_after, 0, ',', '.') }}</span>
+                                <span class="font-bold text-slate-600 dark:text-slate-400">Rp {{ number_format($history->closing_balance ?? $history->balance_after, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-16 text-center">
                                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                                    <i class="ph-bold ph-book-open-text text-2xl text-slate-400"></i>
+                                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                 </div>
                                 <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Belum ada riwayat transaksi kas</h3>
                                 <p class="text-sm text-slate-500">Gunakan tombol di atas untuk mencatat pemasukan atau pengeluaran manual.</p>
