@@ -1,6 +1,7 @@
 <div class="space-y-8 pb-12 m-4 md:m-6">
-
-    {{-- BARIS 1: TOP ACTION AREA ─────────────────────────────────────────── --}}
+    <div x-data="walletOverview({ balance: {{ (int) $wallet->balance }}, debit: {{ (int) $totalDebit }}, credit: {{ (int) $totalCredit }} })">
+    
+        {{-- BARIS 1: TOP ACTION AREA ─────────────────────────────────────────── --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h1 class="text-2xl font-black text-slate-900 dark:text-white">Dompet Toko</h1>
@@ -73,8 +74,7 @@
         @endplaceholder
 
         {{-- Actual content with count-up animation --}}
-        <div class="flex flex-col md:flex-row gap-6"
-             x-data="walletOverview({ balance: {{ (int) $wallet->balance }}, debit: {{ (int) $totalDebit }}, credit: {{ (int) $totalCredit }} })">
+        <div class="flex flex-col md:flex-row gap-6">
 
             {{-- Bagian Kiri: Virtual Premium Wallet Card --}}
             <div class="w-full md:w-3/5 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden border border-slate-800 group/vcard transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 hover:-translate-y-1">
@@ -393,15 +393,18 @@
             {{-- Visual Chart (Donut Chart) --}}
             <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center">
                 {{-- Donut SVG --}}
-                <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90 drop-shadow-sm">
-                    {{-- Base Track --}}
-                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" class="stroke-slate-100 dark:stroke-slate-800"></circle>
-                    
-                    {{-- Segment 1 (Debit / Keluar) --}}
-                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="debitOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out" style="stroke: var(--brand-red, #EF4444);"></circle>
-                    
-                    {{-- Segment 2 (Credit / Masuk) --}}
-                    <circle x-ref="creditCircle" cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out delay-300" style="stroke: var(--brand-accent, #10B981);"></circle>
+                <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
+                    {{-- Grop untuk Base rotation -90deg dari titik tengah (50,50) --}}
+                    <g transform="rotate(-90 50 50)">
+                        {{-- Base Track --}}
+                        <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" class="stroke-slate-100 dark:stroke-slate-800"></circle>
+                        
+                        {{-- Segment 1 (Debit / Keluar) - Dimulai dari atas (karena rotasi g -90) --}}
+                        <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="debitOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out" style="stroke: var(--brand-red, #EF4444);"></circle>
+                        
+                        {{-- Segment 2 (Credit / Masuk) - Dimulai setelah garis debit --}}
+                        <circle x-ref="creditCircle" cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out delay-300 transform-origin-center" style="stroke: var(--brand-accent, #10B981); transform-origin: 50% 50%;"></circle>
+                    </g>
                 </svg>
 
                 {{-- Center Text Summary --}}
@@ -445,7 +448,6 @@
         </div>
 
     </div>
-
 </div>
 
 @script
@@ -478,13 +480,16 @@
 
         _animateChart() {
             let total = this._debit + this._credit;
-            if (total === 0) total = 1; // avoid div by zero
+            if (total === 0) total = 1;
 
             let debitPct = this._debit / total;
             let creditPct = this._credit / total;
 
-            let debitTarget = this.circumference - (this.circumference * debitPct);
-            let creditTarget = this.circumference - (this.circumference * creditPct);
+            // Stroke dashoffset: 251.2 is completely hidden, 0 is full circle.
+            let debitTarget = 251.2 - (251.2 * debitPct);
+            let creditTarget = 251.2 - (251.2 * creditPct);
+
+            // Start credit circle exactly where debit circle ends
             let creditRotation = debitPct * 360;
 
             setTimeout(() => {
@@ -492,7 +497,6 @@
                 this.creditOffset = creditTarget;
                 if (this.$refs.creditCircle) {
                     this.$refs.creditCircle.style.transform = `rotate(${creditRotation}deg)`;
-                    this.$refs.creditCircle.style.transformOrigin = '50px 50px';
                 }
             }, 300);
         },
