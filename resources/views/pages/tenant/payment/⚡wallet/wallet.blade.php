@@ -335,7 +335,7 @@
                             @forelse($transactions as $tx)
                                 @php
                                     $txMonth = $tx->created_at->translatedFormat('F Y');
-                                    $parsed = self::parseTransaction($tx);
+                                    $parsed = $this->parseTransaction($tx);
                                     $title = $parsed['title'];
                                     $subtitle = $parsed['subtitle'];
                                     $iconSvg = $parsed['iconSvg'];
@@ -365,9 +365,14 @@
                                                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium break-words leading-snug md:truncate">
                                                     {{ $subtitle }}
                                                 </p>
-                                                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5 whitespace-nowrap">
-                                                    {{ $tx->created_at->translatedFormat('d F Y H:i') }}
-                                                </p>
+                                                <div class="flex items-center gap-1.5 mt-1">
+                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap {{ $tx->wallet->type === 'gateway' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20' : 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20' }}">
+                                                        {{ $tx->wallet->type }}
+                                                    </span>
+                                                    <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium whitespace-nowrap">
+                                                        {{ $tx->created_at->translatedFormat('d F Y H:i') }}
+                                                    </p>
+                                                </div>
                                             </div>
 
                                             <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
