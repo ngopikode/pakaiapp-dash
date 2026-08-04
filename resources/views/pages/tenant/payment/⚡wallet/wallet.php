@@ -3,22 +3,24 @@
 use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Dompet')]
-class extends Component {
+new #[Title('Dompet')] class extends Component {
     use WithPagination;
 
-    protected string $paginationTheme = 'tailwind';
-
+    // --- 1. Public Properties ---
     public string $filter = 'all';  // all | credit | debit
-
     public string $search = '';
-
     public string $sortOrder = 'desc'; // desc | asc
 
+    // --- 2. Protected Properties ---
+    protected string $paginationTheme = 'tailwind';
+    protected ?TenantWalletService $walletService = null;
+
+    // --- 3. Lifecycle Hooks ---
     public function updatedFilter(): void
     {
         $this->resetPage();
@@ -34,13 +36,22 @@ class extends Component {
         $this->resetPage();
     }
 
+    // --- 4. Action Methods ---
     public function toggleSort(): void
     {
         $this->sortOrder = $this->sortOrder === 'desc' ? 'asc' : 'desc';
         $this->resetPage();
     }
 
-    public static function parseTransaction(WalletTransaction $tx): array
+    public function clearFilters(): void
+    {
+        $this->filter = 'all';
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    // --- 5. Helper Methods ---
+    public function parseTransaction(WalletTransaction $tx): array
     {
         $desc = $tx->description ?? 'Transaksi';
         $title = $tx->type === 'DEBIT' ? 'Pembayaran' : 'Terima Dana';
@@ -90,44 +101,58 @@ class extends Component {
         ];
     }
 
-    protected ?TenantWalletService $walletService = null;
-
+    // --- 6. Services Getters ---
     protected function walletService(): TenantWalletService
     {
         return $this->walletService ??= app(TenantWalletService::class);
     }
 
-    public function with(): array
+    // --- 7. Computed Properties (Lazy Load Data) ---
+    #[Computed]
+    public function walletData(): array
     {
-        $billingWallet = $this->walletService()->getWallet();
-        $gatewayWallet = $this->walletService()->getWallet(type: Wallet::TYPE_GATEWAY);
+        $billingWallet = $this->walletService()->getWallet(Wallet::TYPE_BILLING);
+        $gatewayWallet = $this->walletService()->getWallet(Wallet::TYPE_GATEWAY);
 
-        $walletIds = [$billingWallet->id, $gatewayWallet->id];
-
-        // Membungkus saldo total agar file blade.php (yang asli tanpa modifikasi)
-        // tetap bisa membaca $wallet->balance secara normal tanpa throw error.
-        $mockWallet = new stdClass;
+        $mockWallet = new stdClass();
         $mockWallet->id = $billingWallet->id;
         $mockWallet->balance = $billingWallet->balance + $gatewayWallet->balance;
 
-        $transactions = WalletTransaction::with('wallet')
-            ->whereIn('wallet_id', $walletIds)
+        return [
+            'ids' => [$billingWallet->id, $gatewayWallet->id],
+            'mock' => $mockWallet
+        ];
+    }
+
+    #[Computed]
+    public function transactions()
+    {
+        return WalletTransaction::with('wallet')
+            ->whereIn('wallet_id', $this->walletData['ids'])
             ->when(in_array($this->filter, ['credit', 'debit']), fn($q) => $q->where('type', strtoupper($this->filter)))
             ->when($this->search, fn($q) => $q->where('description', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', $this->sortOrder)
             ->paginate(15);
+    }
 
-        $aggregates = WalletTransaction::query()
+    #[Computed]
+    public function aggregates()
+    {
+        return WalletTransaction::query()
             ->selectRaw("SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END) as total_credit")
             ->selectRaw("SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END) as total_debit")
-            ->whereIn('wallet_id', $walletIds)
+            ->whereIn('wallet_id', $this->walletData['ids'])
             ->first();
+    }
 
+    // --- 8. Render ---
+    public function with(): array
+    {
         return [
-            'wallet' => $mockWallet,
-            'transactions' => $transactions,
-            'totalCredit' => (float)($aggregates->total_credit ?? 0),
-            'totalDebit' => (float)($aggregates->total_debit ?? 0),
+            'wallet' => $this->walletData['mock'],
+            'transactions' => $this->transactions,
+            'totalCredit' => (float)($this->aggregates->total_credit ?? 0),
+            'totalDebit' => (float)($this->aggregates->total_debit ?? 0),
         ];
     }
 };

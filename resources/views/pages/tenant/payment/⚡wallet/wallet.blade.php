@@ -1,12 +1,12 @@
 <div class="space-y-8 pb-12 m-4 md:m-6">
-    
+
     {{-- BARIS 1: TOP ACTION AREA ─────────────────────────────────────────── --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h1 class="text-2xl font-black text-slate-900 dark:text-white">Dompet Toko</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola saldo dompet dan pantau seluruh transaksi Anda dengan mudah.</p>
         </div>
-        
+
         <div class="flex items-center gap-3 w-full md:w-auto">
             {{-- Tombol Sekunder: Tambah Saldo --}}
             <button class="flex-1 md:flex-none justify-center px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer">
@@ -162,83 +162,19 @@
     @endisland
 
     {{-- BARIS 3: SPLIT GRID 65:35 ──────────────────────────────────────── --}}
-    @island(name: 'tx-section', defer: true)
-        @placeholder
-            <div class="flex flex-col-reverse md:flex-row gap-6 items-start">
-                <div class="w-full md:w-[65%] dash-card p-0 flex flex-col overflow-hidden">
-                    <div class="p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-wrap items-center gap-3 animate-pulse">
-                        <div class="h-5 w-40 max-w-full bg-slate-200 dark:bg-slate-700 rounded mr-auto"></div>
-                        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 max-w-full">
-                            <div class="h-7 w-16 bg-white dark:bg-slate-700 rounded-lg"></div>
-                            <div class="h-7 w-14 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-                            <div class="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-                        </div>
-                        <div class="h-8 w-20 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                    </div>
-                    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 animate-pulse">
-                        <div class="h-10 w-full bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                    </div>
-                    <div class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
-                        @for($i = 0; $i < 7; $i++)
-                            <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80 last:border-b-0">
-                                <div class="p-0 flex items-start gap-3.5 w-full min-w-0 animate-pulse">
-                                    <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
-                                    <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
-                                        <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
-                                            <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                            <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded"></div>
-                                            <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded mt-0.5"></div>
-                                        </div>
-                                        <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
-                                            <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
-                                            <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded ml-auto"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endfor
-                    </div>
-                </div>
-                <div class="w-full md:w-[35%] dash-card p-6 flex flex-col bg-card relative overflow-hidden animate-pulse">
-                    <div class="flex items-center justify-between mb-8 relative z-10">
-                        <div class="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                        <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-                    </div>
-                    <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center">
-                        <div class="w-56 h-56 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                            <div class="h-2.5 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                            <div class="h-6 w-28 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-3 mt-auto relative z-10">
-                        @for($i = 0; $i < 3; $i++)
-                            <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-3.5 h-3.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                                    <div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                </div>
-                                <div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                            </div>
-                        @endfor
-                    </div>
-                </div>
-            </div>
-        @endplaceholder
-
-        <div class="flex flex-col-reverse md:flex-row gap-6 items-start">
+    <div class="flex flex-col-reverse md:flex-row gap-6 items-start">
         
         {{-- ================= KOLOM KIRI (65%) ================= --}}
         <div class="w-full md:w-[65%] dash-card p-0 flex flex-col overflow-hidden">
             
-            {{-- Header Riwayat Transaksi + Filter Buttons (luar island supaya trigger full re-render) --}}
+            {{-- Header Riwayat Transaksi + Filter Buttons --}}
             <div class="p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-wrap items-center gap-3">
                 <h3 class="text-lg font-bold text-foreground flex items-center gap-2 mr-auto">
                     <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     Riwayat Transaksi
                 </h3>
 
-                {{-- Filter: Semua / Masuk / Keluar (di luar island = trigger full re-render) --}}
+                {{-- Filter: Semua / Masuk / Keluar --}}
                 <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1">
                     <button wire:click="$set('filter', 'all')"
                         class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer
@@ -257,7 +193,7 @@
                     </button>
                 </div>
 
-                {{-- Tombol Urutkan (di luar island) --}}
+                {{-- Tombol Urutkan --}}
                 <button wire:click="toggleSort"
                     class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center gap-1.5
                            {{ $sortOrder === 'asc'
@@ -270,7 +206,7 @@
                 </button>
             </div>
 
-            {{-- Search Bar (di tx-section agar trigger re-render tx-list) --}}
+            {{-- Search Bar --}}
             <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -308,31 +244,8 @@
                 </div>
                 <table class="w-full text-left border-collapse md:whitespace-nowrap">
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
-                        
-                        @island(name: 'tx-list', always: true)
-                            @placeholder
-                                @for($i = 0; $i < 5; $i++)
-                                    <tr class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80">
-                                        <td class="p-0 flex items-start gap-3.5 w-full min-w-0">
-                                            <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
-                                            <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
-                                                <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
-                                                    <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
-                                                    <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
-                                                    <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded animate-pulse mt-0.5"></div>
-                                                </div>
-                                                <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
-                                                    <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
-                                                    <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endfor
-                            @endplaceholder
-
                             @php $currentMonth = null; @endphp
-                            @forelse($transactions as $tx)
+                            @forelse($this->transactions as $tx)
                                 @php
                                     $txMonth = $tx->created_at->translatedFormat('F Y');
                                     $parsed = $this->parseTransaction($tx);
@@ -366,7 +279,7 @@
                                                     {{ $subtitle }}
                                                 </p>
                                                 <div class="flex items-center gap-1.5 mt-1">
-                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap {{ $tx->wallet->type === 'gateway' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20' : 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20' }}">
+                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap {{ $tx->wallet->type === 'gateway' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20' }}">
                                                         {{ $tx->wallet->type }}
                                                     </span>
                                                     <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium whitespace-nowrap">
@@ -379,17 +292,13 @@
                                                 <p class="text-xs sm:text-sm font-bold font-mono whitespace-nowrap {{ $tx->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200' }}">
                                                     {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp{{ number_format($tx->amount, 0, ',', '.') }}
                                                 </p>
-                                                <div>
-                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap {{ $tx->wallet->type === 'gateway' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20' }}">
-                                                        {{ $tx->wallet->type }}
-                                                    </span>
-                                                </div>
                                             </div>
                                         </div>
                                     </td>
+                                </tr>
                             @empty
                                 {{-- Hanya tampil di page 1 tanpa data --}}
-                                @if($transactions->currentPage() === 1)
+                                @if($this->transactions->currentPage() === 1)
                                     <tr class="flex md:table-row w-full">
                                         <td colspan="6" class="w-full py-16 text-center block md:table-cell">
                                             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-slate-50 dark:bg-slate-800 text-muted-foreground">
@@ -403,26 +312,17 @@
                             @endforelse
 
                             {{-- Infinite Scroll Trigger --}}
-                            {{-- x-show="!fired" ensures the spinner from the old island chunk --}}
-                            {{-- disappears immediately once it fires (mode:append keeps old DOM). --}}
-                            @if($transactions->hasMorePages())
-                                <tr
-                                    x-data="{ fired: false }"
-                                    x-show="!fired"
-                                    class="flex md:table-row w-full"
-                                >
+                            @if($this->transactions->hasMorePages())
+                                <tr class="flex md:table-row w-full">
                                     <td colspan="6" class="w-full py-4 block md:table-cell">
-                                        <div
-                                            x-intersect.margin.200px="fired = true; $wire.$island('tx-list', { mode: 'append' }).nextPage()"
-                                            class="flex flex-col items-center justify-center gap-2 py-2"
-                                        >
+                                        <div x-intersect.margin.200px="$wire.nextPage()" class="flex flex-col items-center justify-center gap-2 py-2">
                                             <div class="animate-spin rounded-full h-5 w-5 border-b-2" style="border-color: var(--brand-accent);"></div>
                                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Memuat lebih banyak...</span>
                                         </div>
                                     </td>
                                 </tr>
                             @else
-                                @if($transactions->total() > 0)
+                                @if($this->transactions->total() > 0)
                                     <tr class="flex md:table-row w-full">
                                         <td colspan="6" class="w-full py-3 text-center block md:table-cell">
                                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-widest">— Semua transaksi telah dimuat —</span>
@@ -430,7 +330,6 @@
                                     </tr>
                                 @endif
                             @endif
-                        @endisland
 
                     </tbody>
                 </table>
@@ -441,7 +340,7 @@
         <div class="w-full md:w-[35%] dash-card p-6 flex flex-col bg-card relative overflow-hidden group/chart">
             {{-- Decorative glow --}}
             <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/chart:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-            
+
             {{-- Header Analytics --}}
             <div class="flex items-center justify-between mb-8 relative z-10">
                 <h3 class="text-lg font-bold text-foreground flex items-center gap-2">
@@ -459,10 +358,10 @@
                 <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90 drop-shadow-sm">
                     {{-- Base Track --}}
                     <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" class="stroke-slate-100 dark:stroke-slate-800"></circle>
-                    
+
                     {{-- Segment 1 (Sent) --}}
                     <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" stroke-dashoffset="80" stroke-linecap="round" class="transition-all duration-1000" style="stroke: var(--brand-red, #EF4444);"></circle>
-                    
+
                     {{-- Segment 2 (Received) --}}
                     <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round" class="transition-all duration-1000 delay-300" style="stroke: var(--brand-accent);"></circle>
                 </svg>
@@ -476,7 +375,7 @@
 
             {{-- Chart Legend List --}}
             <div class="flex flex-col gap-3 mt-auto relative z-10">
-                
+
                 {{-- Sent --}}
                 <div class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                     <div class="flex items-center gap-3">
