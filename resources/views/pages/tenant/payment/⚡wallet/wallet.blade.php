@@ -380,15 +380,9 @@
                                                     {{ $tx->type === 'CREDIT' ? '+' : '-' }}Rp{{ number_format($tx->amount, 0, ',', '.') }}
                                                 </p>
                                                 <div>
-                                                    @if($tx->type === 'DEBIT')
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-                                                            Keluar
-                                                        </span>
-                                                    @else
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
-                                                            Masuk
-                                                        </span>
-                                                    @endif
+                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap {{ $tx->wallet->type === 'gateway' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20' }}">
+                                                        {{ $tx->wallet->type }}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
