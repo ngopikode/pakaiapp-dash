@@ -6,6 +6,7 @@ use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
@@ -50,7 +51,7 @@ new #[Title('Buku Kas Operasional')] class extends Component
                 transaction_type: $this->type === 'in' ? 'income' : 'expense',
                 amount: (float)$this->amount,
                 description: $this->description,
-                transaction_date: now()
+                transaction_date: Carbon::now()
             );
 
             if ($dto->transaction_type === 'income') {
@@ -82,6 +83,16 @@ new #[Title('Buku Kas Operasional')] class extends Component
 
         } catch (\Throwable $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Cashbook Entry Failed: ' . $e->getMessage(), [
+                'tenant_id' => tenant('id'),
+                'user_id' => auth()->id(),
+                'payload' => [
+                    'type' => $this->type,
+                    'walletType' => $this->walletType,
+                    'amount' => $this->amount,
+                ],
+                'trace' => $e->getTraceAsString(),
+            ]);
             $this->toast($e->getMessage(), 'danger');
         }
     }
@@ -118,7 +129,7 @@ new #[Title('Buku Kas Operasional')] class extends Component
         $iconBg = 'bg-[#f15a24]';
 
         $iconSvg = '<svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>';
-        
+
         if ($tx->type === 'DEBIT') {
             $iconSvg = '<svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>';
         } else {
