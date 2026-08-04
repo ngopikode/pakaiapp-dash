@@ -99,25 +99,32 @@ class extends Component
 
     public function with(): array
     {
-        $wallet = $this->walletService()->getWallet();
-        $walletId = $wallet->id;
+        $billingWallet = $this->walletService()->getWallet(Wallet::TYPE_BILLING);
+        $gatewayWallet = $this->walletService()->getWallet(Wallet::TYPE_GATEWAY);
+
+        $walletIds = [$billingWallet->id, $gatewayWallet->id];
+
+        // Membungkus saldo total agar file blade.php (yang asli tanpa modifikasi)
+        // tetap bisa membaca $wallet->balance secara normal tanpa throw error.
+        $mockWallet = new stdClass;
+        $mockWallet->id = $billingWallet->id;
+        $mockWallet->balance = $billingWallet->balance + $gatewayWallet->balance;
 
         $transactions = WalletTransaction::query()
-            ->where('wallet_id', $walletId)
+            ->whereIn('wallet_id', $walletIds)
             ->when(in_array($this->filter, ['credit', 'debit']), fn ($q) => $q->where('type', strtoupper($this->filter)))
             ->when($this->search, fn ($q) => $q->where('description', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', $this->sortOrder)
             ->paginate(15);
 
-        // Compute aggregates in a separate fast key-based query rather than subqueries on every row.
         $aggregates = WalletTransaction::query()
             ->selectRaw("SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END) as total_credit")
             ->selectRaw("SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END) as total_debit")
-            ->where('wallet_id', $walletId)
+            ->whereIn('wallet_id', $walletIds)
             ->first();
 
         return [
-            'wallet' => $wallet,
+            'wallet' => $mockWallet,
             'transactions' => $transactions,
             'totalCredit' => (float)($aggregates->total_credit ?? 0),
             'totalDebit' => (float)($aggregates->total_debit ?? 0),
