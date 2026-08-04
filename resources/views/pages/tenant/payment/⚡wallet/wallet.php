@@ -41,7 +41,7 @@ class extends Component
         $this->resetPage();
     }
 
-    public static function parseTransaction(WalletTransaction $tx): array
+    public function parseTransaction(WalletTransaction $tx): array
     {
         $desc = $tx->description ?? 'Transaksi';
         $title = $tx->type === 'DEBIT' ? 'Pembayaran' : 'Terima Dana';

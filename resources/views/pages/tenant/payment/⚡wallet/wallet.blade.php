@@ -173,7 +173,7 @@
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         @forelse($transactions as $tx)
                             @php 
-                                $meta = App\Livewire\Pages\Tenant\Payment\Wallet::parseTransaction($tx); 
+                                $meta = $this->parseTransaction($tx); 
                                 // Override bg based on wallet type for visual distinction
                                 $walletBadgeColor = match($tx->wallet->type) {
                                     'billing' => 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
