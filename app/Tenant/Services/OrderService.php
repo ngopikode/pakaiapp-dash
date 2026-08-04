@@ -116,6 +116,13 @@ class OrderService
             DB::beginTransaction();
 
             $storeSetting = StoreSetting::cached();
+            
+            // Check Billing Wallet Balance
+            $billingWallet = Wallet::firstOrCreate(['type' => Wallet::TYPE_BILLING], ['balance' => 0]);
+            if ($billingWallet->balance <= 0) {
+                throw new Exception('Saldo Deposit Billing telah habis. Transaksi tidak dapat dilanjutkan. Silakan isi ulang saldo (Top Up).');
+            }
+
             $isTaxActive = $data->isTaxActive ?? ($storeSetting && $storeSetting->is_tax_active);
             $taxRate = $isTaxActive ? (float)$storeSetting->tax_rate : 0.00;
             $isServiceActive = $data->isServiceActive ?? ($storeSetting && $storeSetting->is_service_charge_active);

@@ -1,4 +1,10 @@
-@php use App\Tenant\Models\Core\StoreSetting; @endphp
+@php
+    use App\Tenant\Models\Core\StoreSetting;
+    use App\Tenant\Models\Core\Wallet;
+
+    $billingWallet = Wallet::firstOrCreate(['type' => Wallet::TYPE_BILLING], ['balance' => 0]);
+    $isBillingEmpty = $billingWallet->balance <= 0 && !request()->routeIs('wallet', 'login', 'logout', 'profile');
+@endphp
 
     <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -65,13 +71,13 @@ $isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
 
 $allRoles = [
     ['manager'], ['manager'], ['manager'], ['manager', 'cashier'], ['manager', 'cashier'],
-    ['manager'], ['manager'], ['manager'], ['manager', 'cashier']
+    ['manager'], ['manager'], ['manager'], ['manager', 'cashier'],
 ];
 if ($storeType === 'resto' && $isKitchenActive) {
     $allRoles[] = ['manager', 'kitchen'];
 }
 
-$accessibleMenus = collect($allRoles)->filter(fn($roles) => in_array($userMenuRole, $roles))->count();
+$accessibleMenus = collect($allRoles)->filter(fn ($roles) => in_array($userMenuRole, $roles))->count();
 $showSidebar = $accessibleMenus > 1;
 ?>
 
@@ -138,6 +144,8 @@ $showSidebar = $accessibleMenus > 1;
 
 
 </div>
+
+@include('layouts._partials._billing-lock-modal', ['isBillingEmpty' => $isBillingEmpty])
 
 @livewireScripts
 
