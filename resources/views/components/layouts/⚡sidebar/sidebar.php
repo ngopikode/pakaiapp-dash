@@ -62,6 +62,13 @@ new class extends Component
                 ],
             ],
             [
+                'title' => 'Keuangan',
+                'items' => [
+                    ['route' => 'cashbook', 'icon' => 'ph-fill ph-book-open-text', 'label' => 'Buku Kas', 'roles' => ['manager', 'cashier']],
+                    ['route' => 'wallet', 'icon' => 'ph-fill ph-wallet', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
+                ],
+            ],
+            [
                 'title' => 'Sistem & Pengaturan',
                 'items' => [
                     ['route' => 'store-setting', 'icon' => 'ph-fill ph-storefront', 'label' => 'Pengaturan Toko', 'roles' => ['manager']],
