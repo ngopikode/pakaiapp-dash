@@ -1,6 +1,5 @@
 <?php
 
-use App\Tenant\Models\Core\Wallet;
 use App\Tenant\Models\Core\WalletTransaction;
 use App\Tenant\Services\TenantWalletService;
 use Livewire\Attributes\Title;
@@ -14,7 +13,7 @@ class extends Component
 
     protected $paginationTheme = 'tailwind';
 
-    public string $filter = 'all';  // all | billing | cash | bank | gateway
+    public string $filter = 'all';  // all | credit | debit
 
     public string $search = '';
 
@@ -41,7 +40,7 @@ class extends Component
         $this->resetPage();
     }
 
-    public function parseTransaction(WalletTransaction $tx): array
+    public static function parseTransaction(WalletTransaction $tx): array
     {
         $desc = $tx->description ?? 'Transaksi';
         $title = $tx->type === 'DEBIT' ? 'Pembayaran' : 'Terima Dana';
@@ -67,12 +66,6 @@ class extends Component
         } elseif (str_contains($desc, 'Top up')) {
             $title = 'Top Up Saldo';
             $subtitle = 'Isi Saldo';
-        } elseif (str_contains($desc, 'Modal awal')) {
-            $title = 'Modal Laci Kasir';
-            $subtitle = 'Buka Shift';
-        } elseif (str_contains($desc, 'Setoran tutup shift')) {
-            $title = 'Setoran Penjualan Kasir';
-            $subtitle = 'Tutup Shift';
         }
 
         // Consistent brand orange-red color from screenshot
@@ -106,29 +99,28 @@ class extends Component
 
     public function with(): array
     {
-        $wallets = Wallet::all()->keyBy('type');
+        $wallet = $this->walletService()->getWallet();
+        $walletId = $wallet->id;
 
-        // Pastikan 4 jenis wallet ada
-        $billingWallet = $wallets->get(Wallet::TYPE_BILLING) ?? Wallet::firstOrCreate(['type' => Wallet::TYPE_BILLING], ['balance' => 0]);
-        $cashWallet = $wallets->get(Wallet::TYPE_CASH) ?? Wallet::firstOrCreate(['type' => Wallet::TYPE_CASH], ['balance' => 0]);
-        $bankWallet = $wallets->get('bank') ?? Wallet::firstOrCreate(['type' => 'bank'], ['balance' => 0]);
-        $gatewayWallet = $wallets->get('gateway') ?? Wallet::firstOrCreate(['type' => 'gateway'], ['balance' => 0]);
-
-        $query = WalletTransaction::with('wallet')
-            ->when(in_array($this->filter, [Wallet::TYPE_BILLING, Wallet::TYPE_CASH, 'bank', 'gateway']), function ($q) {
-                $q->whereHas('wallet', fn ($w) => $w->where('type', $this->filter));
-            })
+        $transactions = WalletTransaction::query()
+            ->where('wallet_id', $walletId)
+            ->when(in_array($this->filter, ['credit', 'debit']), fn ($q) => $q->where('type', strtoupper($this->filter)))
             ->when($this->search, fn ($q) => $q->where('description', 'like', '%' . $this->search . '%'))
-            ->orderBy('created_at', $this->sortOrder);
+            ->orderBy('created_at', $this->sortOrder)
+            ->paginate(15);
 
-        $transactions = $query->paginate(15);
+        // Compute aggregates in a separate fast key-based query rather than subqueries on every row.
+        $aggregates = WalletTransaction::query()
+            ->selectRaw("SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END) as total_credit")
+            ->selectRaw("SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END) as total_debit")
+            ->where('wallet_id', $walletId)
+            ->first();
 
         return [
-            'billingWallet' => $billingWallet,
-            'cashWallet' => $cashWallet,
-            'bankWallet' => $bankWallet,
-            'gatewayWallet' => $gatewayWallet,
+            'wallet' => $wallet,
             'transactions' => $transactions,
+            'totalCredit' => (float)($aggregates->total_credit ?? 0),
+            'totalDebit' => (float)($aggregates->total_debit ?? 0),
         ];
     }
 };
