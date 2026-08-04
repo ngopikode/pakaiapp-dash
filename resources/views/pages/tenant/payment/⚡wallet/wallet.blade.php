@@ -391,54 +391,82 @@
             </div>
 
             {{-- Visual Chart (Donut Chart) --}}
-            <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center">
+            <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center"
+                 x-data="{
+                    circumference: 251.2,
+                    debitOffset: 251.2,
+                    creditOffset: 251.2,
+                    init() {
+                        let total = this._debit + this._credit;
+                        if (total === 0) total = 1; // avoid div by zero
+
+                        let debitPct = this._debit / total;
+                        let creditPct = this._credit / total;
+
+                        // To calculate stroke-dashoffset:
+                        // Offset 0 means full circle. Offset 251.2 means empty.
+                        // Debit starts from top (0 deg).
+                        let debitTarget = this.circumference - (this.circumference * debitPct);
+                        
+                        // Credit continues after debit
+                        let creditTarget = this.circumference - (this.circumference * creditPct);
+                        let creditRotation = debitPct * 360;
+
+                        setTimeout(() => {
+                            this.debitOffset = debitTarget;
+                            this.creditOffset = creditTarget;
+                            this.$refs.creditCircle.style.transform = `rotate(${creditRotation}deg)`;
+                            this.$refs.creditCircle.style.transformOrigin = '50px 50px';
+                        }, 300);
+                    }
+                 }">
                 {{-- Donut SVG --}}
                 <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90 drop-shadow-sm">
                     {{-- Base Track --}}
                     <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" class="stroke-slate-100 dark:stroke-slate-800"></circle>
-
-                    {{-- Segment 1 (Sent) --}}
-                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" stroke-dashoffset="80" stroke-linecap="round" class="transition-all duration-1000" style="stroke: var(--brand-red, #EF4444);"></circle>
-
-                    {{-- Segment 2 (Received) --}}
-                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round" class="transition-all duration-1000 delay-300" style="stroke: var(--brand-accent);"></circle>
+                    
+                    {{-- Segment 1 (Debit / Keluar) --}}
+                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="debitOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out" style="stroke: var(--brand-red, #EF4444);"></circle>
+                    
+                    {{-- Segment 2 (Credit / Masuk) --}}
+                    <circle x-ref="creditCircle" cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out delay-300" style="stroke: var(--brand-accent, #10B981);"></circle>
                 </svg>
 
                 {{-- Center Text Summary --}}
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Pekan Ini</span>
-                    <span class="text-xl font-black text-foreground font-mono">Rp {{ number_format($totalDebit, 0, ',', '.') }}</span>
+                    <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Pengeluaran</span>
+                    <span class="text-xl font-black text-foreground font-mono">Rp <span x-text="displayDebit"></span></span>
                 </div>
             </div>
 
             {{-- Chart Legend List --}}
             <div class="flex flex-col gap-3 mt-auto relative z-10">
-
-                {{-- Sent --}}
+                
+                {{-- Keluar --}}
                 <div class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                     <div class="flex items-center gap-3">
                         <span class="w-3.5 h-3.5 rounded-full shadow-sm group-hover:scale-125 transition-transform duration-300" style="background-color: var(--brand-red, #EF4444);"></span>
-                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-foreground transition-colors">Terkirim</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-foreground transition-colors">Pengeluaran</span>
                     </div>
-                    <span class="text-sm font-bold font-mono text-foreground">Rp {{ number_format($totalDebit, 0, ',', '.') }}</span>
+                    <span class="text-sm font-bold font-mono text-foreground">Rp <span x-text="displayDebit"></span></span>
                 </div>
 
-                {{-- Pending --}}
+                {{-- Tertunda (Gateway Placeholder) --}}
                 <div class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                     <div class="flex items-center gap-3">
                         <span class="w-3.5 h-3.5 rounded-full shadow-sm bg-amber-400 dark:bg-amber-500 group-hover:scale-125 transition-transform duration-300"></span>
-                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-foreground transition-colors">Tertunda</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-foreground transition-colors">Pending</span>
                     </div>
                     <span class="text-sm font-bold font-mono text-muted-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Rp 0</span>
                 </div>
 
-                {{-- Received --}}
+                {{-- Masuk --}}
                 <div class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                     <div class="flex items-center gap-3">
-                        <span class="w-3.5 h-3.5 rounded-full shadow-sm group-hover:scale-125 transition-transform duration-300" style="background-color: var(--brand-accent);"></span>
-                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-foreground transition-colors">Diterima</span>
+                        <span class="w-3.5 h-3.5 rounded-full shadow-sm group-hover:scale-125 transition-transform duration-300" style="background-color: var(--brand-accent, #10B981);"></span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-foreground transition-colors">Pemasukan</span>
                     </div>
-                    <span class="text-sm font-bold font-mono text-foreground">Rp {{ number_format($totalCredit, 0, ',', '.') }}</span>
+                    <span class="text-sm font-bold font-mono text-foreground">Rp <span x-text="displayCredit"></span></span>
                 </div>
 
             </div>
