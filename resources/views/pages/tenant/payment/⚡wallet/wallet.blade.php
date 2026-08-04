@@ -244,6 +244,29 @@
                 </div>
                 <table class="w-full text-left border-collapse md:whitespace-nowrap">
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
+                        
+                        @island(name: 'tx-list', always: true)
+                            @placeholder
+                                @for($i = 0; $i < 5; $i++)
+                                    <tr class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80">
+                                        <td class="p-0 flex items-start gap-3.5 w-full min-w-0">
+                                            <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
+                                            <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                                <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                                    <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                                                    <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
+                                                    <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded animate-pulse mt-0.5"></div>
+                                                </div>
+                                                <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                                    <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
+                                                    <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endfor
+                            @endplaceholder
+
                             @php $currentMonth = null; @endphp
                             @forelse($this->transactions as $tx)
                                 @php
@@ -313,9 +336,11 @@
 
                             {{-- Infinite Scroll Trigger --}}
                             @if($this->transactions->hasMorePages())
-                                <tr class="flex md:table-row w-full">
+                                <tr class="flex md:table-row w-full"
+                                    x-data="{ fired: false }"
+                                    x-show="!fired">
                                     <td colspan="6" class="w-full py-4 block md:table-cell">
-                                        <div x-intersect.margin.200px="$wire.nextPage()" class="flex flex-col items-center justify-center gap-2 py-2">
+                                        <div x-intersect.margin.200px="fired = true; $wire.$island('tx-list', { mode: 'append' }).nextPage()" class="flex flex-col items-center justify-center gap-2 py-2">
                                             <div class="animate-spin rounded-full h-5 w-5 border-b-2" style="border-color: var(--brand-accent);"></div>
                                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Memuat lebih banyak...</span>
                                         </div>
@@ -330,6 +355,8 @@
                                     </tr>
                                 @endif
                             @endif
+
+                        @endisland
 
                     </tbody>
                 </table>
