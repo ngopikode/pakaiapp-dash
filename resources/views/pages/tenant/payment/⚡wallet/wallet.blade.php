@@ -391,35 +391,7 @@
             </div>
 
             {{-- Visual Chart (Donut Chart) --}}
-            <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center"
-                 x-data="{
-                    circumference: 251.2,
-                    debitOffset: 251.2,
-                    creditOffset: 251.2,
-                    init() {
-                        let total = this._debit + this._credit;
-                        if (total === 0) total = 1; // avoid div by zero
-
-                        let debitPct = this._debit / total;
-                        let creditPct = this._credit / total;
-
-                        // To calculate stroke-dashoffset:
-                        // Offset 0 means full circle. Offset 251.2 means empty.
-                        // Debit starts from top (0 deg).
-                        let debitTarget = this.circumference - (this.circumference * debitPct);
-                        
-                        // Credit continues after debit
-                        let creditTarget = this.circumference - (this.circumference * creditPct);
-                        let creditRotation = debitPct * 360;
-
-                        setTimeout(() => {
-                            this.debitOffset = debitTarget;
-                            this.creditOffset = creditTarget;
-                            this.$refs.creditCircle.style.transform = `rotate(${creditRotation}deg)`;
-                            this.$refs.creditCircle.style.transformOrigin = '50px 50px';
-                        }, 300);
-                    }
-                 }">
+            <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center">
                 {{-- Donut SVG --}}
                 <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90 drop-shadow-sm">
                     {{-- Base Track --}}
@@ -488,6 +460,11 @@
         displayBalance: '0',
         displayDebit:   '0',
         displayCredit:  '0',
+        
+        // Chart values
+        circumference: 251.2,
+        debitOffset: 251.2,
+        creditOffset: 251.2,
 
         init() {
             // Small delay so the island transition is visible before counting starts
@@ -495,7 +472,29 @@
                 this._animateCount('displayBalance', this._balance)
                 this._animateCount('displayDebit',   this._debit,   100)
                 this._animateCount('displayCredit',  this._credit,  200)
+                this._animateChart();
             }, 80)
+        },
+
+        _animateChart() {
+            let total = this._debit + this._credit;
+            if (total === 0) total = 1; // avoid div by zero
+
+            let debitPct = this._debit / total;
+            let creditPct = this._credit / total;
+
+            let debitTarget = this.circumference - (this.circumference * debitPct);
+            let creditTarget = this.circumference - (this.circumference * creditPct);
+            let creditRotation = debitPct * 360;
+
+            setTimeout(() => {
+                this.debitOffset = debitTarget;
+                this.creditOffset = creditTarget;
+                if (this.$refs.creditCircle) {
+                    this.$refs.creditCircle.style.transform = `rotate(${creditRotation}deg)`;
+                    this.$refs.creditCircle.style.transformOrigin = '50px 50px';
+                }
+            }, 300);
         },
 
         /**
