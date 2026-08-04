@@ -108,6 +108,31 @@ new #[Title('Buku Kas Operasional')] class extends Component
         return $query->paginate(15);
     }
 
+    public function parseTransaction(WalletTransaction $tx): array
+    {
+        $desc = $tx->description ?? 'Transaksi';
+        $title = $tx->type === 'DEBIT' ? 'Pengeluaran' : 'Pemasukan';
+        $subtitle = $desc;
+
+        // Consistent brand orange-red color from screenshot
+        $iconBg = 'bg-[#f15a24]';
+
+        $iconSvg = '<svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>';
+        
+        if ($tx->type === 'DEBIT') {
+            $iconSvg = '<svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>';
+        } else {
+            $iconSvg = '<svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>';
+        }
+
+        return [
+            'title' => $title,
+            'subtitle' => $subtitle,
+            'iconSvg' => $iconSvg,
+            'iconBg' => $iconBg,
+        ];
+    }
+
     public function render()
     {
         return view('pages.tenant.finance.⚡cashbook.cashbook');

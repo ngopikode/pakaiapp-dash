@@ -50,8 +50,8 @@
     <div class="mt-8 rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
         <div class="flex flex-col gap-4 border-b border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Riwayat Mutasi Kas
+                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Riwayat Transaksi
             </h2>
             
             <div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto hide-scrollbar w-full md:w-auto">
@@ -70,68 +70,157 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead>
-                    <tr class="border-b border-slate-200 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
-                        <th class="px-6 py-4 font-bold">Waktu</th>
-                        <th class="px-6 py-4 font-bold">Tipe Kas</th>
-                        <th class="px-6 py-4 font-bold w-full">Deskripsi</th>
-                        <th class="px-6 py-4 font-bold text-right">Nominal</th>
-                        <th class="px-6 py-4 font-bold text-right">Sisa Saldo</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    @forelse($this->histories as $history)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-slate-900 dark:text-white">{{ $history->created_at->format('d M Y') }}</div>
-                                <div class="text-xs text-slate-500">{{ $history->created_at->format('H:i') }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase {{ $history->wallet->type === 'cash' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
-                                    @if($history->wallet->type === 'cash')
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    @else
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    @endif
-                                    {{ $history->wallet->type }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="max-w-[200px] md:max-w-md truncate text-slate-700 dark:text-slate-300 font-medium" title="{{ $history->description }}">
-                                    {{ $history->description }}
+        <div class="overflow-x-hidden md:overflow-x-auto overflow-y-auto max-h-[600px] w-full relative">
+            <div wire:loading wire:target="filterWallet"
+                 class="absolute inset-0 z-20 bg-white dark:bg-slate-900 flex flex-col p-0 divide-y divide-slate-100 dark:divide-slate-800/80">
+                @for($i = 0; $i < 6; $i++)
+                    <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80 last:border-b-0">
+                        <div class="p-0 flex items-start gap-3.5 w-full min-w-0 animate-pulse">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
+                            <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                    <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                    <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded"></div>
+                                    <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded mt-0.5"></div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <span class="font-black text-base {{ $history->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
-                                    {{ $history->type === 'CREDIT' ? '+' : '-' }}Rp {{ number_format($history->amount, 0, ',', '.') }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <span class="font-bold text-slate-600 dark:text-slate-400">Rp {{ number_format($history->closing_balance ?? $history->balance_after, 0, ',', '.') }}</span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-16 text-center">
-                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                    <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
+                                    <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded ml-auto"></div>
                                 </div>
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Belum ada riwayat transaksi kas</h3>
-                                <p class="text-sm text-slate-500">Gunakan tombol di atas untuk mencatat pemasukan atau pengeluaran manual.</p>
-                            </td>
-                        </tr>
-                    @endforelse
+                            </div>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+
+            <table class="w-full text-left border-collapse md:whitespace-nowrap">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900">
+                    @island(name: 'cashbook-tx-list', always: true)
+                        @placeholder
+                            @for($i = 0; $i < 5; $i++)
+                                <tr class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800/80">
+                                    <td class="p-0 flex items-start gap-3.5 w-full min-w-0">
+                                        <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"></div>
+                                        <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                            <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                                <div class="h-4 w-32 max-w-full bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
+                                                <div class="h-3.5 w-24 max-w-full bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
+                                                <div class="h-3 w-28 max-w-full bg-slate-100 dark:bg-slate-800/30 rounded animate-pulse mt-0.5"></div>
+                                            </div>
+                                            <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                                <div class="h-4 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
+                                                <div class="h-4 w-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse ml-auto"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endfor
+                        @endplaceholder
+
+                        @php $currentMonth = null; @endphp
+                        @forelse($this->histories as $history)
+                            @php
+                                $txMonth = $history->created_at->translatedFormat('F Y');
+                                $parsed = $this->parseTransaction($history);
+                                $title = $parsed['title'];
+                                $subtitle = $parsed['subtitle'];
+                                $iconSvg = $parsed['iconSvg'];
+                                $iconBg = $parsed['iconBg'];
+                            @endphp
+
+                            @if($txMonth !== $currentMonth)
+                                @php $currentMonth = $txMonth; @endphp
+                                <tr class="bg-slate-50 dark:bg-slate-800/20 flex w-full">
+                                    <td class="px-4 py-2.5 text-sm font-extrabold text-slate-700 dark:text-slate-300 block w-full">
+                                        {{ $txMonth }}
+                                    </td>
+                                </tr>
+                            @endif
+
+                            <tr wire:key="history-{{ $history->id }}" class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group border-b border-slate-100 dark:border-slate-800/80">
+                                <td class="p-0 flex items-start gap-3.5 w-full min-w-0">
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 bg-[#f15a24] shadow-sm">
+                                        {!! $iconSvg !!}
+                                    </div>
+
+                                    <div class="flex-grow flex justify-between items-start min-w-0 gap-3">
+                                        <div class="min-w-0 pr-2 flex flex-col gap-0.5 flex-1">
+                                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 break-words leading-snug md:truncate">
+                                                {{ $title }}
+                                            </p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium break-words leading-snug md:truncate" title="{{ $subtitle }}">
+                                                {{ $subtitle }}
+                                            </p>
+                                            <div class="flex items-center gap-1.5 mt-1">
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap {{ $history->wallet->type === 'bank' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' }}">
+                                                    {{ $history->wallet->type }}
+                                                </span>
+                                                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium whitespace-nowrap">
+                                                    {{ $history->created_at->translatedFormat('d F Y H:i') }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="shrink-0 ml-auto text-right flex flex-col items-end gap-1 min-w-fit">
+                                            <p class="text-xs sm:text-sm font-bold font-mono whitespace-nowrap {{ $history->type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200' }}">
+                                                {{ $history->type === 'CREDIT' ? '+' : '-' }}Rp{{ number_format($history->amount, 0, ',', '.') }}
+                                            </p>
+                                            <div>
+                                                @if($history->type === 'DEBIT')
+                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                                                        Keluar
+                                                    </span>
+                                                @else
+                                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase whitespace-nowrap bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20">
+                                                        Masuk
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            {{-- Hanya tampil di page 1 tanpa data --}}
+                            @if($this->histories->currentPage() === 1)
+                                <tr class="flex md:table-row w-full">
+                                    <td colspan="6" class="w-full py-16 text-center block md:table-cell">
+                                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-slate-50 dark:bg-slate-800 text-slate-400">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </div>
+                                        <h4 class="text-base font-bold text-slate-900 dark:text-white">Belum Ada Transaksi</h4>
+                                        <p class="text-sm text-slate-500 mt-1">Belum ada transaksi kas untuk kriteria ini.</p>
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforelse
+
+                        {{-- Infinite Scroll Trigger --}}
+                        @if($this->histories->hasMorePages())
+                            <tr class="flex md:table-row w-full"
+                                x-data="{ fired: false }"
+                                x-show="!fired">
+                                <td colspan="6" class="w-full py-4 block md:table-cell">
+                                    <div x-intersect.margin.200px="fired = true; $wire.$island('cashbook-tx-list', { mode: 'append' }).nextPage()" class="flex flex-col items-center justify-center gap-2 py-2">
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2" style="border-color: var(--brand-accent, #10B981);"></div>
+                                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Memuat lebih banyak...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @else
+                            @if($this->histories->total() > 0)
+                                <tr class="flex md:table-row w-full">
+                                    <td colspan="6" class="w-full py-3 text-center block md:table-cell">
+                                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">— Semua transaksi telah dimuat —</span>
+                                    </td>
+                                </tr>
+                            @endif
+                        @endif
+
+                    @endisland
                 </tbody>
             </table>
         </div>
-        
-        @if($this->histories->hasPages())
-            <div class="border-t border-slate-200 px-6 py-4 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                {{ $this->histories->links(data: ['scrollTo' => false]) }}
-            </div>
-        @endif
     </div>
 
     <!-- Modal Form Cashbook -->
