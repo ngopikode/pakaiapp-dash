@@ -391,7 +391,7 @@
             </div>
 
             {{-- Visual Chart (Donut Chart) --}}
-            <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center">
+            <div class="relative w-56 h-56 mx-auto mb-10 flex items-center justify-center" wire:ignore>
                 {{-- Donut SVG --}}
                 <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
                     {{-- Grop untuk Base rotation -90deg dari titik tengah (50,50) --}}
@@ -403,7 +403,7 @@
                     <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="debitOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out" style="stroke: var(--brand-red, #EF4444);"></circle>
                     
                     {{-- Segment 2 (Credit / Masuk) - Dimulai setelah garis debit --}}
-                    <circle x-ref="creditCircle" cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out delay-300" style="stroke: var(--brand-accent, #10B981); transform-origin: 50% 50%;"></circle>
+                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out delay-300" :style="`stroke: var(--brand-accent, #10B981); transform-origin: 50% 50%; transform: rotate(${creditRotation}deg);`"></circle>
                     </g>
                 </svg>
 
@@ -415,7 +415,7 @@
             </div>
 
             {{-- Chart Legend List --}}
-            <div class="flex flex-col gap-3 mt-auto relative z-10">
+            <div class="flex flex-col gap-3 mt-auto relative z-10" wire:ignore>
                 
                 {{-- Keluar --}}
                 <div class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
@@ -467,6 +467,7 @@
         circumference: 251.2,
         debitOffset: 251.2,
         creditOffset: 251.2,
+        creditRotation: 0,
 
         init() {
             // Small delay so the island transition is visible before counting starts
@@ -490,14 +491,12 @@
             let creditTarget = 251.2 - (251.2 * creditPct);
 
             // Start credit circle exactly where debit circle ends
-            let creditRotation = debitPct * 360;
+            let creditRot = debitPct * 360;
 
             setTimeout(() => {
                 this.debitOffset = debitTarget;
                 this.creditOffset = creditTarget;
-                if (this.$refs.creditCircle) {
-                    this.$refs.creditCircle.style.transform = `rotate(${creditRotation}deg)`;
-                }
+                this.creditRotation = creditRot;
             }, 150); // Give browser time to render initial 251.2 state before triggering transition
         },
 
