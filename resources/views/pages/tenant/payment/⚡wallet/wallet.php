@@ -32,6 +32,9 @@ new #[Title('Dompet')] class extends Component
     // --- 3. Lifecycle Hooks ---
     public function mount(): void
     {
+        // Force pagination to start at page 1 on full refresh to prevent infinite scroll stuck
+        $this->resetPage();
+
         // Hit DB only once on initial page load
         $billingWallet = $this->walletService()->getWallet(Wallet::TYPE_BILLING);
         $gatewayWallet = $this->walletService()->getWallet(Wallet::TYPE_GATEWAY);
