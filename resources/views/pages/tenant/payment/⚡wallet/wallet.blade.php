@@ -400,10 +400,10 @@
                         <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" class="stroke-slate-100 dark:stroke-slate-800"></circle>
                         
                     {{-- Segment 1 (Debit / Keluar) - Dimulai dari atas (karena rotasi g -90) --}}
-                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="debitOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out" style="stroke: var(--brand-red, #EF4444);"></circle>
+                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="debitOffset" stroke-linecap="round" class="transition-[stroke-dashoffset] duration-1000 ease-out" style="stroke: var(--brand-red, #EF4444);"></circle>
                     
                     {{-- Segment 2 (Credit / Masuk) - Dimulai setelah garis debit --}}
-                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-all duration-1000 ease-out delay-300" :style="`stroke: var(--brand-accent, #10B981); transform-origin: 50% 50%; transform: rotate(${creditRotation}deg);`"></circle>
+                    <circle cx="50" cy="50" r="40" stroke-width="14" fill="none" stroke-dasharray="251.2" :stroke-dashoffset="creditOffset" stroke-linecap="round" class="transition-[stroke-dashoffset] duration-1000 ease-out delay-300" :style="`stroke: var(--brand-accent, #10B981); transform-origin: 50% 50%; transform: rotate(${creditRotation}deg);`"></circle>
                     </g>
                 </svg>
 

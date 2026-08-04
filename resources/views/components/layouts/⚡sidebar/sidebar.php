@@ -57,13 +57,6 @@ new class extends Component
             [
                 'title' => 'Keuangan',
                 'items' => [
-                    ['route' => 'buku-kas', 'icon' => 'ph-fill ph-book-open-text', 'label' => 'Buku Kas', 'roles' => ['manager', 'cashier']],
-                    ['route' => 'wallet', 'icon' => 'ph-fill ph-wallet', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
-                ],
-            ],
-            [
-                'title' => 'Keuangan',
-                'items' => [
                     ['route' => 'cashbook', 'icon' => 'ph-fill ph-book-open-text', 'label' => 'Buku Kas', 'roles' => ['manager', 'cashier']],
                     ['route' => 'wallet', 'icon' => 'ph-fill ph-wallet', 'label' => 'Dompet & Saldo', 'roles' => ['manager']],
                 ],
