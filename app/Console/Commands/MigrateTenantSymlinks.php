@@ -54,6 +54,11 @@ class MigrateTenantSymlinks extends Command
                 $tenantId = str_replace('tenant_', '', $folderName);
                 $newPath = $tenantsStorageDir . '/' . $tenantId;
 
+                if (File::isDirectory($newPath)) {
+                    $this->warn("Skip: tenants/{$tenantId} sudah ada, hapus dulu jika ingin overwrite.");
+                    continue;
+                }
+
                 $this->line("Memindahkan folder storage: {$folderName} -> tenants/{$tenantId}");
                 File::move($dir, $newPath);
                 $migratedCount++;
