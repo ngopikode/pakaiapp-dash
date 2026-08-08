@@ -144,6 +144,11 @@ class CreateTenant extends Command
         });
 
         $this->info('Default StoreSetting initialized.');
+        
+        $this->info("Creating framework directories and public symlink...");
+        Artisan::call('tenant:symlink', ['tenant' => $tenantId]);
+        $this->info(Artisan::output());
+
         $this->info("Tenant $name setup complete! Domain: $domain");
 
         return self::SUCCESS;

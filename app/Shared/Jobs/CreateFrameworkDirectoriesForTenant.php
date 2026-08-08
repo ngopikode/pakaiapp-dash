@@ -25,7 +25,7 @@ class CreateFrameworkDirectoriesForTenant implements ShouldQueue
             $suffixBase = config('tenancy.filesystem.suffix_base');
 
             if (!is_dir(public_path($suffixBase))) {
-                @mkdir(public_path($suffixBase), 0775, true);
+                mkdir(public_path($suffixBase), 0775, true);
             }
 
             $dirs = [
@@ -38,13 +38,13 @@ class CreateFrameworkDirectoriesForTenant implements ShouldQueue
 
             foreach ($dirs as $dir) {
                 if (!is_dir($dir)) {
-                    @mkdir($dir, 0775, true);
+                    mkdir($dir, 0775, true);
                 }
             }
 
             $symlinkTarget = public_path("$suffixBase$tenant->id");
             if (!file_exists($symlinkTarget) && !is_link($symlinkTarget)) {
-                @symlink("$storage_path/app/public", $symlinkTarget);
+                symlink("$storage_path/app/public", $symlinkTarget);
             }
         });
     }
