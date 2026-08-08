@@ -113,7 +113,7 @@ return [
         /**
          * Each disk listed in the 'disks' array will be suffixed by the suffix_base, followed by the tenant_id.
          */
-        'suffix_base' => 'tenant_',
+        'suffix_base' => 'tenants/',
         'disks' => [
             'local',
             'public',
