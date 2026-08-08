@@ -109,6 +109,14 @@ log "🧹 Membersihkan semua cache lama..."
 artisan optimize:clear
 
 # ==============================================================================
+# 5b. CLEAR TENANT COMPILED VIEWS
+# Mengatasi error absolute path nyangkut jika ada perubahan struktur
+# ==============================================================================
+log "🗑️  Membersihkan compiled views seluruh tenant..."
+sudo rm -rf storage/tenants/*/framework/views/* || true
+sudo rm -rf storage/tenants/*/framework/cache/* || true
+
+# ==============================================================================
 # 6. BUILD CACHE BARU
 # ==============================================================================
 # Note: route:cache sengaja tidak dijalankan.
