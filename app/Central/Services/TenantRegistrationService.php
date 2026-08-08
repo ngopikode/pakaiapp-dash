@@ -239,7 +239,7 @@ class TenantRegistrationService
             'invoice_code' => $invoiceCode,
             'owner_name' => $data['namaOwner'],
             'email' => $data['email'],
-            ' ' => Hash::make(Str::random(32)),
+            'password' => Hash::make(Str::random(32)),
             'store_name' => $data['namaToko'],
             'store_type' => $data['jenisBisnis'] === 'F&B (Resto/Cafe)' ? 'resto' : 'retail',
             'tenant_id' => $slug,
