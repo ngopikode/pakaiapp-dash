@@ -59,6 +59,17 @@ class MenuController extends Controller
 
         $appFeeAmount = $this->settingService()->get('default_trx_fee', tenant(), 300);
 
+        // Preorder & WA Config
+        $isWaCheckoutActive = $setting->is_wa_checkout_active ?? false;
+        $isPreorderActive = $setting->is_preorder_active ?? false;
+        $preorderConfig = [];
+        if ($isPreorderActive) {
+            $preorderConfig = [
+                'earliest_date' => \Carbon\Carbon::now()->timezone('Asia/Jakarta')->addDays((int)($setting->preorder_min_days ?? 1))->format('Y-m-d'),
+                'zones' => \App\Tenant\Models\Core\DeliveryZone::where('is_active', true)->get(['id', 'name', 'shipping_cost']),
+            ];
+        }
+
         return view('pages.tenant.store.resto.product', [
             'product' => $product,
             'productData' => $product->toFrontendArray(),
@@ -72,6 +83,9 @@ class MenuController extends Controller
             'ogDesc' => $ogDesc,
             'imageVersion' => $imageVersion,
             'appFeeAmount' => $appFeeAmount,
+            'isWaCheckoutActive' => $isWaCheckoutActive,
+            'isPreorderActive' => $isPreorderActive,
+            'preorderConfig' => $preorderConfig,
         ]);
     }
 

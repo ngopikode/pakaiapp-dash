@@ -745,17 +745,14 @@
                 </div>
 
                 <button wire:click="save"
-                        class="w-full sm:w-auto px-8 py-2.5 text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400 opacity-50 cursor-not-allowed"
-                        wire:dirty.class.remove="bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400 opacity-50 cursor-not-allowed"
-                        wire:dirty.class="bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg text-white"
-                        x-bind:class="($wire.new_logo || $wire.new_og_image || $wire.new_qris_image) ? '!bg-orange-500 !hover:bg-orange-600 !hover:shadow-orange-500/25 !hover:shadow-lg !text-white !opacity-100 !cursor-pointer' : ''"
-                        wire:dirty.attr.remove="disabled"
-                        x-bind:disabled="!$wire.new_logo && !$wire.new_og_image && !$wire.new_qris_image"
-                        disabled>
+                        class="w-full sm:w-auto px-8 py-2.5 text-sm font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
+                        :class="($wire.$dirty() || $wire.new_logo || $wire.new_og_image || $wire.new_qris_image) 
+                                ? 'bg-orange-500 hover:bg-orange-600 hover:shadow-orange-500/25 hover:shadow-lg text-white' 
+                                : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400 opacity-50 cursor-not-allowed'"
+                        :disabled="!$wire.$dirty() && !$wire.new_logo && !$wire.new_og_image && !$wire.new_qris_image">
                     <span wire:loading.remove wire:target="save" class="flex items-center gap-2">
-                        <i class="ph-fill ph-dot text-lg animate-pulse hidden" 
-                           wire:dirty.class.remove="hidden"
-                           x-show="$wire.new_logo || $wire.new_og_image || $wire.new_qris_image" x-cloak></i>
+                        <i class="ph-fill ph-dot text-lg animate-pulse" 
+                           x-show="$wire.$dirty() || $wire.new_logo || $wire.new_og_image || $wire.new_qris_image" x-cloak></i>
                         Simpan Perubahan
                     </span>
                     <span wire:loading wire:target="save" class="flex items-center gap-2">

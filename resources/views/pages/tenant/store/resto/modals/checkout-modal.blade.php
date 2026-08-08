@@ -343,17 +343,17 @@
                     <!-- QRIS CONFIRM LAYER -->
                     <template x-if="showQrisConfirm && pendingQrisOrder">
                         <div class="flex-1 min-h-0 flex flex-col overflow-hidden bg-[var(--surface)] animate-fade-in">
-                            <div class="flex-1 overflow-y-auto overscroll-contain p-6 flex flex-col items-center text-center">
+                            <div class="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 flex flex-col items-center text-center">
                                 <h3 class="text-lg font-black text-[var(--foreground)] mb-1">Scan & Bayar via QRIS</h3>
                                 <p class="text-xs text-[var(--text-secondary)] mb-5">
                                     Pesanan sudah dibuat. Scan QR di bawah lalu konfirmasi ke WhatsApp kami.
                                 </p>
 
-                                <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm mb-4 w-full max-w-[200px]">
+                                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm mb-4 w-full max-w-[240px]">
                                     <img :src="qrisImage" alt="QRIS" class="w-full h-auto object-contain rounded-lg mb-3">
                                     <button 
                                         @click="downloadQris()"
-                                        class="w-full py-2 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
+                                        class="w-full py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -364,11 +364,7 @@
                                     </button>
                                 </div>
 
-                                <div class="bg-[var(--bg-soft)] rounded-xl p-3 border border-[var(--border)] w-full max-w-sm text-left space-y-1">
-                                    <div class="flex justify-between text-xs">
-                                        <span class="text-[var(--text-secondary)] font-semibold">Invoice</span>
-                                        <span class="font-mono font-black text-[var(--foreground)]" x-text="pendingQrisOrder.invoiceCode"></span>
-                                    </div>
+                                <div class="bg-[var(--bg-soft)] rounded-xl p-3 border border-[var(--border)] w-full max-w-sm text-center">
                                     <div class="flex justify-between text-xs">
                                         <span class="text-[var(--text-secondary)] font-semibold">Total Tagihan</span>
                                         <span class="font-black text-[var(--foreground)]" x-text="pendingQrisOrder.total"></span>

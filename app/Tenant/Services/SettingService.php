@@ -163,7 +163,7 @@ class SettingService
         try {
             DB::beginTransaction();
             Storage::disk('public')->delete($setting->qris_image);
-            $setting->updateQuietly(['qris_image' => null]);
+            StoreSetting::where('id', $setting->id ?? 1)->update(['qris_image' => null]);
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();

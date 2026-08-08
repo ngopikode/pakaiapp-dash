@@ -795,7 +795,8 @@ document.addEventListener('alpine:init', () => {
         async downloadQris() {
             if (!this.qrisImage || !this.pendingQrisOrder) return;
             try {
-                const res = await fetch(this.qrisImage);
+                // Gunakan fetch dengan no-cors atau biarkan default
+                const res = await fetch(this.qrisImage, { cache: "no-store" });
                 if (!res.ok) throw new Error('Network response was not ok');
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -804,11 +805,21 @@ document.addEventListener('alpine:init', () => {
                 link.download = `QRIS-${this.pendingQrisOrder.invoiceCode}.jpg`;
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
+                
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
             } catch (error) {
                 console.error('Download QRIS failed:', error);
-                this.showToast('Gagal mengunduh QRIS. Silahkan screenshot layar ini.', 'error');
+                // Fallback sederhana jika gagal fetch blob
+                const link = document.createElement('a');
+                link.href = this.qrisImage;
+                link.target = '_blank';
+                link.download = `QRIS-${this.pendingQrisOrder.invoiceCode}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         },
         nextStep() {
