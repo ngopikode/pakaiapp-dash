@@ -619,7 +619,6 @@
 
                         {{-- Jam Cut-Off --}}
                         <div x-data="{
-                                rawTime: $wire.entangle('cutoff_time').live,
                                 formatTime(e) {
                                     let val = e.target.value.replace(/[^0-9]/g, '');
                                     if (val.length >= 3) {
@@ -636,7 +635,7 @@
                                     }
                                     
                                     e.target.value = val;
-                                    this.rawTime = val;
+                                    $wire.$set('cutoff_time', val);
                                 }
                              }">
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -647,7 +646,7 @@
                                     <i class="ph ph-clock text-slate-400"></i>
                                 </div>
                                 <input type="text"
-                                       :value="rawTime"
+                                       wire:model="cutoff_time"
                                        @input="formatTime"
                                        placeholder="HH:MM (misal: 04:00)"
                                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-orange-500 transition-shadow font-mono">
