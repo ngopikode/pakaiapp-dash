@@ -151,6 +151,32 @@ Kedua aturan ini berlaku juga untuk semua file Livewire component.
 
 ---
 
+## 8. Naming Computed Properties for Loops in Blade
+
+**Masalah:** Menggunakan nama `slots()` sebagai fungsi/metode Computed Property di Livewire akan bentrok dengan *reserved keyword* Blade (`$slot` / `<x-slot>`). Hal ini menyebabkan property diproses dengan aneh atau dikonversi menjadi array kosong/null saat dirender di file `.blade.php`.
+
+**Pola:** Jangan gunakan keyword bawaan view seperti `slots` atau `attributes` sebagai nama fungsi `#[Computed]`.
+
+**Implementasi:**
+
+```php
+// ❌ SALAH (Akan bentrok dengan Blade reserved keyword)
+#[Computed]
+public function slots()
+{
+    return DeliverySlot::get();
+}
+
+// ✅ BENAR (Gunakan nama yang deskriptif dan spesifik)
+#[Computed]
+public function deliverySlots()
+{
+    return DeliverySlot::get();
+}
+```
+
+---
+
 ## Referensi
 
 - [STANDARDS.md](./STANDARDS.md) — Aturan nama class, MFC Alpine timing

@@ -4,14 +4,13 @@ use App\Shared\Traits\ShowsToast;
 use App\Tenant\Data\DeliverySlotData;
 use App\Tenant\Models\Core\DeliverySlot;
 use App\Tenant\Services\DeliverySettingService;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Renderless;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
 new #[Title('Slot Waktu Pengiriman')]
-class extends Component
-{
+class extends Component {
     use ShowsToast;
 
     protected ?DeliverySettingService $deliverySettingService = null;
@@ -22,21 +21,16 @@ class extends Component
     }
 
     #[Computed]
-    public function slots()
+    public function deliverySlots()
     {
-        return DeliverySlot::orderBy('start_time')->get();
+        \Log::info('slots called!');
+        return DeliverySlot::oldest('start_time')->get();
     }
 
     #[Renderless]
     public function save(array $formData): void
     {
-        $dto = new DeliverySlotData(
-            name: $formData['name'] ?? '',
-            startTime: $formData['start_time'] ?? '',
-            endTime: $formData['end_time'] ?? '',
-            maxOrders: (int) ($formData['max_orders'] ?? 0),
-            isActive: (bool) ($formData['is_active'] ?? true),
-        );
+        $dto = DeliverySlotData::from($formData);
 
         $slotId = $formData['id'] ?? null;
         $slot = $slotId ? DeliverySlot::find($slotId) : null;

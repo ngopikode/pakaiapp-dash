@@ -30,12 +30,7 @@ class extends Component
     #[Renderless]
     public function save(array $formData): void
     {
-        $dto = new DeliveryZoneData(
-            name: $formData['name'] ?? '',
-            shippingCost: (float) ($formData['shipping_cost'] ?? 0),
-            minFreeShipping: (float) ($formData['min_free_shipping'] ?? 0),
-            isActive: (bool) ($formData['is_active'] ?? true),
-        );
+        $dto = DeliveryZoneData::from($formData);
 
         $zoneId = $formData['id'] ?? null;
         $zone = $zoneId ? DeliveryZone::find($zoneId) : null;
