@@ -16,10 +16,10 @@ class MigrateTenantSymlinks extends Command
      */
     public function handle(): int
     {
-        // 1. Pastikan yang menjalankan command ini adalah www-data
+        // 1. Pastikan yang menjalankan command ini adalah www-data atau root
         $currentUser = exec('whoami');
-        if ($currentUser !== 'www-data') {
-            $this->error("TOLAK: Command ini WAJIB dijalankan menggunakan user 'www-data'. (Saat ini: {$currentUser})");
+        if (!in_array($currentUser, ['www-data', 'root'])) {
+            $this->error("TOLAK: Command ini WAJIB dijalankan sebagai 'www-data' atau 'root'. (Saat ini: {$currentUser})");
             $this->line("Cara menjalankan: sudo -u www-data php artisan tenant:migrate-storage");
             return self::FAILURE;
         }
