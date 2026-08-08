@@ -73,33 +73,44 @@
                         </div>
                     </div>
 
-                    {{-- Upload QRIS Statis --}}
+                     {{-- Upload QRIS Statis --}}
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Gambar QRIS Statis Toko (Opsional)
                         </label>
-                        <label class="relative block w-full sm:w-72 aspect-square rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 dark:hover:border-orange-500 overflow-hidden cursor-pointer group transition-colors">
-                            @if($new_qris_image)
-                                <img src="{{ $new_qris_image->temporaryUrl() }}" class="w-full h-full object-contain p-2" alt="QRIS baru">
-                            @elseif($qris_image)
-                                <img src="/tenant_{{ tenant('id') }}/{{ $qris_image }}" class="w-full h-full object-contain p-2" alt="QRIS toko">
-                            @else
-                                <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-                                    <i class="ph ph-qr-code text-4xl mb-2"></i>
-                                    <span class="text-xs font-semibold">Klik untuk upload QRIS</span>
-                                    <span class="text-[10px] mt-1">DANA / BCA / OVO / GoPay</span>
+                        <div class="flex flex-col sm:flex-row items-start gap-4">
+                            <label class="relative block w-full sm:w-48 aspect-square rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 dark:hover:border-orange-500 overflow-hidden cursor-pointer group transition-colors shrink-0">
+                                @if($new_qris_image)
+                                    <img src="{{ $new_qris_image->temporaryUrl() }}" class="w-full h-full object-contain p-2" alt="QRIS baru">
+                                @elseif($qris_image)
+                                    <img src="/tenant_{{ tenant('id') }}/{{ $qris_image }}" class="w-full h-full object-contain p-2" alt="QRIS toko">
+                                @else
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                                        <i class="ph ph-qr-code text-4xl mb-2"></i>
+                                        <span class="text-xs font-semibold">Klik untuk upload QRIS</span>
+                                        <span class="text-[10px] mt-1">DANA / BCA / OVO / GoPay</span>
+                                    </div>
+                                @endif
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="ph-fill ph-camera text-white text-2xl"></i>
                                 </div>
-                            @endif
-                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="ph-fill ph-camera text-white text-2xl"></i>
+                                <input type="file" class="hidden" wire:model.live="new_qris_image" accept="image/*">
+                            </label>
+                            <div class="flex-1 space-y-3">
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Gambar ini ditampilkan ke pelanggan saat memilih metode QRIS atau saat Checkout WhatsApp aktif.</p>
+                                <div wire:loading wire:target="new_qris_image" class="text-xs font-semibold text-orange-500">
+                                    <i class="ph ph-spinner animate-spin"></i> Mengunggah...
+                                </div>
+                                @error('new_qris_image') <span class="text-xs text-red-500 block font-medium">{{ $message }}</span> @enderror
+                                @if($qris_image && !$new_qris_image)
+                                    <button type="button" wire:click="deleteQrisImage"
+                                            wire:confirm="Yakin hapus gambar QRIS? Gambar akan dihapus permanen."
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
+                                        <i class="ph ph-trash"></i> Hapus Gambar QRIS
+                                    </button>
+                                @endif
                             </div>
-                            <input type="file" class="hidden" wire:model.live="new_qris_image" accept="image/*">
-                        </label>
-                        <div wire:loading wire:target="new_qris_image" class="block mt-2 text-xs font-semibold text-orange-500">
-                            <i class="ph ph-spinner animate-spin"></i> Mengunggah...
                         </div>
-                        @error('new_qris_image') <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span> @enderror
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Gambar ini bisa ditampilkan ke pelanggan saat mereka memilih metode pembayaran Manual/QRIS atau saat fitur Checkout WhatsApp diaktifkan.</p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">

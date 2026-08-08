@@ -152,4 +152,22 @@ class SettingService
             throw $e;
         }
     }
+
+    /**
+     * @throws Throwable
+     */
+    public function deleteQrisImage(?StoreSetting $setting): void
+    {
+        if (!$setting?->qris_image) return;
+
+        try {
+            DB::beginTransaction();
+            Storage::disk('public')->delete($setting->qris_image);
+            $setting->updateQuietly(['qris_image' => null]);
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
 }

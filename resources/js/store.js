@@ -587,6 +587,8 @@ document.addEventListener('alpine:init', () => {
         orderType: '',
         checkoutLoading: false,
         orderSuccess: null,
+        showQrisConfirm: false,
+        pendingQrisOrder: null,
         // Default: 'cash'
         selectedPaymentMethod: 'cash',
         midtransEnabled: false,
@@ -704,6 +706,13 @@ document.addEventListener('alpine:init', () => {
             });
 
             this.loadHistory();
+            this.loadCustomerDetails();
+
+            // Watch customer details to auto-save to localStorage
+            this.$watch('customerName', () => this.saveCustomerDetails());
+            this.$watch('customerEmail', () => this.saveCustomerDetails());
+            this.$watch('customerPhone', () => this.saveCustomerDetails());
+            this.$watch('customerAddress', () => this.saveCustomerDetails());
 
             this.$watch('historyOpen', (val) => {
                 if (val) {
@@ -729,6 +738,34 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        loadCustomerDetails() {
+            try {
+                const stored = localStorage.getItem('tenant_store_customer');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    this.customerName = parsed.name || '';
+                    this.customerEmail = parsed.email || '';
+                    this.customerPhone = parsed.phone || '';
+                    this.customerAddress = parsed.address || '';
+                }
+            } catch (e) {
+                console.error('Failed to load customer details:', e);
+            }
+        },
+        saveCustomerDetails() {
+            try {
+                const data = {
+                    name: this.customerName,
+                    email: this.customerEmail,
+                    phone: this.customerPhone,
+                    address: this.customerAddress
+                };
+                localStorage.setItem('tenant_store_customer', JSON.stringify(data));
+            } catch (e) {
+                console.error('Failed to save customer details:', e);
+            }
+        },
+
         openCheckout() {
             this.orderSuccess = null;
             this.checkoutStep = 1; // Reset to step 1
@@ -745,9 +782,34 @@ document.addEventListener('alpine:init', () => {
             this.checkoutOpen = false;
             setTimeout(() => {
                 this.orderSuccess = null;
+                this.showQrisConfirm = false;
+                this.pendingQrisOrder = null;
                 this.checkoutStep = 1;
                 document.body.style.overflow = '';
             }, 300);
+        },
+        confirmQrisPayment() {
+            // Ketika tombol WA diklik di layar QRIS, jalankan proses API sebenernya
+            this.processOrder();
+        },
+        async downloadQris() {
+            if (!this.qrisImage || !this.pendingQrisOrder) return;
+            try {
+                const res = await fetch(this.qrisImage);
+                if (!res.ok) throw new Error('Network response was not ok');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `QRIS-${this.pendingQrisOrder.invoiceCode}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download QRIS failed:', error);
+                this.showToast('Gagal mengunduh QRIS. Silahkan screenshot layar ini.', 'error');
+            }
         },
         nextStep() {
             if (this.cart.length === 0) {
@@ -759,6 +821,64 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             this.checkoutStep = 2;
+        },
+
+        // Handler untuk tombol "Pesan & Transfer QRIS" di Step 2
+        proceedToQrisOrProcess() {
+            if (this.cart.length === 0) {
+                this.showToast('Keranjang Anda kosong!');
+                return;
+            }
+            if (!this.customerName.trim()) {
+                this.showToast('Masukkan nama pemesan dulu ya!');
+                return;
+            }
+
+            const isDirectWaOrPreorder = this.isWaCheckoutActive || this.isPreorderActive;
+
+            if (isDirectWaOrPreorder) {
+                if (!this.customerAddress.trim()) {
+                    this.showToast('Alamat wajib diisi!');
+                    return;
+                }
+                if (this.isPreorderActive) {
+                    if (!this.deliveryDate) {
+                        this.showToast('Pilih tanggal pengiriman!');
+                        return;
+                    }
+                    if (!this.deliverySlotId) {
+                        this.showToast('Pilih slot waktu pengiriman!');
+                        return;
+                    }
+                    if (!this.deliveryZoneId) {
+                        this.showToast('Pilih area/zona pengiriman!');
+                        return;
+                    }
+                }
+            } else {
+                if ((this.isDigitalMethod || this.isDuitkuMethod) && !this.customerEmail.trim()) {
+                    this.showToast('Email wajib diisi untuk pembayaran digital!');
+                    return;
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if ((this.isDigitalMethod || this.isDuitkuMethod) && !emailRegex.test(this.customerEmail.trim())) {
+                    this.showToast('Format email tidak valid!');
+                    return;
+                }
+            }
+
+            // Jika QRIS via WA, tampilkan screen scan DULU tanpa panggil API
+            if (isDirectWaOrPreorder && this.selectedPaymentMethod === 'qris') {
+                this.pendingQrisOrder = {
+                    invoiceCode: '---', // Belum di-generate server
+                    total: this.formatPrice(this.totalOrderPrice)
+                };
+                this.showQrisConfirm = true;
+                return;
+            }
+
+            // Jika metode lain (atau POS reguler), panggil API langsung
+            this.processOrder();
         },
 
         async processOrder() {
@@ -880,28 +1000,33 @@ document.addEventListener('alpine:init', () => {
                     if (isDirectWaOrPreorder && redirectWaUrl) {
                         this.cart = [];
                         this.saveCart();
-                        this.customerName = '';
-                        this.customerPhone = '';
-                        this.customerAddress = '';
                         this.customerInfo = '';
                         this.showToast('Pesanan berhasil dibuat!');
-                        
-                        this.orderSuccess = {
+
+                        const orderData = {
                             invoiceCode: invoiceCode,
                             total: this.formatPrice(this.totalOrderPrice),
                             waUrl: redirectWaUrl
                         };
-                        
+
                         this.addOrderToHistory({
                             invoiceCode: invoiceCode,
                             totalRaw: this.totalOrderPrice,
                             orderType: this.orderType,
-                            paymentMethod: 'cash',
-                            paymentName: 'Bayar via WhatsApp',
+                            paymentMethod: this.selectedPaymentMethod,
+                            paymentName: this.selectedPaymentMethod === 'qris' ? 'Transfer QRIS' : 'Bayar via WhatsApp',
                             items: this.cart,
                             waUrl: redirectWaUrl
                         });
+
+                        // Langsung success, buka WA jika QRIS
+                        this.orderSuccess = orderData;
+                        this.showQrisConfirm = false; // tutup kalau tadinya buka
                         
+                        if (this.selectedPaymentMethod === 'qris') {
+                            window.open(redirectWaUrl, '_blank');
+                        }
+
                         return;
                     }
 
@@ -918,8 +1043,6 @@ document.addEventListener('alpine:init', () => {
 
                         this.cart = [];
                         this.saveCart();
-                        this.customerName = '';
-                        this.customerEmail = '';
                         this.customerInfo = '';
                         this.selectedPaymentMethod = 'cash';
                         this.showToast('Order berhasil dibuat! Membuka halaman pembayaran...');
@@ -942,8 +1065,6 @@ document.addEventListener('alpine:init', () => {
 
                         this.cart = [];
                         this.saveCart();
-                        this.customerName = '';
-                        this.customerEmail = '';
                         this.customerInfo = '';
                         this.selectedPaymentMethod = 'cash';
 
@@ -1035,8 +1156,6 @@ document.addEventListener('alpine:init', () => {
                     // 5. Baru deh aman buat kosongin cart dan form
                     this.cart = [];
                     this.saveCart();
-                    this.customerName = '';
-                    this.customerEmail = '';
                     this.customerInfo = '';
                     this.selectedPaymentMethod = 'cash'; // reset ke default
                     this.showToast('Pesanan berhasil dikirim!');

@@ -1,18 +1,18 @@
 <?php
 
+use App\Shared\Traits\ShowsToast;
 use App\Tenant\Data\StoreSettingFormData;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\SettingService;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
-    use Livewire\Attributes\On;
-    use Livewire\Component;
+use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 new #[Title('Pengaturan Toko')]
-class extends Component
-{
-    use WithFileUploads;
+class extends Component {
+    use ShowsToast, WithFileUploads;
 
     protected ?SettingService $settingService = null;
 
@@ -163,7 +163,7 @@ class extends Component
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         $this->operating_hours = array_merge(
             ['default' => $loaded['default'] ?? $default],
-            array_combine($days, array_map(fn ($d) => $loaded[$d] ?? $default, $days))
+            array_combine($days, array_map(fn($d) => $loaded[$d] ?? $default, $days))
         );
 
         $this->refreshDeliveryCounters();
@@ -175,6 +175,20 @@ class extends Component
     {
         $this->total_active_zones = \App\Tenant\Models\Core\DeliveryZone::where('is_active', true)->count();
         $this->total_active_slots = \App\Tenant\Models\Core\DeliverySlot::where('is_active', true)->count();
+    }
+
+    public function deleteQrisImage(): void
+    {
+        try {
+            $this->settingService()->deleteQrisImage(StoreSetting::cached());
+            StoreSetting::forgetCache();
+            $this->qris_image = null;
+            $this->new_qris_image = null;
+            $this->toast('Gambar QRIS berhasil dihapus.');
+        } catch (\Throwable $e) {
+            report($e);
+            $this->toast('Gagal menghapus gambar QRIS.', 'error');
+        }
     }
 
     public function save(): void
@@ -209,9 +223,6 @@ class extends Component
             isApplicationFeePassed: $this->is_application_fee_passed,
             isKitchenActive: $this->is_kitchen_active,
             isShiftActive: $this->is_shift_active,
-            isWaCheckoutActive: $this->is_wa_checkout_active,
-            isPreorderActive: $this->is_preorder_active,
-            cutoffTime: $this->cutoff_time ?: null,
             heroPromoText: $this->hero_promo_text,
             heroStatusText: $this->hero_status_text,
             heroHeadline: $this->hero_headline,
@@ -227,6 +238,9 @@ class extends Component
             ogDescription: $this->og_description,
             useSameHours: $this->use_same_hours,
             operatingHours: $this->operating_hours,
+            isWaCheckoutActive: $this->is_wa_checkout_active,
+            isPreorderActive: $this->is_preorder_active,
+            cutoffTime: $this->cutoff_time ?: null,
             logo: $this->logo,
             ogImage: $this->og_image,
             qrisImage: $this->qris_image,
@@ -252,10 +266,10 @@ class extends Component
             $this->new_qris_image = null;
 
             $this->dispatch('settings-updated');
-            $this->dispatch('notify', ['type' => 'success', 'message' => 'Pengaturan toko berhasil disimpan!']);
+            $this->toast('Pengaturan toko berhasil disimpan!');
         } catch (Throwable $e) {
             report($e);
-            $this->dispatch('notify', ['type' => 'error', 'message' => 'Gagal menyimpan pengaturan.']);
+            $this->toast('Gagal menyimpan pengaturan.', 'error');
         }
     }
 };
