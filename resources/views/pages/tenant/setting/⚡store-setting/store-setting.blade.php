@@ -175,7 +175,7 @@
                         @endif
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" x-show="!$wire.is_wa_checkout_active" x-cloak>
                         <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50">
                             <h6 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Metode Pesanan</h6>
                             <div class="space-y-4">
@@ -587,7 +587,7 @@
         {{-- ═══════════════════════════════════════════════════════════
              6. PENGIRIMAN TERJADWAL (PRE-ORDER)
         ═══════════════════════════════════════════════════════════ --}}
-        <section class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+        <section class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8" x-show="$wire.is_wa_checkout_active" x-cloak>
             <div class="md:col-span-4 lg:col-span-4">
                 <div class="flex items-center gap-3 mb-2">
                     <span class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400">

@@ -1,4 +1,4 @@
-# Feature: QRIS Confirmation Screen (Resto — WA Checkout)
+# Plan: QRIS Confirmation Screen (Resto — WA Checkout)
 
 Dokumentasi ini mencatat perubahan alur checkout WhatsApp untuk toko tipe Resto saat pelanggan memilih metode pembayaran QRIS. Perubahan ini juga menangani isu layout yang saling tindih dan mengoptimalkan UX dengan Local Storage.
 
@@ -71,7 +71,7 @@ async downloadQris() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Download QRIS failed:', error);
-        this.showToast('Gagal mengunduh QRIS. Silahkan screenshot layar ini.', 'error');
+        // Fallback untuk open new tab
     }
 }
 ```
@@ -94,3 +94,9 @@ Pada bagian backend *Store Setting* (Dashboard Tenant):
 - Menambahkan tombol "Hapus Gambar QRIS" di tampilan Alpine.
 - Membuat route & action khusus untuk manghapus image qris melalui `SettingService::deleteQrisImage()`.
 - Pembersihan memori in-memory cache menggunakan `StoreSetting::forgetCache()`.
+
+## 6. Integrasi Mode Pre-Order ke Sidebar
+
+- Komponen `sidebar.php` mendeteksi `$setting->is_preorder_active`.
+- Jika aktif, link ke `delivery-zones` dan `delivery-slots` otomatis dimunculkan ke dalam menu "Sistem & Pengaturan".
+- Pada pengaturan toko (`store-setting.blade.php`), bagian "Pengiriman Terjadwal" hanya akan muncul jika `Checkout WhatsApp` aktif (karena keduanya bekerja sejalan).
