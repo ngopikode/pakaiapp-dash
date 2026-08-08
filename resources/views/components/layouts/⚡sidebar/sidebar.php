@@ -93,11 +93,9 @@ new class extends Component
             $sections[1]['items'][] = ['route' => 'raw-material', 'icon' => 'ph-fill ph-package', 'label' => 'Bahan Baku & Resep', 'roles' => ['manager']];
         }
 
-        // Add Delivery Settings only if Pre-order (or WA checkout) is active
-        $setting = \App\Tenant\Models\Core\StoreSetting::cached();
-        if ($setting && $setting->is_preorder_active) {
-            $sections[2]['items'][] = ['route' => 'delivery-zones.index', 'icon' => 'ph-fill ph-map-pin', 'label' => 'Area & Tarif Pengiriman', 'roles' => ['manager']];
-            $sections[2]['items'][] = ['route' => 'delivery-slots.index', 'icon' => 'ph-fill ph-clock', 'label' => 'Slot Waktu Kirim', 'roles' => ['manager']];
+        if ($isPreorder) {
+            $sections[3]['items'][] = ['route' => 'delivery-zones.index', 'icon' => 'ph-fill ph-map-pin', 'label' => 'Area & Tarif Pengiriman', 'roles' => ['manager']];
+            $sections[3]['items'][] = ['route' => 'delivery-slots.index', 'icon' => 'ph-fill ph-clock', 'label' => 'Slot Waktu Kirim', 'roles' => ['manager']];
         }
 
         // Filter Menu berdasarkan Role
