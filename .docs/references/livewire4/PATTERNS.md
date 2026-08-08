@@ -177,6 +177,22 @@ public function deliverySlots()
 
 ---
 
+## 9. Asset URL Tenant di Blade
+
+**JANGAN PERNAH** hardcode path asset tenant menggunakan format `/tenant_{{ tenant('id') }}/...`. Selalu gunakan `Storage::url()`.
+
+```blade
+{{-- ❌ SALAH --}}
+<img src="/tenant_{{ tenant('id') }}/{{ $logo }}">
+
+{{-- ✅ BENAR --}}
+<img src="{{ Storage::url($logo) }}">
+```
+
+Lihat detail di [Laravel 13 PATTERNS.md](../laravel13/PATTERNS.md) section 12.
+
+---
+
 ## Referensi
 
 - [STANDARDS.md](./STANDARDS.md) — Aturan nama class, MFC Alpine timing

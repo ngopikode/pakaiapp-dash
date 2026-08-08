@@ -50,7 +50,7 @@
                                 @if($new_logo)
                                     <img src="{{ $new_logo->temporaryUrl() }}" class="w-full h-full object-cover" alt="New Logo">
                                 @elseif($logo)
-                                    <img src="/tenant_{{ tenant('id') }}/{{ $logo }}" class="w-full h-full object-cover" alt="Current Logo">
+                                    <img src="{{ Storage::url($logo) }}" class="w-full h-full object-cover" alt="Current Logo">
                                 @else
                                     <i class="ph ph-image text-3xl text-slate-400"></i>
                                 @endif
@@ -83,7 +83,7 @@
                                 @if($new_qris_image)
                                     <img src="{{ $new_qris_image->temporaryUrl() }}" class="w-full h-full object-contain p-2" alt="QRIS baru">
                                 @elseif($qris_image)
-                                    <img src="/tenant_{{ tenant('id') }}/{{ $qris_image }}" class="w-full h-full object-contain p-2" alt="QRIS toko">
+                                    <img src="{{ Storage::url($qris_image) }}" class="w-full h-full object-contain p-2" alt="QRIS toko">
                                 @else
                                     <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
                                         <i class="ph ph-qr-code text-4xl mb-2"></i>
@@ -522,7 +522,7 @@
                                     @if($new_og_image)
                                         <img src="{{ $new_og_image->temporaryUrl() }}" class="w-full h-full object-cover" alt="New OG">
                                     @elseif($og_image)
-                                        <img src="/tenant_{{ tenant('id') }}/{{ $og_image }}" class="w-full h-full object-cover" alt="Current OG">
+                                        <img src="{{ Storage::url($og_image) }}" class="w-full h-full object-cover" alt="Current OG">
                                     @else
                                         <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4 text-center">
                                             <i class="ph ph-image text-3xl mb-2"></i>

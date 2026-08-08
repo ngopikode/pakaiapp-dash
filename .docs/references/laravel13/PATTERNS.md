@@ -317,6 +317,22 @@ $this->aggregateStockAdjustments($variant, $recalculatedItem['quantity'], $varia
 
 ---
 
+## 12. Asset URL Tenant — Selalu Gunakan `Storage::url()`
+
+**JANGAN PERNAH** hardcode path asset tenant di Blade menggunakan format `/tenant_{{ tenant('id') }}/...` atau apapun yang bergantung pada `suffix_base` konfigurasi Tenancy secara manual.
+
+**Alasan:** Konfigurasi `suffix_base` di `config/tenancy.php` bisa berubah (contoh: dari `tenant_` menjadi `tenants/`). Jika path di-hardcode di Blade, seluruh gambar akan langsung 404 tanpa ada error yang jelas.
+
+```blade
+{{-- ❌ SALAH — hardcode suffix_base, langsung 404 jika config berubah --}}
+<img src="/tenant_{{ tenant('id') }}/{{ $logo }}">
+
+{{-- ✅ BENAR — dinamis mengikuti konfigurasi Storage yang aktif --}}
+<img src="{{ Storage::url($logo) }}">
+```
+
+---
+
 ## Referensi
 
 - [ADR Service Pattern](../../decisions/001-service-dto-pattern.md) — Detail DTO & service standard
