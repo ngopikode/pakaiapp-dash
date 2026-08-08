@@ -14,9 +14,13 @@
 
     <title>{{ isset($title) ? $title . ' - ' : '' }}{{ StoreSetting::value('navbar_brand_text') ?? config('app.name') }}</title>
 
-    <script>
-        const theme = localStorage.getItem('theme') || 'light';
-        if (theme === 'dark') document.documentElement.classList.add('dark');
+    <script data-navigate-track>
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -46,7 +50,7 @@
     x-init="$watch('showDesktopSidebar', value => localStorage.setItem('sb|sidebar-toggle', value))">
 
 <div id="global-loader"
-     class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-50/90 dark:bg-[#0B1120]/90 backdrop-blur-md transition-all duration-500">
+     class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-50/90 dark:bg-[#0B1120]/90 backdrop-blur-md transition-opacity duration-300">
     <div class="flex flex-col items-center gap-5">
         <div class="relative w-14 h-14 flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-[3px] border-slate-200 dark:border-slate-800"></div>
@@ -61,7 +65,7 @@
 
 <?php
 $userMenuRole = auth()->user()?->role ?? 'cashier';
-$storeSetting = StoreSetting::first();
+$storeSetting = StoreSetting::cached();
 $storeType = $storeSetting?->store_type ?? 'retail';
 $isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
 
@@ -77,11 +81,11 @@ $accessibleMenus = collect($allRoles)->filter(fn ($roles) => in_array($userMenuR
 $showSidebar = $accessibleMenus > 1;
 ?>
 
-<div id="wrapper" class="flex flex-1 w-full overflow-x-hidden relative">
+<div id="wrapper" class="flex flex-1 w-full relative">
     @if($showSidebar)
         {{-- HANYA DI-RENDER DI DESKTOP --}}
         <div
-            class="hidden xl:flex flex-col h-screen sticky top-0 shrink-0 border-r border-slate-200/60 dark:border-slate-800/60 bg-white/85 dark:bg-[#0B1120]/85 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out"
+            class="hidden xl:flex flex-col h-[100dvh] sticky top-0 shrink-0 border-r border-slate-200/60 dark:border-slate-800/60 bg-white/85 dark:bg-[#0B1120]/85 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out"
             :class="showDesktopSidebar ? 'w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'">
             <div class="w-64 flex flex-col h-full">
                 <livewire:layouts.sidebar elementId="sidebar-wrapper"/>

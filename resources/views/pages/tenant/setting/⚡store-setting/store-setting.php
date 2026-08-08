@@ -4,7 +4,8 @@ use App\Tenant\Data\StoreSettingFormData;
 use App\Tenant\Models\Core\StoreSetting;
 use App\Tenant\Services\SettingService;
 use Livewire\Attributes\Title;
-use Livewire\Component;
+    use Livewire\Attributes\On;
+    use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
@@ -49,15 +50,26 @@ class extends Component
 
     public bool $is_shift_active = false;
 
+    public bool $is_wa_checkout_active = false;
+
+    public bool $is_preorder_active = false;
+
+    public ?string $cutoff_time = null;
+
     /** @var TemporaryUploadedFile|string|null */
     public $logo;
 
     /** @var TemporaryUploadedFile|string|null */
     public $og_image;
 
+    /** @var TemporaryUploadedFile|string|null */
+    public $qris_image;
+
     public $new_logo;
 
     public $new_og_image;
+
+    public $new_qris_image;
 
     public string $hero_promo_text = 'Promo';
 
@@ -89,6 +101,10 @@ class extends Component
 
     public array $operating_hours = [];
 
+    public int $total_active_zones = 0;
+
+    public int $total_active_slots = 0;
+
     protected function settingService(): SettingService
     {
         return $this->settingService ??= app(SettingService::class);
@@ -117,9 +133,13 @@ class extends Component
         $this->is_application_fee_passed = (bool)($setting->is_application_fee_passed ?? false);
         $this->is_kitchen_active = !isset($setting->is_kitchen_active) || (bool)$setting->is_kitchen_active;
         $this->is_shift_active = (bool)($setting->is_shift_active ?? false);
+        $this->is_wa_checkout_active = (bool)($setting->is_wa_checkout_active ?? false);
+        $this->is_preorder_active = (bool)($setting->is_preorder_active ?? false);
+        $this->cutoff_time = $setting->cutoff_time;
 
         $this->logo = $setting->logo;
         $this->og_image = $setting->og_image;
+        $this->qris_image = $setting->qris_image;
 
         $this->hero_promo_text = $setting->hero_promo_text;
         $this->hero_status_text = $setting->hero_status_text;
@@ -145,15 +165,31 @@ class extends Component
             ['default' => $loaded['default'] ?? $default],
             array_combine($days, array_map(fn ($d) => $loaded[$d] ?? $default, $days))
         );
+
+        $this->refreshDeliveryCounters();
+    }
+
+    #[On('delivery-zones-updated')]
+    #[On('delivery-slots-updated')]
+    public function refreshDeliveryCounters(): void
+    {
+        $this->total_active_zones = \App\Tenant\Models\Core\DeliveryZone::where('is_active', true)->count();
+        $this->total_active_slots = \App\Tenant\Models\Core\DeliverySlot::where('is_active', true)->count();
     }
 
     public function save(): void
     {
+        if (empty($this->cutoff_time)) {
+            $this->cutoff_time = null;
+        }
+
         $this->validate([
-            'name' => 'required|string|max:255',
-            'theme_color' => 'required|string|max:7',
-            'new_logo' => 'nullable|image|max:2048',
-            'new_og_image' => 'nullable|image|max:2048',
+            'name' => ['required', 'string', 'max:255'],
+            'theme_color' => ['required', 'string', 'max:7'],
+            'cutoff_time' => ['nullable', 'string', 'regex:/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/'],
+            'new_logo' => ['nullable', 'image', 'max:2048'],
+            'new_og_image' => ['nullable', 'image', 'max:2048'],
+            'new_qris_image' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $dto = new StoreSettingFormData(
@@ -173,6 +209,9 @@ class extends Component
             isApplicationFeePassed: $this->is_application_fee_passed,
             isKitchenActive: $this->is_kitchen_active,
             isShiftActive: $this->is_shift_active,
+            isWaCheckoutActive: $this->is_wa_checkout_active,
+            isPreorderActive: $this->is_preorder_active,
+            cutoffTime: $this->cutoff_time ?: null,
             heroPromoText: $this->hero_promo_text,
             heroStatusText: $this->hero_status_text,
             heroHeadline: $this->hero_headline,
@@ -190,6 +229,7 @@ class extends Component
             operatingHours: $this->operating_hours,
             logo: $this->logo,
             ogImage: $this->og_image,
+            qrisImage: $this->qris_image,
         );
 
         try {
@@ -198,11 +238,20 @@ class extends Component
                 $dto,
                 $this->new_logo,
                 $this->new_og_image,
+                $this->new_qris_image,
             );
+
+            // Reload fresh setting dari cache/DB untuk mendapatkan path gambar terbaru
+            $freshSetting = StoreSetting::cached();
+            $this->logo = $freshSetting->logo;
+            $this->og_image = $freshSetting->og_image;
+            $this->qris_image = $freshSetting->qris_image;
 
             $this->new_logo = null;
             $this->new_og_image = null;
+            $this->new_qris_image = null;
 
+            $this->dispatch('settings-updated');
             $this->dispatch('notify', ['type' => 'success', 'message' => 'Pengaturan toko berhasil disimpan!']);
         } catch (Throwable $e) {
             report($e);

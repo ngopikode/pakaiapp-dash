@@ -47,7 +47,7 @@ new class extends Component
     #[Computed]
     public function storeType()
     {
-        return StoreSetting::first()?->store_type ?? 'retail';
+        return StoreSetting::cached()?->store_type ?? 'retail';
     }
 
     public function save(): void

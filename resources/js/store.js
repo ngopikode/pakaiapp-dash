@@ -229,6 +229,37 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        /* ===== WA & PREORDER ===== */
+        isWaCheckoutActive: false,
+        isPreorderActive: false,
+        preorderConfig: {},
+        qrisImage: '',
+        availableSlots: [],
+        slotsLoading: false,
+
+        customerPhone: '',
+        customerAddress: '',
+        deliveryDate: '',
+        deliverySlotId: '',
+        deliveryZoneId: '',
+
+        async fetchPreorderSlots(date) {
+            if (!date) return;
+            this.slotsLoading = true;
+            this.deliverySlotId = ''; // reset slot tiap kali tgl berubah
+            try {
+                const res = await fetch(`/api/preorders/slots?date=${date}`);
+                const data = await res.json();
+                if (data.success) {
+                    this.availableSlots = data.data;
+                }
+            } catch (e) {
+                console.error('[Preorder] Failed to fetch slots', e);
+            } finally {
+                this.slotsLoading = false;
+            }
+        },
+
         get totalQty() {
             return this.cart.reduce((acc, item) => acc + item.qty, 0);
         },
@@ -585,8 +616,17 @@ document.addEventListener('alpine:init', () => {
             return Math.round((this.taxRate / 100) * (this.totalCart + this.serviceChargeAmount + this.appFeeAmount));
         },
 
+        get shippingCost() {
+            if (!this.isPreorderActive || !this.deliveryZoneId) return 0;
+            const zone = this.preorderConfig.zones?.find(z => String(z.id) === String(this.deliveryZoneId));
+            if (!zone) return 0;
+            const minFree = parseFloat(zone.min_free_shipping) || 0;
+            if (minFree > 0 && this.totalCart >= minFree) return 0;
+            return parseFloat(zone.shipping_cost) || 0;
+        },
+
         get totalOrderPrice() {
-            return this.totalCart + this.serviceChargeAmount + this.appFeeAmount + this.taxAmount;
+            return this.totalCart + this.serviceChargeAmount + this.appFeeAmount + this.taxAmount + this.shippingCost;
         },
 
         get isDigitalMethod() {
@@ -630,6 +670,23 @@ document.addEventListener('alpine:init', () => {
             this.serviceRate = parseFloat(root.dataset.serviceRate) || 0;
             this.isAppFeeActive = root.dataset.isAppFeeActive === '1';
             this.appFeeAmountVal = parseFloat(root.dataset.appFeeAmount) || 0;
+
+            // Direct WA & Pre-Order
+            this.qrisImage = root.dataset.qrisImage || '';
+            this.isWaCheckoutActive = root.dataset.waCheckoutActive === '1';
+            this.isPreorderActive = root.dataset.preorderActive === '1';
+            this.preorderConfig = JSON.parse(root.dataset.preorderConfig || '{}');
+
+            if (this.isPreorderActive) {
+                this.deliveryDate = this.preorderConfig.earliest_date || '';
+                if (this.deliveryDate) {
+                    this.fetchPreorderSlots(this.deliveryDate);
+                }
+                
+                this.$watch('deliveryDate', (value) => {
+                    this.fetchPreorderSlots(value);
+                });
+            }
 
             // Apply theme reliably on every component init (solves Livewire navigation reset)
             if (this.theme === 'dark') {
@@ -713,20 +770,71 @@ document.addEventListener('alpine:init', () => {
                 this.showToast('Masukkan nama pemesan dulu ya!');
                 return;
             }
-            // Validasi email wajib jika metode Digital
-            if ((this.isDigitalMethod || this.isDuitkuMethod) && !this.customerEmail.trim()) {
-                this.showToast('Email wajib diisi untuk pembayaran digital!');
-                return;
-            }
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if ((this.isDigitalMethod || this.isDuitkuMethod) && !emailRegex.test(this.customerEmail.trim())) {
-                this.showToast('Format email tidak valid!');
-                return;
+
+            const isDirectWaOrPreorder = this.isWaCheckoutActive || this.isPreorderActive;
+
+            // Validasi khusus WA/Preorder
+            if (isDirectWaOrPreorder) {
+                if (!this.customerAddress.trim()) {
+                    this.showToast('Alamat wajib diisi!');
+                    return;
+                }
+                if (this.isPreorderActive) {
+                    if (!this.deliveryDate) {
+                        this.showToast('Pilih tanggal pengiriman!');
+                        return;
+                    }
+                    if (!this.deliverySlotId) {
+                        this.showToast('Pilih slot waktu pengiriman!');
+                        return;
+                    }
+                    if (!this.deliveryZoneId) {
+                        this.showToast('Pilih area/zona pengiriman!');
+                        return;
+                    }
+                }
+            } else {
+                // Validasi email wajib jika metode Digital (Hanya untuk POS normal)
+                if ((this.isDigitalMethod || this.isDuitkuMethod) && !this.customerEmail.trim()) {
+                    this.showToast('Email wajib diisi untuk pembayaran digital!');
+                    return;
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if ((this.isDigitalMethod || this.isDuitkuMethod) && !emailRegex.test(this.customerEmail.trim())) {
+                    this.showToast('Format email tidak valid!');
+                    return;
+                }
             }
 
             this.checkoutLoading = true;
 
-            const payload = {
+            const endpoint = isDirectWaOrPreorder ? '/api/preorders' : '/api/orders';
+
+            // Format tanggal lokal (YYYY-MM-DD) yang aman
+            const getLocalDate = () => {
+                const d = new Date();
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const payload = isDirectWaOrPreorder ? {
+                customer_name: this.customerName.trim(),
+                customer_phone: this.customerPhone.trim() || null,
+                customer_address: this.customerAddress.trim() || '-',
+                delivery_date: this.isPreorderActive ? this.deliveryDate : getLocalDate(),
+                delivery_slot_id: this.isPreorderActive ? this.deliverySlotId : 0,
+                delivery_zone_id: this.isPreorderActive ? this.deliveryZoneId : 0,
+                payment_method: this.selectedPaymentMethod === 'cash' ? 'cash' : 'qris',
+                notes: this.customerInfo.trim(),
+                items: this.cart.map((item) => ({
+                    product_id: item.id,
+                    variant_id: item.variant_id || null,
+                    name: item.cartName,
+                    quantity: item.qty
+                }))
+            } : {
                 customer_name: this.customerName.trim(),
                 customer_email: this.customerEmail.trim() || null,
                 order_type: this.orderType,
@@ -747,7 +855,7 @@ document.addEventListener('alpine:init', () => {
             };
 
             try {
-                const res = await fetch('/api/orders', {
+                const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -765,6 +873,37 @@ document.addEventListener('alpine:init', () => {
                     const invoiceCode = data.data?.invoice_code || 'OK';
                     const snapToken = data.data?.snap_token || null;
                     const paymentUrl = data.data?.payment_url || null;
+                    const waUrlBase = data.data?.wa_url || null;
+                    const waMessage = data.data?.wa_message || '';
+                    const redirectWaUrl = waUrlBase ? waUrlBase + encodeURIComponent(waMessage) : null;
+
+                    if (isDirectWaOrPreorder && redirectWaUrl) {
+                        this.cart = [];
+                        this.saveCart();
+                        this.customerName = '';
+                        this.customerPhone = '';
+                        this.customerAddress = '';
+                        this.customerInfo = '';
+                        this.showToast('Pesanan berhasil dibuat!');
+                        
+                        this.orderSuccess = {
+                            invoiceCode: invoiceCode,
+                            total: this.formatPrice(this.totalOrderPrice),
+                            waUrl: redirectWaUrl
+                        };
+                        
+                        this.addOrderToHistory({
+                            invoiceCode: invoiceCode,
+                            totalRaw: this.totalOrderPrice,
+                            orderType: this.orderType,
+                            paymentMethod: 'cash',
+                            paymentName: 'Bayar via WhatsApp',
+                            items: this.cart,
+                            waUrl: redirectWaUrl
+                        });
+                        
+                        return;
+                    }
 
                     // Jika Duitku
                     if (this.isDuitkuMethod && paymentUrl) {
@@ -891,8 +1030,7 @@ document.addEventListener('alpine:init', () => {
                         waUrl: finalWaUrl
                     });
 
-                    // 4. BUKA OTOMATIS KE WA (Persis kayak fitur asli lu)
-                    window.open(finalWaUrl, '_blank');
+                    // Buka otomatis ke WA dihapus agar user melihat layer sukses terlebih dahulu.
 
                     // 5. Baru deh aman buat kosongin cart dan form
                     this.cart = [];

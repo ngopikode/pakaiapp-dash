@@ -21,7 +21,7 @@ class extends Component
         $this->order = Order::with('items')->where('invoice_code', $code)->firstOrFail();
 
         // Tarik info toko buat nampilin logo/nama toko di struk
-        $this->store = StoreSetting::first();
+        $this->store = StoreSetting::cached();
     }
 
     public function refreshOrder(): void

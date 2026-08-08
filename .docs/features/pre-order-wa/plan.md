@@ -1,10 +1,8 @@
-# Fitur: Pre-Order & Pengiriman Terjadwal (Mode `direct_wa`)
+# Fitur: Pre-Order & Pengiriman Terjadwal (WA Checkout)
 
 > Referensi: [Project Map](../../project-map.md) · [Architecture Decisions](../../decisions/)
 
-Fitur ini menambahkan **checkout mode baru** (`direct_wa`) ke sistem multi-tenant Pakaiapp, tanpa merusak alur POS/resto
-yang sudah berjalan. Tenant tipe retail seperti pedagang sayur/bumbu dapat menerima pesanan via web katalog dengan
-jadwal pengiriman, QRIS statis, dan rekap belanja pasar otomatis.
+Fitur ini menambahkan opsi **checkout via WhatsApp** dan **pengiriman terjadwal (Pre-Order)** ke sistem multi-tenant Pakaiapp, yang bisa diaktifkan secara terpisah, tanpa merusak alur POS/resto yang sudah berjalan.
 
 **Target pertama:** tenant tipe `retail` (pedagang sayur/bumbu seperti Nuala Sayur).
 
@@ -15,27 +13,24 @@ jadwal pengiriman, QRIS statis, dan rekap belanja pasar otomatis.
 Sistem existing sudah mendukung order online (`is_online = true`) dengan dua payment gateway (Duitku & Midtrans). Namun
 belum ada mode untuk tenant yang:
 
-1. **Tidak butuh payment gateway** — pembayaran via QRIS statis (foto QR toko) atau COD.
+1. **Tidak butuh payment gateway** — pembayaran via QRIS statis (foto QR toko) atau COD (Checkout WhatsApp).
 2. **Butuh jadwal pengiriman** — pembeli memilih tanggal + slot jam kirim.
 3. **Butuh rekap agregasi** — dashboard merangkum total bahan per produk untuk belanja pasar.
 
-Kolom `order_type` di tabel `orders` sudah punya nilai `'online'`. Status `'pending'` sudah ada. Yang perlu ditambahkan
-adalah **lapisan konfigurasi mode** dan **data delivery schedule** di atas struktur Order yang sudah ada.
-
 ---
 
-## Keputusan Arsitektur
+## Keputusan Arsitektur: Modular Flags
 
-### 1. Feature Flag: `checkout_mode` di `store_settings`
+Kita memisahkan fitur menjadi dua boolean flag independen di tabel `store_settings`:
 
-Tambah satu kolom `checkout_mode` ke tabel `store_settings` dengan nilai:
-
-- `'pos'` — default, mode POS/resto existing (tidak terdampak sama sekali).
-- `'direct_wa'` — mode baru: katalog web + QRIS statis + WA redirect.
-
-Helper `StoreSetting::isDirectWaMode(): bool` dipakai di satu titik pengecekan, tidak ada string literal berserakan.
-
-> Hybrid mode (Mode 3 dari proposal bisnis) dibuang — YAGNI. Tidak ada use case konkret saat ini.
+1. **`is_wa_checkout_active`**: Mode Checkout WhatsApp
+   - Mengalihkan halaman checkout web menjadi manual pesan via WA (tidak pakai PG).
+   - Menyembunyikan otomatis fitur Kasir dan KDS dari Sidebar & Setting (karena pesanan dilayani via WA).
+   
+2. **`is_preorder_active`**: Mode Pengiriman Terjadwal
+   - Mewajibkan pembeli memilih **Tanggal** & **Slot Pengiriman**.
+   - Menambahkan menu **Pesanan Terjadwal** dan **Rekap Belanja Pasar** ke Sidebar.
+   - Bisa dipakai bersama WA Checkout, atau dengan metode POS normal (Midtrans/Duitku).
 
 ---
 
@@ -64,7 +59,7 @@ Nullable columns — tidak memengaruhi order POS lama:
 
 | Kolom           | Type                      | Default | Keterangan                    |
 |-----------------|---------------------------|---------|-------------------------------|
-| `checkout_mode` | `enum('pos','direct_wa')` | `'pos'` | Feature flag utama            |
+| `is_wa_checkout_active` | `enum('pos','WA Checkout')` | `'pos'` | Feature flag utama            |
 | `cutoff_time`   | `time`                    | `null`  | Jam batas pesan (ex: `04:00`) |
 | `qris_image`    | `varchar(255)`            | `null`  | Path gambar QRIS statis       |
 
@@ -150,7 +145,7 @@ dibutuhkan).
 
 ### Migrasi Tenant (4 file baru di `database/migrations/tenant/core/`)
 
-1. `2026_08_xx_add_direct_wa_fields_to_store_settings.php`
+1. `2026_08_xx_add_WA Checkout_fields_to_store_settings.php`
 2. `2026_08_xx_create_delivery_slots_table.php`
 3. `2026_08_xx_create_delivery_zones_table.php`
 4. `2026_08_xx_add_delivery_fields_to_orders.php`
@@ -164,7 +159,7 @@ dibutuhkan).
 
 | File               | Perubahan                                                                                                     |
 |--------------------|---------------------------------------------------------------------------------------------------------------|
-| `StoreSetting.php` | Fillable baru, `isDirectWaMode(): bool`, casts `checkout_mode`                                                |
+| `StoreSetting.php` | Fillable baru, `isDirectWaMode(): bool`, casts `is_wa_checkout_active`                                                |
 | `Order.php`        | Fillable baru (`delivery_*`, `shipping_cost`, `customer_address`), relasi `deliverySlot()` + `deliveryZone()` |
 
 ### DTO Baru
@@ -222,14 +217,40 @@ Tambah section **"Mode Pre-Order"** di halaman `/store-setting` existing. Update
 
 ## Yang TIDAK Diubah
 
-| Hal                                          | Alasan                                 |
-|----------------------------------------------|----------------------------------------|
-| `POST /api/orders`                           | Tetap untuk POS. Tidak disentuh.       |
-| `OrderService::processOrder()`               | Pre-order punya service sendiri.       |
-| Payment Gateway (Duitku/Midtrans)            | Tidak dipanggil dari alur `direct_wa`. |
-| `KitchenUpdated` event                       | Tidak relevan untuk mode pre-order.    |
-| Wallet balance / revenue tracking            | Disederhanakan untuk v1.               |
-| `categories`, `products`, `product_variants` | Dipakai apa adanya — katalog sama.     |
+| Hal | Alasan |
+|---|---|
+| `POST /api/orders` | Tetap untuk POS. Tidak disentuh. |
+| `OrderService::processOrder()` | Pre-order punya service sendiri. |
+| Payment Gateway (Duitku/Midtrans) | Tidak dipanggil dari alur `WA Checkout`. |
+| `KitchenUpdated` event | Tidak relevan untuk mode pre-order. |
+| Wallet balance / revenue tracking | Disederhanakan untuk v1. |
+| `categories`, `products`, `product_variants` | Dipakai apa adanya — katalog sama. |
+| Sistem jam operasional (`operating_hours`) | Tetap satu range per hari, untuk gate "kapan toko bisa dipesan". Tidak bentrok dengan `delivery_slots`. |
+| Route guard & middleware | Akses dikontrol `role:manager` seperti biasa. Sidebar yang menyembunyikan menu, bukan route. |
+
+---
+
+## Dampak Otomatis Mode `WA Checkout`
+
+Semua perubahan ini terjadi **otomatis** saat merchant mengaktifkan mode `WA Checkout` di setting. Tidak ada aksi tambahan.
+
+| Fitur | Mode `pos` (default) | Mode `WA Checkout` |
+|---|---|---|
+| Menu "Kasir / POS" di sidebar | ✅ Tampil | ❌ Disembunyikan |
+| Menu "Layar Dapur" di sidebar | ✅ Tampil jika `is_kitchen_active` | ❌ Disembunyikan |
+| Toggle "Sesi Shift Kasir" di setting | ✅ Tampil | ❌ Disembunyikan (`x-show`) |
+| Toggle "Layar Dapur (KDS)" di setting | ✅ Tampil jika resto | ❌ Disembunyikan (`x-show`) |
+| Menu "Pesanan Terjadwal" di sidebar | ❌ Tidak ada | ✅ Muncul |
+| Menu "Rekap Belanja Pasar" di sidebar | ❌ Tidak ada | ✅ Muncul |
+| Produk, Katalog, Wallet, Riwayat | ✅ | ✅ Sama |
+
+### Catatan: Jam Operasional vs Slot Pengiriman
+
+| | `operating_hours` (existing) | `delivery_slots` (pre-order) |
+|---|---|---|
+| **Fungsi** | Gate kapan toko bisa menerima order | Jam keberangkatan kurir |
+| **Bisa >1x sehari?** | Tidak (satu range per hari) | Ya, bisa banyak slot |
+| **Siapa yang pakai** | Semua tenant | Hanya `WA Checkout` |
 
 ---
 
@@ -237,10 +258,11 @@ Tambah section **"Mode Pre-Order"** di halaman `/store-setting` existing. Update
 
 | Fase       | Cakupan                                                                              | Model             | Status     |
 |------------|--------------------------------------------------------------------------------------|-------------------|------------|
-| **Fase 1** | Migrasi + Model (DeliverySlot, DeliveryZone, update StoreSetting & Order)            | Model murah       | ⏳ Planned |
-| **Fase 2** | DTO + PreOrderService + PreOrderApiController + routes + tests                       | **Claude Sonnet** | ⏳ Planned |
-| **Fase 3** | Livewire dashboard merchant (daily orders + market recap) + setting UI section       | Model murah       | ⏳ Planned |
-| **Fase 4** | Frontend katalog customer (checkout 3-step Livewire+Alpine, detect `direct_wa` mode) | Model murah       | ⏳ Planned |
+| **Fase 1** | Migrasi + Model (DeliverySlot, DeliveryZone, update StoreSetting & Order)            | Model murah       | ✅ Shipped |
+| **Fase 2** | DTO + PreOrderService + PreOrderApiController + routes + tests                       | **Claude Sonnet** | ✅ Shipped |
+| **Fase 3** | Livewire dashboard merchant (daily orders + market recap) + setting UI section       | Model murah       | ✅ Shipped |
+| **Fase 3.1** | Patch sidebar (hide Kasir/KDS di WA Checkout, tambah menu pre-order) + patch setting blade (x-show Shift & KDS) | **Claude Sonnet** | ✅ Shipped |
+| **Fase 4** | Frontend katalog customer (checkout 3-step Livewire+Alpine, detect `WA Checkout` mode) | Model murah       | ⏳ Planned |
 
 ---
 
@@ -268,8 +290,8 @@ Tambah section **"Mode Pre-Order"** di halaman `/store-setting` existing. Update
 
 **Yang dikerjakan (urutan):**
 
-1. Buat `database/migrations/tenant/core/2026_08_xx_add_direct_wa_fields_to_store_settings.php`
-    - Tambah: `checkout_mode` enum ('pos','direct_wa') default 'pos', `cutoff_time` time nullable, `qris_image` varchar
+1. Buat `database/migrations/tenant/core/2026_08_xx_add_WA Checkout_fields_to_store_settings.php`
+    - Tambah: `is_wa_checkout_active` enum ('pos','WA Checkout') default 'pos', `cutoff_time` time nullable, `qris_image` varchar
       (255) nullable
 2. Buat `database/migrations/tenant/core/2026_08_xx_create_delivery_slots_table.php`
 3. Buat `database/migrations/tenant/core/2026_08_xx_create_delivery_zones_table.php`
@@ -281,10 +303,10 @@ Tambah section **"Mode Pre-Order"** di halaman `/store-setting` existing. Update
 7. Buat `database/factories/DeliverySlotFactory.php`
 8. Buat `database/factories/DeliveryZoneFactory.php`
 9. Update `app/Tenant/Models/Core/StoreSetting.php`:
-    - Tambah fillable: `checkout_mode`, `cutoff_time`, `qris_image`
-    - Tambah cast: `checkout_mode` (string), `cutoff_time` (string)
-    - Tambah method: `public function isDirectWaMode(): bool { return $this->checkout_mode === 'direct_wa'; }`
-    - Tambah konstanta: `const MODE_POS = 'pos'` dan `const MODE_DIRECT_WA = 'direct_wa'`
+    - Tambah fillable: `is_wa_checkout_active`, `cutoff_time`, `qris_image`
+    - Tambah cast: `is_wa_checkout_active` (string), `cutoff_time` (string)
+    - Tambah method: `public function isDirectWaMode(): bool { return $this->is_wa_checkout_active === 'WA Checkout'; }`
+    - Tambah konstanta: `const MODE_POS = 'pos'` dan `const MODE_DIRECT_WA = 'WA Checkout'`
 10. Update `app/Tenant/Models/Core/Order.php`:
     - Tambah fillable: `delivery_date`, `delivery_slot_id`, `delivery_zone_id`, `shipping_cost`, `customer_address`
     - Tambah cast: `delivery_date` → `'date'`
@@ -441,25 +463,30 @@ store(Request $request): JsonResponse
 **Baca dulu sebelum mulai:**
 
 1. `.docs/features/pre-order-wa/plan.md`
-2. `.docs/references/livewire4/PATTERNS.md`
-3. `app/Tenant/Controllers/Web/HomeController.php` — lihat bagaimana storefront dirender
-4. `resources/views/pages/tenant/store/` atau layout storefront existing — pola UI yang sudah ada
-5. `app/Tenant/Controllers/Api/PreOrderApiController.php` — hasil Fase 2, kontrak API
+2. `resources/views/layouts/store.blade.php` — perhatikan `x-data="storeApp"` dan `data-*` attributes
+3. `resources/js/store.js` — pelajari bagaimana Alpine state untuk checkout bekerja (misal: `checkoutStep`, `submitOrder()`)
+4. `resources/views/pages/tenant/store/resto/modals/checkout-modal.blade.php` — form checkout 100% Client-Side.
+5. `app/Tenant/Controllers/Api/PreOrderApiController.php` — endpoint pre-order `/api/preorders/`
 
 **Yang dikerjakan:**
 
-1. Update `HomeController` — detect `isDirectWaMode()`, pass data ke view
-2. Buat komponen Livewire checkout 3-step (Alpine.js untuk navigasi antar step, Livewire untuk submit)
-    - Step 1: Nama, Alamat, Tanggal Kirim (date picker dengan earliest date dari config), Slot Jam
-    - Step 2: Pilih Zona Ongkir (hitung ongkir otomatis), Metode Bayar (QRIS tampil gambar / COD)
-    - Step 3: Konfirmasi → POST ke `/api/preorders` → redirect ke `wa.me` URL dari response
-3. Jalankan `vendor/bin/pint --dirty --format agent`
+1. **Update `store.blade.php` layout**:
+   - Inject `data-wa-checkout-active` dan `data-preorder-active` dari setting toko.
+   - Inject config pre-order dari `PreOrderApiController::config()` ke dalam HTML (atau via Axios di `init()` store.js).
+2. **Update `store.js`**:
+   - Tangkap flag WA Checkout dan Pre-Order.
+   - Modifikasi `submitOrder()`: Jika `is_preorder_active`, validasi slot dan tgl kirim lalu post ke `/api/preorders` bukan `/api/orders`.
+   - Modifikasi `submitOrder()`: Jika `is_wa_checkout_active`, skip Midtrans/Duitku, langsung proses dan buka tab `wa_url`.
+3. **Update `checkout-modal.blade.php`**:
+   - Tambahkan Step baru atau input field tambahan (Pilih Tanggal, Pilih Slot) jika `is_preorder_active` = 1.
+   - Sembunyikan opsi metode pembayaran gateway jika `is_wa_checkout_active` = 1.
+4. Jalankan `npm run build` (karena `store.js` di-bundle oleh Vite).
 
 ---
 
 ## Tech Debt (Ponytail Notes)
 
+- **Pre-Order per Produk:** Saat ini Pre-Order berlaku global (seluruh isi keranjang). Ke depannya perlu dikembangkan agar Pre-Order bisa di-set spesifik per produk (barang A PO, barang B ready stock), lengkap dengan logika split pengiriman di keranjang.
 - `createPreOrder()` tidak decrement stock — tambahkan jika merchant butuh tracking stok reserved.
-- `completeAllForDate()` tidak mencatat ke Wallet — tambahkan jika analytics revenue dibutuhkan.
 - Notifikasi realtime saat pesanan masuk tidak ada di v1 — merchant refresh dashboard manual.
 - PDF export rekap pasar tidak ada — salin teks WA sebagai pengganti.

@@ -4,6 +4,7 @@ use App\Shared\Traits\ShowsToast;
 use App\Tenant\Models\Core\Shift;
 use App\Tenant\Models\Core\StoreSetting;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
@@ -11,6 +12,12 @@ new class extends Component
     use ShowsToast;
 
     public string $elementId = 'sidebar-wrapper';
+
+    #[On('settings-updated')]
+    public function refreshSidebar(): void
+    {
+        // No-op, livewire will just re-render this component.
+    }
 
     public function logout(): void
     {
@@ -34,17 +41,23 @@ new class extends Component
     public function getMenuSectionsProperty(): array
     {
         $user = Auth::user();
-        $storeSetting = StoreSetting::first();
+        $storeSetting = StoreSetting::cached();
         $storeType = $storeSetting?->store_type ?? 'retail';
-        $isKitchenActive = (bool)($storeSetting?->is_kitchen_active ?? true);
+        $isKitchenActive = (bool) ($storeSetting?->is_kitchen_active ?? true);
+        $isDirectWa = $storeSetting?->isWaCheckoutActive() ?? false;
+        $isPreorder = $storeSetting?->isPreorderActive() ?? false;
 
         $sections = [
             [
                 'title' => 'Menu Utama',
                 'items' => [
                     ['route' => 'dashboard', 'icon' => 'ph-fill ph-squares-four', 'label' => 'Dashboard', 'roles' => ['manager']],
-                    ['route' => 'cashier', 'icon' => 'ph-fill ph-cash-register', 'label' => 'Kasir / POS', 'roles' => ['manager', 'cashier']],
+                    ...(!$isDirectWa ? [['route' => 'cashier', 'icon' => 'ph-fill ph-cash-register', 'label' => 'Kasir / POS', 'roles' => ['manager', 'cashier']]] : []),
                     ['route' => 'order', 'icon' => 'ph-fill ph-receipt', 'label' => $storeType === 'resto' ? 'Pesanan & Riwayat' : 'Riwayat Transaksi', 'roles' => ['manager', 'cashier']],
+                    ...($isPreorder ? [
+                        ['route' => 'pre-order', 'icon' => 'ph-fill ph-package', 'label' => 'Pesanan Terjadwal', 'roles' => ['manager']],
+                        ['route' => 'pre-order.recap', 'icon' => 'ph-fill ph-chart-bar', 'label' => 'Rekap Belanja Pasar', 'roles' => ['manager']],
+                    ] : []),
                 ],
             ],
             [
@@ -72,7 +85,7 @@ new class extends Component
             ],
         ];
 
-        if ($storeType === 'resto' && $isKitchenActive) {
+        if ($storeType === 'resto' && $isKitchenActive && !$isDirectWa) {
             // Add Kitchen Screen to Menu Utama
             $sections[0]['items'][] = ['route' => 'kitchen', 'icon' => 'ph-fill ph-monitor', 'label' => 'Layar Dapur (Kitchen)', 'roles' => ['manager', 'kitchen']];
 

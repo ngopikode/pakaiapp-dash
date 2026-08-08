@@ -82,7 +82,7 @@ class OpenAiMenuService
         // 3. Meracik System Prompt yang sangat ketat (dengan Jailbreak Guard)
         $storeName = 'Restoran Kami';
         try {
-            $setting = StoreSetting::first();
+            $setting = StoreSetting::cached();
             if ($setting && $setting->name) {
                 $storeName = $setting->name;
             }

@@ -84,7 +84,7 @@ class SettingService
     /**
      * @throws Throwable
      */
-    public function saveFromForm(?StoreSetting $setting, StoreSettingFormData $data, $newLogo, $newOgImage): void
+    public function saveFromForm(?StoreSetting $setting, StoreSettingFormData $data, $newLogo, $newOgImage, $newQrisImage = null): void
     {
         $attrs = [
             'name' => $data->name,
@@ -103,6 +103,9 @@ class SettingService
             'is_application_fee_passed' => $data->isApplicationFeePassed,
             'is_kitchen_active' => $data->isKitchenActive,
             'is_shift_active' => $data->isShiftActive,
+            'is_wa_checkout_active' => $data->isWaCheckoutActive,
+            'is_preorder_active' => $data->isPreorderActive,
+            'cutoff_time' => $data->cutoffTime,
             'hero_promo_text' => $data->heroPromoText,
             'hero_status_text' => $data->heroStatusText,
             'hero_headline' => $data->heroHeadline,
@@ -131,6 +134,11 @@ class SettingService
             if ($newOgImage) {
                 if ($setting?->og_image) Storage::disk('public')->delete($setting->og_image);
                 $attrs['og_image'] = $newOgImage->store('settings', 'public');
+            }
+
+            if ($newQrisImage) {
+                if ($setting?->qris_image) Storage::disk('public')->delete($setting->qris_image);
+                $attrs['qris_image'] = $newQrisImage->store('settings', 'public');
             }
 
             StoreSetting::updateOrCreate(

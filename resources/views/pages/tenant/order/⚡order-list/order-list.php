@@ -69,7 +69,7 @@ new class extends Component
             'progressCount' => $counts->get('progress', 0),
             'completedCount' => $counts->get('completed', 0),
             'cancelledCount' => $counts->get('cancelled', 0),
-            'storeType' => StoreSetting::first()?->store_type ?? 'retail',
+            'storeType' => StoreSetting::cached()?->store_type ?? 'retail',
         ];
     }
 };

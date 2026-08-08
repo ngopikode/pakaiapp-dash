@@ -38,71 +38,97 @@
             </div>
         @endif
 
-        {{-- TOP-RIGHT: Action buttons --}}
-        <div class="absolute top-4 right-4 flex items-center gap-1.5 z-20">
-            <button @click="toggleTheme()"
-                    class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border bg-black/20 backdrop-blur-md text-white border-white/20"
-                    title="Ganti Tema">
-                <svg x-show="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="4"/>
-                    <path d="M12 2v2"/>
-                    <path d="M12 20v2"/>
-                    <path d="m4.93 4.93 1.41 1.41"/>
-                    <path d="m17.66 17.66 1.41 1.41"/>
-                    <path d="M2 12h2"/>
-                    <path d="M20 12h2"/>
-                    <path d="m6.34 17.66-1.41 1.41"/>
-                    <path d="m19.07 4.93-1.41 1.41"/>
-                </svg>
-                <svg x-show="theme !== 'dark'" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                     stroke-linejoin="round" style="display:none">
-                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-                </svg>
-            </button>
-            <button @click="historyOpen = true"
-                    class="relative p-2.5 rounded-full transition-all duration-300 active:scale-90 border bg-black/20 backdrop-blur-md text-white border-white/20"
-                    title="Riwayat Pesanan">
+        {{-- TOP-RIGHT: Action buttons (Dropdown Menu) --}}
+        <div class="absolute top-4 right-4 z-40" x-data="{ openMenu: false }">
+            <button @click="openMenu = !openMenu"
+                    class="relative p-2.5 rounded-full transition-all duration-300 active:scale-90 border bg-black/20 backdrop-blur-md text-white border-white/20 shadow-lg"
+                    title="Menu Toko">
                 <span x-show="historyCount > 0" x-text="historyCount"
                       class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black h-4 w-4 rounded-full flex items-center justify-center border border-white shadow-sm animate-pulse"
                       style="display:none;"></span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 8v4l3 3"/>
-                    <circle cx="12" cy="12" r="10"/>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
                 </svg>
             </button>
-            <button @click="$dispatch('open-contact-modal')"
-                    class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border bg-black/20 backdrop-blur-md text-white border-white/20"
-                    title="Hubungi Kami">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 16v-4"/>
-                    <path d="M12 8h.01"/>
-                </svg>
-            </button>
-            <button @click="$dispatch('open-qr-modal')"
-                    class="p-2.5 rounded-full transition-all duration-300 active:scale-90 border bg-black/20 backdrop-blur-md text-white border-white/20"
-                    title="Scan QR Menu">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="5" height="5" x="3" y="3" rx="1"/>
-                    <rect width="5" height="5" x="16" y="3" rx="1"/>
-                    <rect width="5" height="5" x="3" y="16" rx="1"/>
-                    <path d="M21 16h-3a2 2 0 0 0-2 2v3"/>
-                    <path d="M21 21v.01"/>
-                    <path d="M12 7v3a2 2 0 0 1-2 2H7"/>
-                    <path d="M3 12h.01"/>
-                    <path d="M12 3h.01"/>
-                    <path d="M12 16v.01"/>
-                    <path d="M16 12h1"/>
-                    <path d="M21 12v.01"/>
-                    <path d="M12 21v-1"/>
-                </svg>
-            </button>
+
+            <!-- Teleport Overlay and Dropdown to Body -->
+            <template x-teleport="body">
+                <div x-show="openMenu" style="display: none;" class="relative z-[9999]">
+                    <!-- Overlay for Dropdown -->
+                    <div x-show="openMenu"
+                         x-transition:enter="transition-opacity ease-out duration-300"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition-opacity ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         @click="openMenu = false"
+                         class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[9998]"></div>
+
+                    <!-- Glassmorphism Dropdown Panel -->
+                    <div x-show="openMenu"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                         class="fixed top-16 right-4 w-56 rounded-2xl bg-white/80 dark:bg-black/60 backdrop-blur-2xl border border-white/50 dark:border-white/10 shadow-2xl z-[9999] overflow-hidden">
+                        
+                        <div class="py-1">
+                            {{-- Riwayat Pesanan --}}
+                            <button @click="historyOpen = true; openMenu = false" class="w-full px-4 py-3.5 flex items-center justify-between text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/10 text-zinc-500 dark:text-zinc-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/>
+                                        </svg>
+                                    </div>
+                                    Riwayat Pesanan
+                                </div>
+                                <span x-show="historyCount > 0" x-text="historyCount" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full" style="display:none;"></span>
+                            </button>
+
+                            {{-- Hubungi Kami --}}
+                            <button @click="$dispatch('open-contact-modal'); openMenu = false" class="w-full px-4 py-3.5 flex items-center gap-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                                <div class="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/10 text-zinc-500 dark:text-zinc-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+                                    </svg>
+                                </div>
+                                Hubungi Kami
+                            </button>
+
+                            {{-- Scan QR Menu --}}
+                            <button @click="$dispatch('open-qr-modal'); openMenu = false" class="w-full px-4 py-3.5 flex items-center gap-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                                <div class="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/10 text-zinc-500 dark:text-zinc-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>
+                                    </svg>
+                                </div>
+                                Scan QR Menu
+                            </button>
+                            
+                            <div class="h-px bg-zinc-200/50 dark:bg-white/10 my-1 mx-4"></div>
+
+                            {{-- Ganti Tema --}}
+                            <button @click="toggleTheme(); openMenu = false" class="w-full px-4 py-3.5 flex items-center justify-between text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/10 text-zinc-500 dark:text-zinc-300">
+                                        <svg x-show="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                            <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                                        </svg>
+                                        <svg x-show="theme !== 'dark'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                                        </svg>
+                                    </div>
+                                    <span x-text="theme === 'dark' ? 'Tema Terang' : 'Tema Gelap'"></span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
 
         {{-- CENTER: Tagline — Shadow & Outer makin kuat di light mode, aman di dark mode --}}

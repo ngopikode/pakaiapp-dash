@@ -26,7 +26,7 @@ new class extends Component
 
     public function mount(): void
     {
-        $setting = StoreSetting::first();
+        $setting = StoreSetting::cached();
         if ($setting) $this->type = $setting->store_type;
     }
 
@@ -38,7 +38,7 @@ new class extends Component
         $this->resetValidation();
         $this->reset(['categoryId', 'name']);
 
-        $setting = StoreSetting::first();
+        $setting = StoreSetting::cached();
         $this->type = $setting ? $setting->store_type : 'retail';
 
         $this->isEditing = ($mode === 'edit');

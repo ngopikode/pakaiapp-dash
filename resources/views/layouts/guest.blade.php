@@ -27,7 +27,7 @@
 
     <!-- LEFT PANEL: Premium Showcase using 60-30-10 Rule (Hidden on Mobile) -->
     @php
-        $storeSettings = \App\Tenant\Models\Core\StoreSetting::first();
+        $storeSettings = \App\Tenant\Models\Core\StoreSetting::cached();
     @endphp
     <div
         class="hidden lg:flex lg:w-1/2 relative bg-[#090D16] overflow-hidden items-center justify-center border-r border-gray-200/5 dark:border-gray-800/10">

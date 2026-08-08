@@ -3,6 +3,7 @@
 use App\Tenant\Controllers\Api\DuitkuApiController;
 use App\Tenant\Controllers\Api\OrderApiController;
 use App\Tenant\Controllers\Api\OrderHistoryApiController;
+use App\Tenant\Controllers\Api\PreOrderApiController;
 use App\Tenant\Controllers\Api\RestaurantApiController;
 
 /**
@@ -34,6 +35,16 @@ Route::prefix('api')->middleware(['api'])->name('api.')->group(function () {
      */
     Route::prefix('duitku')->name('duitku.')->group(function () {
         Route::get('/payment-methods', [DuitkuApiController::class, 'getPaymentMethods'])->name('payment-methods');
+    });
+
+    /**
+     * Pre-Order (Mode DIRECT_WA)
+     * Dipakai oleh tenant tipe retail yang menerima pesanan via WhatsApp.
+     */
+    Route::prefix('preorders')->name('preorders.')->group(function () {
+        Route::get('config', [PreOrderApiController::class, 'config'])->name('config');
+        Route::get('slots', [PreOrderApiController::class, 'slots'])->name('slots');
+        Route::post('/', [PreOrderApiController::class, 'store'])->middleware('throttle:orders')->name('store');
     });
 
 });

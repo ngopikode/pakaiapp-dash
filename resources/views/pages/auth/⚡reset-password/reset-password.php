@@ -91,6 +91,6 @@ class extends Component
     #[Computed]
     public function settings(): ?StoreSetting
     {
-        return StoreSetting::first();
+        return StoreSetting::cached();
     }
 };

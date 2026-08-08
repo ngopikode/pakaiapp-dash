@@ -26,7 +26,7 @@ new class extends Component
     public function mount()
     {
         try {
-            $setting = StoreSetting::first();
+            $setting = StoreSetting::cached();
             if ($setting && $setting->name) {
                 $this->storeName = 'Asisten ' . $setting->name;
             }

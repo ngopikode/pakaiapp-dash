@@ -2,18 +2,18 @@
 
 namespace App\Shared\Traits;
 
-use Illuminate\Support\Facades\Cache;
+use App\Tenant\Models\Core\StoreSetting;
 
 trait ClearsStoreSettingCache
 {
-    protected static function bootClearsStoreSettingCache()
+    protected static function bootClearsStoreSettingCache(): void
     {
         static::saved(function () {
-            Cache::forget('store_setting_' . tenant('id'));
+            StoreSetting::forgetCache();
         });
 
         static::deleted(function () {
-            Cache::forget('store_setting_' . tenant('id'));
+            StoreSetting::forgetCache();
         });
     }
 }

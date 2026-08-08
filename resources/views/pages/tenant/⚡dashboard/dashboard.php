@@ -44,7 +44,7 @@ class extends Component
     public function mount(): void
     {
         $this->lastCheckedOrderId = Order::max('id') ?? 0;
-        $this->kitchenActive = (bool)(StoreSetting::first()?->is_kitchen_active ?? true);
+        $this->kitchenActive = (bool)(StoreSetting::cached()?->is_kitchen_active ?? true);
     }
 
     public function setDateFilter($filter)
@@ -138,7 +138,7 @@ class extends Component
 
     public function exportLaporan(): ?StreamedResponse
     {
-        $store = StoreSetting::first();
+        $store = StoreSetting::cached();
         if (!$store) {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Toko belum di-setup!']);
 
@@ -166,7 +166,7 @@ class extends Component
     public function with(): array
     {
         $user = Auth::user();
-        $store = StoreSetting::first();
+        $store = StoreSetting::cached();
 
         $stats = [
             'orders_today' => 0,

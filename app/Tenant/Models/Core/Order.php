@@ -18,6 +18,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'customer_email',
     'order_type',
     'is_online',
+    'delivery_date',
+    'delivery_slot_id',
+    'delivery_zone_id',
+    'shipping_cost',
+    'customer_address',
     'payment_method',
     'subtotal',
     'tax_amount',
@@ -46,6 +51,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Order extends Model
 {
+    protected function casts(): array
+    {
+        return [
+            'delivery_date' => 'date',
+        ];
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
@@ -55,6 +67,16 @@ class Order extends Model
     public function cashier(): BelongsTo
     {
         return $this->belongsTo(TenantUser::class, 'user_id');
+    }
+
+    public function deliverySlot(): BelongsTo
+    {
+        return $this->belongsTo(DeliverySlot::class);
+    }
+
+    public function deliveryZone(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryZone::class);
     }
 
     /**

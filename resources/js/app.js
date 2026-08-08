@@ -10,6 +10,9 @@ NProgress.configure({showSpinner: false});
 let navigateTimeout = null;
 
 document.addEventListener('livewire:navigating', () => {
+    // Simpan status tema sesaat sebelum DOM dimorphing
+    window.themeState = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    
     NProgress.start();
     // Debounce showLoader by 150ms to prevent aggressive flashes on fast connections
     clearTimeout(navigateTimeout);
@@ -19,6 +22,13 @@ document.addEventListener('livewire:navigating', () => {
 });
 
 document.addEventListener('livewire:navigated', () => {
+    // Segera tempelkan class dark lagi setelah navigasi selesai sebagai langkah pengamanan terakhir
+    if (window.themeState === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else if (window.themeState === 'light') {
+        document.documentElement.classList.remove('dark');
+    }
+
     NProgress.done();
     clearTimeout(navigateTimeout);
     window.hideLoader();
@@ -46,7 +56,7 @@ window.hideLoader = function () {
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('themeToggle', () => ({
-        theme: localStorage.getItem('theme') || 'light',
+        theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
 
         init() {
             // Pasang tema secara otomatis ke tag <html> saat web dimuat
@@ -62,85 +72,94 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 
-document.addEventListener('livewire:navigated', () => {
-    // Persist theme across Livewire navigations
-    const theme = localStorage.getItem('theme') || 'light';
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-
-    // Fungsi untuk membuat dan menampilkan toast ala "Island"
-    // ==========================================
-    // 1. MODERN ISLAND TOAST NOTIFICATION (ULTRA SMOOTH)
-    // ==========================================
-    window.showIslandToast = function (message, type = 'success') {
-        const existingToast = document.getElementById('modern-island-toast');
-        if (existingToast) existingToast.remove();
-
-        let iconHtml;
-        if (type === 'success') {
-            iconHtml = '<i class="ph-fill ph-check-circle text-green-500 text-xl"></i>';
-        } else if (type === 'error' || type === 'danger') {
-            iconHtml = '<i class="ph-fill ph-x-circle text-red-500 text-xl"></i>';
-        } else if (type === 'warning') {
-            iconHtml = '<i class="ph-fill ph-warning text-yellow-500 text-xl"></i>';
-        } else {
-            iconHtml = '<i class="ph-fill ph-info text-blue-500 text-xl"></i>';
+document.addEventListener('livewire:init', () => {
+    // Intercept proses Morphing dari Livewire
+    Livewire.hook('morph.updating', ({ el, toEl, component }) => {
+        // Jika elemen yang sedang dimorph adalah tag <html>
+        if (el.tagName === 'HTML') {
+            // Paksa elemen tujuan (HTML baru yang belum memiliki class dark)
+            // untuk mewarisi class dark dari HTML saat ini.
+            if (el.classList.contains('dark')) {
+                toEl.classList.add('dark');
+            } else {
+                toEl.classList.remove('dark');
+            }
         }
+    });
+});
 
-        const toast = document.createElement('div');
-        toast.id = 'modern-island-toast';
+// Fungsi untuk membuat dan menampilkan toast ala "Island"
+// ==========================================
+// 1. MODERN ISLAND TOAST NOTIFICATION (ULTRA SMOOTH)
+// ==========================================
+window.showIslandToast = function (message, type = 'success') {
+    const existingToast = document.getElementById('modern-island-toast');
+    if (existingToast) existingToast.remove();
 
-        // CSS dengan Optimasi GPU dan Animasi Apple-like Spring
-        toast.style.cssText = `
-            position: fixed;
-            top: 32px; /* Agak turun sedikit agar lebih elegan */
-            left: 50%;
-            transform: translate(-50%, -100px) scale(0.85); /* Posisi awal: di atas dan sedikit mengecil */
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 100px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 3px rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 9999;
-            font-size: 0.95rem;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            opacity: 0;
-            width: max-content;
-            max-width: 90vw;
-            will-change: transform, opacity; /* Paksa GPU untuk render (Anti-Jedag) */
-            /* Pisahkan transisi: transform pakai efek spring/mantul, opacity pakai fade biasa */
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out;
-        `;
+    let iconHtml;
+    if (type === 'success') {
+        iconHtml = '<i class="ph-fill ph-check-circle text-green-500 text-xl"></i>';
+    } else if (type === 'error' || type === 'danger') {
+        iconHtml = '<i class="ph-fill ph-x-circle text-red-500 text-xl"></i>';
+    } else if (type === 'warning') {
+        iconHtml = '<i class="ph-fill ph-warning text-yellow-500 text-xl"></i>';
+    } else {
+        iconHtml = '<i class="ph-fill ph-info text-blue-500 text-xl"></i>';
+    }
 
-        toast.innerHTML = `
-            ${iconHtml}
-            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 1px;">
-                ${message}
-            </span>
-        `;
+    const toast = document.createElement('div');
+    toast.id = 'modern-island-toast';
 
-        document.body.appendChild(toast);
+    // CSS dengan Optimasi GPU dan Animasi Apple-like Spring
+    toast.style.cssText = `
+        position: fixed;
+        top: 32px;
+        left: 50%;
+        transform: translate(-50%, -100px) scale(0.85);
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #ffffff;
+        padding: 12px 24px;
+        border-radius: 100px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 3px rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 9999;
+        font-size: 0.95rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        opacity: 0;
+        width: max-content;
+        max-width: 90vw;
+        will-change: transform, opacity;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out;
+    `;
 
-        // KUNCI ANTI-JEDAG: Beri jeda 10ms agar browser menggambar elemennya dulu
-        setTimeout(() => {
-            toast.style.transform = 'translate(-50%, 0) scale(1)'; /* Turun ke posisi asli dan membesar */
-            toast.style.opacity = '1';
-        }, 10);
+    toast.innerHTML = `
+        ${iconHtml}
+        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 1px;">
+            ${message}
+        </span>
+    `;
 
-        // Animasi keluar setelah 3 detik
-        setTimeout(() => {
-            toast.style.transform = 'translate(-50%, -100px) scale(0.85)'; /* Naik dan mengecil lagi */
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 600); // Tunggu animasi selesai baru buang dari HTML
-        }, 3000);
-    };
+    document.body.appendChild(toast);
 
-    // Daftarkan listener Livewire untuk memanggil fungsi Island Toast kita
+    setTimeout(() => {
+        toast.style.transform = 'translate(-50%, 0) scale(1)';
+        toast.style.opacity = '1';
+    }, 10);
+
+    setTimeout(() => {
+        toast.style.transform = 'translate(-50%, -100px) scale(0.85)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 600);
+    }, 3000);
+};
+
+// Daftarkan listener Livewire untuk memanggil fungsi Island Toast kita
+document.addEventListener('livewire:init', () => {
     Livewire.on('notify', (event) => {
         const data = Array.isArray(event) ? event[0] : event;
         window.showIslandToast(data.message, data.type);
@@ -148,9 +167,7 @@ document.addEventListener('livewire:navigated', () => {
 
     // HOOK LIVEWIRE UNTUK LOADER OTOMATIS
     Livewire.hook('commit', ({commit, succeed, fail}) => {
-        // Tambahkan method lain yang dirasa berat
         const heavyActions = ['save', 'deleteProduct', 'deleteCategory', 'processPayment', 'updateStatus', 'openPaymentModal', 'createProduct', 'editProduct'];
-
         const isHeavy = commit.calls.some(call => heavyActions.includes(call.method));
 
         if (isHeavy) {
@@ -159,13 +176,12 @@ document.addEventListener('livewire:navigated', () => {
             fail(() => window.hideLoader());
         }
     });
-
-    // Listener manual untuk dispatch modal dari Livewire
-    window.addEventListener('openModal', () => window.showLoader());
-    window.addEventListener('trigger-payment-modal', () => window.showLoader());
-    window.addEventListener('modal-shown', () => window.hideLoader());
-
 });
+
+// Listener manual untuk dispatch modal dari Livewire
+window.addEventListener('openModal', () => window.showLoader());
+window.addEventListener('trigger-payment-modal', () => window.showLoader());
+window.addEventListener('modal-shown', () => window.hideLoader());
 
 // ==========================================
 // ADVANCED NETWORK STATE HANDLER

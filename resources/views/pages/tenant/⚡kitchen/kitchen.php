@@ -24,7 +24,7 @@ class extends Component
 
     public function mount(): void
     {
-        $setting = StoreSetting::first();
+        $setting = StoreSetting::cached();
         if ($setting && !$setting->is_kitchen_active) {
             $this->kitchenDisabled = true;
         }

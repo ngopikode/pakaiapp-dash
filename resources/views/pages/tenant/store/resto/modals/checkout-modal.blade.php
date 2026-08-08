@@ -93,9 +93,7 @@
 
                 <h3 class="text-xl font-black text-[var(--foreground)] mb-1">Pesanan Terkirim! 🎉</h3>
                 <p class="text-xs font-medium text-[var(--text-secondary)] mb-1">Pesanan kamu sudah masuk ke sistem toko.</p>
-                <p class="text-xs font-medium text-[var(--text-secondary)] mb-6">
-                    Yuk, langsung ke kasir untuk konfirmasi dan selesaikan pembayaranmu.
-                </p>
+                <p class="text-xs font-medium text-[var(--text-secondary)] mb-6" x-text="(isWaCheckoutActive || isPreorderActive) ? 'Yuk, lanjutkan ke WhatsApp admin untuk konfirmasi pengiriman.' : 'Yuk, langsung ke kasir untuk konfirmasi dan selesaikan pembayaranmu.'"></p>
 
                 {{-- Interactive Invoice Card --}}
                 <div
@@ -139,43 +137,47 @@
 
                 {{-- Action Buttons Container --}}
                 <div class="w-full space-y-2">
-                    {{-- 1. Primary Action: Lihat Detail Nota (_blank) --}}
-                    <a
-                        :href="'/invoice/' + orderSuccess.invoiceCode"
-                        target="_blank"
-                        class="w-full bg-[var(--primary-color)] text-[var(--foreground)] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-105 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[var(--primary-color)]/20"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
-                            <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-                            <path d="M10 9H8"/>
-                            <path d="M16 13H8"/>
-                            <path d="M16 17H8"/>
-                        </svg>
-                        Lihat Invoice Detail
-                    </a>
+                    {{-- 1A. Primary Action: WA Checkout --}}
+                    <template x-if="orderSuccess.waUrl">
+                        <button
+                            @click="window.open(orderSuccess.waUrl, '_blank')"
+                            type="button"
+                            class="w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#20bd5a] transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                 fill="currentColor">
+                                <path
+                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.06-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            </svg>
+                            Lanjut ke WhatsApp Admin
+                        </button>
+                    </template>
 
-                    {{-- 2. Secondary Action: Tombol WA (Pakai Button + JS biar gak mental ke /) --}}
-                    <button
-                        @click="window.open(orderSuccess.waUrl, '_blank')"
-                        type="button"
-                        class="w-full bg-[#25D366] text-[var(--background)] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#20bd5a] transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                             fill="currentColor">
-                            <path
-                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.06-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                        </svg>
-                        Konfirmasi via WA
-                    </button>
+                    {{-- 1B. Primary Action: Lihat Detail Nota (_blank) (POS Normal) --}}
+                    <template x-if="!orderSuccess.waUrl">
+                        <a
+                            :href="'/invoice/' + orderSuccess.invoiceCode"
+                            target="_blank"
+                            class="w-full bg-[var(--primary-color)] text-[var(--foreground)] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-105 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-[var(--primary-color)]/20"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                                <path d="M10 9H8"/>
+                                <path d="M16 13H8"/>
+                                <path d="M16 17H8"/>
+                            </svg>
+                            Lihat Invoice Detail
+                        </a>
+                    </template>
 
-                    {{-- 3. Tertiary Action: Kembali Browsing Menu --}}
+                    {{-- 2. Secondary Action: Tutup --}}
                     <button
                         @click="closeCheckout"
                         class="w-full bg-[var(--background)] text-[var(--text-secondary)] py-3.5 mt-2 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[var(--bg-soft)] border border-[var(--border)]/40 transition-all active:scale-[0.98]"
                     >
-                        Kembali ke Menu
+                        Tutup
                     </button>
                 </div>
             </div>
@@ -282,7 +284,7 @@
                     {{-- Bottom Form Step 1 --}}
                     <div class="shrink-0 p-6 bg-[var(--surface)] border-t border-[var(--border)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                         {{-- Order Type Options --}}
-                        <div class="grid grid-cols-{{ count($orderTypes ?? [['id'=>'takeaway']]) }} gap-2 mb-5">
+                        <div x-show="!isWaCheckoutActive && !isPreorderActive" class="grid grid-cols-{{ count($orderTypes ?? [['id'=>'takeaway']]) }} gap-2 mb-5">
                             @foreach($orderTypes ?? [['id'=>'takeaway', 'label'=>'Takeaway']] as $type)
                                 <button
                                     @click="orderType = '{{ $type['id'] }}'"
@@ -360,8 +362,62 @@
                                         />
                                     </div>
 
-                                    <!-- Email — Tampil jika pembayaran non-tunai (Digital) -->
-                                    <div x-show="selectedPaymentMethod !== 'cash'" class="relative"
+                                    <!-- WA Checkout / Pre-Order Fields -->
+                                    <template x-if="isWaCheckoutActive || isPreorderActive">
+                                        <div class="space-y-3"
+                                             x-transition:enter="transition ease-out duration-200"
+                                             x-transition:enter-start="opacity-0 -translate-y-2"
+                                             x-transition:enter-end="opacity-100 translate-y-0">
+                                            
+                                            <!-- Telepon -->
+                                            <div class="relative">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                                <input x-model="customerPhone" type="tel" placeholder="Nomor Telepon / WA" class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all" />
+                                            </div>
+
+                                            <!-- Alamat Lengkap -->
+                                            <div class="relative">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-4 top-4 text-[var(--text-secondary)]"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                                <textarea x-model="customerAddress" placeholder="Alamat Lengkap Pengiriman" rows="2" class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all resize-none"></textarea>
+                                            </div>
+
+                                            <template x-if="isPreorderActive">
+                                                <div class="p-3 bg-[var(--bg-soft)] border border-[var(--border)] rounded-xl space-y-3">
+                                                    <div class="grid grid-cols-2 gap-3">
+                                                        <!-- Tanggal Kirim -->
+                                                        <div>
+                                                            <label class="block text-xs font-bold text-[var(--text-secondary)] mb-1">Tanggal Kirim</label>
+                                                            <input x-model="deliveryDate" type="date" :min="preorderConfig.earliest_date" class="w-full px-3 py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs font-bold outline-none focus:border-[var(--primary-color)] transition-all" />
+                                                        </div>
+                                                        <!-- Slot Waktu -->
+                                                        <div>
+                                                            <label class="block text-xs font-bold text-[var(--text-secondary)] mb-1">Jam Kirim <span x-show="slotsLoading" class="animate-pulse">...</span></label>
+                                                            <select x-model="deliverySlotId" class="w-full px-3 py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs font-bold outline-none focus:border-[var(--primary-color)] transition-all appearance-none">
+                                                                <option value="" disabled>Pilih Slot</option>
+                                                                <template x-for="slot in availableSlots" :key="slot.id">
+                                                                    <option :value="slot.id" x-text="`${slot.name} ${slot.is_full ? '(Penuh)' : ''}`" :disabled="slot.is_full"></option>
+                                                                </template>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Zona Ongkir -->
+                                                    <div>
+                                                        <label class="block text-xs font-bold text-[var(--text-secondary)] mb-1">Area / Zona Ongkos Kirim</label>
+                                                        <select x-model="deliveryZoneId" class="w-full px-3 py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs font-bold outline-none focus:border-[var(--primary-color)] transition-all appearance-none">
+                                                            <option value="" disabled>Pilih Area Pengiriman</option>
+                                                            <template x-for="zone in preorderConfig.zones || []" :key="zone.id">
+                                                                <option :value="zone.id" x-text="`${zone.name} - Rp ${zone.shipping_cost}`"></option>
+                                                            </template>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Email — Tampil jika pembayaran non-tunai (Digital) dan BUKAN WA Checkout -->
+                                    <div x-show="selectedPaymentMethod !== 'cash' && !isWaCheckoutActive" class="relative"
                                          x-transition:enter="transition ease-out duration-200"
                                          x-transition:enter-start="opacity-0 -translate-y-2"
                                          x-transition:enter-end="opacity-100 translate-y-0">
@@ -382,7 +438,7 @@
                                     </div>
 
                                     <!-- Info Dinamis: Nomor Meja / Catatan / Alamat Lengkap -->
-                                    <div class="relative">
+                                    <div class="relative" x-show="!isWaCheckoutActive && !isPreorderActive">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -405,6 +461,17 @@
                                             x-model="customerInfo"
                                             type="text"
                                             :placeholder="orderType === 'dinein' ? 'Nomor Meja' : (orderType === 'takeaway' ? 'Catatan (misal: bungkus pisah)' : 'Alamat Lengkap Pengantaran')"
+                                            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
+                                        />
+                                    </div>
+                                    
+                                    <!-- Catatan Pesanan Khusus WA Checkout / Pre-Order -->
+                                    <div class="relative" x-show="isWaCheckoutActive || isPreorderActive">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                                        <input
+                                            x-model="customerInfo"
+                                            type="text"
+                                            placeholder="Catatan Pesanan (opsional)"
                                             class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm font-bold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] transition-all"
                                         />
                                     </div>
@@ -436,10 +503,27 @@
                                                     </svg>
                                                 </div>
                                                 <div class="text-left">
-                                                    <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">
-                                                        Bayar Manual di Kasir</h4>
-                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Bayar tunai/manual
-                                                        di kasir outlet</p>
+                                                    <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1" x-text="isWaCheckoutActive ? 'COD / Bayar Tunai' : 'Bayar Manual di Kasir'"></h4>
+                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold" x-text="isWaCheckoutActive ? 'Bayar ke kurir / bayar saat terima barang' : 'Bayar tunai/manual di kasir outlet'"></p>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="selectedPaymentMethod === 'qris'">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 shrink-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                         stroke-width="2.5" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                        <path d="M7 7h10M7 11h10M7 15h6"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="text-left">
+                                                    <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">Transfer QRIS</h4>
+                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Tersedia via WA</p>
                                                 </div>
                                             </div>
                                         </template>
@@ -468,7 +552,7 @@
 
                                         <!-- Duitku Specific Method Selected -->
                                         <template
-                                            x-if="selectedPaymentMethod !== 'cash' && selectedPaymentMethod !== 'digital'">
+                                            x-if="selectedPaymentMethod !== 'cash' && selectedPaymentMethod !== 'qris' && selectedPaymentMethod !== 'digital'">
                                             <div class="flex items-center gap-3">
                                                 <div
                                                     class="w-9 h-9 bg-[var(--surface)] p-1 rounded-xl border border-[var(--border)] flex items-center justify-center shrink-0">
@@ -581,8 +665,12 @@
                                         </span>
 
                                         <!-- Dynamic Button text -->
-                                        <span
-                                            x-text="selectedPaymentMethod === 'cash' ? 'Pesan & Bayar di Kasir' : (selectedPaymentMethod === 'digital' ? '⚡ Bayar via Digital' : '⚡ Bayar via ' + (duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital'))"></span>
+                                        <template x-if="isWaCheckoutActive || isPreorderActive">
+                                            <span x-text="selectedPaymentMethod === 'qris' ? 'Pesan & Transfer QRIS' : 'Pesan & COD'"></span>
+                                        </template>
+                                        <template x-if="!isWaCheckoutActive && !isPreorderActive">
+                                            <span x-text="selectedPaymentMethod === 'cash' ? 'Pesan & Bayar di Kasir' : (selectedPaymentMethod === 'digital' ? '⚡ Bayar via Digital' : '⚡ Bayar via ' + (duitkuPaymentMethods.find(m => m.paymentMethod === selectedPaymentMethod)?.paymentName || 'Digital'))"></span>
+                                        </template>
                                     </span>
                                 </span>
 
@@ -609,8 +697,7 @@
                         <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 space-y-4">
                             <!-- 1. Cash / Manual Payment -->
                             <div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">Manual /
-                                    Kasir</p>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2" x-text="isWaCheckoutActive ? 'Pembayaran Langsung' : 'Manual / Kasir'"></p>
                                 <div
                                     @click="selectedPaymentMethod = 'cash'"
                                     class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none flex items-center justify-between"
@@ -628,10 +715,8 @@
                                             </svg>
                                         </div>
                                         <div class="text-left">
-                                            <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">
-                                                Bayar Manual di Kasir</h4>
-                                            <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Pesan online, bayar
-                                                tunai/manual di kasir outlet</p>
+                                            <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1" x-text="isWaCheckoutActive ? 'COD / Bayar Tunai' : 'Bayar Manual di Kasir'"></h4>
+                                            <p class="text-[9px] text-[var(--text-secondary)] font-semibold" x-text="isWaCheckoutActive ? 'Bayar ke kurir / bayar saat terima barang' : 'Pesan online, bayar tunai/manual di kasir outlet'"></p>
                                         </div>
                                     </div>
                                     <!-- Radio Circle -->
@@ -643,10 +728,47 @@
                                             :class="selectedPaymentMethod === 'cash' ? 'scale-100' : 'scale-0'"></div>
                                     </div>
                                 </div>
+                                
+                                <template x-if="qrisImage">
+                                    <div
+                                        @click="selectedPaymentMethod = 'qris'"
+                                        class="relative p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none mt-3"
+                                        :class="selectedPaymentMethod === 'qris' ? 'border-[var(--primary-color)] bg-[var(--primary-color)]/[0.04] shadow-sm shadow-[var(--primary-color)]/5' : 'bg-[var(--background)] border-transparent hover:border-[var(--border)]'"
+                                    >
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 shrink-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                        <path d="M7 7h10M7 11h10M7 15h6"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="text-left">
+                                                    <h4 class="text-xs font-black text-[var(--foreground)] uppercase tracking-wide leading-none mb-1">Transfer QRIS Manual</h4>
+                                                    <p class="text-[9px] text-[var(--text-secondary)] font-semibold">Scan QR di bawah & konfirmasi kasir/WA</p>
+                                                </div>
+                                            </div>
+                                            <!-- Radio Circle -->
+                                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200"
+                                                :class="selectedPaymentMethod === 'qris' ? 'border-[var(--primary-color)] bg-[var(--surface)]' : 'border-[var(--border)] bg-[var(--surface)]'">
+                                                <div class="w-2.5 h-2.5 rounded-full transition-transform duration-200 scale-0 bg-[var(--primary-color)]"
+                                                    :class="selectedPaymentMethod === 'qris' ? 'scale-100' : 'scale-0'"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Expand QR if Selected -->
+                                        <div x-show="selectedPaymentMethod === 'qris'" x-collapse>
+                                            <div class="bg-white rounded-xl p-3 border border-slate-200 mt-2 text-center">
+                                                <img :src="qrisImage" alt="QRIS" class="w-full max-w-[200px] h-auto object-contain mx-auto rounded-lg">
+                                                <p class="text-[10px] text-slate-500 font-semibold mt-2 text-center" x-text="isWaCheckoutActive ? 'Screenshot/Download lalu bayar. Upload bukti ke admin.' : 'Tunjukkan ke kasir setelah berhasil.'"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
 
                             <!-- 2. Midtrans payment method -->
-                            <div x-show="midtransEnabled" style="display: none;">
+                            <div x-show="!isWaCheckoutActive && midtransEnabled" style="display: none;">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2">
                                     Pembayaran Instan (Midtrans)</p>
 
@@ -708,7 +830,7 @@
 
                             <!-- 3. Duitku payment methods -->
                             @if(config('duitku.enabled'))
-                                <div x-show="duitkuPaymentMethods.length > 0" style="display: none;">
+                                <div x-show="!isWaCheckoutActive && duitkuPaymentMethods.length > 0" style="display: none;">
                                     <div class="flex items-center justify-between mb-2">
                                         <p class="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">
                                             Transfer & E-Wallet Otomatis (Duitku)</p>

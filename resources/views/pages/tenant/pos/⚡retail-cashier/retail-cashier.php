@@ -93,7 +93,7 @@ new class extends Component
                 app(BillingService::class)->chargeTransactionFee($order);
                 // ==========================================
 
-                $storeName = StoreSetting::first()->name ?? 'Toko Kami';
+                $storeName = StoreSetting::cached()->name ?? 'Toko Kami';
 
                 return [
                     'success' => true,
@@ -178,7 +178,7 @@ new class extends Component
                 // --- POTONG SALDO WALLET ---
                 app(BillingService::class)->chargeTransactionFee($order);
 
-                $storeName = StoreSetting::first()->name ?? 'Toko Kami';
+                $storeName = StoreSetting::cached()->name ?? 'Toko Kami';
 
                 return [
                     'success' => true,

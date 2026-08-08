@@ -41,6 +41,10 @@ use Illuminate\Support\Facades\Cache;
     'is_application_fee_passed',
     'is_kitchen_active',
     'is_shift_active',
+    'is_wa_checkout_active',
+    'is_preorder_active',
+    'cutoff_time',
+    'qris_image',
     'use_same_hours',
     'operating_hours',
     'created_at',
@@ -54,9 +58,22 @@ class StoreSetting extends Model
     {
         return [
             'is_shift_active' => 'boolean',
+            'is_wa_checkout_active' => 'boolean',
+            'is_preorder_active' => 'boolean',
+            'cutoff_time' => 'string',
             'operating_hours' => 'array',
             'use_same_hours' => 'boolean',
         ];
+    }
+
+    public function isWaCheckoutActive(): bool
+    {
+        return (bool)$this->is_wa_checkout_active;
+    }
+
+    public function isPreorderActive(): bool
+    {
+        return (bool)$this->is_preorder_active;
     }
 
     /** Nama hari lowercase sesuai key JSON (Carbon: 'Monday' → 'monday') */
@@ -111,13 +128,34 @@ class StoreSetting extends Model
         return $now->between($open, $close);
     }
 
+    /** @var array<string, self|null> In-memory cache per tenant per request. */
+    private static array $instanceCache = [];
+
     public static function cached(): ?self
     {
+        $tenantId = tenant('id');
+
+        if (array_key_exists($tenantId, self::$instanceCache)) {
+            return self::$instanceCache[$tenantId];
+        }
+
         $attrs = Cache::rememberForever(
-            'store_setting_' . tenant('id'),
+            'store_setting_' . $tenantId,
             fn () => self::first()?->getAttributes()
         );
 
-        return $attrs ? (new self)->forceFill($attrs)->syncOriginal() : null;
+        $instance = $attrs ? (new self)->forceFill($attrs)->syncOriginal() : null;
+
+        self::$instanceCache[$tenantId] = $instance;
+
+        return $instance;
+    }
+
+    /** Bust both the in-memory and persistent cache. Called by ClearsStoreSettingCache trait. */
+    public static function forgetCache(?string $tenantId = null): void
+    {
+        $tenantId ??= tenant('id');
+        unset(self::$instanceCache[$tenantId]);
+        Cache::forget('store_setting_' . $tenantId);
     }
 }

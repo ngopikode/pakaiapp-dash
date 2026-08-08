@@ -15,7 +15,7 @@ class extends Component
     public function mount($code): void
     {
         $this->order = Order::with('items')->where('invoice_code', $code)->firstOrFail();
-        $this->store = StoreSetting::first();
+        $this->store = StoreSetting::cached();
     }
 
     public function markAsPrinted(): void

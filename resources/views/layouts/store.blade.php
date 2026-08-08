@@ -1,29 +1,68 @@
 @php
+    use App\Tenant\Models\Core\DeliveryZone;
     use App\Tenant\Models\Core\StoreSetting;
+    use App\Tenant\Services\PreOrderService;
     use App\Tenant\Services\SettingService;
-    use Illuminate\Support\Facades\Storage;
 
+    // View Composers seringkali tidak ter-trigger pada pemanggilan anonymous component <x-...>
+    // Sesuai dengan PATTERNS.md, inisialisasi pada @php block level layout ini diperbolehkan.
+    
     $setting = StoreSetting::cached();
     $appFeeAmount = app(SettingService::class)->get('default_trx_fee', tenant(), 300);
 
+    $waNumber = '6281234567890';
+    $storeName = 'EzMenu';
+    $storeType = 'resto';
+    $isOpenNow = false;
+    $todayHours = [];
+    $orderTypes = [];
+    $isWaCheckoutActive = false;
+    $isPreorderActive = false;
+    $preorderConfig = [];
+
     if ($setting?->is_active) {
         $waNumber = preg_replace('/\D/', '', $setting->whatsapp_number ?: '6281234567890');
-        if (str_starts_with($waNumber, '0')) $waNumber = '62' . substr($waNumber, 1);
+        if (str_starts_with($waNumber, '0')) {
+            $waNumber = '62' . substr($waNumber, 1);
+        }
+
         $storeName = $setting->name ?: 'EzMenu';
         $storeType = $setting->store_type ?: 'resto';
-
-        $orderTypes = [];
-        if ($storeType === 'resto') {
-            if ($setting->is_dinein_active)   $orderTypes[] = ['id' => 'dinein',   'label' => 'Makan Sini'];
-            if ($setting->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
-        } else {
-            if ($setting->is_takeaway_active) $orderTypes[] = ['id' => 'takeaway', 'label' => 'Ambil Sendiri'];
-        }
-        if ($setting->is_delivery_active) $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
-        if (empty($orderTypes))           $orderTypes[] = ['id' => 'takeaway', 'label' => 'Takeaway'];
-
-        $isOpenNow  = $setting->isOpenNow();
+        $isOpenNow = $setting->isOpenNow();
         $todayHours = $setting->getTodayHours();
+
+        $isWaCheckoutActive = $setting->isWaCheckoutActive();
+        $isPreorderActive = $setting->isPreorderActive();
+
+        if ($isPreorderActive) {
+            $preorderConfig = [
+                'earliest_date' => app(PreOrderService::class)->resolveEarliestDeliveryDate($setting)->toDateString(),
+                'zones' => DeliveryZone::where('is_active', true)->get()->toArray(),
+            ];
+        }
+
+        if ($isWaCheckoutActive || $isPreorderActive) {
+            $orderTypes[] = ['id' => 'online', 'label' => 'Pesanan Pengiriman'];
+        } else {
+            if ($storeType === 'resto') {
+                if ($setting->is_dinein_active) {
+                    $orderTypes[] = ['id' => 'dinein', 'label' => 'Makan Sini'];
+                }
+                if ($setting->is_takeaway_active) {
+                    $orderTypes[] = ['id' => 'takeaway', 'label' => 'Bungkus'];
+                }
+            } else {
+                if ($setting->is_takeaway_active) {
+                    $orderTypes[] = ['id' => 'takeaway', 'label' => 'Ambil Sendiri'];
+                }
+            }
+            if ($setting->is_delivery_active) {
+                $orderTypes[] = ['id' => 'delivery', 'label' => 'Diantar'];
+            }
+            if (empty($orderTypes)) {
+                $orderTypes[] = ['id' => 'takeaway', 'label' => 'Takeaway'];
+            }
+        }
     }
 @endphp
 
@@ -57,6 +96,10 @@
     data-service-rate="{{ $setting->service_charge_rate ?? 5.00 }}"
     data-is-app-fee-active="{{ ($setting->is_application_fee_passed ?? false) ? 1 : 0 }}"
     data-app-fee-amount="{{ $appFeeAmount }}"
+    data-qris-image="{{ $setting->qris_image ? '/tenant_' . tenant('id') . '/' . $setting->qris_image : '' }}"
+    data-wa-checkout-active="{{ $isWaCheckoutActive ? 1 : 0 }}"
+    data-preorder-active="{{ $isPreorderActive ? 1 : 0 }}"
+    data-preorder-config="{{ json_encode($preorderConfig) }}"
     @open-qr-modal.window="qrOpen = true"
     @show-toast.window="showToast($event.detail.message)"
     @open-options-modal.window="openOption($event.detail.product)"

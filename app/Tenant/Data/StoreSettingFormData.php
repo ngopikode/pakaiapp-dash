@@ -43,7 +43,12 @@ class StoreSettingFormData extends Data
         public bool $useSameHours,
         public array $operatingHours,
 
+        public bool $isWaCheckoutActive = false,
+        public bool $isPreorderActive = false,
+        public ?string $cutoffTime = null,
+
         public ?string $logo = null,
         public ?string $ogImage = null,
+        public ?string $qrisImage = null,
     ) {}
 }

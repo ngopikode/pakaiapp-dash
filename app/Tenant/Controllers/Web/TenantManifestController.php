@@ -12,7 +12,7 @@ class TenantManifestController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $setting = StoreSetting::first();
+        $setting = StoreSetting::cached();
         $storeName = $setting->name ?? tenant('id');
 
         return response()->json([

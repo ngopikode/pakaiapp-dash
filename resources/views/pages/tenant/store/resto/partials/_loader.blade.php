@@ -12,7 +12,7 @@
 @persist('app-loader')
 <div
     id="app-loader"
-    class="fixed inset-0 z-[2000] bg-[var(--background)]/80 backdrop-blur-md flex flex-col items-center justify-center gap-6 transition-opacity duration-300 opacity-100 pointer-events-auto"
+    class="fixed inset-0 z-[2000] bg-stone-50/80 dark:bg-stone-950/80 backdrop-blur-md flex flex-col items-center justify-center gap-6 transition-opacity duration-300 opacity-100 pointer-events-auto"
     style="display: flex;"
 >
     <div class="relative">
@@ -34,7 +34,7 @@
     </div>
 
     <div class="text-center space-y-1.5">
-        <p class="text-[var(--foreground)] text-sm font-black tracking-tight">Menyiapkan Menu</p>
+        <p class="text-zinc-900 dark:text-zinc-100 text-sm font-black tracking-tight">Menyiapkan Menu</p>
         <div class="flex items-center justify-center gap-1.5">
             <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-1"></div>
             <div class="w-1.5 h-1.5 rounded-full bg-[var(--primary-color)] animate-dot-2"></div>

@@ -73,7 +73,7 @@
         @apply border-border;
     }
     body {
-        @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
+        @apply bg-background text-foreground font-sans antialiased;
     }
     [x-cloak] {
         display: none !important;

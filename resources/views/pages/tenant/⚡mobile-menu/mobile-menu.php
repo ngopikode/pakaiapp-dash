@@ -34,7 +34,7 @@ class extends Component
     public function getMenuSectionsProperty(): array
     {
         $user = Auth::user();
-        $storeType = StoreSetting::first()?->store_type ?? 'retail';
+        $storeType = StoreSetting::cached()?->store_type ?? 'retail';
 
         $sections = [
             [
