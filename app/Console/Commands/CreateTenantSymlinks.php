@@ -13,7 +13,7 @@ class CreateTenantSymlinks extends Command
      *
      * @var string
      */
-    protected $signature = 'tenant:symlink {tenant?}';
+    protected $signature = 'tenants:symlink {tenant?}';
 
     /**
      * The console command description.

@@ -52,7 +52,7 @@ Jika `suffix_base` diubah tanpa memindahkan file fisik, maka:
    Hapus semua symlink usang yang berawalan `tenant_` di folder `public/`.
    Jalankan Artisan Command bawaan sistem untuk merakit ulang seluruh direktori dan symlink tenant menggunakan path yang baru (tenants/):
    ```bash
-   php artisan tenant:symlink
+   php artisan tenants:symlink
    ```
 
 5. **Penyesuaian Hak Akses Folder Symlink (Tugas Server Admin):**

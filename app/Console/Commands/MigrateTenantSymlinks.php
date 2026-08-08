@@ -76,7 +76,7 @@ class MigrateTenantSymlinks extends Command
 
         $this->info("Berhasil memigrasikan {$migratedCount} folder tenant.");
         $this->info("PENTING: Pastikan Anda sudah mengubah config/tenancy.php 'suffix_base' menjadi 'tenants/'.");
-        $this->info("Setelah itu, jalankan: php artisan tenant:symlink");
+        $this->info("Setelah itu, jalankan: php artisan tenants:symlink");
         
         return self::SUCCESS;
     }
