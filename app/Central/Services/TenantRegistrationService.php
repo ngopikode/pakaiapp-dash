@@ -141,7 +141,7 @@ class TenantRegistrationService
         $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store OTP in cache for 5 minutes
-        Cache::put(' ' . $email, $otp, now()->addMinutes(5));
+        Cache::put('otp_register_' . $email, $otp, now()->addMinutes(5));
 
         // Send Email
         $resumeUrl = url('/register?resume_email=' . urlencode($email));
