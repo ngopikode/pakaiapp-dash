@@ -33,6 +33,15 @@ artisan() {
 }
 
 # ==============================================================================
+# GUARD: Force Deploy
+# ==============================================================================
+FORCE_DEPLOY=false
+if [ "$1" = "--force" ] || [ "$1" = "-f" ]; then
+    FORCE_DEPLOY=true
+    log "⚠️  Force mode aktif: Deploy akan dilanjutkan meskipun tidak ada update dari git."
+fi
+
+# ==============================================================================
 # GUARD: Pastikan hanya jalan di environment production
 # ==============================================================================
 APP_ENV_VALUE=$(grep -E "^APP_ENV=" .env | cut -d '=' -f2 | tr -d '[:space:]')
@@ -59,9 +68,12 @@ git fetch origin master
 LOCAL=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse origin/master)
 
-if [ "$LOCAL" = "$REMOTE" ]; then
+if [ "$LOCAL" = "$REMOTE" ] && [ "$FORCE_DEPLOY" = false ]; then
     log "✅ Tidak ada update baru. Deploy dibatalkan (sudah up-to-date)."
+    log "💡 Gunakan './deploy.sh --force' untuk memaksa deploy meskipun tidak ada update."
     exit 0
+elif [ "$LOCAL" = "$REMOTE" ] && [ "$FORCE_DEPLOY" = true ]; then
+    log "✅ Tidak ada update baru dari git, namun melanjutkan deploy karena FORCE MODE."
 fi
 
 # ==============================================================================
