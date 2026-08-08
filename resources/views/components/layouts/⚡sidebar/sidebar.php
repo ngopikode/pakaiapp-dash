@@ -55,7 +55,7 @@ new class extends Component
                     ...(!$isDirectWa ? [['route' => 'cashier', 'icon' => 'ph-fill ph-cash-register', 'label' => 'Kasir / POS', 'roles' => ['manager', 'cashier']]] : []),
                     ['route' => 'order', 'icon' => 'ph-fill ph-receipt', 'label' => $storeType === 'resto' ? 'Pesanan & Riwayat' : 'Riwayat Transaksi', 'roles' => ['manager', 'cashier']],
                     ...($isPreorder ? [
-                        ['route' => 'pre-order', 'icon' => 'ph-fill ph-package', 'label' => 'Pesanan Terjadwal', 'roles' => ['manager']],
+                        ['route' => 'pre-order.index', 'icon' => 'ph-fill ph-package', 'label' => 'Pesanan Terjadwal', 'roles' => ['manager']],
                         ['route' => 'pre-order.recap', 'icon' => 'ph-fill ph-chart-bar', 'label' => 'Rekap Belanja Pasar', 'roles' => ['manager']],
                     ] : []),
                 ],

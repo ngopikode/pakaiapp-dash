@@ -699,7 +699,7 @@
                                 <p class="text-sm font-semibold text-slate-800 dark:text-white">Kelola Pesanan Terjadwal</p>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Lihat daftar pesanan & rekap belanja pasar di dashboard khusus.</p>
                             </div>
-                            <a href="{{ route('pre-order') }}" class="shrink-0 text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline">Buka →</a>
+                            <a href="{{ route('pre-order.index') }}" class="shrink-0 text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline">Buka →</a>
                         </div>
                     </div>
 

@@ -6,7 +6,7 @@
             <h1 class="text-2xl font-black text-slate-900 dark:text-white">Rekap Belanja Pasar</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Total bahan yang perlu dibeli berdasarkan pesanan terjadwal.</p>
         </div>
-        <a href="{{ route('pre-order') }}"
+        <a href="{{ route('pre-order.index') }}"
            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <i class="ph ph-arrow-left text-base"></i>
             Daftar Pesanan

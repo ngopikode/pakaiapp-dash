@@ -73,7 +73,7 @@ Route::middleware([
             Route::livewire('product-slot/buy', 'pages::tenant.setting.buy-product-slot')->name('product-slot.buy');
             Route::view('user', 'pages.tenant.user.index')->name('user');
             // Pre-Order dashboard (mode DIRECT_WA)
-            Route::livewire('pre-order', 'pages::tenant.pre-order.daily-orders')->name('pre-order');
+            Route::livewire('pre-order', 'pages::tenant.pre-order.daily-orders')->name('pre-order.index');
             Route::livewire('pre-order/recap', 'pages::tenant.pre-order.market-recap')->name('pre-order.recap');
             Route::livewire('delivery-zones', 'pages::tenant.setting.delivery-zones')->name('delivery-zones.index');
             Route::livewire('delivery-slots', 'pages::tenant.setting.delivery-slots')->name('delivery-slots.index');
